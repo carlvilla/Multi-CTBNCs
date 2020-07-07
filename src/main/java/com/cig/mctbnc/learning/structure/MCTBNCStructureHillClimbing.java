@@ -2,19 +2,44 @@ package main.java.com.cig.mctbnc.learning.structure;
 
 import java.util.List;
 
+import main.java.com.cig.mctbnc.models.Dataset;
 import main.java.com.cig.mctbnc.models.Node;
+import main.java.com.cig.mctbnc.models.PGM;
 
-public class MCTBNCStructureHillClimbing {
+public class MCTBNCStructureHillClimbing implements MCTBNCStructureLearning {
 	
-	private int[][] adjacencyMatrix;
+	private boolean[][] adjacencyMatrix;
+	private Dataset trainingDataset;
 	
-	public MCTBNCStructureHillClimbing(List<Node> nodes) {
+	/**
+	 * Initialize the adjacency matrix.
+	 * @param nodes
+	 */
+	public void initializeAdjacencyMatrix(List<Node> nodes) {
 		int numNodes = nodes.size();
-		adjacencyMatrix = new int[numNodes][numNodes];
+		adjacencyMatrix = new boolean[numNodes][numNodes];
 	}
 	
-	public int[][] getAdjacencyMatrix() {
+	public boolean[][] getAdjacencyMatrix() {
 		return adjacencyMatrix;
+	}
+
+	@Override
+	public void getBestNeighbor() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void learn() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public double evaluateStructure(PGM model) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

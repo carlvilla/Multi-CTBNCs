@@ -3,10 +3,16 @@ package test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 import org.junit.jupiter.api.Test;
 
+import main.java.com.cig.mctbnc.learning.structure.BNStructureHillClimbing;
 import main.java.com.cig.mctbnc.models.Dataset;
 import main.java.com.cig.mctbnc.models.Sequence;
 
@@ -35,15 +41,20 @@ class GenerateDataset {
 		Sequence sequence1 = new Sequence(nameVariables, nameClassVariables, dataSequence1);
 		Sequence sequence2 = new Sequence(nameVariables, nameClassVariables, dataSequence2);
 
+		Map<String, Integer> indexVariables = new HashMap<String, Integer>();
+		for (String nameVariable : nameVariables) {
+			indexVariables.put(nameVariable, Arrays.asList(nameVariables).indexOf(nameVariable));
+		}
+
 		List<Sequence> sequences = new ArrayList<Sequence>();
 		sequences.add(sequence1);
 		sequences.add(sequence2);
 
-		Dataset trainingDataset = new Dataset(sequences);
-		
+		Dataset trainingDataset = new Dataset(indexVariables, sequences);
+
 		assertEquals(10, trainingDataset.getStatesVariable("V1").length);
 		assertEquals(2, trainingDataset.getStatesVariable("V2").length);
 		assertEquals(1, trainingDataset.getStatesVariable("V3").length);
 	}
-	
+
 }

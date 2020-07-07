@@ -57,7 +57,7 @@ public class Sequence {
 	}
 	
 	/**
-	 * Get all the possible states of the variables in the 
+	 * Get all the possible states of the specified variable 
 	 * @param Variable
 	 * @return
 	 */
@@ -72,6 +72,22 @@ public class Sequence {
 		}
 		return states.toArray(new String[states.size()]);
 	}
+	
+	/**
+	 * Get all the possible states of the specified variables together 
+	 * @param Variable
+	 * @return
+	 */
+	public String[] getStates(String[] nameVariables) {
+		List<String> states = new ArrayList<String>();
+		// If it is specified only class variables
+		if(classValues.containsKey(nameVariables[0])) {
+			for(String nameVariable:nameVariables)
+				states.add(classValues.get(nameVariable));
+		}
+		return (String[]) states.toArray();
+	}
+	
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
