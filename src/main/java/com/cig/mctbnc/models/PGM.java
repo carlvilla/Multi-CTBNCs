@@ -8,6 +8,9 @@ package main.java.com.cig.mctbnc.models;
  */
 public interface PGM<T> {
 	
+	/**
+	 * Learn the structure and parameters of the model.
+	 */
 	public void learn();
 	
 	/**

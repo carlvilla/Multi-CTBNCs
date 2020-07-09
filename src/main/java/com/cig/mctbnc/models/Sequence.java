@@ -13,12 +13,16 @@ public class Sequence {
 
 	private List<Observation> observations;
 	private Map<String, String> classValues;
+	private String nameTimeVariable;
 
-	public Sequence(String[] nameVariables, String[] nameClassVariables, List<String[]> valueObservations) {
+	public Sequence(String[] nameVariables, String[] nameClassVariables, String nameTimeVariable, List<String[]> valueObservations) {
+		// Set time variable
+		this.nameTimeVariable = nameTimeVariable;
+		
 		// Get observations with values of features
 		observations = new ArrayList<Observation>();
 		for (String[] valueObservation : valueObservations) {
-			observations.add(new Observation(nameVariables, nameClassVariables, valueObservation));
+			observations.add(new Observation(nameVariables, nameClassVariables, nameTimeVariable, valueObservation));
 		}
 
 		// A sequence has a unique value for each class variable, so it is stored the
@@ -52,6 +56,10 @@ public class Sequence {
 		return observations.get(0).getFeatureNames();
 	}
 	
+	public String getTimeVariableName() {
+		return nameTimeVariable;
+	}
+	
 	public List<Observation> getObservations(){
 		return observations;
 	}
@@ -78,19 +86,21 @@ public class Sequence {
 	 * @param Variable
 	 * @return
 	 */
-	public String[] getStates(String[] nameVariables) {
+	public List<String> getStates(List<String> nameVariables) {
 		List<String> states = new ArrayList<String>();
 		// If it is specified only class variables
-		if(classValues.containsKey(nameVariables[0])) {
+		if(classValues.containsKey(nameVariables.get(0))) {
 			for(String nameVariable:nameVariables)
 				states.add(classValues.get(nameVariable));
 		}
-		return (String[]) states.toArray();
+		return states;
 	}
 	
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("----- TIME VARIABLE -----\n");
+		sb.append(nameTimeVariable);
 		sb.append("----- CLASS VARIABLES -----\n");
 		sb.append(String.join(",", classValues.keySet()));
 		sb.append("\n");

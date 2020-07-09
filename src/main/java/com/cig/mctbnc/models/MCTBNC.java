@@ -11,6 +11,7 @@ import org.graphstream.graph.implementations.SingleGraph;
 import main.java.com.cig.mctbnc.learning.parameters.BNParameterLearning;
 import main.java.com.cig.mctbnc.learning.parameters.CTBNParameterLearning;
 import main.java.com.cig.mctbnc.learning.structure.BNStructureLearning;
+import main.java.com.cig.mctbnc.learning.structure.CTBNStructureLearning;
 import main.java.com.cig.mctbnc.learning.structure.MCTBNCStructureLearning;
 
 /**
@@ -30,16 +31,17 @@ public class MCTBNC<T> extends AbstractPGM{
 	// The subgraph formed by class variables is a Bayesian network
 	private BN bn;
 
-	private BNParameterLearning BNParameterLearningAlgorithm;
-	private CTBNParameterLearning CTBNparameterLearningAlgorithm;
-	
+	private BNParameterLearning bnParameterLearningAlgorithm;
 	private BNStructureLearning bnStructureLearningAlgorithm;
-	private MCTBNCStructureLearning structureLearningAlgorithm;
+	
+	private CTBNParameterLearning ctbnParameterLearningAlgorithm;
+	private CTBNStructureLearning ctbnStructureLearningAlgorithm;
 
-	public MCTBNC(Dataset trainingDataset, CTBNParameterLearning parameterLearningAlgorithm,
-			MCTBNCStructureLearning structureLearningAlgorithm,
-			BNStructureLearning bnStructureLearningAlgorithm,
-			BNParameterLearning bnParameterLearningAlgorithm) {
+
+	public MCTBNC(Dataset trainingDataset, CTBNParameterLearning ctbnParameterLearningAlgorithm,
+			CTBNStructureLearning ctbnStructureLearningAlgorithm,
+			BNParameterLearning bnParameterLearningAlgorithm,
+			BNStructureLearning bnStructureLearningAlgorithm) {
 
 		// Define nodes of the MCTBNC
 		features = new ArrayList<Node>();
@@ -57,21 +59,25 @@ public class MCTBNC<T> extends AbstractPGM{
 		}
 
 		// Define algorithms to estimate the MCTBNC
-		this.structureLearningAlgorithm = structureLearningAlgorithm;
+		this.ctbnParameterLearningAlgorithm = ctbnParameterLearningAlgorithm;
+		this.ctbnStructureLearningAlgorithm = ctbnStructureLearningAlgorithm;
+		
+		this.bnParameterLearningAlgorithm = bnParameterLearningAlgorithm;
 		this.bnStructureLearningAlgorithm = bnStructureLearningAlgorithm;
 		
-		// Define class subgraph
-		bn = new BN(features, bnStructureLearningAlgorithm, bnParameterLearningAlgorithm, trainingDataset);
 		
+		// Define class subgraph
+		bn = new BN(classVariables, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm, trainingDataset);
 		
 	}
 
 	public void display() {
-		Graph graph = new SingleGraph("MCTBNC");
-		List<Node> allNodes = Stream.concat(classVariables.stream(), features.stream()).collect(Collectors.toList());
-		addNodes(graph, allNodes);
-		addEdges(graph, allNodes);
-		graph.display();
+		//Graph graph = new SingleGraph("MCTBNC");
+		//List<Node> allNodes = Stream.concat(classVariables.stream(), features.stream()).collect(Collectors.toList());
+		//addNodes(graph, allNodes);
+		//addEdges(graph, allNodes);
+		//graph.display();
+		bn.display();
 	}
 	
 	/**
@@ -99,11 +105,16 @@ public class MCTBNC<T> extends AbstractPGM{
 	public void learn() {
 		// Learn structure
 		
-		// Learn strucuture Bayesian network
+		// Learn structure and parameters class subgraph
+		bn.learn();
+		
+		
 		//bnStructureLearningAlgorithm.learn();
 		
 		
 		// Learn parameters
+		
+
 
 	}
 
@@ -116,6 +127,7 @@ public class MCTBNC<T> extends AbstractPGM{
 					Node nodeParent = getNodeByIndex(i);
 					Node nodeChildren = getNodeByIndex(j);
 					nodeParent.setChild(nodeChildren);
+					nodeChildren.setParent(nodeParent);
 				}
 			}
 		}

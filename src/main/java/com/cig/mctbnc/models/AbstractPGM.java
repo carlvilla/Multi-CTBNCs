@@ -33,6 +33,6 @@ public abstract class AbstractPGM implements PGM {
 				graph.addEdge(nameNode + nameChild, nameNode, nameChild, true);
 			}
 		}
-	}
+	}	
 
 }

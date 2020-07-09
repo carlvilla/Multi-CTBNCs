@@ -1,20 +1,30 @@
 package main.java.com.cig.mctbnc.models;
 
-public class DiscreteNode extends AbstractNode{
-	
-	private String[] states;
-	
-	public DiscreteNode(int index, String name, String[] states) {
+import java.util.List;
+
+public class DiscreteNode extends AbstractNode {
+
+	private List<State> states;
+
+	public DiscreteNode(int index, String name, List<State> list) {
 		super(index, name);
-		this.states = states;
+		this.states = list;
 	}
-	
-	public String[] getPossibleStates() {
+
+	public List<State> getPossibleStates() {
 		return states;
 	}
-	
-	public String[] getStates(){
+
+	public List<State> getStates() {
 		return states;
+	}
+
+	public String toString() {
+		String commonDescription = super.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append(commonDescription);
+		sb.append("Possible states: " + getPossibleStates());
+		return sb.toString();
 	}
 
 }

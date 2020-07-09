@@ -1,24 +1,22 @@
 package main.java.com.cig.mctbnc.learning.structure;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
-import org.apache.commons.math3.special.Gamma;
-
-import CTBNCToolkit.CTDiscreteNode;
-import CTBNCToolkit.ICTClassifier;
-import CTBNCToolkit.ILearningAlgorithm;
-import CTBNCToolkit.ITrajectory;
-import CTBNCToolkit.SufficientStatistics;
-
-
+import main.java.com.cig.mctbnc.learning.parameters.CPTNode;
 import main.java.com.cig.mctbnc.models.Dataset;
+import main.java.com.cig.mctbnc.models.Node;
 import main.java.com.cig.mctbnc.models.PGM;
+import main.java.com.cig.mctbnc.models.State;
 
 public class StructureScoreFunctions {
 	
+	/**
 	public static double logLikelihoodScore(PGM model, int nodeIndex,
 			Dataset dataset,
-			ParameterLearningAlg  parameterLearningAlg,
+			ParameterLearning parameterLearningAlg,
 			boolean dimensionPenalty) throws RuntimeException {
 		
 
@@ -63,5 +61,40 @@ public class StructureScoreFunctions {
 		}
 		
 		return llScore;
+		**/
+	
+	public static double BNlogLikelihoodScore(List<CPTNode> nodes, Dataset dataset) {
+		
+		double llScore = 0.0;
+		
+		for(CPTNode node:nodes) {
+			Map<State, Double> CPT = node.getCPT();
+			Map<State, Integer> N = node.getSufficientStatistics();
+			
+			// Obtain an array with the values that the studied variable can take
+			String[] possibleValuesStudiedNode = node.getPossibleStates().stream()
+					.map(stateAux -> stateAux.getValueNode(node.getName()))
+					.toArray(String[]::new);
+			
+			// All the possible states between the studied variable and its parents
+			Set<State> states = N.keySet();
+			
+			for (State state : states) {
+				// Number of times the studied variable and its parents take a certain value
+				int Nijk = N.get(state);
+
+				// Number of times the parents of the studied variable have a certain
+				// state independently of the studied variable
+				for (String k : possibleValuesStudiedNode) {
+					State query = new State(state.getEvents());
+					query.modifyEventValue(node.getName(), k);
+					
+					llScore += Nijk * Math.log(CPT.get(query)); // sum(wi (ri - 1))
+				}
+			}
+
+		}
+		return llScore;
+	}
 
 }
