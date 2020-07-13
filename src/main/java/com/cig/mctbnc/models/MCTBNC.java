@@ -30,9 +30,6 @@ public class MCTBNC<T> extends AbstractPGM{
 	
 	// The subgraph formed by class variables is a Bayesian network
 	private BN bn;
-
-	private BNParameterLearning bnParameterLearningAlgorithm;
-	private BNStructureLearning bnStructureLearningAlgorithm;
 	
 	private CTBNParameterLearning ctbnParameterLearningAlgorithm;
 	private CTBNStructureLearning ctbnStructureLearningAlgorithm;
@@ -42,11 +39,10 @@ public class MCTBNC<T> extends AbstractPGM{
 			CTBNStructureLearning ctbnStructureLearningAlgorithm,
 			BNParameterLearning bnParameterLearningAlgorithm,
 			BNStructureLearning bnStructureLearningAlgorithm) {
-
 		// Define nodes of the MCTBNC
 		features = new ArrayList<Node>();
 		classVariables = new ArrayList<Node>();
-
+		
 		for (String nameFeature : trainingDataset.getNameFeatures()) {
 			int index = trainingDataset.getIndexVariable(nameFeature);
 			features.add(new DiscreteNode(index, nameFeature, trainingDataset.getStatesVariable(nameFeature)));
@@ -60,11 +56,7 @@ public class MCTBNC<T> extends AbstractPGM{
 
 		// Define algorithms to estimate the MCTBNC
 		this.ctbnParameterLearningAlgorithm = ctbnParameterLearningAlgorithm;
-		this.ctbnStructureLearningAlgorithm = ctbnStructureLearningAlgorithm;
-		
-		this.bnParameterLearningAlgorithm = bnParameterLearningAlgorithm;
-		this.bnStructureLearningAlgorithm = bnStructureLearningAlgorithm;
-		
+		this.ctbnStructureLearningAlgorithm = ctbnStructureLearningAlgorithm;		
 		
 		// Define class subgraph
 		bn = new BN(classVariables, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm, trainingDataset);
@@ -114,8 +106,6 @@ public class MCTBNC<T> extends AbstractPGM{
 		
 		// Learn parameters
 		
-
-
 	}
 
 	@Override

@@ -6,39 +6,33 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 
 import main.java.com.cig.mctbnc.learning.parameters.BNParameterLearning;
-import main.java.com.cig.mctbnc.learning.parameters.CPTNode;
 import main.java.com.cig.mctbnc.learning.structure.BNStructureLearning;
 
 /**
  * 
- * @author carlosvillablanco
+ * @author Carlos Villa (carlos.villa@upm.es)
  *
  * @param <T>
  *            Type of nodes that will be learned, e.g., nodes with conditional
  *            probability table (CPTNode)
  */
 public class BN<T extends Node> extends AbstractPGM {
-
-	private List<Node> nodes;
 	private List<T> learnedNodes;
-	private NodeIndexer nodeIndexer;
 	private BNParameterLearning bnParameterLearning;
 	private BNStructureLearning bnStructureLearning;
 	private Dataset dataset;
 
 	public BN(List<Node> nodes, Dataset dataset) {
-		this.nodes = nodes;
+		super(nodes);
 		this.dataset = dataset;
-		nodeIndexer = new NodeIndexer(nodes);
 	}
 
 	public BN(List<Node> nodes, BNParameterLearning bnParameterLearning, BNStructureLearning bnStructureLearning,
 			Dataset dataset) {
-		this.nodes = nodes;
+		super(nodes);
 		this.bnParameterLearning = bnParameterLearning;
 		this.bnStructureLearning = bnStructureLearning;
 		this.dataset = dataset;
-		nodeIndexer = new NodeIndexer(nodes);
 	}
 
 	/**
@@ -49,7 +43,6 @@ public class BN<T extends Node> extends AbstractPGM {
 	 */
 	public void setParameterLearningAlgorithm(BNParameterLearning bnParameterLearning) {
 		this.bnParameterLearning = bnParameterLearning;
-
 	}
 
 	/**
@@ -64,18 +57,22 @@ public class BN<T extends Node> extends AbstractPGM {
 
 	@Override
 	public void setStructure(boolean[][] adjacencyMatrix) {
-		for(int i = 0; i < adjacencyMatrix.length; i++) {
-			Node node = nodeIndexer.getNodeByIndex(i);
+		// Current edges are removed
+		for (Node node : nodes) {
 			node.removeAllEdges();
-			
-			for(int j = 0;j < adjacencyMatrix.length; j++) {
-				if(adjacencyMatrix[i][j]) {
+		}
+
+		for (int i = 0; i < adjacencyMatrix.length; i++) {
+			Node node = nodeIndexer.getNodeByIndex(i);
+
+			for (int j = 0; j < adjacencyMatrix.length; j++) {
+				if (adjacencyMatrix[i][j]) {
 					Node childNode = nodeIndexer.getNodeByIndex(j);
 					node.setChild(childNode);
 				}
 			}
 		}
-		
+
 		bnParameterLearning.learn(nodes, dataset);
 		this.learnedNodes = (List<T>) bnParameterLearning.getParameters();
 	}
@@ -83,14 +80,6 @@ public class BN<T extends Node> extends AbstractPGM {
 	@Override
 	public void learn() {
 		bnStructureLearning.learn(this, bnParameterLearning, dataset);
-	}
-
-	public List<Node> getNodes() {
-		return nodes;
-	}
-
-	public int getNumNodes() {
-		return nodes.size();
 	}
 
 	public String[] getNameNodes() {
@@ -138,10 +127,28 @@ public class BN<T extends Node> extends AbstractPGM {
 
 	@Override
 	public void display() {
-		Graph graph = new SingleGraph("MCTBNC");
+		Graph graph = new SingleGraph("BN");
 		addNodes(graph, nodes);
 		addEdges(graph, nodes);
 		graph.display();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("--Structure Bayesian network--\n");
+		for (Node node : nodes) {
+			if (node.getChildren().isEmpty())
+				sb.append("(" + node.getName() + ")");
+			else {
+				sb.append("(" + node.getName() + ") => ");
+				for (Node child : node.getChildren()) {
+					sb.append(String.join(", ", "(" + child.getName() + ")"));
+				}
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 
 	@Override

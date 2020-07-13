@@ -15,10 +15,11 @@ public class Sequence {
 	private Map<String, String> classValues;
 	private String nameTimeVariable;
 
-	public Sequence(String[] nameVariables, String[] nameClassVariables, String nameTimeVariable, List<String[]> valueObservations) {
+	public Sequence(String nameTimeVariable, String[] nameVariables, String[] nameClassVariables,
+			List<String[]> valueObservations) {
 		// Set time variable
 		this.nameTimeVariable = nameTimeVariable;
-		
+
 		// Get observations with values of features
 		observations = new ArrayList<Observation>();
 		for (String[] valueObservation : valueObservations) {
@@ -37,65 +38,66 @@ public class Sequence {
 			}
 		}
 	}
-	
+
 	public String[] getValuesClassVariables() {
 		Collection<String> values = classValues.values();
 		return values.toArray(new String[values.size()]);
-	}	
-	
+	}
+
 	public String getValueClassVariable(String nameClassVariable) {
 		return classValues.get(nameClassVariable);
 	}
-	
+
 	public String[] getClassVariablesNames() {
 		Set<String> keys = classValues.keySet();
 		return keys.toArray(new String[keys.size()]);
 	}
-	
+
 	public String[] getFeatureNames() {
 		return observations.get(0).getFeatureNames();
 	}
-	
+
 	public String getTimeVariableName() {
 		return nameTimeVariable;
 	}
-	
-	public List<Observation> getObservations(){
+
+	public List<Observation> getObservations() {
 		return observations;
 	}
-	
+
 	/**
-	 * Get all the possible states of the specified variable 
+	 * Get all the possible states of the specified variable
+	 * 
 	 * @param Variable
 	 * @return
 	 */
 	public String[] getStates(String nameVariable) {
-		if(classValues.containsKey(nameVariable)) {
-			return new String[] {classValues.get(nameVariable)};
+		if (classValues.containsKey(nameVariable)) {
+			return new String[] { classValues.get(nameVariable) };
 		}
-		
+
 		Set<String> states = new HashSet<String>();
-		for(Observation observation:observations) {
+		for (Observation observation : observations) {
 			states.add(observation.getValueFeature(nameVariable));
 		}
 		return states.toArray(new String[states.size()]);
 	}
-	
+
 	/**
-	 * Get all the possible states of the specified variables together 
+	 * Get all the possible states of the specified variables together
+	 * 
 	 * @param Variable
 	 * @return
 	 */
 	public List<String> getStates(List<String> nameVariables) {
 		List<String> states = new ArrayList<String>();
 		// If it is specified only class variables
-		if(classValues.containsKey(nameVariables.get(0))) {
-			for(String nameVariable:nameVariables)
+		if (classValues.containsKey(nameVariables.get(0))) {
+			for (String nameVariable : nameVariables)
 				states.add(classValues.get(nameVariable));
 		}
 		return states;
 	}
-	
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

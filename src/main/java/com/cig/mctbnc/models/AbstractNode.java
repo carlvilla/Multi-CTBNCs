@@ -1,6 +1,7 @@
 package main.java.com.cig.mctbnc.models;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public abstract class AbstractNode implements Node {
@@ -54,30 +55,36 @@ public abstract class AbstractNode implements Node {
 	
 	@Override
 	public void removeChild(Node nodeChild) {
-		if(nodeChild.getParents().contains(this))
-			nodeChild.removeParent(this);
 		if(children.contains(nodeChild))
 			children.remove(nodeChild);
+	//	if(nodeChild.getParents().contains(this))
+	//		nodeChild.removeParent(this);
 	}
 
 	@Override
 	public void removeParent(Node nodeParent) {
-		if(nodeParent.getChildren().contains(this))
-			nodeParent.removeParent(this);
 		if(parents.contains(nodeParent))
 			parents.remove(nodeParent);
+		if(nodeParent.getChildren().contains(this))
+			nodeParent.removeChild(this);
+
 	}
 	
 	@Override
 	public void removeAllEdges() {
 		// Remove children
-		for(Node child:children) {
-			removeChild(child);
+		// The node is removed from the parent list of its children
+		for(Node child:children) {	
+			child.getParents().remove(this);
 		}	
+		// The child list is cleared
+		children.clear();
+		
 		// Remove parents
-		for(Node parent:parents) {
-			removeParent(parent);
-		}
+		for(Node parent:parents) {	
+			parent.getChildren().remove(this);
+		}	
+		parents.clear();		
 	}
 
 	@Override

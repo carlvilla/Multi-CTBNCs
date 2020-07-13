@@ -17,7 +17,6 @@ public class NodeIndexer {
 	private Map<Integer, Node> indexToNode;
 
 	public NodeIndexer(List<Node> nodes) {
-
 		// Set to each node an index number
 		nodeToIndex = new HashMap<String, Integer>();
 		indexToNode = new HashMap<Integer, Node>();

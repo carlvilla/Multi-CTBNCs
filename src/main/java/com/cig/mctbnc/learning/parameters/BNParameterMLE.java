@@ -84,11 +84,11 @@ public class BNParameterMLE implements BNParameterLearning {
 
 		for (State state : states) {
 			// Number of times the studied variable and its parents take a certain value
-			int Nijk = N.get(state);
+			double Nijk = N.get(state);
 
 			// Number of times the parents of the studied variable have a certain
 			// state independently of the studied variable
-			int Nij = 0;
+			double Nij = 0;
 			for (String k : possibleValuesStudiedNode) {
 				State query = new State(state.getEvents());
 				query.modifyEventValue(studiedNode.getName(), k);

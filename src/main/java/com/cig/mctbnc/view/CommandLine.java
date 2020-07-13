@@ -18,8 +18,6 @@ import main.java.com.cig.mctbnc.learning.structure.BNStructureHillClimbing;
 import main.java.com.cig.mctbnc.learning.structure.BNStructureLearning;
 import main.java.com.cig.mctbnc.learning.structure.CTBNStructureLearning;
 import main.java.com.cig.mctbnc.learning.structure.CTBNStructureMLE;
-import main.java.com.cig.mctbnc.learning.structure.MCTBNCStructureHillClimbing;
-import main.java.com.cig.mctbnc.learning.structure.MCTBNCStructureLearning;
 import main.java.com.cig.mctbnc.models.Dataset;
 import main.java.com.cig.mctbnc.models.MCTBNC;
 import main.java.com.cig.mctbnc.models.Sequence;
@@ -31,7 +29,7 @@ public class CommandLine {
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
 		List<Sequence> sequences = new ArrayList<Sequence>();
-		String[] nameClassVariables = { "Exercise", "ExerciseMode", "S1", "S2", "S3" };
+		String[] nameClassVariables = { "Exercise", "ExerciseMode", "S1"};
 		String nameTimeVariable = "t";
 
 		Map<String, Integer> indexVariables = new HashMap<String, Integer>(); // Map variable name with its index
@@ -61,7 +59,7 @@ public class CommandLine {
 				}
 
 				data.remove(0); // Drop names of variables
-				sequences.add(new Sequence(nameVariables, nameClassVariables, nameTimeVariable, data));
+				sequences.add(new Sequence(nameTimeVariable, nameVariables, nameClassVariables, data));
 
 				// TEST
 				if (count == 40) {
@@ -91,8 +89,8 @@ public class CommandLine {
 		// Obtain predefined initial structure
 		int numNodes = trainingDataset.getNumVariables();
 		boolean[][] initialStructure = new boolean[numNodes][numNodes];
-		initialStructure[0][30] = true;
-		initialStructure[31][30] = true;
+		//initialStructure[0][30] = true;
+		//initialStructure[31][30] = true;
 
 		// Define learning algorithms for the class subgraph
 		BNParameterLearning bnParameterLearningAlgorithm = new BNParameterMLE();

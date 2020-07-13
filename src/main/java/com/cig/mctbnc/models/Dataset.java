@@ -43,6 +43,14 @@ public class Dataset {
 		// + 1 to include time variable
 		return getNumClassVariables() + getNumFeatures() + 1;
 	}
+	
+	/**
+	 * Return the number of data points. In this case, this is the number of sequences. 
+	 * @return
+	 */
+	public int getNumDataPoints() {
+		return sequences.size();
+	}
 
 	/**
 	 * Get the values of the specified variables (by name) for all the sequences.
