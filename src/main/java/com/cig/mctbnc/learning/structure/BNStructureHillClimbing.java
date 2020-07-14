@@ -1,15 +1,19 @@
-package main.java.com.cig.mctbnc.learning.structure;
+package com.cig.mctbnc.learning.structure;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import main.java.com.cig.mctbnc.data.representation.Dataset;
-import main.java.com.cig.mctbnc.learning.parameters.BNParameterLearning;
-import main.java.com.cig.mctbnc.learning.parameters.CPTNode;
-import main.java.com.cig.mctbnc.models.BN;
-import main.java.com.cig.mctbnc.nodes.Node;
-import main.java.com.cig.mctbnc.util.Util;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.learning.parameters.BNParameterLearning;
+import com.cig.mctbnc.learning.parameters.CPTNode;
+import com.cig.mctbnc.models.BN;
+import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.util.Util;
+import com.cig.mctbnc.view.CommandLine;
 
 public class BNStructureHillClimbing implements BNStructureLearning {
 
@@ -17,10 +21,12 @@ public class BNStructureHillClimbing implements BNStructureLearning {
 	Dataset trainingDataset;
 	BNParameterLearning bnParameterLearning;
 	boolean[][] initialAdjacencyMatrix;
+	static Logger logger = LogManager.getLogger(CommandLine.class);
 
 	@Override
 	public void learn(BN<? extends Node> bn, BNParameterLearning bnParameterLearning, Dataset trainingDataset) {
-		System.out.println("Learning Bayesian network using Hill Climbing...");
+		
+		logger.info("Learning Bayesian network using Hill Climbing");
 
 		// Define nodes of the bayesian network
 		this.nodes = bn.getNodes();
@@ -66,7 +72,7 @@ public class BNStructureHillClimbing implements BNStructureLearning {
 			int idxBestOperation = Util.getIndexLargestValue(scores);
 			double iterationBestScore = scores[idxBestOperation];
 			if (iterationBestScore > bestScore) {
-				System.out.printf("Score improved! From %f to %f \n", bestScore, iterationBestScore);
+				logger.debug("Score improved! From {} to {}", bestScore, iterationBestScore);
 				bestScore = iterationBestScore;
 				bestStructure = adjacencyMatrices[idxBestOperation];
 				improvement = true;

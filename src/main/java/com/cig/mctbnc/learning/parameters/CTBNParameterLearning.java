@@ -1,4 +1,4 @@
-package main.java.com.cig.mctbnc.learning.parameters;
+package com.cig.mctbnc.learning.parameters;
 
 public interface CTBNParameterLearning {
 

@@ -1,4 +1,4 @@
-package main.java.com.cig.mctbnc.view;
+package com.cig.mctbnc.view;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,33 +10,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import main.java.com.cig.mctbnc.data.representation.Dataset;
-import main.java.com.cig.mctbnc.data.representation.Sequence;
-import main.java.com.cig.mctbnc.learning.parameters.BNParameterLearning;
-import main.java.com.cig.mctbnc.learning.parameters.BNParameterMLE;
-import main.java.com.cig.mctbnc.learning.parameters.CTBNParameterLearning;
-import main.java.com.cig.mctbnc.learning.parameters.CTBNParameterMLE;
-import main.java.com.cig.mctbnc.learning.structure.BNStructureHillClimbing;
-import main.java.com.cig.mctbnc.learning.structure.BNStructureLearning;
-import main.java.com.cig.mctbnc.learning.structure.CTBNStructureLearning;
-import main.java.com.cig.mctbnc.learning.structure.CTBNStructureMLE;
-import main.java.com.cig.mctbnc.models.MCTBNC;
-import main.java.com.cig.mctbnc.nodes.DiscreteNode;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.data.representation.Sequence;
+import com.cig.mctbnc.learning.parameters.BNParameterLearning;
+import com.cig.mctbnc.learning.parameters.BNParameterMLE;
+import com.cig.mctbnc.learning.parameters.CTBNParameterLearning;
+import com.cig.mctbnc.learning.parameters.CTBNParameterMLE;
+import com.cig.mctbnc.learning.structure.BNStructureHillClimbing;
+import com.cig.mctbnc.learning.structure.BNStructureLearning;
+import com.cig.mctbnc.learning.structure.CTBNStructureLearning;
+import com.cig.mctbnc.learning.structure.CTBNStructureMLE;
+import com.cig.mctbnc.models.MCTBNC;
+import com.cig.mctbnc.nodes.DiscreteNode;
 
 public class CommandLine {
+
+	static Logger logger = LogManager.getLogger(CommandLine.class);
 
 	public CommandLine(String datasetFolder) throws Exception {
 
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
 		List<Sequence> sequences = new ArrayList<Sequence>();
-		String[] nameClassVariables = { "Exercise", "ExerciseMode"};
+		String[] nameClassVariables = { "Exercise", "ExerciseMode", "S1", "S2", "S3" };
 		String nameTimeVariable = "t";
 
 		Map<String, Integer> indexVariables = new HashMap<String, Integer>(); // Map variable name with its index
 
 		int count = 0; // TEST
-		System.out.println("Reading sequences...");
+		logger.info("Reading sequences from {}", datasetFolder);
 		for (File file : files) {
 			try {
 				List<String[]> data = readCSV(file.getAbsolutePath());
@@ -54,6 +59,7 @@ public class CommandLine {
 				} else {
 					for (String nameVariable : nameVariables) {
 						if (!indexVariables.containsKey(nameVariable)) {
+							logger.warn("Sequences cannot have different variables");
 							throw new Exception("Sequences cannot have different variables");
 						}
 					}
@@ -62,14 +68,12 @@ public class CommandLine {
 				data.remove(0); // Drop names of variables
 				sequences.add(new Sequence(nameTimeVariable, nameVariables, nameClassVariables, data));
 
-				
 				// TEST
-				if (count == 80) {
+				if (count == 50) {
 					break;
 				}
 
 				count++;
-				
 
 			} catch (Exception e) {
 				System.err.println("Error: " + e);
@@ -77,9 +81,10 @@ public class CommandLine {
 
 		}
 
-		System.out.println(indexVariables);
+		logger.info("Variables: {}", indexVariables);
+		logger.info("Class variables: {}" , Arrays.toString(nameClassVariables));
+		logger.info("Preparing training and testing datasets");
 
-		System.out.println("Preparing training and testing datasets...");
 		// For now it will be used 70% sequences for training and 30% for testing
 		int numSequences = sequences.size();
 		int lastIndexTraining = (int) (numSequences * 0.7);
@@ -92,8 +97,8 @@ public class CommandLine {
 		// Define initial structure
 		int numNodes = trainingDataset.getNumVariables();
 		boolean[][] initialStructure = new boolean[numNodes][numNodes];
-		//initialStructure[0][30] = true;
-		//initialStructure[31][30] = true;
+		// initialStructure[0][30] = true;
+		// initialStructure[31][30] = true;
 
 		// Define learning algorithms for the class subgraph
 		BNParameterLearning bnParameterLearningAlgorithm = new BNParameterMLE();
@@ -107,10 +112,10 @@ public class CommandLine {
 		MCTBNC<DiscreteNode> mctbnc = new MCTBNC<DiscreteNode>(trainingDataset, ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
 		// Initial structure
-		//mctbnc.setStructure(initialStructure);
+		// mctbnc.setStructure(initialStructure);
 
 		// mctbnc.learnStructure();
-		
+
 		// Train model
 		mctbnc.learn();
 		mctbnc.display();

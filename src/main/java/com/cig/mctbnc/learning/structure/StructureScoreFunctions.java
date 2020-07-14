@@ -1,13 +1,13 @@
-package main.java.com.cig.mctbnc.learning.structure;
+package com.cig.mctbnc.learning.structure;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import main.java.com.cig.mctbnc.data.representation.State;
-import main.java.com.cig.mctbnc.learning.parameters.CPTNode;
-import main.java.com.cig.mctbnc.models.BN;
-import main.java.com.cig.mctbnc.nodes.DiscreteNode;
+import com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.learning.parameters.CPTNode;
+import com.cig.mctbnc.models.BN;
+import com.cig.mctbnc.nodes.DiscreteNode;
 
 public class StructureScoreFunctions {
 

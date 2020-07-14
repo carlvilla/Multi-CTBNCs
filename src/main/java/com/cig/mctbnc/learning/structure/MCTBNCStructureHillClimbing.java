@@ -1,10 +1,10 @@
-package main.java.com.cig.mctbnc.learning.structure;
+package com.cig.mctbnc.learning.structure;
 
 import java.util.List;
 
-import main.java.com.cig.mctbnc.data.representation.Dataset;
-import main.java.com.cig.mctbnc.models.PGM;
-import main.java.com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.models.PGM;
+import com.cig.mctbnc.nodes.Node;
 
 public class MCTBNCStructureHillClimbing implements MCTBNCStructureLearning {
 	

@@ -1,14 +1,14 @@
-package main.java.com.cig.mctbnc.models;
+package com.cig.mctbnc.models;
 
 import java.util.List;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 
-import main.java.com.cig.mctbnc.data.representation.Dataset;
-import main.java.com.cig.mctbnc.learning.parameters.BNParameterLearning;
-import main.java.com.cig.mctbnc.learning.structure.BNStructureLearning;
-import main.java.com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.learning.parameters.BNParameterLearning;
+import com.cig.mctbnc.learning.structure.BNStructureLearning;
+import com.cig.mctbnc.nodes.Node;
 
 /**
  * 

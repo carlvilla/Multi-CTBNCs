@@ -1,8 +1,8 @@
-package main.java.com.cig.mctbnc.nodes;
+package com.cig.mctbnc.nodes;
 
 import java.util.List;
 
-import main.java.com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.data.representation.State;
 
 public class DiscreteNode extends AbstractNode {
 

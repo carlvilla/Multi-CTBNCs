@@ -1,4 +1,4 @@
-package main.java.com.cig.mctbnc.util;
+package com.cig.mctbnc.util;
 
 public class Util {
 

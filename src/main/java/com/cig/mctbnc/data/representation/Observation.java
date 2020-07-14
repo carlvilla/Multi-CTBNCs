@@ -1,4 +1,4 @@
-package main.java.com.cig.mctbnc.data.representation;
+package com.cig.mctbnc.data.representation;
 
 import java.util.Arrays;
 import java.util.Collection;

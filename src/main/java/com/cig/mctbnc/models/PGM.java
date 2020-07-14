@@ -1,4 +1,4 @@
-package main.java.com.cig.mctbnc.models;
+package com.cig.mctbnc.models;
 
 /**
  * Defines the methods of a probabilistic graphical model

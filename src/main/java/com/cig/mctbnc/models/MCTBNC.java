@@ -1,15 +1,15 @@
-package main.java.com.cig.mctbnc.models;
+package com.cig.mctbnc.models;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import main.java.com.cig.mctbnc.data.representation.Dataset;
-import main.java.com.cig.mctbnc.learning.parameters.BNParameterLearning;
-import main.java.com.cig.mctbnc.learning.parameters.CTBNParameterLearning;
-import main.java.com.cig.mctbnc.learning.structure.BNStructureLearning;
-import main.java.com.cig.mctbnc.learning.structure.CTBNStructureLearning;
-import main.java.com.cig.mctbnc.nodes.DiscreteNode;
-import main.java.com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.learning.parameters.BNParameterLearning;
+import com.cig.mctbnc.learning.parameters.CTBNParameterLearning;
+import com.cig.mctbnc.learning.structure.BNStructureLearning;
+import com.cig.mctbnc.learning.structure.CTBNStructureLearning;
+import com.cig.mctbnc.nodes.DiscreteNode;
+import com.cig.mctbnc.nodes.Node;
 
 /**
  * @author Carlos Villa Blanco <carlos.villa@upm.es>

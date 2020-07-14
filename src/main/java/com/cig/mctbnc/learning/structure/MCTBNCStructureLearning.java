@@ -1,6 +1,6 @@
-package main.java.com.cig.mctbnc.learning.structure;
+package com.cig.mctbnc.learning.structure;
 
-import main.java.com.cig.mctbnc.models.PGM;
+import com.cig.mctbnc.models.PGM;
 
 public interface MCTBNCStructureLearning {
 

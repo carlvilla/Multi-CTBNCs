@@ -1,13 +1,13 @@
-package main.java.com.cig.mctbnc.learning.parameters;
+package com.cig.mctbnc.learning.parameters;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import main.java.com.cig.mctbnc.data.representation.Dataset;
-import main.java.com.cig.mctbnc.data.representation.State;
-import main.java.com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.nodes.Node;
 
 public class BNSufficientStatistics {
 

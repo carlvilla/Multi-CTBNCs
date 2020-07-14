@@ -1,4 +1,4 @@
-package main.java.com.cig.mctbnc.models;
+package com.cig.mctbnc.models;
 
 public class MBNC extends AbstractPGM {
 

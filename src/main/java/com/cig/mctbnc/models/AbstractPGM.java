@@ -1,12 +1,11 @@
-package main.java.com.cig.mctbnc.models;
+package com.cig.mctbnc.models;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.graphstream.graph.Graph;
-
-import main.java.com.cig.mctbnc.nodes.Node;
-import main.java.com.cig.mctbnc.nodes.NodeIndexer;
+import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.nodes.NodeIndexer;
 
 public abstract class AbstractPGM<T> implements PGM<T> {
 	
