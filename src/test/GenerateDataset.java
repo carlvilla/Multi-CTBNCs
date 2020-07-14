@@ -5,21 +5,24 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import main.java.com.cig.mctbnc.learning.structure.BNStructureHillClimbing;
-import main.java.com.cig.mctbnc.models.Dataset;
-import main.java.com.cig.mctbnc.models.Sequence;
+import main.java.com.cig.mctbnc.data.representation.Dataset;
+import main.java.com.cig.mctbnc.data.representation.Sequence;
 
 class GenerateDataset {
 
-	@Test
-	void getStatesVariables() {
+	private Dataset dataset;
+	
+    /**
+     * Defines a dataset to use in the tests.
+     */
+	@BeforeEach
+    public void setUp() {
 		String[] nameVariables = { "Time", "V1", "V2", "V3" };
 		String[] nameClassVariables = { "V2" };
 
@@ -50,11 +53,25 @@ class GenerateDataset {
 		sequences.add(sequence1);
 		sequences.add(sequence2);
 
-		Dataset trainingDataset = new Dataset(indexVariables, sequences);
+		dataset = new Dataset(indexVariables, sequences);
+    }
 
-		assertEquals(10, trainingDataset.getStatesVariable("V1").size());
-		assertEquals(2, trainingDataset.getStatesVariable("V2").size());
-		assertEquals(1, trainingDataset.getStatesVariable("V3").size());
+	
+	@Test
+	void testStatesVariables() {
+		assertEquals(10, dataset.getStatesVariable("V1").size());
+		assertEquals(2, dataset.getStatesVariable("V2").size());
+		assertEquals(1, dataset.getStatesVariable("V3").size());
+	}
+	
+	@Test
+	void testTimeVariable() {
+		assertEquals("Time", dataset.getNameTimeVariable());
+	}
+	
+	@Test
+	void testQuery() {
+		
 	}
 
 }

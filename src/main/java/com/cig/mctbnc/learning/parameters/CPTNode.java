@@ -2,8 +2,8 @@ package main.java.com.cig.mctbnc.learning.parameters;
 
 import java.util.Map;
 
-import main.java.com.cig.mctbnc.models.DiscreteNode;
-import main.java.com.cig.mctbnc.models.State;
+import main.java.com.cig.mctbnc.data.representation.State;
+import main.java.com.cig.mctbnc.nodes.DiscreteNode;
 
 /**
  * Extends DiscreteNode in order to store a CPT and the sufficient statistics.

@@ -1,4 +1,4 @@
-package main.java.com.cig.mctbnc.models;
+package main.java.com.cig.mctbnc.data.representation;
 
 import java.util.Objects;
 

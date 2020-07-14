@@ -1,4 +1,4 @@
-package main.java.com.cig.mctbnc.models;
+package main.java.com.cig.mctbnc.nodes;
 
 import java.util.HashMap;
 import java.util.List;

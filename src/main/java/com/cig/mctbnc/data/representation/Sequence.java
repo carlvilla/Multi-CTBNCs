@@ -1,4 +1,4 @@
-package main.java.com.cig.mctbnc.models;
+package main.java.com.cig.mctbnc.data.representation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,6 +63,10 @@ public class Sequence {
 
 	public List<Observation> getObservations() {
 		return observations;
+	}
+	
+	public Double[] getTimeValues() {
+		return observations.stream().map(ob -> ob.getTimeValue()).toArray(Double[]::new);
 	}
 
 	/**

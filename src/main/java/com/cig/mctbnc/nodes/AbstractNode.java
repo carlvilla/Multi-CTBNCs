@@ -1,7 +1,6 @@
-package main.java.com.cig.mctbnc.models;
+package main.java.com.cig.mctbnc.nodes;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public abstract class AbstractNode implements Node {

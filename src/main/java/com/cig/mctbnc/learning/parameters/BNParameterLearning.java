@@ -2,8 +2,8 @@ package main.java.com.cig.mctbnc.learning.parameters;
 
 import java.util.List;
 
-import main.java.com.cig.mctbnc.models.Dataset;
-import main.java.com.cig.mctbnc.models.Node;
+import main.java.com.cig.mctbnc.data.representation.Dataset;
+import main.java.com.cig.mctbnc.nodes.Node;
 
 public interface BNParameterLearning {
 	

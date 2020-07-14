@@ -4,11 +4,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import main.java.com.cig.mctbnc.data.representation.Dataset;
 import main.java.com.cig.mctbnc.learning.parameters.BNParameterLearning;
 import main.java.com.cig.mctbnc.learning.parameters.CPTNode;
 import main.java.com.cig.mctbnc.models.BN;
-import main.java.com.cig.mctbnc.models.Dataset;
-import main.java.com.cig.mctbnc.models.Node;
+import main.java.com.cig.mctbnc.nodes.Node;
 import main.java.com.cig.mctbnc.util.Util;
 
 public class BNStructureHillClimbing implements BNStructureLearning {
@@ -19,7 +19,7 @@ public class BNStructureHillClimbing implements BNStructureLearning {
 	boolean[][] initialAdjacencyMatrix;
 
 	@Override
-	public void learn(BN bn, BNParameterLearning bnParameterLearning, Dataset trainingDataset) {
+	public void learn(BN<? extends Node> bn, BNParameterLearning bnParameterLearning, Dataset trainingDataset) {
 		System.out.println("Learning Bayesian network using Hill Climbing...");
 
 		// Define nodes of the bayesian network

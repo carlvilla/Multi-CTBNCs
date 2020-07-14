@@ -5,7 +5,10 @@ import java.util.List;
 
 import org.graphstream.graph.Graph;
 
-public abstract class AbstractPGM implements PGM {
+import main.java.com.cig.mctbnc.nodes.Node;
+import main.java.com.cig.mctbnc.nodes.NodeIndexer;
+
+public abstract class AbstractPGM<T> implements PGM<T> {
 	
 	protected List<Node> nodes;
 	protected NodeIndexer nodeIndexer;

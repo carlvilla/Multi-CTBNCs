@@ -1,4 +1,4 @@
-package main.java.com.cig.mctbnc.models;
+package main.java.com.cig.mctbnc.data.representation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +29,10 @@ public class Dataset {
 
 	public String[] getNameClassVariables() {
 		return nameClassVariables;
+	}
+	
+	public String getNameTimeVariable() {
+		return nameTimeVariable;
 	}
 
 	public int getNumFeatures() {
@@ -140,7 +144,7 @@ public class Dataset {
 		if (onlyClassVariable) {
 			for (Sequence sequence : sequences) {
 				boolean occurrence = true;
-				for (Event event : query.getEvents()) {
+				for (Event<String> event : query.getEvents()) {
 					String nameVariable = event.getNameNode();
 					occurrence = event.getValue().equals(sequence.getValueClassVariable(nameVariable));
 					if (!occurrence)

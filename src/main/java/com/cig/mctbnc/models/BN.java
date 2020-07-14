@@ -5,8 +5,10 @@ import java.util.List;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 
+import main.java.com.cig.mctbnc.data.representation.Dataset;
 import main.java.com.cig.mctbnc.learning.parameters.BNParameterLearning;
 import main.java.com.cig.mctbnc.learning.structure.BNStructureLearning;
+import main.java.com.cig.mctbnc.nodes.Node;
 
 /**
  * 
@@ -16,7 +18,7 @@ import main.java.com.cig.mctbnc.learning.structure.BNStructureLearning;
  *            Type of nodes that will be learned, e.g., nodes with conditional
  *            probability table (CPTNode)
  */
-public class BN<T extends Node> extends AbstractPGM {
+public class BN<T extends Node> extends AbstractPGM<String> {
 	private List<T> learnedNodes;
 	private BNParameterLearning bnParameterLearning;
 	private BNStructureLearning bnStructureLearning;
@@ -152,7 +154,7 @@ public class BN<T extends Node> extends AbstractPGM {
 	}
 
 	@Override
-	public Object[][] predict() {
+	public String[][] predict() {
 		// TODO Auto-generated method stub
 		return null;
 	}

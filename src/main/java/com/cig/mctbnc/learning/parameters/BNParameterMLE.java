@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import main.java.com.cig.mctbnc.models.Dataset;
-import main.java.com.cig.mctbnc.models.DiscreteNode;
-import main.java.com.cig.mctbnc.models.Node;
-import main.java.com.cig.mctbnc.models.State;
+import main.java.com.cig.mctbnc.data.representation.Dataset;
+import main.java.com.cig.mctbnc.data.representation.State;
+import main.java.com.cig.mctbnc.nodes.DiscreteNode;
+import main.java.com.cig.mctbnc.nodes.Node;
 
 public class BNParameterMLE implements BNParameterLearning {
 

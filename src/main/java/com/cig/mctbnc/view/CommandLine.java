@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import main.java.com.cig.mctbnc.data.representation.Dataset;
+import main.java.com.cig.mctbnc.data.representation.Sequence;
 import main.java.com.cig.mctbnc.learning.parameters.BNParameterLearning;
 import main.java.com.cig.mctbnc.learning.parameters.BNParameterMLE;
 import main.java.com.cig.mctbnc.learning.parameters.CTBNParameterLearning;
@@ -18,9 +20,8 @@ import main.java.com.cig.mctbnc.learning.structure.BNStructureHillClimbing;
 import main.java.com.cig.mctbnc.learning.structure.BNStructureLearning;
 import main.java.com.cig.mctbnc.learning.structure.CTBNStructureLearning;
 import main.java.com.cig.mctbnc.learning.structure.CTBNStructureMLE;
-import main.java.com.cig.mctbnc.models.Dataset;
 import main.java.com.cig.mctbnc.models.MCTBNC;
-import main.java.com.cig.mctbnc.models.Sequence;
+import main.java.com.cig.mctbnc.nodes.DiscreteNode;
 
 public class CommandLine {
 
@@ -29,7 +30,7 @@ public class CommandLine {
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
 		List<Sequence> sequences = new ArrayList<Sequence>();
-		String[] nameClassVariables = { "Exercise", "ExerciseMode", "S1"};
+		String[] nameClassVariables = { "Exercise", "ExerciseMode"};
 		String nameTimeVariable = "t";
 
 		Map<String, Integer> indexVariables = new HashMap<String, Integer>(); // Map variable name with its index
@@ -61,12 +62,14 @@ public class CommandLine {
 				data.remove(0); // Drop names of variables
 				sequences.add(new Sequence(nameTimeVariable, nameVariables, nameClassVariables, data));
 
+				
 				// TEST
-				if (count == 40) {
+				if (count == 80) {
 					break;
 				}
 
 				count++;
+				
 
 			} catch (Exception e) {
 				System.err.println("Error: " + e);
@@ -86,7 +89,7 @@ public class CommandLine {
 		Dataset trainingDataset = new Dataset(indexVariables, sequences.subList(0, lastIndexTraining));
 		Dataset testingDataset = new Dataset(indexVariables, sequences.subList(firstIndexTesting, numSequences));
 
-		// Obtain predefined initial structure
+		// Define initial structure
 		int numNodes = trainingDataset.getNumVariables();
 		boolean[][] initialStructure = new boolean[numNodes][numNodes];
 		//initialStructure[0][30] = true;
@@ -101,7 +104,7 @@ public class CommandLine {
 		CTBNStructureLearning ctbnStructureLearningAlgorithm = new CTBNStructureMLE();
 
 		// Define multi-dimensional continuous time Bayesian network model
-		MCTBNC<String> mctbnc = new MCTBNC<String>(trainingDataset, ctbnParameterLearningAlgorithm,
+		MCTBNC<DiscreteNode> mctbnc = new MCTBNC<DiscreteNode>(trainingDataset, ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
 		// Initial structure
 		//mctbnc.setStructure(initialStructure);
