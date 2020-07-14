@@ -1,4 +1,4 @@
-package structures;
+package structure;
 
 import static org.junit.Assert.assertEquals;
 

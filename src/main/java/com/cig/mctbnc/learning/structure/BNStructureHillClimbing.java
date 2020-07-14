@@ -9,8 +9,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.BNParameterLearning;
-import com.cig.mctbnc.learning.parameters.CPTNode;
 import com.cig.mctbnc.models.BN;
+import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
 import com.cig.mctbnc.view.CommandLine;
@@ -21,11 +21,11 @@ public class BNStructureHillClimbing implements BNStructureLearning {
 	Dataset trainingDataset;
 	BNParameterLearning bnParameterLearning;
 	boolean[][] initialAdjacencyMatrix;
-	static Logger logger = LogManager.getLogger(CommandLine.class);
+	static Logger logger = LogManager.getLogger(BNStructureHillClimbing.class);
 
 	@Override
 	public void learn(BN<? extends Node> bn, BNParameterLearning bnParameterLearning, Dataset trainingDataset) {
-		
+
 		logger.info("Learning Bayesian network using Hill Climbing");
 
 		// Define nodes of the bayesian network
@@ -45,6 +45,10 @@ public class BNStructureHillClimbing implements BNStructureLearning {
 		bn.setStructure(bestStructure);
 	}
 
+	/**
+	 * Performs greedy Hill climbing to find a better structure from the initial one.
+	 * @return
+	 */
 	public boolean[][] findStructure() {
 
 		boolean[][] bestStructure = initialAdjacencyMatrix.clone();
@@ -155,7 +159,7 @@ public class BNStructureHillClimbing implements BNStructureLearning {
 	}
 
 	/**
-	 * Modified version of code in
+	 * Determine if there are cycles in an adjacency matrix. Modified version of code in
 	 * https://www.geeksforgeeks.org/detect-cycle-in-a-directed-graph-using-bfs/.
 	 * 
 	 * @param adjacencyMatrix

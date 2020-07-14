@@ -1,9 +1,8 @@
-package com.cig.mctbnc.learning.parameters;
+package com.cig.mctbnc.nodes;
 
 import java.util.Map;
 
 import com.cig.mctbnc.data.representation.State;
-import com.cig.mctbnc.nodes.DiscreteNode;
 
 /**
  * Extends DiscreteNode in order to store a CPT and the sufficient statistics.
@@ -28,6 +27,15 @@ public class CPTNode extends DiscreteNode {
 
 	public Map<State, Integer> getSufficientStatistics() {
 		return sufficientStatistics;
+	}
+	
+	public String toString() {
+		String discreteNodeDescription = super.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append(discreteNodeDescription+"\n");
+		sb.append("--CPT--\n");
+		sb.append(CPT);
+		return sb.toString();
 	}
 
 }

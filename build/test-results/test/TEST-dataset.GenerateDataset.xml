@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="dataset.GenerateDataset" tests="3" skipped="0" failures="0" errors="0" timestamp="2020-07-14T10:15:01" hostname="MacBook-Pro-de-Carlos" time="0.01">
+<testsuite name="dataset.GenerateDataset" tests="3" skipped="0" failures="0" errors="0" timestamp="2020-07-14T14:43:18" hostname="MacBook-Pro-de-Carlos" time="0.005">
   <properties/>
   <testcase name="testQuery" classname="dataset.GenerateDataset" time="0.002"/>
   <testcase name="testTimeVariable" classname="dataset.GenerateDataset" time="0.001"/>
-  <testcase name="testStatesVariables" classname="dataset.GenerateDataset" time="0.007"/>
+  <testcase name="testStatesVariables" classname="dataset.GenerateDataset" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

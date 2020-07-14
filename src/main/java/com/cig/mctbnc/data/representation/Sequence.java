@@ -15,7 +15,7 @@ public class Sequence {
 	private Map<String, String> classValues;
 	private String nameTimeVariable;
 
-	public Sequence(String nameTimeVariable, String[] nameVariables, String[] nameClassVariables,
+	public Sequence(String[] nameVariables, String nameTimeVariable, String[] nameClassVariables,
 			List<String[]> valueObservations) {
 		// Set time variable
 		this.nameTimeVariable = nameTimeVariable;

@@ -2,6 +2,11 @@ package com.cig.mctbnc.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.BNParameterLearning;
@@ -10,6 +15,7 @@ import com.cig.mctbnc.learning.structure.BNStructureLearning;
 import com.cig.mctbnc.learning.structure.CTBNStructureLearning;
 import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.view.Main;
 
 /**
  * @author Carlos Villa Blanco <carlos.villa@upm.es>
@@ -24,10 +30,11 @@ public class MCTBNC<T extends Node> extends AbstractPGM {
 
 	private List<Node> features;
 	private List<Node> classVariables;
-	private String initialMBNC;
+	static Logger logger = LogManager.getLogger(MCTBNC.class);
 
 	// The subgraph formed by class variables is a Bayesian network
 	private BN<T> bn;
+	private CTBN<T> ctbn;
 
 	private CTBNParameterLearning ctbnParameterLearningAlgorithm;
 	private CTBNStructureLearning ctbnStructureLearningAlgorithm;
@@ -54,9 +61,14 @@ public class MCTBNC<T extends Node> extends AbstractPGM {
 		this.ctbnParameterLearningAlgorithm = ctbnParameterLearningAlgorithm;
 		this.ctbnStructureLearningAlgorithm = ctbnStructureLearningAlgorithm;
 
-		// Define class subgraph
+		// Class subgraph is defined with a Bayesian network
 		bn = new BN<T>(classVariables, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm, trainingDataset);
 
+		// Feature and bridge subgraphs are defined with a continuous time Bayesian
+		// network
+		List<Node> allVariables = Stream.concat(features.stream(), classVariables.stream())
+				.collect(Collectors.toList());
+		ctbn = new CTBN<T>(allVariables);
 	}
 
 	public void display() {
@@ -90,9 +102,14 @@ public class MCTBNC<T extends Node> extends AbstractPGM {
 		// Learn structure
 
 		// Learn structure and parameters of class subgraph (Bayesian network)
+		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
 		bn.learn();
 
-		// Learn structure and parameters of feature and bridge subgraph (Continuous time Bayesian network)
+		// Learn structure and parameters of feature and bridge subgraph (Continuous
+		// time Bayesian network)
+		logger.info(
+				"Defining structure and parameters of the feature and bridge subgraphs (Continuous time Bayesian network)");
+		ctbn.learn();
 
 	}
 

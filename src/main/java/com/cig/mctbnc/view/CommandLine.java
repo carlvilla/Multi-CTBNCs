@@ -48,8 +48,7 @@ public class CommandLine {
 				String[] nameVariables = data.get(0); // Get names of variables
 
 				// It is stored the feature names given by the first sequence. If other
-				// sequences
-				// give different features, a exception will be thrown.
+				// sequences give different features, a exception will be thrown.
 				if (sequences.size() == 0) {
 					// Define the index of each variable
 					for (String nameVariable : nameVariables) {
@@ -66,7 +65,7 @@ public class CommandLine {
 				}
 
 				data.remove(0); // Drop names of variables
-				sequences.add(new Sequence(nameTimeVariable, nameVariables, nameClassVariables, data));
+				sequences.add(new Sequence(nameVariables, nameTimeVariable, nameClassVariables, data));
 
 				// TEST
 				if (count == 50) {
@@ -82,7 +81,7 @@ public class CommandLine {
 		}
 
 		logger.info("Variables: {}", indexVariables);
-		logger.info("Class variables: {}" , Arrays.toString(nameClassVariables));
+		logger.info("Class variables: {}", Arrays.toString(nameClassVariables));
 		logger.info("Preparing training and testing datasets");
 
 		// For now it will be used 70% sequences for training and 30% for testing

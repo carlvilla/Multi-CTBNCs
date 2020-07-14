@@ -18,7 +18,7 @@ import com.cig.mctbnc.nodes.Node;
  *            Type of nodes that will be learned, e.g., nodes with conditional
  *            probability table (CPTNode)
  */
-public class BN<T extends Node> extends AbstractPGM<String> {
+public class BN<T extends Node> extends AbstractPGM<T> {
 	private List<T> learnedNodes;
 	private BNParameterLearning bnParameterLearning;
 	private BNStructureLearning bnStructureLearning;
@@ -154,7 +154,7 @@ public class BN<T extends Node> extends AbstractPGM<String> {
 	}
 
 	@Override
-	public String[][] predict() {
+	public T[][] predict() {
 		// TODO Auto-generated method stub
 		return null;
 	}

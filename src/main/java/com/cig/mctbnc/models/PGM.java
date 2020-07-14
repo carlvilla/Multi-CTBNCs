@@ -19,14 +19,13 @@ public interface PGM<T> {
 	 */
 	public void setStructure(boolean[][] adjacencyMatrix);
 	
-	/**
-	 * Displays the probabilistic graphical model.
-	 */
-	public void display();
-	
 	public T[][] predict();
 	
 	public void sample();
 	
+	/**
+	 * Displays the probabilistic graphical model.
+	 */
+	public void display();
 
 }
