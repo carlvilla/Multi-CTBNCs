@@ -107,6 +107,12 @@ public class Sequence {
 		StringBuilder sb = new StringBuilder();
 		sb.append("----- TIME VARIABLE -----\n");
 		sb.append(nameTimeVariable);
+		sb.append("\n");
+		for (Observation observation : observations) {
+			sb.append(observation.getTimeValue());
+			sb.append("\n");
+		}
+		sb.append("\n");
 		sb.append("----- CLASS VARIABLES -----\n");
 		sb.append(String.join(",", classValues.keySet()));
 		sb.append("\n");

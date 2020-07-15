@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="dataset.GenerateDataset" tests="3" skipped="0" failures="0" errors="0" timestamp="2020-07-14T14:43:18" hostname="MacBook-Pro-de-Carlos" time="0.005">
+<testsuite name="dataset.GenerateDataset" tests="4" skipped="0" failures="0" errors="0" timestamp="2020-07-15T11:18:01" hostname="MacBook-Pro-de-Carlos" time="0.683">
   <properties/>
-  <testcase name="testQuery" classname="dataset.GenerateDataset" time="0.002"/>
+  <testcase name="testQuery" classname="dataset.GenerateDataset" time="0.667"/>
+  <testcase name="generateDatasetFromRawData" classname="dataset.GenerateDataset" time="0.014"/>
   <testcase name="testTimeVariable" classname="dataset.GenerateDataset" time="0.001"/>
-  <testcase name="testStatesVariables" classname="dataset.GenerateDataset" time="0.002"/>
-  <system-out><![CDATA[]]></system-out>
+  <testcase name="testStatesVariables" classname="dataset.GenerateDataset" time="0.001"/>
+  <system-out><![CDATA[[15-07-2020 13:18:02] [ WARN ] [Dataset:78] Sequence not added - Time variable 'Time' not specified
+[15-07-2020 13:18:02] [ WARN ] [Dataset:78] Sequence not added - One or more class variables were not specified
+[15-07-2020 13:18:02] [ WARN ] [Dataset:78] Sequence not added - Sequences cannot have different variables
+[15-07-2020 13:18:02] [ WARN ] [Dataset:78] Sequence not added - Time variable 'Time' not specified
+[15-07-2020 13:18:02] [ WARN ] [Dataset:76] Sequence not added - The sequence is empty
+]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

@@ -87,9 +87,9 @@ public class GenerateDataset {
 
 		// Sequence without class variables
 		List<String[]> dataSequence4 = new ArrayList<String[]>();
-		dataSequence3.add(new String[] { "Time", "V2", "V4" });
-		dataSequence3.add(new String[] { "a", "b", "a" });
-		dataSequence3.add(new String[] { "e", "b", "a" });
+		dataSequence4.add(new String[] { "Time", "V2", "V4" });
+		dataSequence4.add(new String[] { "a", "b", "a" });
+		dataSequence4.add(new String[] { "e", "b", "a" });
 
 		// Sequence with less features
 		List<String[]> dataSequence5 = new ArrayList<String[]>();
@@ -102,6 +102,9 @@ public class GenerateDataset {
 		dataSequence6.add(new String[] { "V4", "V5" });
 		dataSequence6.add(new String[] { "b", "a" });
 		dataSequence6.add(new String[] { "b", "a" });
+		
+		// Empty sequence
+		List<String[]> dataSequence7 = new ArrayList<String[]>();
 
 		dataset.addSequence(dataSequence1);
 		assertEquals(1, dataset.getNumDataPoints());
@@ -114,6 +117,8 @@ public class GenerateDataset {
 		dataset.addSequence(dataSequence5);
 		assertEquals(2, dataset.getNumDataPoints());
 		dataset.addSequence(dataSequence6);
+		assertEquals(2, dataset.getNumDataPoints());
+		dataset.addSequence(dataSequence7);
 		assertEquals(2, dataset.getNumDataPoints());
 	}
 

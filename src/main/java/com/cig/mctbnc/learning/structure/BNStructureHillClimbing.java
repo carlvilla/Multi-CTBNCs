@@ -13,7 +13,6 @@ import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
-import com.cig.mctbnc.view.CommandLine;
 
 public class BNStructureHillClimbing implements BNStructureLearning {
 

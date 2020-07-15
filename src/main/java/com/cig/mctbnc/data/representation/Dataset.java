@@ -1,6 +1,5 @@
 package com.cig.mctbnc.data.representation;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +26,9 @@ public class Dataset {
 		indexVariables = new HashMap<String, Integer>();
 		this.nameTimeVariable = nameTimeVariable;
 		this.nameClassVariables = nameClassVariables;
-
+		// Create index for time variable and class variables
+		addIndex(nameTimeVariable);
+		addIndex(nameClassVariables);
 	}
 
 	public Dataset(Map<String, Integer> indexVariables, List<Sequence> sequences) {
@@ -47,25 +47,20 @@ public class Dataset {
 	 * @param data
 	 */
 	public void addSequence(List<String[]> data) {
-		String[] nameVariables = data.get(0);
-
-		// If there are no sequences in the dataset, it is stored the name of the
-		// features. They are given by the names of the variables that were not
-		// defined as the time variable or class variable.
-		if (sequences.size() == 0) {
-			nameFeatures = Arrays.asList(nameVariables).stream()
-					.filter(name -> !name.equals(nameTimeVariable) && !Arrays.asList(nameClassVariables).contains(name))
-					.toArray(String[]::new);
-
-			// Definition of the indexes of each variable
-			String[] allVariables = Stream.of(nameFeatures, nameClassVariables, nameTimeVariable).flatMap(Stream::of)
-					.toArray(String[]::new);
-			for (String nameVariable : allVariables) {
-				indexVariables.put(nameVariable, Arrays.asList(allVariables).indexOf(nameVariable));
-			}
-		}
-
 		try {
+			String[] nameVariables = data.get(0);
+			// If there are no sequences in the dataset, it is stored the name of the
+			// features. They are given by the names of the variables that were not
+			// defined as the time variable or class variable.
+			if (sequences.size() == 0) {
+				nameFeatures = Arrays.asList(nameVariables).stream().filter(
+						name -> !name.equals(nameTimeVariable) && !Arrays.asList(nameClassVariables).contains(name))
+						.toArray(String[]::new);
+
+				// Definition of the indexes for the features
+				addIndex(nameFeatures);
+			}
+
 			// Check if it is possible to add the sequence
 			checkIntegrityData(nameVariables);
 			// Drop names of variables
@@ -73,13 +68,16 @@ public class Dataset {
 			// Create and add sequence to dataset
 			Sequence sequence = new Sequence(nameVariables, nameTimeVariable, nameClassVariables, data);
 			sequences.add(sequence);
+		} catch (IndexOutOfBoundsException e) {
+			logger.warn("Sequence not added - The sequence is empty");
 		} catch (Exception e) {
-			System.err.println("Error: " + e);
+			logger.warn(e.getMessage());
 		}
 	}
 
 	/**
-	 * Check if the data to add to the dataset is correct
+	 * Check if the data to add to the dataset is correct. It will be throw and
+	 * exception is this is not the case.
 	 * 
 	 * @param nameVariables
 	 * @return
@@ -91,19 +89,25 @@ public class Dataset {
 
 		dataCorrect = listNameVariables.contains(nameTimeVariable);
 		if (!dataCorrect) {
-			logger.warn("Sequence not added - Time variable '{}' not specified", nameTimeVariable);
-			throw new Exception("Sequence not added - Time variable not specified");
+			// logger.warn("Sequence not added - Time variable '{}' not specified",
+			// nameTimeVariable);
+			String message = String.format("Sequence not added - Time variable '%s' not specified", nameTimeVariable);
+			throw new Exception(message);
 		}
 
-		dataCorrect = listNameVariables.contains(nameClassVariables);
+		dataCorrect = listNameVariables.containsAll(Arrays.asList(nameClassVariables));
 		if (!dataCorrect) {
-			logger.warn("Sequence not added - One or more class variables were not specified");
-			throw new Exception("Sequence not added - One or more class variables were not specified");
+			// logger.warn("Sequence not added - One or more class variables were not
+			// specified");
+			String message = "Sequence not added - One or more class variables were not specified";
+			throw new Exception(message);
 		}
 
-		if (!indexVariables.containsKey(listNameVariables)) {
-			logger.warn("Sequence not added - Sequences cannot have different variables");
-			throw new Exception("Sequences not added - Sequences cannot have different variables");
+		if (!listNameVariables.containsAll(indexVariables.keySet())) {
+			// logger.warn("Sequence not added - Sequences cannot have different
+			// variables");
+			String message = "Sequence not added - Sequences cannot have different variables";
+			throw new Exception(message);
 		}
 
 		return dataCorrect;
@@ -121,17 +125,30 @@ public class Dataset {
 		return nameTimeVariable;
 	}
 
+	/**
+	 * Return the name of all the variables (without the variable for the time).
+	 * 
+	 * @return the name of all the variables
+	 */
+	public String[] getNameVariables() {
+		return indexVariables.keySet().stream().filter(name -> !name.equals(nameTimeVariable)).toArray(String[]::new);
+	}
+
+	/**
+	 * Return the number of variables (without the variable for the time).
+	 * 
+	 * @return  the number of variables
+	 */
+	public int getNumVariables() {
+		return getNumClassVariables() + getNumFeatures();
+	}
+
 	public int getNumFeatures() {
 		return nameFeatures.length;
 	}
 
 	public int getNumClassVariables() {
 		return nameClassVariables.length;
-	}
-
-	public int getNumVariables() {
-		// + 1 to include time variable
-		return getNumClassVariables() + getNumFeatures() + 1;
 	}
 
 	/**
@@ -161,7 +178,6 @@ public class Dataset {
 
 		// TODO
 		return null;
-
 	}
 
 	/**
@@ -257,4 +273,33 @@ public class Dataset {
 	public Map<String, Integer> getIndexVariables() {
 		return indexVariables;
 	}
+
+	/**
+	 * Create an index for the variables whose names are given.
+	 * 
+	 * @param nameVariables
+	 */
+	private void addIndex(String[] nameVariables) {
+		for (String nameVariable : nameVariables)
+			addIndex(nameVariable);
+	}
+
+	/**
+	 * Create an index for the the variable whose name is given. This index starts
+	 * from 0 and its maximum value is equal to the number of variables. This is
+	 * necessary for the adjacency matrices so it is always use the same rows and
+	 * columns to refer to a certain variable.
+	 * 
+	 * @param nameVariable
+	 */
+	private void addIndex(String nameVariable) {
+		if (!indexVariables.containsKey(nameVariable)) {
+			// Get next index
+			int index = 0;
+			if (indexVariables.size() != 0)
+				index = indexVariables.size();
+			indexVariables.put(nameVariable, index);
+		}
+	}
+
 }

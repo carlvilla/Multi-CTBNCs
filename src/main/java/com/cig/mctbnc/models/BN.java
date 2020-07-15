@@ -1,5 +1,6 @@
 package com.cig.mctbnc.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.graphstream.graph.Graph;
@@ -8,17 +9,18 @@ import org.graphstream.graph.implementations.SingleGraph;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.BNParameterLearning;
 import com.cig.mctbnc.learning.structure.BNStructureLearning;
+import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
 /**
  * 
- * @author Carlos Villa (carlos.villa@upm.es)
+ * @author Carlos Villa Blanco
  *
  * @param <T>
  *            Type of nodes that will be learned, e.g., nodes with conditional
  *            probability table (CPTNode)
  */
-public class BN<T extends Node> extends AbstractPGM<T> {
+public class BN<T extends Node> extends AbstractPGM<String> {
 	private List<T> learnedNodes;
 	private BNParameterLearning bnParameterLearning;
 	private BNStructureLearning bnStructureLearning;
@@ -29,9 +31,40 @@ public class BN<T extends Node> extends AbstractPGM<T> {
 		this.dataset = dataset;
 	}
 
-	public BN(List<Node> nodes, BNParameterLearning bnParameterLearning, BNStructureLearning bnStructureLearning,
-			Dataset dataset) {
+	/**
+	 * Initialize a Bayesian network.
+	 * 
+	 * @param nodes
+	 * @param dataset
+	 * @param bnParameterLearning
+	 * @param bnStructureLearning
+	 */
+	public BN(List<Node> nodes, Dataset dataset, BNParameterLearning bnParameterLearning,
+			BNStructureLearning bnStructureLearning) {
 		super(nodes);
+		this.bnParameterLearning = bnParameterLearning;
+		this.bnStructureLearning = bnStructureLearning;
+		this.dataset = dataset;
+	}
+
+	/**
+	 * Initialize a Bayesian network. If a set of node is not given, they are
+	 * created from the data.
+	 * 
+	 * @param bnParameterLearning
+	 * @param bnStructureLearning
+	 * @param dataset
+	 */
+	public BN(Dataset dataset, BNParameterLearning bnParameterLearning, BNStructureLearning bnStructureLearning) {
+		// Create nodes using dataset
+		List<Node> nodes = new ArrayList<Node>();
+		for (String nameVariable : dataset.getNameVariables()) {
+			int index = dataset.getIndexVariable(nameVariable);
+			// THIS SHOULD BE CHANGED TO ADMIT OTHER TYPES OF NODES
+			Node node = new DiscreteNode(index, nameVariable, dataset.getStatesVariable(nameVariable));
+			nodes.add(node);
+		}
+		addNodes(nodes);
 		this.bnParameterLearning = bnParameterLearning;
 		this.bnStructureLearning = bnStructureLearning;
 		this.dataset = dataset;
@@ -154,7 +187,7 @@ public class BN<T extends Node> extends AbstractPGM<T> {
 	}
 
 	@Override
-	public T[][] predict() {
+	public String[][] predict() {
 		// TODO Auto-generated method stub
 		return null;
 	}
