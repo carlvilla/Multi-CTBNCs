@@ -54,6 +54,26 @@ public abstract class AbstractPGM implements PGM {
 		}
 	}
 
+	/**
+	 * Return the adjacency matrix of the PGM by analysing the children of each
+	 * node.
+	 * 
+	 * @return bidimensional boolean array representing the adjacency matrix
+	 */
+	public boolean[][] getAdjacencyMatrix() {
+		int numNodes = getNumNodes();
+		boolean[][] adjacencyMatrix = new boolean[numNodes][numNodes];
+		for (Node node : nodes) {
+			List<Node> children = node.getChildren();
+			for (Node childNode : children) {
+				int indexNode = nodeIndexer.getIndexNodeByName(node.getName());
+				int indexChildNode = nodeIndexer.getIndexNodeByName(childNode.getName());
+				adjacencyMatrix[indexNode][indexChildNode] = true;
+			}
+		}
+		return adjacencyMatrix;
+	}
+
 	@Override
 	public List<Node> getNodes() {
 		return nodes;

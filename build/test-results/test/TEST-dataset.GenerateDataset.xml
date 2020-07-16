@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="dataset.GenerateDataset" tests="4" skipped="0" failures="0" errors="0" timestamp="2020-07-16T15:10:16" hostname="MacBook-Pro-de-Carlos" time="0.719">
+<testsuite name="dataset.GenerateDataset" tests="4" skipped="0" failures="0" errors="0" timestamp="2020-07-16T21:21:02" hostname="MacBook-Pro-de-Carlos" time="0.502">
   <properties/>
-  <testcase name="testQuery" classname="dataset.GenerateDataset" time="0.7"/>
-  <testcase name="generateDatasetFromRawData" classname="dataset.GenerateDataset" time="0.016"/>
+  <testcase name="testQuery" classname="dataset.GenerateDataset" time="0.486"/>
+  <testcase name="generateDatasetFromRawData" classname="dataset.GenerateDataset" time="0.014"/>
   <testcase name="testTimeVariable" classname="dataset.GenerateDataset" time="0.001"/>
-  <testcase name="testStatesVariables" classname="dataset.GenerateDataset" time="0.002"/>
-  <system-out><![CDATA[[16-07-2020 17:10:16] [ WARN ] [Dataset:74] Sequence not added - Time variable 'Time' not specified
-[16-07-2020 17:10:16] [ WARN ] [Dataset:74] Sequence not added - One or more class variables were not specified
-[16-07-2020 17:10:16] [ WARN ] [Dataset:74] Sequence not added - Sequences cannot have different variables
-[16-07-2020 17:10:16] [ WARN ] [Dataset:74] Sequence not added - Time variable 'Time' not specified
-[16-07-2020 17:10:16] [ WARN ] [Dataset:72] Sequence not added - The sequence is empty
+  <testcase name="testStatesVariables" classname="dataset.GenerateDataset" time="0.001"/>
+  <system-out><![CDATA[[16-07-2020 23:21:02] [ WARN ] [Dataset:75] Sequence not added - Time variable 'Time' not specified
+[16-07-2020 23:21:02] [ WARN ] [Dataset:75] Sequence not added - One or more class variables were not specified
+[16-07-2020 23:21:02] [ WARN ] [Dataset:75] Sequence not added - Sequences cannot have different variables
+[16-07-2020 23:21:02] [ WARN ] [Dataset:75] Sequence not added - Time variable 'Time' not specified
+[16-07-2020 23:21:02] [ WARN ] [Dataset:73] Sequence not added - The sequence is empty
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

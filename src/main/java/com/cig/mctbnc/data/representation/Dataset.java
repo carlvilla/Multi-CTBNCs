@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,7 +53,7 @@ public class Dataset {
 			// If there are no sequences in the dataset, it is stored the name of the
 			// features. They are given by the names of the variables that were not
 			// defined as the time variable or class variable.
-			if (sequences.size() == 0) {
+			if (getSequences().size() == 0) {
 				nameFeatures = Arrays.asList(nameVariables).stream().filter(
 						name -> !name.equals(nameTimeVariable) && !Arrays.asList(nameClassVariables).contains(name))
 						.toArray(String[]::new);
@@ -73,6 +74,15 @@ public class Dataset {
 		} catch (Exception e) {
 			logger.warn(e.getMessage());
 		}
+	}
+
+	/**
+	 * Return the sequences of the dataset.
+	 * 
+	 * @return list with the sequences of the dataset
+	 */
+	public List<Sequence> getSequences() {
+		return sequences;
 	}
 
 	/**
@@ -137,7 +147,7 @@ public class Dataset {
 	/**
 	 * Return the number of variables (without the variable for the time).
 	 * 
-	 * @return  the number of variables
+	 * @return the number of variables
 	 */
 	public int getNumVariables() {
 		return getNumClassVariables() + getNumFeatures();
@@ -158,7 +168,7 @@ public class Dataset {
 	 * @return
 	 */
 	public int getNumDataPoints() {
-		return sequences.size();
+		return getSequences().size();
 	}
 
 	/**
@@ -185,15 +195,15 @@ public class Dataset {
 	 * @return
 	 */
 	public String[][] getValuesClassVariables() {
-		String[][] valuesClassVariables = new String[sequences.size()][getNumClassVariables()];
-		for (int i = 0; i < sequences.size(); i++)
-			valuesClassVariables[i] = sequences.get(i).getValuesClassVariables();
+		String[][] valuesClassVariables = new String[getSequences().size()][getNumClassVariables()];
+		for (int i = 0; i < getSequences().size(); i++)
+			valuesClassVariables[i] = getSequences().get(i).getValuesClassVariables();
 		return valuesClassVariables;
 	}
 
 	public List<State> getStatesVariable(String nameVariable) {
 		Set<State> states = new HashSet<State>();
-		for (Sequence sequence : sequences) {
+		for (Sequence sequence : getSequences()) {
 			String[] statesSequence = sequence.getStates(nameVariable);
 
 			for (int i = 0; i < statesSequence.length; i++) {
@@ -210,14 +220,14 @@ public class Dataset {
 	/**
 	 * Return the possible combination of values of the specified variables
 	 * 
-	 * @param nameVariable
+	 * @param nameVariables
 	 * @return
 	 */
 	public List<State> getStatesVariables(List<String> nameVariables) {
 		// It is used a set of lists in order to not have unique combinations
 		// of values for the studied variables
 		Set<State> states = new HashSet<State>();
-		for (Sequence sequence : sequences) {
+		for (Sequence sequence : getSequences()) {
 			List<String> statesSequence = sequence.getStates(nameVariables);
 			State state = new State();
 			for (int i = 0; i < nameVariables.size(); i++) {
@@ -230,22 +240,21 @@ public class Dataset {
 	}
 
 	/**
-	 * Number of times the specified variables take certain values
+	 * Count the number of times in the dataset that the specified variables (in
+	 * State object "query") take certain values.
 	 * 
 	 * @param query
-	 *            specify the variables and their values
-	 * @return
+	 *            State object that specifies the variables and their values
+	 * @return number of times specified values take a certain state together
 	 */
 	public int getNumOccurrences(State query) {
 		int numOccurrences = 0;
 		String[] nameVariables = query.getNameVariables();
-
 		// If all the variables are class variables, then it is not necessary to
 		// check the observations of each sequence
 		boolean onlyClassVariable = Arrays.asList(getNameClassVariables()).containsAll(Arrays.asList(nameVariables));
-
 		if (onlyClassVariable) {
-			for (Sequence sequence : sequences) {
+			for (Sequence sequence : getSequences()) {
 				boolean occurrence = true;
 				for (Event<String> event : query.getEvents()) {
 					String nameVariable = event.getNameNode();
@@ -257,10 +266,64 @@ public class Dataset {
 					numOccurrences++;
 			}
 		}
-
 		// If there are features, it is necessary to study the observations
 		else {
 			throw new UnsupportedOperationException();
+		}
+		return numOccurrences;
+	}
+
+	/**
+	 * 
+	 * Count the number of times in the dataset that a certain variable transitions
+	 * from a certain state ("fromState") to another ("toState"), while its parents
+	 * take a certain state ("fromState").
+	 * 
+	 * @param fromState
+	 *            give the original states of the variable and its parents
+	 * @param toState
+	 *            give the state of the variable after the transition
+	 * @return number of times the transition occurs
+	 */
+	public int getNumOccurrencesTransition(State fromState, State toState) {
+		String nameVariable = toState.getNameVariables()[0];
+		String[] nameParents = null;
+		if (fromState.getNumEvents() > 1) {
+			// The variable has parents
+			nameParents = Arrays.asList(fromState.getNameVariables()).stream()
+					.filter(name -> !name.equals(nameVariable)).toArray(String[]::new);
+		}
+		int numOccurrences = 0;
+		for (Sequence sequence : getSequences()) {
+			for (int i = 1; i < sequence.getNumObservations(); i++) {
+				// It is obtained one observation representing the states of the variables
+				// before and after the transition
+				Observation observationBefore = sequence.getObservations().get(i - 1);
+				Observation observationAfter = sequence.getObservations().get(i);
+
+				// Check if the variable starts from the expected value
+				boolean expectedValueBefore = observationBefore.getValueFeature(nameVariable)
+						.equals(toState.getValueNode(nameVariable));
+
+				// Check if the studied variable transitions to the expected value
+				boolean expectedValueAfter = observationAfter.getValueFeature(nameVariable)
+						.equals(toState.getValueNode(nameVariable));
+
+				// It is only neccesary to check the states of the parents if the variable
+				// transitions from and to the expected values
+				if (expectedValueBefore && expectedValueAfter && nameParents != null) {
+					boolean expectedValueParents = true;
+					for (String nameParent : nameParents) {
+						expectedValueParents = expectedValueParents && observationBefore.getValueFeature(nameParent)
+								.equals(fromState.getValueNode(nameParent));
+					}
+					if (expectedValueParents)
+						numOccurrences++;
+				} else {
+					if (expectedValueBefore && expectedValueAfter)
+						numOccurrences++;
+				}
+			}
 		}
 		return numOccurrences;
 	}

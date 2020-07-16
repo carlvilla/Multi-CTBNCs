@@ -18,8 +18,8 @@ public class BNParameterMLE implements ParameterLearningAlgorithm {
 
 	@Override
 	public void learn(List<Node> nodes, Dataset dataset) {
-		BNSufficientStatistics[] ssAllNodes = sufficientStatistics(nodes, dataset);
-		setCPTs(nodes, ssAllNodes);
+		BNSufficientStatistics[] ssNodes = sufficientStatistics(nodes, dataset);
+		setCPTs(nodes, ssNodes);
 	}
 
 	public void setCPTs(List<Node> nodes, BNSufficientStatistics[] ss) {

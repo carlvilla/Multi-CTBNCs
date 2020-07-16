@@ -79,7 +79,7 @@ public class MCTBNC<T extends Node> extends AbstractPGM {
 		// class variables
 		logger.info(
 				"Defining structure and parameters of the feature and bridge subgraphs (Continuous time Bayesian network)");
-		// ctbn.learn();
+		//ctbnc.learn();
 
 		// Join class subgraph with feature and bridge subgraphs
 
@@ -100,12 +100,6 @@ public class MCTBNC<T extends Node> extends AbstractPGM {
 		}
 	}
 
-	@Override
-	public boolean[][] getAdjacencyMatrix() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	@Override
 	public String getType() {
 		return "Multidimensional Continuous time Bayesian network";

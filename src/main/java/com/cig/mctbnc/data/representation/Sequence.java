@@ -64,7 +64,16 @@ public class Sequence {
 	public List<Observation> getObservations() {
 		return observations;
 	}
-	
+
+	/**
+	 * Return the number of observations that the sequence contains.
+	 * 
+	 * @return number of observations
+	 */
+	public int getNumObservations() {
+		return observations.size();
+	}
+
 	public Double[] getTimeValues() {
 		return observations.stream().map(ob -> ob.getTimeValue()).toArray(Double[]::new);
 	}
@@ -88,18 +97,30 @@ public class Sequence {
 	}
 
 	/**
-	 * Get all the possible states of the specified variables together
+	 * Get all the possible states of the specified variables together. It is
+	 * obtained all the possible states of the variables and then it is computed all
+	 * possible combinations between them.
 	 * 
-	 * @param Variable
-	 * @return 
+	 * @param nameVariables
+	 * @return
 	 */
 	public List<String> getStates(List<String> nameVariables) {
 		List<String> states = new ArrayList<String>();
 		// If it is specified only class variables
+
 		if (classValues.containsKey(nameVariables.get(0))) {
 			for (String nameVariable : nameVariables)
 				states.add(classValues.get(nameVariable));
 		}
+
+		/*
+		 * Set<String> states = new HashSet<String>(); // For each observation it is
+		 * obtained all the combination of for (Observation observation : observations)
+		 * { List<String> values = new ArrayList<String>(); for (String nameVariable :
+		 * nameVariables) { values.add(observation.getValueFeature(nameVariable)); }
+		 * states.add(values); }
+		 */
+
 		return states;
 	}
 

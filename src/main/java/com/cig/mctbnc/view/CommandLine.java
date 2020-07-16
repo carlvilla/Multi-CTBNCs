@@ -29,7 +29,7 @@ public class CommandLine {
 
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
-		String[] nameClassVariables = { "Exercise", "ExerciseMode", "S1", "S2"};
+		String[] nameClassVariables = { "Exercise", "ExerciseMode", "S1", "S2", "S3"};
 		String nameTimeVariable = "t";
 
 		logger.info("Reading sequences from {}", datasetFolder);
@@ -38,7 +38,7 @@ public class CommandLine {
 		// For now it will be used 70% sequences for training and 30% for testing
 		// Define training dataset
 		Dataset trainingDataset = new Dataset(nameTimeVariable, nameClassVariables);
-		File[] trainingFiles = Arrays.copyOfRange(files, 0, (int) (files.length * 0.5));
+		File[] trainingFiles = Arrays.copyOfRange(files, 0, (int) (files.length * 0.05));
 		for (File file : trainingFiles) {
 			List<String[]> dataSequence = readCSV(file.getAbsolutePath());
 			trainingDataset.addSequence(dataSequence);
@@ -46,7 +46,7 @@ public class CommandLine {
 
 		// Define testing dataset
 		Dataset testingDataset = new Dataset(nameTimeVariable, nameClassVariables);
-		File[] testingFiles = Arrays.copyOfRange(files, (int) (files.length * 0.5), (int) (files.length * 0.6));
+		File[] testingFiles = Arrays.copyOfRange(files, (int) (files.length * 0.05), (int) (files.length * 0.06));
 		for (File file : testingFiles) {
 			List<String[]> dataSequence = readCSV(file.getAbsolutePath());
 			testingDataset.addSequence(dataSequence);
@@ -70,7 +70,7 @@ public class CommandLine {
 
 		// Define learning algorithms for the feature and class subgraph
 		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNParameterMLE();
-		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new CTBNCStructureHillClimbing();
+		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbing();
 
 		// Define multi-dimensional continuous time Bayesian network model
 		MCTBNC<DiscreteNode> mctbnc = new MCTBNC<DiscreteNode>(trainingDataset, ctbnParameterLearningAlgorithm,

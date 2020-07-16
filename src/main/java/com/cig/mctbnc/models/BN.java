@@ -137,26 +137,6 @@ public class BN<N extends Node> extends AbstractPGM {
 	}
 
 	/**
-	 * Return the adjacency matrix of the Bayesian network by analysing the children
-	 * of each node.
-	 * 
-	 * @return bidimensional boolean array representing the adjacency matrix
-	 */
-	public boolean[][] getAdjacencyMatrix() {
-		int numNodes = getNumNodes();
-		boolean[][] adjacencyMatrix = new boolean[numNodes][numNodes];
-		for (Node node : nodes) {
-			List<Node> children = node.getChildren();
-			for (Node childNode : children) {
-				int indexNode = nodeIndexer.getIndexNodeByName(node.getName());
-				int indexChildNode = nodeIndexer.getIndexNodeByName(childNode.getName());
-				adjacencyMatrix[indexNode][indexChildNode] = true;
-			}
-		}
-		return adjacencyMatrix;
-	}
-
-	/**
 	 * Obtain the node with certain name
 	 * 
 	 * @param name

@@ -13,10 +13,11 @@ import com.cig.mctbnc.nodes.Node;
  * 
  * @author Carlos Villa Blanco
  *
- * @param <T>
+ * @param <N>
+ *            type of the learned nodes (e.g. nodes that learn a CIM)
  */
-public class CTBNC<T extends Node> extends AbstractPGM implements Classifier {
-	private List<T> learnedNodes;
+public class CTBNC<N extends Node> extends AbstractPGM implements Classifier {
+	private List<N> learnedNodes;
 	private ParameterLearningAlgorithm parameterLearningAlg;
 	private StructureLearningAlgorithm structureLearningAlg;
 	private Dataset dataset;
@@ -34,6 +35,18 @@ public class CTBNC<T extends Node> extends AbstractPGM implements Classifier {
 	public CTBNC(List<Node> nodes, Dataset dataset, ParameterLearningAlgorithm parameterLearningAlg,
 			StructureLearningAlgorithm structureLearningAlg) {
 		super(nodes);
+		setParameterLearningAlgorithm(parameterLearningAlg);
+		setStructureLearningAlgorithm(structureLearningAlg);
+		this.dataset = dataset;
+	}
+
+	private void setParameterLearningAlgorithm(ParameterLearningAlgorithm parameterLearningAlg) {
+		this.parameterLearningAlg = parameterLearningAlg;
+	}
+
+	private void setStructureLearningAlgorithm(StructureLearningAlgorithm structureLearningAlg) {
+		this.structureLearningAlg = structureLearningAlg;
+
 	}
 
 	@Override
@@ -43,8 +56,22 @@ public class CTBNC<T extends Node> extends AbstractPGM implements Classifier {
 
 	@Override
 	public void setStructure(boolean[][] adjacencyMatrix) {
-		// TODO Auto-generated method stub
+		// Current edges are removed
+		for (Node node : nodes) {
+			node.removeAllEdges();
+		}
+		for (int i = 0; i < adjacencyMatrix.length; i++) {
+			Node node = nodeIndexer.getNodeByIndex(i);
 
+			for (int j = 0; j < adjacencyMatrix.length; j++) {
+				if (adjacencyMatrix[i][j]) {
+					Node childNode = nodeIndexer.getNodeByIndex(j);
+					node.setChild(childNode);
+				}
+			}
+		}
+		parameterLearningAlg.learn(nodes, dataset);
+		this.learnedNodes = (List<N>) parameterLearningAlg.getParameters();
 	}
 
 	@Override
@@ -54,17 +81,11 @@ public class CTBNC<T extends Node> extends AbstractPGM implements Classifier {
 	}
 
 	@Override
-	public boolean[][] getAdjacencyMatrix() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String[][] predict() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public String getType() {
 		return "Continuous time Bayesian network";
@@ -73,7 +94,7 @@ public class CTBNC<T extends Node> extends AbstractPGM implements Classifier {
 	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }

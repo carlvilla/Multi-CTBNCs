@@ -20,8 +20,10 @@ public class BNSufficientStatistics {
 	}
 
 	/**
-	 * Obtain the number of times the parents of the variable are in the state j and
-	 * the variable is in the state k.
+	 * Compute the sufficient statistics of a node in a BN. This is the number of
+	 * the variable is in a certain state while its parents take a certain value.
+	 * 
+	 * @param dataset
 	 */
 	public void computeSufficientStatistics(Dataset dataset) {
 		String nameVariable = node.getName();
