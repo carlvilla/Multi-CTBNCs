@@ -12,14 +12,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.BNParameterLearning;
 import com.cig.mctbnc.learning.parameters.BNParameterMLE;
-import com.cig.mctbnc.learning.parameters.CTBNParameterLearning;
 import com.cig.mctbnc.learning.parameters.CTBNParameterMLE;
-import com.cig.mctbnc.learning.structure.BNStructureHillClimbing;
-import com.cig.mctbnc.learning.structure.BNStructureLearning;
-import com.cig.mctbnc.learning.structure.CTBNCStructureLearning;
-import com.cig.mctbnc.learning.structure.CTBNCStructureMLE;
+import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.HillClimbing;
+import com.cig.mctbnc.learning.structure.CTBNCStructureHillClimbing;
+import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.DiscreteNode;
 
@@ -31,7 +29,7 @@ public class CommandLine {
 
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
-		String[] nameClassVariables = { "Exercise", "ExerciseMode", "S1" };
+		String[] nameClassVariables = { "Exercise", "ExerciseMode", "S1", "S2"};
 		String nameTimeVariable = "t";
 
 		logger.info("Reading sequences from {}", datasetFolder);
@@ -40,7 +38,7 @@ public class CommandLine {
 		// For now it will be used 70% sequences for training and 30% for testing
 		// Define training dataset
 		Dataset trainingDataset = new Dataset(nameTimeVariable, nameClassVariables);
-		File[] trainingFiles = Arrays.copyOfRange(files, 0, (int) (files.length * 0.7));
+		File[] trainingFiles = Arrays.copyOfRange(files, 0, (int) (files.length * 0.5));
 		for (File file : trainingFiles) {
 			List<String[]> dataSequence = readCSV(file.getAbsolutePath());
 			trainingDataset.addSequence(dataSequence);
@@ -48,7 +46,7 @@ public class CommandLine {
 
 		// Define testing dataset
 		Dataset testingDataset = new Dataset(nameTimeVariable, nameClassVariables);
-		File[] testingFiles = Arrays.copyOfRange(files, (int) (files.length * 0.7), files.length);
+		File[] testingFiles = Arrays.copyOfRange(files, (int) (files.length * 0.5), (int) (files.length * 0.6));
 		for (File file : testingFiles) {
 			List<String[]> dataSequence = readCSV(file.getAbsolutePath());
 			testingDataset.addSequence(dataSequence);
@@ -61,16 +59,18 @@ public class CommandLine {
 		// Define initial structure
 		int numNodes = trainingDataset.getNumVariables();
 		boolean[][] initialStructure = new boolean[numNodes][numNodes];
-		initialStructure[0][30] = true;
-		initialStructure[31][30] = true;
+		initialStructure[trainingDataset.getIndexVariable("Exercise")][trainingDataset
+				.getIndexVariable("ExerciseMode")] = true;
+		initialStructure[trainingDataset.getIndexVariable("ExerciseMode")][trainingDataset
+				.getIndexVariable("S1")] = true;
 
 		// Define learning algorithms for the class subgraph
-		BNParameterLearning bnParameterLearningAlgorithm = new BNParameterMLE();
-		BNStructureLearning bnStructureLearningAlgorithm = new BNStructureHillClimbing();
+		ParameterLearningAlgorithm bnParameterLearningAlgorithm = new BNParameterMLE();
+		StructureLearningAlgorithm bnStructureLearningAlgorithm = new HillClimbing();
 
 		// Define learning algorithms for the feature and class subgraph
-		CTBNParameterLearning ctbnParameterLearningAlgorithm = new CTBNParameterMLE();
-		CTBNCStructureLearning ctbnStructureLearningAlgorithm = new CTBNCStructureMLE();
+		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNParameterMLE();
+		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new CTBNCStructureHillClimbing();
 
 		// Define multi-dimensional continuous time Bayesian network model
 		MCTBNC<DiscreteNode> mctbnc = new MCTBNC<DiscreteNode>(trainingDataset, ctbnParameterLearningAlgorithm,

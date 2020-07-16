@@ -1,52 +1,53 @@
 package com.cig.mctbnc.learning.structure;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.BNParameterLearning;
-import com.cig.mctbnc.models.BN;
-import com.cig.mctbnc.nodes.CPTNode;
+import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
+import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
 
-public class BNStructureHillClimbing implements BNStructureLearning {
-
+public class HillClimbing implements StructureLearningAlgorithm {
+	PGM pgm;
 	List<Node> nodes;
 	Dataset trainingDataset;
-	BNParameterLearning bnParameterLearning;
+	ParameterLearningAlgorithm parameterLearning;
 	boolean[][] initialAdjacencyMatrix;
-	static Logger logger = LogManager.getLogger(BNStructureHillClimbing.class);
+	static Logger logger = LogManager.getLogger(HillClimbing.class);
 
 	@Override
-	public void learn(BN<? extends Node> bn, BNParameterLearning bnParameterLearning, Dataset trainingDataset) {
+	public void learn(PGM pgm, Dataset trainingDataset, ParameterLearningAlgorithm bnParameterLearning) {
+		logger.info("Learning {} using Hill Climbing", pgm.getType());
 
-		logger.info("Learning Bayesian network using Hill Climbing");
+		// Define model
+		this.pgm = pgm;
 
-		// Define nodes of the bayesian network
-		this.nodes = bn.getNodes();
+		// Define nodes of the Bayesian network
+		this.nodes = pgm.getNodes();
 
 		// Define parameter learning algorithm
-		this.bnParameterLearning = bnParameterLearning;
+		this.parameterLearning = bnParameterLearning;
 
 		// Get initial structure
-		this.initialAdjacencyMatrix = bn.getAdjacencyMatrix();
+		this.initialAdjacencyMatrix = pgm.getAdjacencyMatrix();
 
 		// Define training dataset
 		this.trainingDataset = trainingDataset;
 
 		// Obtain best neighbor
 		boolean[][] bestStructure = findStructure();
-		bn.setStructure(bestStructure);
+		pgm.setStructure(bestStructure);
 	}
 
 	/**
-	 * Performs greedy Hill climbing to find a better structure from the initial one.
-	 * @return
+	 * Performs greedy Hill climbing to find a better structure from the initial
+	 * one.
+	 * 
+	 * @return Adjacency matrix of the found structure.
 	 */
 	public boolean[][] findStructure() {
 
@@ -127,12 +128,10 @@ public class BNStructureHillClimbing implements BNStructureLearning {
 						tempAdjacencyMatrix[j][i] = true;
 					}
 
-					if (structureIsLegal(tempAdjacencyMatrix)) {
+					if (pgm.isStructureLegal(tempAdjacencyMatrix)) {
 						// Define Bayesian network with the modified adjacency matrix
-						BN<CPTNode> bn = new BN<CPTNode>(nodes, trainingDataset);
-						bn.setParameterLearningAlgorithm(bnParameterLearning);
-						bn.setStructure(tempAdjacencyMatrix);
-						double obtainedScore = StructureScoreFunctions.bnPenalizedLogLikelihoodScore(bn);
+						pgm.setStructure(tempAdjacencyMatrix);
+						double obtainedScore = StructureScoreFunctions.penalizedLogLikelihoodScore(pgm);
 
 						if (scores[idxOperation] < obtainedScore) {
 							scores[idxOperation] = obtainedScore;
@@ -142,71 +141,5 @@ public class BNStructureHillClimbing implements BNStructureLearning {
 				}
 			}
 		}
-
 	}
-
-	/**
-	 * Check if the structure (given by a adjacencyMatrix) is legal for a Bayesian
-	 * network.
-	 * 
-	 * @param adjacencyMatrix
-	 * @return
-	 */
-	private boolean structureIsLegal(boolean[][] adjacencyMatrix) {
-		boolean legalStructure = !isCyclic(adjacencyMatrix);
-		return legalStructure;
-	}
-
-	/**
-	 * Determine if there are cycles in an adjacency matrix. Modified version of code in
-	 * https://www.geeksforgeeks.org/detect-cycle-in-a-directed-graph-using-bfs/.
-	 * 
-	 * @param adjacencyMatrix
-	 * @return
-	 */
-	private boolean isCyclic(boolean[][] adjacencyMatrix) {
-
-		int numNodes = adjacencyMatrix.length;
-
-		// Indegrees of all nodes.
-		int[] inDegree = new int[numNodes];
-
-		for (int i = 0; i < numNodes; i++) {
-			for (int j = 0; j < numNodes; j++) {
-				if (i != j && adjacencyMatrix[i][j]) {
-					inDegree[j]++;
-				}
-			}
-		}
-
-		// Enqueue all nodes with indegree 0
-		Queue<Integer> q = new LinkedList<Integer>();
-		for (int i = 0; i < numNodes; i++)
-			if (inDegree[i] == 0)
-				q.add(i);
-
-		// Initialize count of visited vertices
-		int countVisitedNodes = 0;
-
-		// One by one dequeue vertices from queue and enqueue
-		// adjacents if indegree of adjacent becomes 0
-		while (!q.isEmpty()) {
-
-			// Extract node from queue
-			int i = q.poll();
-
-			// Iterate over all children nodes of dequeued node i and
-			// decrease their in-degree by 1
-			for (int j = 0; j < numNodes; j++)
-				if (i != j && adjacencyMatrix[i][j] && --inDegree[j] == 0)
-					q.add(j);
-			countVisitedNodes++;
-		}
-
-		// If the number of visited nodes are different than the number
-		// of nodes in the graph, there are cycles
-		return !(countVisitedNodes == numNodes);
-
-	}
-
 }

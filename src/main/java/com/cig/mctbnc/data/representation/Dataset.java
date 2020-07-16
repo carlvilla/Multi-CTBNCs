@@ -168,7 +168,6 @@ public class Dataset {
 	 * @return
 	 */
 	public String[][] getValuesVariables(String[] nameVaribles) {
-
 		// If all the variables are class variables, then it is not necessary to
 		// check the observations of each sequence
 		boolean onlyClassVariable = Arrays.asList(getNameClassVariables()).containsAll(Arrays.asList(nameVaribles));

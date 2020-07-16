@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.models.BN;
+import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.DiscreteNode;
 
@@ -17,8 +18,14 @@ public class StructureScoreFunctions {
 	 * @param nodes
 	 * @return
 	 */
-	public static double bnPenalizedLogLikelihoodScore(BN<CPTNode> bn) {
+	public static double penalizedLogLikelihoodScore(PGM pgm) {
+		if (pgm instanceof BN) {
+			return bnPenalizedLogLikelihoodScore((BN<CPTNode>) pgm);
+		}
+		return 0;
+	}
 
+	private static double bnPenalizedLogLikelihoodScore(BN<CPTNode> bn) {
 		// Obtain nodes of the Bayesian networks with the CPTs
 		List<CPTNode> nodes = bn.getLearnedNodes();
 
@@ -34,12 +41,12 @@ public class StructureScoreFunctions {
 			// All the possible states between the studied variable and its parents
 			Set<State> states = N.keySet();
 			for (State state : states) {
-				for (String k : possibleValuesStudiedVariable) {				
+				for (String k : possibleValuesStudiedVariable) {
 					State query = new State(state.getEvents());
 					query.modifyEventValue(node.getName(), k);
 					// Number of times the studied variable and its parents take a certain value
 					int Nijk = N.get(query);
-					if(Nijk != 0)					
+					if (Nijk != 0)
 						llScore += Nijk * Math.log(CPT.get(query));
 				}
 			}
@@ -55,7 +62,8 @@ public class StructureScoreFunctions {
 			// Compute network complexity
 			double networkComplexity = numPossibleStatesParents * (numPossibleStatesStudiedVariable - 1);
 
-			// Compute non-negative penalization (For now it is performing a BIC penalization)
+			// Compute non-negative penalization (For now it is performing a BIC
+			// penalization)
 			double penalization = Math.log(bn.getDataset().getNumDataPoints()) / 2;
 
 			// Obtain number of states of the parents of the currently studied variable

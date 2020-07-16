@@ -2,13 +2,14 @@ package com.cig.mctbnc.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.graphstream.graph.Graph;
 
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
-public abstract class AbstractPGM<T> implements PGM<T> {
+public abstract class AbstractPGM implements PGM {
 
 	protected List<Node> nodes;
 	protected NodeIndexer nodeIndexer;
@@ -25,41 +26,25 @@ public abstract class AbstractPGM<T> implements PGM<T> {
 		addNodes(nodes);
 	}
 
-	/**
-	 * Add the nodes to list of the PGM. It is necessary to include a NodeIndexer
-	 * object in order to keep track of their index.
-	 * 
-	 * @param nodes
-	 */
+	@Override
 	public void addNodes(List<Node> nodes) {
-		if(this.nodes == null) {
+		if (this.nodes == null) {
 			this.nodes = new ArrayList<Node>();
 		}
 		this.nodes.addAll(nodes);
 		nodeIndexer = new NodeIndexer(this.nodes);
 	}
 
-	/**
-	 * Add nodes to a Graph object. This graph will be used to display the PGM.
-	 * 
-	 * @param graph
-	 * @param nodes
-	 */
-	protected void addNodes(Graph graph, List<Node> nodes) {
+	@Override
+	public void addNodes(Graph graph, List<Node> nodes) {
 		for (Node node : nodes) {
 			String nameNode = node.getName();
 			graph.addNode(nameNode).addAttribute("ui.label", nameNode);
 		}
 	}
 
-	/**
-	 * Add to a Graph object the nodes passed as an argument and edges with their
-	 * children. This graph will be used to display the PGM.
-	 * 
-	 * @param graph
-	 * @param nodes
-	 */
-	protected void addEdges(Graph graph, List<Node> nodes) {
+	@Override
+	public void addEdges(Graph graph, List<Node> nodes) {
 		for (Node node : nodes) {
 			String nameNode = node.getName();
 			for (Node child : node.getChildren()) {
@@ -69,10 +54,28 @@ public abstract class AbstractPGM<T> implements PGM<T> {
 		}
 	}
 
+	@Override
 	public List<Node> getNodes() {
 		return nodes;
 	}
 
+	@Override
+	public Node getNodeByIndex(int index) {
+		Node selectedNode = nodes.stream().filter(node -> node.getIndex() == index).findAny().orElse(null);
+		return selectedNode;
+	}
+
+	@Override
+	public List<Node> getNodesClassVariables() {
+		return nodes.stream().filter(node -> node.isClassVariable()).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Node> getNodesFeatures() {
+		return nodes.stream().filter(node -> !node.isClassVariable()).collect(Collectors.toList());
+	}
+
+	@Override
 	public int getNumNodes() {
 		return nodes.size();
 	}

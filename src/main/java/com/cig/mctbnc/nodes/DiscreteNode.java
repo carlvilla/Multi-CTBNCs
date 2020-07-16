@@ -8,8 +8,29 @@ public class DiscreteNode extends AbstractNode {
 
 	private List<State> states;
 
+	/**
+	 * Initialize a discrete node.
+	 * 
+	 * @param index
+	 * @param name
+	 * @param list
+	 */
 	public DiscreteNode(int index, String name, List<State> list) {
 		super(index, name);
+		this.states = list;
+	}
+
+	/**
+	 * Initialize a discrete node with the possibility of specifying if the node is
+	 * for a class variable or a feature.
+	 * 
+	 * @param index
+	 * @param name
+	 * @param classVariable
+	 * @param list
+	 */
+	public DiscreteNode(int index, String name, boolean classVariable, List<State> list) {
+		super(index, name, classVariable);
 		this.states = list;
 	}
 

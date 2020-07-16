@@ -17,7 +17,7 @@ public class CPTNode extends DiscreteNode {
 	Map<State, Integer> sufficientStatistics;
 
 	public CPTNode(DiscreteNode node, Map<State, Double> CPT, Map<State, Integer> sufficientStatistics) {
-		super(node.getIndex(), node.getName(), node.getStates());
+		super(node.getIndex(), node.getName(), node.isClassVariable(), node.getStates());
 		this.CPT = CPT;
 		this.sufficientStatistics = sufficientStatistics;
 	}

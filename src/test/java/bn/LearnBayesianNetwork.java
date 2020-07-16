@@ -3,16 +3,15 @@ package bn;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.BNParameterLearning;
 import com.cig.mctbnc.learning.parameters.BNParameterMLE;
-import com.cig.mctbnc.learning.structure.BNStructureHillClimbing;
-import com.cig.mctbnc.learning.structure.BNStructureLearning;
+import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.HillClimbing;
+import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.DiscreteNode;
 
@@ -53,9 +52,9 @@ public class LearnBayesianNetwork {
 
 		// Class subgraph is defined with a Bayesian network
 		// Algorithm to learn parameters
-		BNParameterLearning parameterLearningAlgorithm = new BNParameterMLE();
+		ParameterLearningAlgorithm parameterLearningAlgorithm = new BNParameterMLE();
 		// Algorithm to learn structure
-		BNStructureLearning structureLearningAlgorithm = new BNStructureHillClimbing();
+		StructureLearningAlgorithm structureLearningAlgorithm = new HillClimbing();
 
 		BN bn = new BN<DiscreteNode>(dataset, parameterLearningAlgorithm, structureLearningAlgorithm);
 		bn.learn();

@@ -12,7 +12,7 @@ import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
-public class BNParameterMLE implements BNParameterLearning {
+public class BNParameterMLE implements ParameterLearningAlgorithm {
 
 	List<CPTNode> cptNodes;
 
@@ -51,7 +51,7 @@ public class BNParameterMLE implements BNParameterLearning {
 	 * Return a list of CPTNode objects, i.e., an object that extend DiscreteNode in
 	 * order to store the CPT tables.
 	 * 
-	 * @return
+	 * @return List of CPTNodes
 	 */
 	public List<CPTNode> getCPT() {
 		try {
@@ -62,7 +62,6 @@ public class BNParameterMLE implements BNParameterLearning {
 		}
 
 		return cptNodes;
-
 	}
 
 	/**
@@ -71,7 +70,8 @@ public class BNParameterMLE implements BNParameterLearning {
 	 * 
 	 * @param studiedNode
 	 * @param N
-	 * @return
+	 * @return a Map object with the probabilities of each possible state of a
+	 *         variable and its parents
 	 */
 	public Map<State, Double> estimateCPT(DiscreteNode studiedNode, Map<State, Integer> N) {
 		Map<State, Double> CPT = new HashMap<State, Double>();
@@ -109,9 +109,9 @@ public class BNParameterMLE implements BNParameterLearning {
 	 * Obtain for each variable i, the number of times its parents are in the state
 	 * j and the variable is in the state k.
 	 * 
-	 * @param bn
+	 * @param nodes
 	 * @param dataset
-	 * @return
+	 * @return sufficient statistics for each variable
 	 */
 	public BNSufficientStatistics[] sufficientStatistics(List<Node> nodes, Dataset dataset) {
 		int numNodes = nodes.size();
@@ -124,5 +124,4 @@ public class BNParameterMLE implements BNParameterLearning {
 		}
 		return ss;
 	}
-
 }

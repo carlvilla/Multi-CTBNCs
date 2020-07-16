@@ -7,14 +7,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Defines an observation of a sequence.
  * 
- * @author Carlos Villa <carlos.villa@upm.es>
+ * @author Carlos Villa Blanco
  *
- *         Defines an observation of a sequence.
- * 
- * @param <TimeType>
- *            type of the time interval (Integer = discrete time, Double =
- *            continuous time)
  */
 public class Observation {
 

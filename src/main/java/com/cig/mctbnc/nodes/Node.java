@@ -11,6 +11,8 @@ public interface Node {
 	public List<Node> getChildren();
 
 	public List<Node> getParents();
+	
+	public boolean isClassVariable();
 
 	public boolean hasParents();
 

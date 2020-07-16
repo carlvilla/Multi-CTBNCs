@@ -73,7 +73,7 @@ public class Sequence {
 	 * Get all the possible states of the specified variable
 	 * 
 	 * @param Variable
-	 * @return
+	 * @return Array with the states of the variable.
 	 */
 	public String[] getStates(String nameVariable) {
 		if (classValues.containsKey(nameVariable)) {
@@ -91,7 +91,7 @@ public class Sequence {
 	 * Get all the possible states of the specified variables together
 	 * 
 	 * @param Variable
-	 * @return
+	 * @return 
 	 */
 	public List<String> getStates(List<String> nameVariables) {
 		List<String> states = new ArrayList<String>();
