@@ -7,10 +7,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.cig.mctbnc.util.Util;
 
 public class Dataset {
 
@@ -86,11 +87,12 @@ public class Dataset {
 	}
 
 	/**
-	 * Check if the data to add to the dataset is correct. It will be throw and
-	 * exception is this is not the case.
+	 * Check if it is possible to add the specified variables to the dataset. It
+	 * will be throw and exception is this is not the case.
 	 * 
 	 * @param nameVariables
-	 * @return
+	 *            names of the variables
+	 * @return boolean that determines if the addition is valid
 	 * @throws Exception
 	 */
 	public boolean checkIntegrityData(String[] nameVariables) throws Exception {
@@ -123,16 +125,24 @@ public class Dataset {
 		return dataCorrect;
 	}
 
+	public int getIndexVariable(String nameVariable) {
+		return indexVariables.get(nameVariable);
+	}
+
+	public Map<String, Integer> getIndexVariables() {
+		return indexVariables;
+	}
+
+	public String getNameTimeVariable() {
+		return nameTimeVariable;
+	}
+
 	public String[] getNameFeatures() {
 		return nameFeatures;
 	}
 
 	public String[] getNameClassVariables() {
 		return nameClassVariables;
-	}
-
-	public String getNameTimeVariable() {
-		return nameTimeVariable;
 	}
 
 	/**
@@ -144,15 +154,6 @@ public class Dataset {
 		return indexVariables.keySet().stream().filter(name -> !name.equals(nameTimeVariable)).toArray(String[]::new);
 	}
 
-	/**
-	 * Return the number of variables (without the variable for the time).
-	 * 
-	 * @return the number of variables
-	 */
-	public int getNumVariables() {
-		return getNumClassVariables() + getNumFeatures();
-	}
-
 	public int getNumFeatures() {
 		return nameFeatures.length;
 	}
@@ -162,10 +163,19 @@ public class Dataset {
 	}
 
 	/**
+	 * Return the number of variables (without the variable for the time).
+	 * 
+	 * @return the number of variables
+	 */
+	public int getNumVariables() {
+		return getNumClassVariables() + getNumFeatures();
+	}
+
+	/**
 	 * Return the number of data points. In this case, this is the number of
 	 * sequences.
 	 * 
-	 * @return
+	 * @return number of sequences
 	 */
 	public int getNumDataPoints() {
 		return getSequences().size();
@@ -175,7 +185,8 @@ public class Dataset {
 	 * Get the values of the specified variables (by name) for all the sequences.
 	 * 
 	 * @param nameVaribles
-	 * @return
+	 *            names of the variables
+	 * @return bidimensional array with the values of the specified variables
 	 */
 	public String[][] getValuesVariables(String[] nameVaribles) {
 		// If all the variables are class variables, then it is not necessary to
@@ -192,7 +203,7 @@ public class Dataset {
 	/**
 	 * Get the values of the class variables for all the sequences.
 	 * 
-	 * @return
+	 * @return bidimensional array with the values of the class variables
 	 */
 	public String[][] getValuesClassVariables() {
 		String[][] valuesClassVariables = new String[getSequences().size()][getNumClassVariables()];
@@ -218,25 +229,27 @@ public class Dataset {
 	}
 
 	/**
-	 * Return the possible combination of values of the specified variables
+	 * Get all the possible states of the specified variables together. It is
+	 * obtained all the combinations between the states of the variables.
 	 * 
 	 * @param nameVariables
-	 * @return
+	 *            name of the variables whose possible combinations of states we
+	 *            want to know
+	 * @return a list of as many objects State as possible combinations between the
+	 *         specified variables
 	 */
 	public List<State> getStatesVariables(List<String> nameVariables) {
-		// It is used a set of lists in order to not have unique combinations
-		// of values for the studied variables
-		Set<State> states = new HashSet<State>();
-		for (Sequence sequence : getSequences()) {
-			List<String> statesSequence = sequence.getStates(nameVariables);
-			State state = new State();
-			for (int i = 0; i < nameVariables.size(); i++) {
-				Event<String> event = new Event<String>(nameVariables.get(i), statesSequence.get(i));
-				state.addEvent(event);
-			}
-			states.add(state);
+		if (nameVariables.size() == 1) {
+			return getStatesVariable(nameVariables.get(0));
 		}
-		return new ArrayList<State>(states);
+		// Get all possible states for each variable
+		List<List<State>> listStatesEachVariable = new ArrayList<List<State>>();
+		for (String nameVariable : nameVariables) {
+			List<State> statesVariable = getStatesVariable(nameVariable);
+			listStatesEachVariable.add(statesVariable);
+		}
+		List<State> states = Util.cartesianProduct(listStatesEachVariable);
+		return states;
 	}
 
 	/**
@@ -326,14 +339,6 @@ public class Dataset {
 			}
 		}
 		return numOccurrences;
-	}
-
-	public int getIndexVariable(String nameVariable) {
-		return indexVariables.get(nameVariable);
-	}
-
-	public Map<String, Integer> getIndexVariables() {
-		return indexVariables;
 	}
 
 	/**

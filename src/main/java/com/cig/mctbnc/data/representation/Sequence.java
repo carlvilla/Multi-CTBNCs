@@ -79,9 +79,10 @@ public class Sequence {
 	}
 
 	/**
-	 * Get all the possible states of the specified variable
+	 * Get all the possible states of a specific variable
 	 * 
-	 * @param Variable
+	 * @param nameVariable
+	 *            name of the variable whose possible states we want to know
 	 * @return Array with the states of the variable.
 	 */
 	public String[] getStates(String nameVariable) {
@@ -94,34 +95,6 @@ public class Sequence {
 			states.add(observation.getValueFeature(nameVariable));
 		}
 		return states.toArray(new String[states.size()]);
-	}
-
-	/**
-	 * Get all the possible states of the specified variables together. It is
-	 * obtained all the possible states of the variables and then it is computed all
-	 * possible combinations between them.
-	 * 
-	 * @param nameVariables
-	 * @return
-	 */
-	public List<String> getStates(List<String> nameVariables) {
-		List<String> states = new ArrayList<String>();
-		// If it is specified only class variables
-
-		if (classValues.containsKey(nameVariables.get(0))) {
-			for (String nameVariable : nameVariables)
-				states.add(classValues.get(nameVariable));
-		}
-
-		/*
-		 * Set<String> states = new HashSet<String>(); // For each observation it is
-		 * obtained all the combination of for (Observation observation : observations)
-		 * { List<String> values = new ArrayList<String>(); for (String nameVariable :
-		 * nameVariables) { values.add(observation.getValueFeature(nameVariable)); }
-		 * states.add(values); }
-		 */
-
-		return states;
 	}
 
 	public String toString() {

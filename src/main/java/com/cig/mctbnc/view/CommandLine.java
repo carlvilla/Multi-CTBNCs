@@ -16,7 +16,6 @@ import com.cig.mctbnc.learning.parameters.BNParameterMLE;
 import com.cig.mctbnc.learning.parameters.CTBNParameterMLE;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.HillClimbing;
-import com.cig.mctbnc.learning.structure.CTBNCStructureHillClimbing;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.DiscreteNode;
@@ -29,7 +28,7 @@ public class CommandLine {
 
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
-		String[] nameClassVariables = { "Exercise", "ExerciseMode", "S1", "S2", "S3"};
+		String[] nameClassVariables = { "Exercise", "ExerciseMode", "S1", "S2", "S3" };
 		String nameTimeVariable = "t";
 
 		logger.info("Reading sequences from {}", datasetFolder);
@@ -61,8 +60,10 @@ public class CommandLine {
 		boolean[][] initialStructure = new boolean[numNodes][numNodes];
 		initialStructure[trainingDataset.getIndexVariable("Exercise")][trainingDataset
 				.getIndexVariable("ExerciseMode")] = true;
-		initialStructure[trainingDataset.getIndexVariable("ExerciseMode")][trainingDataset
-				.getIndexVariable("S1")] = true;
+		initialStructure[trainingDataset.getIndexVariable("S1")][trainingDataset
+				.getIndexVariable("ExerciseMode")] = true;
+		initialStructure[trainingDataset.getIndexVariable("S2")][trainingDataset
+				.getIndexVariable("ExerciseMode")] = true;
 
 		// Define learning algorithms for the class subgraph
 		ParameterLearningAlgorithm bnParameterLearningAlgorithm = new BNParameterMLE();
@@ -76,7 +77,7 @@ public class CommandLine {
 		MCTBNC<DiscreteNode> mctbnc = new MCTBNC<DiscreteNode>(trainingDataset, ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
 		// Initial structure
-		// mctbnc.setStructure(initialStructure);
+		mctbnc.setStructure(initialStructure);
 
 		// mctbnc.learnStructure();
 
@@ -87,10 +88,10 @@ public class CommandLine {
 	}
 
 	/**
-	 * Reads a CSV file
+	 * Reads a CSV file. It returns the 
 	 * 
-	 * @param pathFile
-	 * @return
+	 * @param pathFile path to the CSV file
+	 * @return list with the rows (arrays) of the CSV 
 	 */
 	public List<String[]> readCSV(String pathFile) {
 		List<String[]> dataCSV = new ArrayList<String[]>();
