@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.nodes.CPTNode;
@@ -14,6 +17,7 @@ import com.cig.mctbnc.nodes.Node;
 
 public class BNParameterMLE implements ParameterLearningAlgorithm {
 
+	static Logger logger = LogManager.getLogger(BNParameterMLE.class);
 	List<CPTNode> cptNodes;
 
 	@Override
@@ -25,17 +29,12 @@ public class BNParameterMLE implements ParameterLearningAlgorithm {
 	public void setCPTs(List<Node> nodes, BNSufficientStatistics[] ss) {
 		// For each node it is created a new type of node that contains the CPTs.
 		cptNodes = new ArrayList<CPTNode>();
-
 		for (int i = 0; i < nodes.size(); i++) {
-
 			// The node has to be discrete
 			DiscreteNode node = (DiscreteNode) nodes.get(i);
-
 			Map<State, Integer> N = ss[i].getSufficientStatistics();
-
-			// Compute the parameters for the current node with the sufficient statistics
+			// Compute the parameters for the current node with its sufficient statistics
 			Map<State, Double> CPT = estimateCPT(node, N);
-
 			// Create a CPTNode to store the computed CPT and sufficient statistics
 			CPTNode cptNode = new CPTNode(node, CPT, N);
 			cptNodes.add(cptNode);
@@ -49,18 +48,13 @@ public class BNParameterMLE implements ParameterLearningAlgorithm {
 
 	/**
 	 * Return a list of CPTNode objects, i.e., an object that extend DiscreteNode in
-	 * order to store the CPT tables.
+	 * order to store the conditional probability tables.
 	 * 
 	 * @return List of CPTNodes
 	 */
 	public List<CPTNode> getCPT() {
-		try {
-			if (cptNodes.isEmpty())
-				throw new Exception("CPT were not learned");
-		} catch (Exception e) {
-			System.err.println(e);
-		}
-
+		if (cptNodes.isEmpty())
+			logger.warn("CPTs were not learned");
 		return cptNodes;
 	}
 

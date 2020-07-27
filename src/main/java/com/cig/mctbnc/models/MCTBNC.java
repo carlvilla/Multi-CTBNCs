@@ -79,7 +79,7 @@ public class MCTBNC<T extends Node> extends AbstractPGM {
 		// class variables
 		logger.info(
 				"Defining structure and parameters of the feature and bridge subgraphs (Continuous time Bayesian network)");
-		//ctbnc.learn();
+		ctbnc.learn();
 
 		// Join class subgraph with feature and bridge subgraphs
 

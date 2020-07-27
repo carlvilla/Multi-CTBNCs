@@ -316,13 +316,13 @@ public class Dataset {
 
 				// Check if the variable starts from the expected value
 				boolean expectedValueBefore = observationBefore.getValueFeature(nameVariable)
-						.equals(toState.getValueNode(nameVariable));
+						.equals(fromState.getValueNode(nameVariable));
 
 				// Check if the studied variable transitions to the expected value
 				boolean expectedValueAfter = observationAfter.getValueFeature(nameVariable)
 						.equals(toState.getValueNode(nameVariable));
 
-				// It is only neccesary to check the states of the parents if the variable
+				// It is only necessary to check the states of the parents if the variable
 				// transitions from and to the expected values
 				if (expectedValueBefore && expectedValueAfter && nameParents != null) {
 					boolean expectedValueParents = true;
@@ -339,6 +339,76 @@ public class Dataset {
 			}
 		}
 		return numOccurrences;
+	}
+
+	/**
+	 * Return how much time some variables stay in a certain state.
+	 * 
+	 * @param state
+	 *            state that contains the variables and the values to study
+	 * @return time the state is maintained
+	 */
+	public double getTimeState(State state) {
+		String[] nameVariables = state.getNameVariables();
+		double time = 0;
+
+		for (Sequence sequence : getSequences()) {
+
+			for (int i = 0; i < sequence.getNumObservations(); i++) {
+				// A pivot observation is created to check if it has the studied state and, in
+				// that case, how
+				// many subsequent observations have the same state too
+				Observation pivotObservation = sequence.getObservations().get(i);
+				boolean isInStudiedState = true;
+				// Check that every variable has the expected value in the pivot observation
+				for (String nameVariable : nameVariables) {
+					isInStudiedState = isInStudiedState
+							& pivotObservation.getValueFeature(nameVariable).equals(state.getValueNode(nameVariable));
+					// If any variable has a different state, the observation is not valid
+					if (!isInStudiedState) {
+						break;
+					}
+				}
+
+				if (isInStudiedState) {
+					for (int j = i + 1; j < sequence.getNumObservations(); j++) {
+						// Check which subsequent observations have the studied state
+						Observation subsequentObservation = sequence.getObservations().get(j);
+						isInStudiedState = true;
+						// Check that every variable has the expected value in the subsequent
+						// observation
+						for (String nameVariable : nameVariables) {
+							isInStudiedState = isInStudiedState & subsequentObservation.getValueFeature(nameVariable)
+									.equals(state.getValueNode(nameVariable));
+							// If any variable has a different state, the observation is not valid
+							if (!isInStudiedState) {
+								break;
+							}
+						}
+
+						// If the subsequent observation has the studied state too, the time is computed
+						// if it is the last observation of the sequence
+						if (isInStudiedState) {
+							if (j == sequence.getNumObservations()) {
+								time += subsequentObservation.getTimeValue() - pivotObservation.getTimeValue();
+							}
+						}
+						// If the subsequent observation has a different state, the time is computed and
+						// the pivot observation will be the following one
+						else {
+							time += subsequentObservation.getTimeValue() - pivotObservation.getTimeValue();
+							// Set pivot observation
+							i = j + 1;
+						}
+
+					}
+
+				}
+
+			}
+		}
+
+		return time;
 	}
 
 	/**

@@ -9,7 +9,7 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.nodes.Node;
 
-public class BNSufficientStatistics {
+public class BNSufficientStatistics implements SufficientStatistics {
 
 	private Node node;
 	private Map<State, Integer> N;
@@ -20,7 +20,7 @@ public class BNSufficientStatistics {
 	}
 
 	/**
-	 * Compute the sufficient statistics of a node in a BN. This is the number of
+	 * Compute the sufficient statistics of the node in a BN. This is the number of
 	 * the variable is in a certain state while its parents take a certain value.
 	 * 
 	 * @param dataset
@@ -61,6 +61,14 @@ public class BNSufficientStatistics {
 		}
 	}
 
+	/**
+	 * Return the sufficient statistics of the node. This is the number of the
+	 * variable is in a certain state while its parents take a certain value.
+	 * 
+	 * @return Map object that relates the states of a node with the number of
+	 *         appearances in a dataset.
+	 */
+	@Override
 	public Map<State, Integer> getSufficientStatistics() {
 		return N;
 	}

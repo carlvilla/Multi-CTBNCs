@@ -5,8 +5,10 @@ import java.util.Objects;
 /**
  * Represent the event where a node has a certain value.
  * 
- * @author Carlos Villa
+ * @author carlosvillablanco
  *
+ * @param <T>
+ *            type used by the node
  */
 public class Event<T> {
 
@@ -25,7 +27,7 @@ public class Event<T> {
 	public void setValue(T newValue) {
 		this.value = newValue;
 	}
-	
+
 	public T getValue() {
 		return value;
 	}

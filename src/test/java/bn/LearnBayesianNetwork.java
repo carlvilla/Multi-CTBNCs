@@ -17,6 +17,8 @@ import com.cig.mctbnc.nodes.DiscreteNode;
 
 public class LearnBayesianNetwork {
 
+	private Dataset dataset;
+	
 	/**
 	 * Build a Bayesian network. The dataset used is formed by binary variables
 	 * V1,V2 and V3 (plus Time) such that V3 has value "a" iff V1 and V2 have both
@@ -30,20 +32,20 @@ public class LearnBayesianNetwork {
 
 		List<String[]> dataSequence1 = new ArrayList<String[]>();
 		dataSequence1.add(new String[] { "Time", "V1", "V2", "V3" });
-		dataSequence1.add(new String[] { "0.0", "a", "a", "a" });
+		dataSequence1.add(new String[] { "0.0", "a", "b", "b" });
 
 		List<String[]> dataSequence2 = new ArrayList<String[]>();
 		dataSequence2.add(new String[] { "Time", "V1", "V2", "V3" });
-		dataSequence2.add(new String[] { "0.0", "a", "b", "b" });
+		dataSequence2.add(new String[] { "0.0", "b", "a", "b" });
 
 		List<String[]> dataSequence3 = new ArrayList<String[]>();
 		dataSequence3.add(new String[] { "Time", "V1", "V2", "V3" });
-		dataSequence3.add(new String[] { "0.0", "b", "b", "b" });
+		dataSequence3.add(new String[] { "0.0", "a", "a", "a" });
 
 		List<String[]> dataSequence4 = new ArrayList<String[]>();
 		dataSequence4.add(new String[] { "Time", "V1", "V2", "V3" });
-		dataSequence4.add(new String[] { "0.0", "b", "a", "b" });
-
+		dataSequence4.add(new String[] { "0.0", "b", "b", "b" });
+		
 		Dataset dataset = new Dataset(nameTimeVariable, nameClassVariables);
 		dataset.addSequence(dataSequence1);
 		dataset.addSequence(dataSequence2);
