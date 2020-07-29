@@ -4,28 +4,48 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.learning.parameters.BNSufficientStatistics;
+import com.cig.mctbnc.learning.parameters.CTBNSufficientStatistics;
 import com.cig.mctbnc.models.BN;
+import com.cig.mctbnc.models.CTBNC;
 import com.cig.mctbnc.models.PGM;
+import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.DiscreteNode;
 
 public class StructureScoreFunctions {
 
+	static Logger logger = LogManager.getLogger(StructureScoreFunctions.class);
+	
 	/**
-	 * Compute the log-likelihood score for a discrete Bayesian network
+	 * Compute the penalized log-likelihood score of a probabilistic graphical model
 	 * 
-	 * @param nodes
-	 * @return
+	 * @param pgm
+	 * @return penalized log-likelihood score
 	 */
 	public static double penalizedLogLikelihoodScore(PGM pgm) {
 		if (pgm instanceof BN) {
-			return bnPenalizedLogLikelihoodScore((BN<CPTNode>) pgm);
+			logger.trace("Computing penalized log-likelihood of BN");
+			return penalizedLogLikelihoodScore((BN<CPTNode>) pgm);
+		} else if (pgm instanceof CTBNC) {
+			logger.trace("Computing penalized log-likelihood of CTBN");
+			return penalizedLogLikelihoodScore((CTBNC<CIMNode>) pgm);
 		}
 		return 0;
 	}
 
-	private static double bnPenalizedLogLikelihoodScore(BN<CPTNode> bn) {
+	/**
+	 * Compute the penalized log-likelihood score for a discrete Bayesian network
+	 * 
+	 * @param bn
+	 *            Bayesian network
+	 * @return penalized log-likelihood score
+	 */
+	private static double penalizedLogLikelihoodScore(BN<CPTNode> bn) {
 		// Obtain nodes of the Bayesian networks with the CPTs
 		List<CPTNode> nodes = bn.getLearnedNodes();
 
@@ -70,6 +90,38 @@ public class StructureScoreFunctions {
 			llScore -= networkComplexity * penalization;
 		}
 
+		return llScore;
+	}
+
+	/**
+	 * Compute the penalized log-likelihood score for a discrete continuous time
+	 * Bayesian network
+	 * 
+	 * @param ctbn
+	 *            continuous time Bayesian network
+	 * @return penalized log-likelihood score
+	 */
+	private static double penalizedLogLikelihoodScore(CTBNC<CIMNode> ctbn) {
+		// Obtain nodes of the Bayesian networks with the learned parameters
+		List<CIMNode> nodes = ctbn.getLearnedNodes();
+		double llScore = 0.0;
+		for (CIMNode node : nodes) {
+			Map<State, Map<State, Double>> Oxx = node.getOxx();
+			Map<State, Double> Qx = node.getQx();
+			CTBNSufficientStatistics ss = node.getSufficientStatistics();
+			for (State state : Qx.keySet()) {
+				double qx = Qx.get(state);
+				int nx = ss.getNx().get(state);
+				double tx = ss.getT().get(state);
+				// Probability density function of the exponential distribution
+				llScore += nx * Math.log(qx) - qx * tx * Math.log(Math.E);
+				for (State toState : Oxx.get(state).keySet()) {
+					double oxx = Oxx.get(state).get(toState);
+					int nxx = ss.getNxx().get(state).get(toState);
+					llScore += nxx * Math.log(oxx);
+				}
+			}
+		}
 		return llScore;
 	}
 

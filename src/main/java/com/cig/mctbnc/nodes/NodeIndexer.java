@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * It index each node with a unique index. It is necessary that each model has
  * its own indexer, since each model will use different nodes.
@@ -15,6 +18,7 @@ public class NodeIndexer {
 
 	private Map<String, Integer> nodeToIndex;
 	private Map<Integer, Node> indexToNode;
+	static Logger logger = LogManager.getLogger(NodeIndexer.class);
 
 	public NodeIndexer(List<Node> nodes) {
 		// Set to each node an index number
@@ -29,9 +33,13 @@ public class NodeIndexer {
 	public int getIndexNodeByName(String nameNode) {
 		return nodeToIndex.get(nameNode);
 	}
-	
+
 	public Node getNodeByIndex(int indexNode) {
-		return indexToNode.get(indexNode);
+		Node node = indexToNode.get(indexNode);
+		if (node == null) {
+			logger.warn("There is no node with index {}", indexNode);
+		}
+		return node;
 	}
 
 }

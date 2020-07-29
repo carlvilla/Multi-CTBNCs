@@ -17,11 +17,12 @@ import com.cig.mctbnc.nodes.Node;
 
 public class BNParameterMLE implements ParameterLearningAlgorithm {
 
-	static Logger logger = LogManager.getLogger(BNParameterMLE.class);
 	List<CPTNode> cptNodes;
+	static Logger logger = LogManager.getLogger(BNParameterMLE.class);
 
 	@Override
 	public void learn(List<Node> nodes, Dataset dataset) {
+		logger.trace("Learning parameters BN with maximum likelihood estimation");
 		BNSufficientStatistics[] ssNodes = sufficientStatistics(nodes, dataset);
 		setCPTs(nodes, ssNodes);
 	}

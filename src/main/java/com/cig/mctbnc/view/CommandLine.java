@@ -1,16 +1,13 @@
 package com.cig.mctbnc.view;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.cig.mctbnc.data.reader.DatasetReader;
+import com.cig.mctbnc.data.reader.SeparateCSVReader;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.BNParameterMLE;
 import com.cig.mctbnc.learning.parameters.CTBNParameterMLE;
@@ -29,33 +26,33 @@ public class CommandLine {
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
 		String[] nameClassVariables = { "Exercise", "ExerciseMode", "S1", "S2", "S3" };
+		String[] excludeVariables = { "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19",
+				"S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29" };
 		String nameTimeVariable = "t";
 
 		logger.info("Reading sequences from {}", datasetFolder);
 		logger.info("Preparing training and testing datasets");
 
+		// Generate datasets
 		// For now it will be used 70% sequences for training and 30% for testing
 		// Define training dataset
-		Dataset trainingDataset = new Dataset(nameTimeVariable, nameClassVariables);
-		File[] trainingFiles = Arrays.copyOfRange(files, 0, (int) (files.length * 0.05));
-		for (File file : trainingFiles) {
-			List<String[]> dataSequence = readCSV(file.getAbsolutePath());
-			trainingDataset.addSequence(dataSequence);
-		}
+		File[] trainingFiles = Arrays.copyOfRange(files, 0, (int) (files.length * 0.01));
+		DatasetReader dgTraining = new SeparateCSVReader(trainingFiles, nameTimeVariable, nameClassVariables,
+				excludeVariables);
+		Dataset trainingDataset = dgTraining.readDataset();
 
 		// Define testing dataset
-		Dataset testingDataset = new Dataset(nameTimeVariable, nameClassVariables);
-		File[] testingFiles = Arrays.copyOfRange(files, (int) (files.length * 0.05), (int) (files.length * 0.06));
-		for (File file : testingFiles) {
-			List<String[]> dataSequence = readCSV(file.getAbsolutePath());
-			testingDataset.addSequence(dataSequence);
-		}
+		File[] testingFiles = Arrays.copyOfRange(files, (int) (files.length * 0.01), (int) (files.length * 0.06));
+		DatasetReader dgTesting = new SeparateCSVReader(testingFiles, nameTimeVariable, nameClassVariables,
+				excludeVariables);
+		Dataset testingDataset = dgTesting.readDataset();
 
 		logger.info("Time variable: {}", trainingDataset.getNameTimeVariable());
 		logger.info("Features: {}", Arrays.toString(trainingDataset.getNameFeatures()));
 		logger.info("Class variables: {}", Arrays.toString(nameClassVariables));
 
-		// Define initial structure
+		// Define initial structure - IT MAY NOT BE WORKING CORRECTLY DUE TO THE NODE
+		// INDEXERS OF THE PGMs
 		int numNodes = trainingDataset.getNumVariables();
 		boolean[][] initialStructure = new boolean[numNodes][numNodes];
 		initialStructure[trainingDataset.getIndexVariable("Exercise")][trainingDataset
@@ -77,36 +74,12 @@ public class CommandLine {
 		MCTBNC<DiscreteNode> mctbnc = new MCTBNC<DiscreteNode>(trainingDataset, ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
 		// Initial structure
-		mctbnc.setStructure(initialStructure);
-
-		// mctbnc.learnStructure();
+		// mctbnc.setStructure(initialStructure);
 
 		// Train model
 		mctbnc.learn();
 		mctbnc.display();
 
-	}
-
-	/**
-	 * Reads a CSV file. It returns the 
-	 * 
-	 * @param pathFile path to the CSV file
-	 * @return list with the rows (arrays) of the CSV 
-	 */
-	public List<String[]> readCSV(String pathFile) {
-		List<String[]> dataCSV = new ArrayList<String[]>();
-		String row;
-		try {
-			BufferedReader csvReader = new BufferedReader(new FileReader(pathFile));
-			while ((row = csvReader.readLine()) != null) {
-				String[] dataRow = row.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-				dataCSV.add(dataRow);
-			}
-			csvReader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return dataCSV;
 	}
 
 }

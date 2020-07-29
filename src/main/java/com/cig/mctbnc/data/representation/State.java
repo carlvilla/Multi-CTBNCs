@@ -43,8 +43,10 @@ public class State {
 	/**
 	 * Given the name of a node, it is modified its value in its respective event.
 	 * 
-	 * @param name
-	 * @param k
+	 * @param nameNode
+	 *            name of the node
+	 * @param newValue
+	 *            new value for the node in this state
 	 */
 	public void modifyEventValue(String nameNode, String newValue) {
 		getEventNode(nameNode).setValue(newValue);
@@ -70,7 +72,7 @@ public class State {
 	 * Given the name of a node, it is returned its respective event.
 	 * 
 	 * @param nameNode
-	 * @return
+	 * @return event of the specified node for this state
 	 */
 	public Event<String> getEventNode(String nameNode) {
 		// There should be only one event for the specified variable
@@ -81,7 +83,7 @@ public class State {
 	 * Return the value for a specified node.
 	 * 
 	 * @param nameNode
-	 * @return
+	 * @return value of the specified node for this state
 	 */
 	public String getValueNode(String nameNode) {
 		return getEventNode(nameNode).getValue();

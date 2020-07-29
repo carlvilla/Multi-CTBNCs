@@ -5,14 +5,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.nodes.Node;
 
 public class BNSufficientStatistics implements SufficientStatistics {
-
 	private Node node;
 	private Map<State, Integer> N;
+	static Logger logger = LogManager.getLogger(BNSufficientStatistics.class);
 
 	public BNSufficientStatistics(Node node) {
 		this.node = node;
@@ -26,6 +29,7 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	 * @param dataset
 	 */
 	public void computeSufficientStatistics(Dataset dataset) {
+		logger.trace("Computing sufficient statistics BN for node {}", node.getName());
 		String nameVariable = node.getName();
 		List<State> statesVariable = dataset.getStatesVariable(nameVariable);
 
@@ -68,7 +72,6 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	 * @return Map object that relates the states of a node with the number of
 	 *         appearances in a dataset.
 	 */
-	@Override
 	public Map<State, Integer> getSufficientStatistics() {
 		return N;
 	}

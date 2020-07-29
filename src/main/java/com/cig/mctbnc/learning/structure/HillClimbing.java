@@ -18,26 +18,20 @@ public class HillClimbing implements StructureLearningAlgorithm {
 	ParameterLearningAlgorithm parameterLearning;
 	boolean[][] initialAdjacencyMatrix;
 	static Logger logger = LogManager.getLogger(HillClimbing.class);
-
+	
 	@Override
 	public void learn(PGM pgm, Dataset trainingDataset, ParameterLearningAlgorithm bnParameterLearning) {
 		logger.info("Learning {} using Hill Climbing", pgm.getType());
-
 		// Define model
 		this.pgm = pgm;
-
-		// Define nodes of the Bayesian network
+		// Define nodes of the PGM
 		this.nodes = pgm.getNodes();
-
 		// Define parameter learning algorithm
 		this.parameterLearning = bnParameterLearning;
-
 		// Get initial structure
 		this.initialAdjacencyMatrix = pgm.getAdjacencyMatrix();
-
 		// Define training dataset
 		this.trainingDataset = trainingDataset;
-
 		// Obtain best neighbor
 		boolean[][] bestStructure = findStructure();
 		pgm.setStructure(bestStructure);
@@ -58,7 +52,7 @@ public class HillClimbing implements StructureLearningAlgorithm {
 		boolean improvement;
 		do {
 			improvement = false;
-
+			
 			// Store scores and respective structures for each operation (addition, deletion
 			// and reversal)
 			double[] scores = { Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY };
@@ -109,7 +103,7 @@ public class HillClimbing implements StructureLearningAlgorithm {
 		for (int i = 0; i < numNodes; i++) {
 			for (int j = 0; j < numNodes; j++) {
 				if (i != j) {
-
+					logger.trace("Studying new structure", pgm.getType());
 					// Copy current best neighbor
 					boolean[][] tempAdjacencyMatrix = new boolean[numNodes][numNodes];
 					for (int r = 0; r < numNodes; r++) {

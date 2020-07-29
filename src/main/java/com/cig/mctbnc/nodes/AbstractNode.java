@@ -126,6 +126,7 @@ public abstract class AbstractNode implements Node {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Name: " + getName() + "\n");
+		sb.append("Index: " + getIndex() + "\n");
 		sb.append("Children: ");
 		String[] nameChildren = getChildren().stream().map(Node::getName).toArray(String[]::new);
 		sb.append(String.join(", ", nameChildren));

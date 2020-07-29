@@ -47,6 +47,8 @@ public class Dataset {
 	 * variables.
 	 * 
 	 * @param data
+	 *            list of Strings (a sequence) where the first array contains the
+	 *            name of the variables
 	 */
 	public void addSequence(List<String[]> data) {
 		try {
@@ -62,7 +64,6 @@ public class Dataset {
 				// Definition of the indexes for the features
 				addIndex(nameFeatures);
 			}
-
 			// Check if it is possible to add the sequence
 			checkIntegrityData(nameVariables);
 			// Drop names of variables
@@ -76,6 +77,33 @@ public class Dataset {
 			logger.warn(e.getMessage());
 		}
 	}
+
+	/*
+	
+
+	public void addSequence(List<List<String>> data, String[] excludeVariables) {
+		
+		List<String> nameVariables = data.get(0);
+		List<Integer> variableIndexesToExclude = new ArrayList<Integer>();
+		
+		for(String excludeVariable: excludeVariables) {
+			int index = nameVariables.indexOf(excludeVariable);
+			if(index == -1) {
+				logger.warn("Trying to exclude variable {}, but it does not exist in the dataset");
+			} else {
+				// The name of the variable is removed
+				nameVariables.remove(index);
+				// The 
+				data.stream().map(row -> row.remove(index));
+				
+				
+			}
+		}
+		
+		addSequence(data);
+	}
+	
+	*/
 
 	/**
 	 * Return the sequences of the dataset.
@@ -98,7 +126,6 @@ public class Dataset {
 	public boolean checkIntegrityData(String[] nameVariables) throws Exception {
 		boolean dataCorrect;
 		List<String> listNameVariables = Arrays.asList(nameVariables);
-
 		dataCorrect = listNameVariables.contains(nameTimeVariable);
 		if (!dataCorrect) {
 			// logger.warn("Sequence not added - Time variable '{}' not specified",
@@ -121,7 +148,6 @@ public class Dataset {
 			String message = "Sequence not added - Sequences cannot have different variables";
 			throw new Exception(message);
 		}
-
 		return dataCorrect;
 	}
 
@@ -287,10 +313,10 @@ public class Dataset {
 	}
 
 	/**
-	 * 
 	 * Count the number of times in the dataset that a certain variable transitions
 	 * from a certain state ("fromState") to another ("toState"), while its parents
-	 * take a certain state ("fromState").
+	 * take a certain state ("fromState"). It is assumed that the studied variable
+	 * is the first one of the State objects.
 	 * 
 	 * @param fromState
 	 *            give the original states of the variable and its parents
@@ -300,6 +326,11 @@ public class Dataset {
 	 */
 	public int getNumOccurrencesTransition(State fromState, State toState) {
 		String nameVariable = toState.getNameVariables()[0];
+
+		if (nameVariable.equals("Exercise")) {
+			System.out.println();
+		}
+
 		String[] nameParents = null;
 		if (fromState.getNumEvents() > 1) {
 			// The variable has parents
@@ -330,6 +361,7 @@ public class Dataset {
 						expectedValueParents = expectedValueParents && observationBefore.getValueFeature(nameParent)
 								.equals(fromState.getValueNode(nameParent));
 					}
+
 					if (expectedValueParents)
 						numOccurrences++;
 				} else {
@@ -349,48 +381,29 @@ public class Dataset {
 	 * @return time the state is maintained
 	 */
 	public double getTimeState(State state) {
-		String[] nameVariables = state.getNameVariables();
 		double time = 0;
-
 		for (Sequence sequence : getSequences()) {
-
 			for (int i = 0; i < sequence.getNumObservations(); i++) {
 				// A pivot observation is created to check if it has the studied state and, in
-				// that case, how
-				// many subsequent observations have the same state too
+				// that case, how many subsequent observations have the same state too
 				Observation pivotObservation = sequence.getObservations().get(i);
-				boolean isInStudiedState = true;
 				// Check that every variable has the expected value in the pivot observation
-				for (String nameVariable : nameVariables) {
-					isInStudiedState = isInStudiedState
-							& pivotObservation.getValueFeature(nameVariable).equals(state.getValueNode(nameVariable));
-					// If any variable has a different state, the observation is not valid
-					if (!isInStudiedState) {
-						break;
-					}
-				}
-
+				boolean isInStudiedState = observationInState(pivotObservation, state);
 				if (isInStudiedState) {
 					for (int j = i + 1; j < sequence.getNumObservations(); j++) {
 						// Check which subsequent observations have the studied state
 						Observation subsequentObservation = sequence.getObservations().get(j);
-						isInStudiedState = true;
 						// Check that every variable has the expected value in the subsequent
 						// observation
-						for (String nameVariable : nameVariables) {
-							isInStudiedState = isInStudiedState & subsequentObservation.getValueFeature(nameVariable)
-									.equals(state.getValueNode(nameVariable));
-							// If any variable has a different state, the observation is not valid
-							if (!isInStudiedState) {
-								break;
-							}
-						}
-
+						isInStudiedState = observationInState(subsequentObservation, state);
 						// If the subsequent observation has the studied state too, the time is computed
 						// if it is the last observation of the sequence
 						if (isInStudiedState) {
-							if (j == sequence.getNumObservations()) {
+							if (j == sequence.getNumObservations() - 1) {
 								time += subsequentObservation.getTimeValue() - pivotObservation.getTimeValue();
+								// As it is the last observation of the sequence, it is moved the pivot
+								// observation to the last one to move to the following sequence
+								i = sequence.getNumObservations();
 							}
 						}
 						// If the subsequent observation has a different state, the time is computed and
@@ -399,16 +412,40 @@ public class Dataset {
 							time += subsequentObservation.getTimeValue() - pivotObservation.getTimeValue();
 							// Set pivot observation
 							i = j + 1;
+							// Exit the loop to change the pivot observation
+							break;
 						}
-
 					}
-
 				}
-
 			}
 		}
-
 		return time;
+	}
+
+	/**
+	 * Check if an observation is in a specified state, i.e., if the values of the
+	 * variables specified in the state object are the same as the values specified
+	 * for those same variables in the observation object.
+	 * 
+	 * @param observation
+	 *            observation to study
+	 * @param state
+	 *            state that is checked in the observation
+	 * @return boolean that determines if the observation has the specified state
+	 */
+	private boolean observationInState(Observation observation, State state) {
+		String[] nameVariables = state.getNameVariables();
+		boolean ObservationHasState = true;
+		for (String nameVariable : nameVariables) {
+			ObservationHasState = ObservationHasState
+					& observation.getValueFeature(nameVariable).equals(state.getValueNode(nameVariable));
+			// If any variable has a different state, it is not necessary to check the
+			// others
+			if (!ObservationHasState) {
+				break;
+			}
+		}
+		return ObservationHasState;
 	}
 
 	/**

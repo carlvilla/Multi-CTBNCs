@@ -1,48 +1,69 @@
 package com.cig.mctbnc.learning.parameters;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.nodes.Node;
 
+/**
+ * Compute and store the sufficient statistics of a CTBN node. The sufficient
+ * statistics are:
+ * 
+ * (1) Nxx: number of times a variable transitions from a certain state to
+ * another one while its parents take a certain value.
+ * 
+ * (2) Nx: number of times a variable leaves a certain state (for any other
+ * state) while its parents take a certain value.
+ * 
+ * (3) T: time that a variable stays in a certain state while its parents take a
+ * certain value.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 public class CTBNSufficientStatistics implements SufficientStatistics {
-
 	private Node node;
-	private Map<State, Map<State, Integer>> N;
+	// Sufficient statistics
+	private Map<State, Map<State, Integer>> Nxx;
+	private Map<State, Integer> Nx;
 	private Map<State, Double> T;
+	static Logger logger = LogManager.getLogger(CTBNSufficientStatistics.class);
 
 	public CTBNSufficientStatistics(Node node) {
 		this.node = node;
-		N = new HashMap<State, Map<State, Integer>>();
+		Nxx = new HashMap<State, Map<State, Integer>>();
+		Nx = new HashMap<State, Integer>();
+		T = new HashMap<State, Double>();
 	}
 
 	/**
-	 * Compute the sufficient statistics of a node in a CTBN. These are (1) number
-	 * of times the variable transition from a certain state to another while its
-	 * parents have a certain value and (2) time that the variable stay in a certain
-	 * state while its parents take a certain value.
+	 * Compute the sufficient statistics of a CTBN node.
 	 * 
 	 * @param dataset
 	 *            dataset from which sufficient statistics are extracted
 	 */
 	public void computeSufficientStatistics(Dataset dataset) {
+		logger.trace("Computing sufficient statistics CTBN for node {}", node.getName());
 		computeTransitions(dataset);
 		computeTime(dataset);
 	}
 
 	/**
 	 * Compute the number of times the variable transition from a certain state to
-	 * another while its parents have a certain value
+	 * another while its parents have a certain value.
 	 * 
 	 * @param dataset
 	 *            dataset from which the sufficient statistic is extracted
 	 */
 	private void computeTransitions(Dataset dataset) {
+		logger.trace("Computing sufficient statistics Nxx and Nx");
 		String nameVariable = node.getName();
 		List<State> statesVariable = dataset.getStatesVariable(nameVariable);
 		for (State fromState : statesVariable) {
@@ -60,17 +81,60 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 						// created a new State object
 						State fromStateWithParents = new State(fromState.getEvents());
 						fromStateWithParents.addEvents(stateParents.getEvents());
-						int Nijk = dataset.getNumOccurrencesTransition(fromStateWithParents, toState);
-						addOccurrences(fromStateWithParents, toState, Nijk);
+						// Compute Nxx
+						int Nijkm = dataset.getNumOccurrencesTransition(fromStateWithParents, toState);
+						addOccurrencesNxx(fromStateWithParents, toState, Nijkm);
+						// Compute Nx
+						// As it represents the number of times the variable leaves its current state,
+						// it is not added the transitions from the current state to the same one.
+						if (!fromState.equals(toState))
+							updateOccurrencesNx(fromStateWithParents, Nijkm);
 					}
 				}
 				// Computation of sufficient statistics if node has no parents
 				else {
-					int Nijk = dataset.getNumOccurrencesTransition(fromState, toState);
-					addOccurrences(fromState, toState, Nijk);
+					// Compute Nxx
+					int Nijkm = dataset.getNumOccurrencesTransition(fromState, toState);
+					addOccurrencesNxx(fromState, toState, Nijkm);
+					// Compute Nx
+					if (!fromState.equals(toState))
+						updateOccurrencesNx(fromState, Nijkm);
 				}
 			}
 		}
+	}
+
+	/**
+	 * Register the number of occurrences where the node transitions transitions
+	 * from "fromState" (with the parents taking a certain value) to "toState".
+	 * 
+	 * @param fromState
+	 *            current state
+	 * @param toState
+	 *            next state
+	 * @param numOccurrences
+	 *            number of occurrences
+	 */
+	private void addOccurrencesNxx(State fromState, State toState, int numOccurrences) {
+		if (!Nxx.containsKey(fromState))
+			Nxx.put(fromState, new HashMap<State, Integer>());
+		Nxx.get(fromState).put(toState, numOccurrences);
+	}
+
+	/**
+	 * Update the number of occurrences where the node transitions from "fromState"
+	 * (with the parents taking a certain value) to any other state.
+	 * 
+	 * @param fromState
+	 *            current state
+	 * @param numOccurrences
+	 *            number of occurrences
+	 */
+	private void updateOccurrencesNx(State fromState, int numOccurrences) {
+		if (Nx.containsKey(fromState))
+			Nx.put(fromState, Nx.get(fromState) + numOccurrences);
+		else
+			Nx.put(fromState, numOccurrences);
 	}
 
 	/**
@@ -81,6 +145,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 *            dataset from which the sufficient statistic is extracted
 	 */
 	private void computeTime(Dataset dataset) {
+		logger.trace("Computing sufficient statistic T");
 		String nameVariable = node.getName();
 		List<State> statesVariable = dataset.getStatesVariable(nameVariable);
 		for (State state : statesVariable) {
@@ -98,8 +163,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 					double Tijk = dataset.getTimeState(stateWithParents);
 					T.put(stateWithParents, Tijk);
 				}
-			}
-			else {
+			} else {
 				double Tijk = dataset.getTimeState(state);
 				T.put(state, Tijk);
 			}
@@ -107,25 +171,39 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Register the number of occurrences "numOccurrences" of transitioning from
-	 * "fromState" to "toState".
+	 * Return the number of times the variable transition from every state to
+	 * specific states (including itself) while its parents have certain values.
 	 * 
-	 * @param fromState
-	 *            current state
-	 * @param toState
-	 *            next state
-	 * @param numOccurrences
-	 *            number of occurrences
+	 * @return number of occurrences of every transition
 	 */
-	private void addOccurrences(State fromState, State toState, int numOccurrences) {
-		if (!N.containsKey(fromState))
-			N.put(fromState, new HashMap<State, Integer>());
-		N.get(fromState).put(toState, numOccurrences);
+	public Map<State, Map<State, Integer>> getNxx() {
+		if (Nxx.isEmpty())
+			logger.warn("Sufficient statistic Nxx was not computed");
+		return Nxx;
 	}
 
-	@Override
-	public Map<State, Map<State, Integer>> getSufficientStatistics() {
-		return N;
+	/**
+	 * Return the number of times the variable leaves every state (i.e., the state
+	 * is changed) while its parents have certain values.
+	 * 
+	 * @return number of times the variable leaves every state
+	 */
+	public Map<State, Integer> getNx() {
+		if (Nx.isEmpty())
+			logger.warn("Sufficient statistic Nx was not computed");
+		return Nx;
+	}
+
+	/**
+	 * Return the time that the variable stay in every state while its parents take
+	 * different values.
+	 * 
+	 * @return time that the variable stay for every state
+	 */
+	public Map<State, Double> getT() {
+		if (T.isEmpty())
+			logger.warn("Sufficient statistic T was not computed");
+		return T;
 	}
 
 }

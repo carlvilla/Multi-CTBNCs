@@ -1,8 +1,11 @@
-d[16-07-2020 23:21:02] [ WARN ] [Dataset:75] Sequence not added - Time variable 'Time' not specified
-p[16-07-2020 23:21:02] [ WARN ] [Dataset:75] Sequence not added - One or more class variables were not specified
-k[16-07-2020 23:21:02] [ WARN ] [Dataset:75] Sequence not added - Sequences cannot have different variables
-d[16-07-2020 23:21:02] [ WARN ] [Dataset:75] Sequence not added - Time variable 'Time' not specified
-W[16-07-2020 23:21:02] [ WARN ] [Dataset:73] Sequence not added - The sequence is empty
-_[16-07-2020 23:21:02] [ INFO ] [HillClimbing:24] Learning Bayesian network using Hill Climbing
-g[16-07-2020 23:21:02] [ DEBUG] [HillClimbing:79] Score improved! From -Infinity to -15.942385152878742
-p[16-07-2020 23:21:02] [ DEBUG] [HillClimbing:79] Score improved! From -15.942385152878742 to -13.16979643063896
+d[29-07-2020 13:34:55] [ WARN ] [Dataset:77] Sequence not added - Time variable 'Time' not specified
+p[29-07-2020 13:34:55] [ WARN ] [Dataset:77] Sequence not added - One or more class variables were not specified
+k[29-07-2020 13:34:55] [ WARN ] [Dataset:77] Sequence not added - Sequences cannot have different variables
+d[29-07-2020 13:34:55] [ WARN ] [Dataset:77] Sequence not added - Time variable 'Time' not specified
+W[29-07-2020 13:34:55] [ WARN ] [Dataset:75] Sequence not added - The sequence is empty
+
+_[29-07-2020 13:34:55] [ INFO ] [HillClimbing:24] Learning Bayesian network using Hill Climbing
+
+g[29-07-2020 13:34:55] [ DEBUG] [HillClimbing:73] Score improved! From -Infinity to -15.942385152878742
+
+p[29-07-2020 13:34:55] [ DEBUG] [HillClimbing:73] Score improved! From -15.942385152878742 to -13.16979643063896

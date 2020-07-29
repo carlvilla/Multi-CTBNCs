@@ -18,7 +18,6 @@ public class Observation {
 	private Map<String, String> mapValues;
 
 	public Observation(String[] nameVariables, String[] nameClassVariables, String nameTimeVariable, String[] values) {
-
 		// Store name of the variable and its value for the observation
 		mapValues = new HashMap<String, String>();
 		for (int i = 0; i < nameVariables.length; i++) {

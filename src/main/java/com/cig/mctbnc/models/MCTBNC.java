@@ -2,10 +2,11 @@ package com.cig.mctbnc.models;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
@@ -35,7 +36,7 @@ public class MCTBNC<T extends Node> extends AbstractPGM {
 			StructureLearningAlgorithm bnStructureLearningAlgorithm) {
 
 		// Define nodes of the MCTBNC
-		nodes = new ArrayList<Node>();
+		List<Node> nodes = new ArrayList<Node>();
 		for (String nameFeature : trainingDataset.getNameFeatures()) {
 			int index = trainingDataset.getIndexVariable(nameFeature);
 			nodes.add(new DiscreteNode(index, nameFeature, false, trainingDataset.getStatesVariable(nameFeature)));
@@ -46,21 +47,24 @@ public class MCTBNC<T extends Node> extends AbstractPGM {
 			nodes.add(new DiscreteNode(index, nameClassVariable, true,
 					trainingDataset.getStatesVariable(nameClassVariable)));
 		}
+		
+		// Add nodes to the model, creating an index for each of them when used with this model
+		addNodes(nodes);
 
 		// Define class subgraph with a Bayesian network
 		bn = new BN<T>(getNodesClassVariables(), trainingDataset, bnParameterLearningAlgorithm,
 				bnStructureLearningAlgorithm);
 
 		// Define feature and bridge subgraphs with a continuous time Bayesian network
-		ctbnc = new CTBNC<T>(getNodes(), trainingDataset, ctbnParameterLearningAlgorithm,
+		ctbnc = new CTBNC<T>(getNodesFeatures(), trainingDataset, ctbnParameterLearningAlgorithm,
 				ctbncStructureLearningAlgorithm);
 	}
 
 	public void display() {
-		// Graph graph = new SingleGraph("MCTBNC");
-		// addNodes(graph, nodes);
-		// graph.display();
-		bn.display();
+		Graph graph = new SingleGraph("MCTBNC");
+		addNodes(graph, nodes);
+		addEdges(graph, nodes);
+		graph.display();
 	}
 
 	@Override
@@ -70,6 +74,8 @@ public class MCTBNC<T extends Node> extends AbstractPGM {
 		// Learn structure and parameters of class subgraph (Bayesian network)
 		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
 		bn.learn();
+		logger.info("Class subgraph established!");
+
 
 		// Learn structure and parameters of feature and bridge subgraph. These are
 		// modeled by
@@ -77,9 +83,10 @@ public class MCTBNC<T extends Node> extends AbstractPGM {
 		// class
 		// variable does not depend on the states of the features is extended to more
 		// class variables
-		logger.info(
-				"Defining structure and parameters of the feature and bridge subgraphs (Continuous time Bayesian network)");
+		logger.info("Defining structure and parameters of the feature and bridge subgraphs (Continuous time "
+				+ "Bayesian network)");
 		ctbnc.learn();
+		logger.info("Feature and bridge subgraphs established!");
 
 		// Join class subgraph with feature and bridge subgraphs
 

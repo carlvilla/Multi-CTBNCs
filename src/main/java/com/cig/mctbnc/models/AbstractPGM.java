@@ -81,8 +81,7 @@ public abstract class AbstractPGM implements PGM {
 
 	@Override
 	public Node getNodeByIndex(int index) {
-		Node selectedNode = nodes.stream().filter(node -> node.getIndex() == index).findAny().orElse(null);
-		return selectedNode;
+		return nodeIndexer.getNodeByIndex(index);
 	}
 
 	@Override
@@ -98,6 +97,16 @@ public abstract class AbstractPGM implements PGM {
 	@Override
 	public int getNumNodes() {
 		return nodes.size();
+	}
+	
+	/**
+	 * Display the PGM using GraphStream.
+	 * @param graph
+	 */
+	public void display() {
+		//addNodes(graph, nodes);
+		//addEdges(graph, nodes);
+		//graph.display();
 	}
 
 }

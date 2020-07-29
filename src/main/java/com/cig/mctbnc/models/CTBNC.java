@@ -2,9 +2,16 @@ package com.cig.mctbnc.models;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
+
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.HillClimbing;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.Node;
 
 /**
@@ -21,6 +28,7 @@ public class CTBNC<N extends Node> extends AbstractPGM implements Classifier {
 	private ParameterLearningAlgorithm parameterLearningAlg;
 	private StructureLearningAlgorithm structureLearningAlg;
 	private Dataset dataset;
+	static Logger logger = LogManager.getLogger(CTBNC.class);
 
 	/**
 	 * Initialize a continuous Time Bayesian network given a list of nodes, a
@@ -76,8 +84,10 @@ public class CTBNC<N extends Node> extends AbstractPGM implements Classifier {
 
 	@Override
 	public void display() {
-		// TODO Auto-generated method stub
-
+		Graph graph = new SingleGraph("CTBN");
+		addNodes(graph, nodes);
+		addEdges(graph, nodes);
+		graph.display();
 	}
 
 	@Override
@@ -93,8 +103,25 @@ public class CTBNC<N extends Node> extends AbstractPGM implements Classifier {
 
 	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix) {
-		// TODO Auto-generated method stub
+		// The class variables cannot have parents
+		int numNodes = adjacencyMatrix.length;
+		for (int i = 0; i < numNodes; i++) {
+			for (int j = 0; j < numNodes; j++) {
+				// If there is an arc
+				if (adjacencyMatrix[i][j]) {
+					// If the arc is from a feature to a class variable, the structure is illegal
+					if (!getNodeByIndex(i).isClassVariable() && getNodeByIndex(j).isClassVariable()) {
+						logger.debug("Illegal structure");
+						return false;
+					}
+				}
+			}
+		}
 		return true;
+	}
+
+	public List<N> getLearnedNodes() {
+		return learnedNodes;
 	}
 
 }

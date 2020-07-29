@@ -1,6 +1,7 @@
 package com.cig.mctbnc.learning.parameters;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public class CTBNParameterMLE implements ParameterLearningAlgorithm {
 
 	@Override
 	public void learn(List<Node> nodes, Dataset dataset) {
+		logger.trace("Learning parameters CTBN with maximum likelihood estimation");
 		CTBNSufficientStatistics[] ssNodes = sufficientStatistics(nodes, dataset);
 		setCIMs(nodes, ssNodes);
 	}
@@ -48,50 +50,58 @@ public class CTBNParameterMLE implements ParameterLearningAlgorithm {
 		for (int i = 0; i < nodes.size(); i++) {
 			// The node has to be discrete
 			DiscreteNode node = (DiscreteNode) nodes.get(i);
-			Map<State,Map<State, Integer>> N = ss[i].getSufficientStatistics();
-			// Compute the parameters for the current node with its sufficient statistics
-			Map<State, Double> CIM = estimateCIM(node, N);
-			// Create a CIMNode to store the computed CIM and sufficient statistics
-			CIMNode cimNode = new CIMNode(node, CIM, N);
+			Map<State, Map<State, Integer>> Nxx = ss[i].getNxx();
+			Map<State, Integer> Nx = ss[i].getNx();
+			Map<State, Double> T = ss[i].getT();
+			// Create a CIMNode to store the parameters and sufficient statistics
+			CIMNode cimNode = new CIMNode(node, ss[i]);
+			// Compute the parameters for the current node with its sufficient statistics.
+			// The parameters are stored in the CIMNode object
+			estimateParameters(cimNode, Nxx, Nx, T);
+
 			cimNodes.add(cimNode);
 		}
 	}
 
 	/**
-	 * Estimate the parameters for a certain node (studiedNode) from its previously
-	 * computed sufficient statistics.
+	 * Estimate the parameters for "node" from its previously computed sufficient
+	 * statistics. It is estimated two parameters that summarized the CIMs of each
+	 * variable. The first one contains the probabilities of the variables leaving a
+	 * state and the second one the probabilities of leaving a state for a certain
+	 * one.
 	 * 
-	 * @param studiedNode
-	 * @param N
-	 * @return a Map object with the probabilities of each possible state of a
-	 *         variable and its parents
+	 * @param node
+	 *            node where it is stored the parameters
+	 * @param Nxx
+	 *            sufficient statistic with the number of times the variables
+	 *            transition from a certain state to another while their parents
+	 *            have a certain value
+	 * @param Nx
+	 *            sufficient statistic with the number of times the variables leave
+	 *            their current state while their parents have a certain value
+	 * @param T
+	 *            sufficient statistic with the time that the variables stay in a
+	 *            certain state while their parents take a certain value
 	 */
-	public Map<State, Double> estimateCIM(DiscreteNode studiedNode, Map<State, Map<State,Integer>> N) {
-		/*
-		Map<State, Double> CIM = new HashMap<State, Double>();
-		// Obtain an array with the values that the studied variable can take
-		String[] possibleValuesStudiedNode = studiedNode.getPossibleStates().stream()
-				.map(stateAux -> stateAux.getValueNode(studiedNode.getName())).toArray(String[]::new);
-		// All the possible states between the studied variable and its parents
-		Set<State> states = N.keySet();
-		for (State state : states) {
-			// Number of times the studied variable and its parents take a certain value
-			double Nijk = N.get(state);
-			// Number of times the parents of the studied variable have a certain
-			// state independently of the studied variable
-			double Nij = 0;
-			for (String k : possibleValuesStudiedNode) {
-				State query = new State(state.getEvents());
-				query.modifyEventValue(studiedNode.getName(), k);
-				Nij += N.get(query);
-			}
-			// Probability that the studied variable has a state k given that
-			// its parents have a state j.
-			double prob = Nijk / Nij;
-			CIM.put(state, prob);
+	public void estimateParameters(CIMNode node, Map<State, Map<State, Integer>> Nxx, Map<State, Integer> Nx,
+			Map<State, Double> T) {
+		Map<State, Double> Qx = new HashMap<State, Double>();
+		Map<State, Map<State, Double>> Oxx = new HashMap<State, Map<State, Double>>();
+		// Parameter with probabilities of leaving a certain state
+		for (State fromState : Nx.keySet()) {
+			Qx.put(fromState, Nx.get(fromState) / T.get(fromState));
 		}
-		return CIM;*/
-		return null;
+		// Parameter with probabilities of leaving a certain state for another
+		for (State fromState : Nxx.keySet()) {
+			for (State toState : Nxx.get(fromState).keySet()) {
+				if (!Oxx.containsKey(fromState))
+					Oxx.put(fromState, new HashMap<State, Double>());
+				Oxx.get(fromState).put(toState, (double) Nxx.get(fromState).get(toState) / Nx.get(fromState));
+			}
+
+		}
+		// Set parameters in the CIMNode object
+		node.setParameters(Qx, Oxx);
 	}
 
 	@Override
