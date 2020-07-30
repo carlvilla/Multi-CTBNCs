@@ -1,6 +1,5 @@
 package com.cig.mctbnc.data.representation;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,34 +13,35 @@ import java.util.Set;
  */
 public class Observation {
 
+	// Store the value of the time variable when the observation occurred
 	private double timeValue;
-	private Map<String, String> mapValues;
+	// Store the value of all the variables (except the time variable)
+	private Map<String, String> variablesValues;
 
-	public Observation(String[] nameVariables, String[] nameClassVariables, String nameTimeVariable, String[] values) {
+	public Observation(String[] nameVariables, String nameTimeVariable, String[] values) {
 		// Store name of the variable and its value for the observation
-		mapValues = new HashMap<String, String>();
+		variablesValues = new HashMap<String, String>();
 		for (int i = 0; i < nameVariables.length; i++) {
-			if (!Arrays.asList(nameClassVariables).contains(nameVariables[i])
-					&& !nameVariables[i].equals(nameTimeVariable)) {
-				mapValues.put(nameVariables[i], values[i]);
+			if (!nameVariables[i].equals(nameTimeVariable)) {
+				variablesValues.put(nameVariables[i], values[i]);
 			} else if (nameVariables[i].equals(nameTimeVariable)) {
 				timeValue = Double.parseDouble(values[i]);
 			}
 		}
 	}
 
-	public String[] getFeatureNames() {
-		Set<String> keys = mapValues.keySet();
+	public String[] getVariableNames() {
+		Set<String> keys = variablesValues.keySet();
 		return keys.toArray(new String[keys.size()]);
 	}
 
 	public String[] getValues() {
-		Collection<String> values = mapValues.values();
+		Collection<String> values = variablesValues.values();
 		return values.toArray(new String[values.size()]);
 	}
 
-	public String getValueFeature(String nodeName) {
-		return mapValues.get(nodeName);
+	public String getValueVariable(String nodeName) {
+		return variablesValues.get(nodeName);
 	}
 
 	public double getTimeValue() {

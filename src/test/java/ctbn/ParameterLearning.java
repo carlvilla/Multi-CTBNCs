@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.data.representation.Event;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.CTBNParameterMLE;
 import com.cig.mctbnc.nodes.CIMNode;
@@ -105,77 +104,59 @@ public class ParameterLearning {
 
 		// Sufficient statistics V1
 		State fromState = new State();
-		fromState.addEvent(new Event<String>("V1", "a"));
-		fromState.addEvent(new Event<String>("V2", "b"));
-		fromState.addEvent(new Event<String>("V3", "b"));
+		fromState.addEvent("V1", "a");
+		fromState.addEvent("V2", "b");
+		fromState.addEvent("V3", "b");
 		State toState = new State();
-		toState.addEvent(new Event<String>("V1", "a"));
-		assertEquals(3, (int) ssV1.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent(new Event<String>("V1", "b"));
+		toState.addEvent("V1", "b");
 		assertEquals(2, (int) ssV1.get(fromState).get(toState));
 		toState = new State();
-		toState.addEvent(new Event<String>("V1", "c"));
+		toState.addEvent("V1", "c");
 		assertEquals(0, (int) ssV1.get(fromState).get(toState));
 
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V1", "a"));
-		fromState.addEvent(new Event<String>("V2", "a"));
-		fromState.addEvent(new Event<String>("V3", "a"));
+		fromState.addEvent("V1", "a");
+		fromState.addEvent("V2", "a");
+		fromState.addEvent("V3", "a");
 		toState = new State();
-		toState.addEvent(new Event<String>("V1", "a"));
+		toState.addEvent("V1", "b");
 		assertEquals(0, (int) ssV1.get(fromState).get(toState));
 		toState = new State();
-		toState.addEvent(new Event<String>("V1", "b"));
-		assertEquals(0, (int) ssV1.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent(new Event<String>("V1", "c"));
+		toState.addEvent("V1", "c");
 		assertEquals(1, (int) ssV1.get(fromState).get(toState));
 
 		// Sufficient statistics V2
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V2", "a"));
-		fromState.addEvent(new Event<String>("V3", "a"));
+		fromState.addEvent("V2", "a");
+		fromState.addEvent("V3", "a");
 		toState = new State();
-		toState.addEvent(new Event<String>("V2", "a"));
-		assertEquals(1, (int) ssV2.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent(new Event<String>("V2", "b"));
+		toState.addEvent("V2", "b");
 		assertEquals(0, (int) ssV2.get(fromState).get(toState));
 
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V2", "b"));
-		fromState.addEvent(new Event<String>("V3", "b"));
+		fromState.addEvent("V2", "b");
+		fromState.addEvent("V3", "b");
 		toState = new State();
-		toState.addEvent(new Event<String>("V2", "a"));
+		toState.addEvent("V2", "a");
 		assertEquals(1, (int) ssV2.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent(new Event<String>("V2", "b"));
-		assertEquals(5, (int) ssV2.get(fromState).get(toState));
 
 		// Sufficient statistics V3
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V3", "a"));
+		fromState.addEvent("V3", "a");
 		toState = new State();
-		toState.addEvent(new Event<String>("V3", "a"));
+		toState.addEvent("V3", "b");
 		assertEquals(0, (int) ssV3.get(fromState).get(toState));
 		toState = new State();
-		toState.addEvent(new Event<String>("V3", "b"));
-		assertEquals(0, (int) ssV3.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent(new Event<String>("V3", "c"));
+		toState.addEvent("V3", "c");
 		assertEquals(1, (int) ssV3.get(fromState).get(toState));
 
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V3", "b"));
+		fromState.addEvent("V3", "b");
 		toState = new State();
-		toState.addEvent(new Event<String>("V3", "a"));
+		toState.addEvent("V3", "a");
 		assertEquals(3, (int) ssV3.get(fromState).get(toState));
 		toState = new State();
-		toState.addEvent(new Event<String>("V3", "b"));
-		assertEquals(4, (int) ssV3.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent(new Event<String>("V3", "c"));
+		toState.addEvent("V3", "c");
 		assertEquals(0, (int) ssV3.get(fromState).get(toState));
 	}
 
@@ -195,49 +176,49 @@ public class ParameterLearning {
 
 		// Sufficient statistics V1
 		State fromState = new State();
-		fromState.addEvent(new Event<String>("V1", "a"));
-		fromState.addEvent(new Event<String>("V2", "b"));
-		fromState.addEvent(new Event<String>("V3", "b"));
+		fromState.addEvent("V1", "a");
+		fromState.addEvent("V2", "b");
+		fromState.addEvent("V3", "b");
 		assertEquals(2, (int) ssV1.get(fromState));
 
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V1", "a"));
-		fromState.addEvent(new Event<String>("V2", "a"));
-		fromState.addEvent(new Event<String>("V3", "a"));
+		fromState.addEvent("V1", "a");
+		fromState.addEvent("V2", "a");
+		fromState.addEvent("V3", "a");
 		assertEquals(1, (int) ssV1.get(fromState));
 
 		// Sufficient statistics V2
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V2", "a"));
-		fromState.addEvent(new Event<String>("V3", "a"));
+		fromState.addEvent("V2", "a");
+		fromState.addEvent("V3", "a");
 		assertEquals(0, (int) ssV2.get(fromState));
 
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V2", "a"));
-		fromState.addEvent(new Event<String>("V3", "b"));
+		fromState.addEvent("V2", "a");
+		fromState.addEvent("V3", "b");
 		assertEquals(1, (int) ssV2.get(fromState));
 
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V2", "b"));
-		fromState.addEvent(new Event<String>("V3", "a"));
+		fromState.addEvent("V2", "b");
+		fromState.addEvent("V3", "a");
 		assertEquals(0, (int) ssV2.get(fromState));
 
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V2", "b"));
-		fromState.addEvent(new Event<String>("V3", "b"));
+		fromState.addEvent("V2", "b");
+		fromState.addEvent("V3", "b");
 		assertEquals(1, (int) ssV2.get(fromState));
 
 		// Sufficient statistics V3
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V3", "a"));
+		fromState.addEvent("V3", "a");
 		assertEquals(1, (int) ssV3.get(fromState));
 
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V3", "b"));
+		fromState.addEvent("V3", "b");
 		assertEquals(3, (int) ssV3.get(fromState));
 
 		fromState = new State();
-		fromState.addEvent(new Event<String>("V3", "c"));
+		fromState.addEvent("V3", "c");
 		assertEquals(0, (int) ssV3.get(fromState));
 	}
 
@@ -258,72 +239,72 @@ public class ParameterLearning {
 
 		// Sufficient statistics V1
 		State state = new State();
-		state.addEvent(new Event<String>("V1", "a"));
-		state.addEvent(new Event<String>("V2", "a"));
-		state.addEvent(new Event<String>("V3", "a"));
+		state.addEvent("V1", "a");
+		state.addEvent("V2", "a");
+		state.addEvent("V3", "a");
 		assertEquals(0.5, (double) ssV1.get(state), 0.000001);
 
 		state = new State();
-		state.addEvent(new Event<String>("V1", "c"));
-		state.addEvent(new Event<String>("V2", "a"));
-		state.addEvent(new Event<String>("V3", "c")); // Last observation of a sequence. It never changes, so the
+		state.addEvent("V1", "c");
+		state.addEvent("V2", "a");
+		state.addEvent("V3", "c"); // Last observation of a sequence. It never changes, so the
 														// duration is unknown.
 		assertEquals(0, (double) ssV1.get(state), 0.000001);
 
 		state = new State();
-		state.addEvent(new Event<String>("V1", "a"));
-		state.addEvent(new Event<String>("V2", "b"));
-		state.addEvent(new Event<String>("V3", "b"));
+		state.addEvent("V1", "a");
+		state.addEvent("V2", "b");
+		state.addEvent("V3", "b");
 		assertEquals(0.7, (double) ssV1.get(state), 0.000001);
 
 		state = new State();
-		state.addEvent(new Event<String>("V1", "a"));
-		state.addEvent(new Event<String>("V2", "b"));
-		state.addEvent(new Event<String>("V3", "c")); // State that never occurs
+		state.addEvent("V1", "a");
+		state.addEvent("V2", "b");
+		state.addEvent("V3", "c"); // State that never occurs
 		assertEquals(0, (double) ssV1.get(state), 0.000001);
 
 		// Sufficient statistics V2
 		state = new State();
-		state.addEvent(new Event<String>("V2", "a"));
-		state.addEvent(new Event<String>("V3", "a"));
+		state.addEvent("V2", "a");
+		state.addEvent("V3", "a");
 		assertEquals(0.5, (double) ssV2.get(state), 0.000001);
 
 		state = new State();
-		state.addEvent(new Event<String>("V2", "a"));
-		state.addEvent(new Event<String>("V3", "b"));
+		state.addEvent("V2", "a");
+		state.addEvent("V3", "b");
 		assertEquals(0.4, (double) ssV2.get(state), 0.000001);
 
 		state = new State();
-		state.addEvent(new Event<String>("V2", "a"));
-		state.addEvent(new Event<String>("V3", "c"));
+		state.addEvent("V2", "a");
+		state.addEvent("V3", "c");
 		assertEquals(0, (double) ssV2.get(state), 0.000001);
 
 		state = new State();
-		state.addEvent(new Event<String>("V2", "b"));
-		state.addEvent(new Event<String>("V3", "a"));
+		state.addEvent("V2", "b");
+		state.addEvent("V3", "a");
 		assertEquals(0, (double) ssV2.get(state), 0.000001);
 
 		state = new State();
-		state.addEvent(new Event<String>("V2", "b"));
-		state.addEvent(new Event<String>("V3", "b"));
+		state.addEvent("V2", "b");
+		state.addEvent("V3", "b");
 		assertEquals(1.2, (double) ssV2.get(state), 0.000001);
 
 		state = new State();
-		state.addEvent(new Event<String>("V2", "b"));
-		state.addEvent(new Event<String>("V3", "c"));
+		state.addEvent("V2", "b");
+		state.addEvent("V3", "c");
 		assertEquals(0, (double) ssV2.get(state), 0.000001);
 
 		// Sufficient statistics V3
 		state = new State();
-		state.addEvent(new Event<String>("V3", "a"));
+		state.addEvent("V3", "a");
 		assertEquals(0.5, (double) ssV3.get(state), 0.000001);
 
 		state = new State();
-		state.addEvent(new Event<String>("V3", "b"));
+		state.addEvent("V3", "b");
 		assertEquals(1.6, (double) ssV3.get(state), 0.000001);
 
 		state = new State();
-		state.addEvent(new Event<String>("V3", "c"));
+		state.addEvent("V3", "c");
 		assertEquals(0, (double) ssV3.get(state), 0.000001);
 
 	}

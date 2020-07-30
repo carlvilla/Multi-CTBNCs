@@ -17,8 +17,6 @@ import com.cig.mctbnc.nodes.DiscreteNode;
 
 public class LearnBayesianNetwork {
 
-	private Dataset dataset;
-	
 	/**
 	 * Build a Bayesian network. The dataset used is formed by binary variables
 	 * V1,V2 and V3 (plus Time) such that V3 has value "a" iff V1 and V2 have both
@@ -58,7 +56,7 @@ public class LearnBayesianNetwork {
 		// Algorithm to learn structure
 		StructureLearningAlgorithm structureLearningAlgorithm = new HillClimbing();
 
-		BN bn = new BN<DiscreteNode>(dataset, parameterLearningAlgorithm, structureLearningAlgorithm);
+		BN<DiscreteNode> bn = new BN<DiscreteNode>(dataset, parameterLearningAlgorithm, structureLearningAlgorithm);
 		bn.learn();
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, false, true }, { false, false, true },
 				{ false, false, false } };

@@ -25,9 +25,10 @@ public class CommandLine {
 
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
-		String[] nameClassVariables = { "Exercise", "ExerciseMode", "S1", "S2", "S3" };
-		String[] excludeVariables = { "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19",
-				"S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29" };
+		String[] nameClassVariables = { "ExerciseMode", "Exercise"};
+		String[] excludeVariables = {"S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14",
+				"S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28",
+				"S29" };
 		String nameTimeVariable = "t";
 
 		logger.info("Reading sequences from {}", datasetFolder);
@@ -36,7 +37,7 @@ public class CommandLine {
 		// Generate datasets
 		// For now it will be used 70% sequences for training and 30% for testing
 		// Define training dataset
-		File[] trainingFiles = Arrays.copyOfRange(files, 0, (int) (files.length * 0.01));
+		File[] trainingFiles = Arrays.copyOfRange(files, 0, (int) (files.length * 0.8));
 		DatasetReader dgTraining = new SeparateCSVReader(trainingFiles, nameTimeVariable, nameClassVariables,
 				excludeVariables);
 		Dataset trainingDataset = dgTraining.readDataset();
@@ -51,17 +52,6 @@ public class CommandLine {
 		logger.info("Features: {}", Arrays.toString(trainingDataset.getNameFeatures()));
 		logger.info("Class variables: {}", Arrays.toString(nameClassVariables));
 
-		// Define initial structure - IT MAY NOT BE WORKING CORRECTLY DUE TO THE NODE
-		// INDEXERS OF THE PGMs
-		int numNodes = trainingDataset.getNumVariables();
-		boolean[][] initialStructure = new boolean[numNodes][numNodes];
-		initialStructure[trainingDataset.getIndexVariable("Exercise")][trainingDataset
-				.getIndexVariable("ExerciseMode")] = true;
-		initialStructure[trainingDataset.getIndexVariable("S1")][trainingDataset
-				.getIndexVariable("ExerciseMode")] = true;
-		initialStructure[trainingDataset.getIndexVariable("S2")][trainingDataset
-				.getIndexVariable("ExerciseMode")] = true;
-
 		// Define learning algorithms for the class subgraph
 		ParameterLearningAlgorithm bnParameterLearningAlgorithm = new BNParameterMLE();
 		StructureLearningAlgorithm bnStructureLearningAlgorithm = new HillClimbing();
@@ -73,8 +63,21 @@ public class CommandLine {
 		// Define multi-dimensional continuous time Bayesian network model
 		MCTBNC<DiscreteNode> mctbnc = new MCTBNC<DiscreteNode>(trainingDataset, ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
+
 		// Initial structure
-		// mctbnc.setStructure(initialStructure);
+		// Define initial structure - IT MAY NOT BE WORKING CORRECTLY DUE TO THE NODE
+		// INDEXERS OF THE PGMs
+		/*
+		 * int numNodes = trainingDataset.getNumVariables(); boolean[][]
+		 * initialStructure = new boolean[numNodes][numNodes];
+		 * initialStructure[trainingDataset.getIndexVariable("Exercise")][
+		 * trainingDataset .getIndexVariable("ExerciseMode")] = true;
+		 * initialStructure[trainingDataset.getIndexVariable("S1")][trainingDataset
+		 * .getIndexVariable("ExerciseMode")] = true;
+		 * initialStructure[trainingDataset.getIndexVariable("S2")][trainingDataset
+		 * .getIndexVariable("ExerciseMode")] = true;
+		 * mctbnc.setStructure(initialStructure);
+		 */
 
 		// Train model
 		mctbnc.learn();

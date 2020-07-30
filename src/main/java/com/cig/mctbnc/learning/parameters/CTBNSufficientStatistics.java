@@ -66,39 +66,43 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 		logger.trace("Computing sufficient statistics Nxx and Nx");
 		String nameVariable = node.getName();
 		List<State> statesVariable = dataset.getStatesVariable(nameVariable);
-		for (State fromState : statesVariable) {
+		
+		// Variables that are only used if the node has parents
+		List<Node> parents = node.getParents();
+		List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
+		List<State> statesParents = dataset.getStatesVariables(nameParents);
+		
+		
+		for (State fromState : statesVariable) {			
 			for (State toState : statesVariable) {
-				// Computation of sufficient statistics if node has parents
-				if (node.hasParents()) {
-					List<Node> parents = node.getParents();
-					List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
-					List<State> statesParents = dataset.getStatesVariables(nameParents);
-					// Obtain number of times the variable transitions from "fromState" to "toState"
-					// while parents take state "stateParents"
-					for (State stateParents : statesParents) {
-						// Modifications in "fromState" object would affect "toState". As
-						// it is necessary to include the state of the parents to "fromState", it is
-						// created a new State object
-						State fromStateWithParents = new State(fromState.getEvents());
-						fromStateWithParents.addEvents(stateParents.getEvents());
-						// Compute Nxx
-						int Nijkm = dataset.getNumOccurrencesTransition(fromStateWithParents, toState);
-						addOccurrencesNxx(fromStateWithParents, toState, Nijkm);
-						// Compute Nx
-						// As it represents the number of times the variable leaves its current state,
-						// it is not added the transitions from the current state to the same one.
-						if (!fromState.equals(toState))
+				// It is filter those transitions from a certain state to the same one
+				if (!fromState.equals(toState)) {
+					// Computation of sufficient statistics if node has parents
+					if (node.hasParents()) {
+						// Obtain number of times the variable transitions from "fromState" to "toState"
+						// while parents take state "stateParents"
+						for (State stateParents : statesParents) {
+							// Modifications in "fromState" object would affect "toState". As
+							// it is necessary to include the state of the parents to "fromState", it is
+							// created a new State object
+							State fromStateWithParents = new State(fromState.getEvents());
+							fromStateWithParents.addEvents(stateParents.getEvents());
+							// Compute Nxx									
+							int Nijkm = dataset.getNumOccurrencesTransition(fromStateWithParents, toState);
+							addOccurrencesNxx(fromStateWithParents, toState, Nijkm);														
+							// Compute Nx							
 							updateOccurrencesNx(fromStateWithParents, Nijkm);
+						}
 					}
-				}
-				// Computation of sufficient statistics if node has no parents
-				else {
-					// Compute Nxx
-					int Nijkm = dataset.getNumOccurrencesTransition(fromState, toState);
-					addOccurrencesNxx(fromState, toState, Nijkm);
-					// Compute Nx
-					if (!fromState.equals(toState))
-						updateOccurrencesNx(fromState, Nijkm);
+					// Computation of sufficient statistics if node has no parents
+					else {
+						// Compute Nxx
+						int Nijkm = dataset.getNumOccurrencesTransition(fromState, toState);
+						addOccurrencesNxx(fromState, toState, Nijkm);
+						// Compute Nx
+						if (!fromState.equals(toState))
+							updateOccurrencesNx(fromState, Nijkm);
+					}
 				}
 			}
 		}

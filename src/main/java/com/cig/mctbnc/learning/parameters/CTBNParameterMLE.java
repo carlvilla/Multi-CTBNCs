@@ -58,17 +58,16 @@ public class CTBNParameterMLE implements ParameterLearningAlgorithm {
 			// Compute the parameters for the current node with its sufficient statistics.
 			// The parameters are stored in the CIMNode object
 			estimateParameters(cimNode, Nxx, Nx, T);
-
 			cimNodes.add(cimNode);
 		}
 	}
 
 	/**
 	 * Estimate the parameters for "node" from its previously computed sufficient
-	 * statistics. It is estimated two parameters that summarized the CIMs of each
-	 * variable. The first one contains the probabilities of the variables leaving a
-	 * state and the second one the probabilities of leaving a state for a certain
-	 * one.
+	 * statistics. It is estimated two MLE parameters that summarize the CIMs of
+	 * each variable. The first one contains the probabilities of the variables
+	 * leaving a state and the second one the probabilities of leaving a state for a
+	 * certain one.
 	 * 
 	 * @param node
 	 *            node where it is stored the parameters
@@ -89,16 +88,25 @@ public class CTBNParameterMLE implements ParameterLearningAlgorithm {
 		Map<State, Map<State, Double>> Oxx = new HashMap<State, Map<State, Double>>();
 		// Parameter with probabilities of leaving a certain state
 		for (State fromState : Nx.keySet()) {
-			Qx.put(fromState, Nx.get(fromState) / T.get(fromState));
+			double qx = Nx.get(fromState) / T.get(fromState);
+			// If the operation gives NaN (state does not occur in the dataset), the
+			// parameter is set to zero
+			if (Double.isNaN(qx))
+				qx = 0;
+			Qx.put(fromState, qx);
 		}
 		// Parameter with probabilities of leaving a certain state for another
 		for (State fromState : Nxx.keySet()) {
 			for (State toState : Nxx.get(fromState).keySet()) {
 				if (!Oxx.containsKey(fromState))
 					Oxx.put(fromState, new HashMap<State, Double>());
-				Oxx.get(fromState).put(toState, (double) Nxx.get(fromState).get(toState) / Nx.get(fromState));
+				double oxx = (double) Nxx.get(fromState).get(toState) / Nx.get(fromState);
+				// If the operation gives NaN (state does not occur in the dataset), the
+				// parameter is set to zero
+				if (Double.isNaN(oxx))
+					oxx = 0;
+				Oxx.get(fromState).put(toState, oxx);
 			}
-
 		}
 		// Set parameters in the CIMNode object
 		node.setParameters(Qx, Oxx);

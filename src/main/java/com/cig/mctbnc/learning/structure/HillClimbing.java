@@ -69,6 +69,8 @@ public class HillClimbing implements StructureLearningAlgorithm {
 
 			int idxBestOperation = Util.getIndexLargestValue(scores);
 			double iterationBestScore = scores[idxBestOperation];
+			logger.trace("Iteration best score {}", iterationBestScore);
+			
 			if (iterationBestScore > bestScore) {
 				logger.debug("Score improved! From {} to {}", bestScore, iterationBestScore);
 				bestScore = iterationBestScore;
@@ -103,30 +105,40 @@ public class HillClimbing implements StructureLearningAlgorithm {
 		for (int i = 0; i < numNodes; i++) {
 			for (int j = 0; j < numNodes; j++) {
 				if (i != j) {
-					logger.trace("Studying new structure", pgm.getType());
 					// Copy current best neighbor
 					boolean[][] tempAdjacencyMatrix = new boolean[numNodes][numNodes];
 					for (int r = 0; r < numNodes; r++) {
 						tempAdjacencyMatrix[r] = bestStructure[r].clone();
 					}
-
 					if (operation == "addition") {
+						if(tempAdjacencyMatrix[i][j]) {
+							// If there is already an arc, the operation is not performed
+							continue;
+						}
 						// Arc is added
 						tempAdjacencyMatrix[i][j] = true;
 					} else if (operation == "deletion") {
+						if(!tempAdjacencyMatrix[i][j]) {
+							// If there is no arc, the operation cannot be performed
+							continue;
+						}
 						// Arc is removed
 						tempAdjacencyMatrix[i][j] = false;
 					} else {
+						if(!tempAdjacencyMatrix[i][j]) {
+							// If there is no arc, the operation cannot be performed
+							continue;
+						}
 						// Arc is reversed
 						tempAdjacencyMatrix[i][j] = false;
 						tempAdjacencyMatrix[j][i] = true;
 					}
 
 					if (pgm.isStructureLegal(tempAdjacencyMatrix)) {
-						// Define Bayesian network with the modified adjacency matrix
+						logger.trace("Studying new {} structure: {}", pgm.getType(), tempAdjacencyMatrix);
+						// Define PGM with the modified adjacency matrix
 						pgm.setStructure(tempAdjacencyMatrix);
 						double obtainedScore = StructureScoreFunctions.penalizedLogLikelihoodScore(pgm);
-
 						if (scores[idxOperation] < obtainedScore) {
 							scores[idxOperation] = obtainedScore;
 							adjacencyMatrices[idxOperation] = tempAdjacencyMatrix;

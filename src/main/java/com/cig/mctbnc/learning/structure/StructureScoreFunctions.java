@@ -8,7 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.State;
-import com.cig.mctbnc.learning.parameters.BNSufficientStatistics;
 import com.cig.mctbnc.learning.parameters.CTBNSufficientStatistics;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.models.CTBNC;
@@ -20,7 +19,7 @@ import com.cig.mctbnc.nodes.DiscreteNode;
 public class StructureScoreFunctions {
 
 	static Logger logger = LogManager.getLogger(StructureScoreFunctions.class);
-	
+
 	/**
 	 * Compute the penalized log-likelihood score of a probabilistic graphical model
 	 * 
@@ -114,14 +113,33 @@ public class StructureScoreFunctions {
 				int nx = ss.getNx().get(state);
 				double tx = ss.getT().get(state);
 				// Probability density function of the exponential distribution
-				llScore += nx * Math.log(qx) - qx * tx * Math.log(Math.E);
+				if (qx != 0)
+					llScore += nx * Math.log(qx) - qx * tx;
 				for (State toState : Oxx.get(state).keySet()) {
 					double oxx = Oxx.get(state).get(toState);
 					int nxx = ss.getNxx().get(state).get(toState);
-					llScore += nxx * Math.log(oxx);
+					if (oxx != 0)
+						llScore += nxx * Math.log(oxx);
 				}
 			}
 		}
+
+		// Overfitting is avoid by penalizing the complexity of the network
+
+		// Compute network complexity (number of independent parameters)
+		// Number of parameters for the instantaneous probabilities
+		int numOxx = nodes.stream()
+				.mapToInt(node -> node.getOxx().values().stream().mapToInt(map -> map.keySet().size()).sum()).sum();
+		// Number of parameters for the
+		int numQx = nodes.stream().mapToInt(node -> node.getQx().keySet().size()).sum();
+		double networkComplexity = numOxx + numQx;
+
+		// Compute non-negative penalization (For now it is performing a BIC
+		// penalization)
+		double penalization = Math.log(ctbn.getDataset().getNumObservation()) / 2;
+
+		llScore -= networkComplexity * penalization;
+
 		return llScore;
 	}
 

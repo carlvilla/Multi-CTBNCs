@@ -3,6 +3,7 @@ package com.cig.mctbnc.data.reader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.rmi.server.LogStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.exceptions.VariableNotFoundException;
 import com.opencsv.CSVReader;
 
 /**
@@ -42,8 +44,12 @@ public class SeparateCSVReader implements DatasetReader {
 	public Dataset readDataset() {
 		Dataset dataset = new Dataset(nameTimeVariable, nameClassVariables);
 		for (File file : files) {
-			List<String[]> dataSequence = readCSV(file.getAbsolutePath(), excludeVariables);
-			dataset.addSequence(dataSequence);
+			try {
+				List<String[]> dataSequence = readCSV(file.getAbsolutePath(), excludeVariables);
+				dataset.addSequence(dataSequence);
+			} catch (VariableNotFoundException e) {
+				logger.warn(e.getMessage());
+			}
 		}
 		return dataset;
 	}
@@ -55,8 +61,9 @@ public class SeparateCSVReader implements DatasetReader {
 	 *            path to the CSV file
 	 * @param excludeVariables
 	 * @return list with the rows (lists of strings) of the CSV
+	 * @throws VariableNotFoundException
 	 */
-	public List<String[]> readCSV(String pathFile, String[] excludeVariables) {
+	public List<String[]> readCSV(String pathFile, String[] excludeVariables) throws VariableNotFoundException {
 		FileReader reader;
 		List<String[]> list = new ArrayList<String[]>();
 		try {
@@ -70,6 +77,11 @@ public class SeparateCSVReader implements DatasetReader {
 				List<Integer> indexesToIgnore = new ArrayList<Integer>();
 				for (String excludeVariable : excludeVariables) {
 					int index = head.indexOf(excludeVariable);
+					if (index == -1) {
+						// The variable to exclude does not exist in the analysed CSV
+						String message = String.format("Variable %s not found in file %s. The file will be ignored.", excludeVariable, pathFile);
+						throw new VariableNotFoundException(message);
+					}
 					indexesToIgnore.add(index);
 				}
 				// List is sorted so last elements of the lists are removed first

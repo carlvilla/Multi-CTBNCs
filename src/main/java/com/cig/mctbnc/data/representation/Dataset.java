@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +21,6 @@ public class Dataset {
 	private String[] nameFeatures;
 	private String[] nameClassVariables;
 	private String nameTimeVariable;
-
 	static Logger logger = LogManager.getLogger(Dataset.class);
 
 	public Dataset(String nameTimeVariable, String[] nameClassVariables) {
@@ -79,31 +79,25 @@ public class Dataset {
 	}
 
 	/*
-	
-
-	public void addSequence(List<List<String>> data, String[] excludeVariables) {
-		
-		List<String> nameVariables = data.get(0);
-		List<Integer> variableIndexesToExclude = new ArrayList<Integer>();
-		
-		for(String excludeVariable: excludeVariables) {
-			int index = nameVariables.indexOf(excludeVariable);
-			if(index == -1) {
-				logger.warn("Trying to exclude variable {}, but it does not exist in the dataset");
-			} else {
-				// The name of the variable is removed
-				nameVariables.remove(index);
-				// The 
-				data.stream().map(row -> row.remove(index));
-				
-				
-			}
-		}
-		
-		addSequence(data);
-	}
-	
-	*/
+	 * 
+	 * 
+	 * public void addSequence(List<List<String>> data, String[] excludeVariables) {
+	 * 
+	 * List<String> nameVariables = data.get(0); List<Integer>
+	 * variableIndexesToExclude = new ArrayList<Integer>();
+	 * 
+	 * for(String excludeVariable: excludeVariables) { int index =
+	 * nameVariables.indexOf(excludeVariable); if(index == -1) { logger.
+	 * warn("Trying to exclude variable {}, but it does not exist in the dataset");
+	 * } else { // The name of the variable is removed nameVariables.remove(index);
+	 * // The data.stream().map(row -> row.remove(index));
+	 * 
+	 * 
+	 * } }
+	 * 
+	 * addSequence(data); }
+	 * 
+	 */
 
 	/**
 	 * Return the sequences of the dataset.
@@ -208,6 +202,16 @@ public class Dataset {
 	}
 
 	/**
+	 * Return the number of observations in the dataset, i.e., the number of
+	 * transitions that occur in all the sequences.
+	 * 
+	 * @return number of observations
+	 */
+	public int getNumObservation() {
+		return sequences.stream().mapToInt(sequence -> sequence.getNumObservations()).sum();
+	}
+
+	/**
 	 * Get the values of the specified variables (by name) for all the sequences.
 	 * 
 	 * @param nameVaribles
@@ -246,8 +250,10 @@ public class Dataset {
 			for (int i = 0; i < statesSequence.length; i++) {
 				// For every possible value of the variable it is created a State.
 				State state = new State();
-				Event<String> event = new Event<String>(nameVariable, statesSequence[i]);
-				state.addEvent(event);
+
+				// Event<String> event = new Event<String>(nameVariable, statesSequence[i]);
+				state.addEvent(nameVariable, statesSequence[i]);
+
 				states.add(state);
 			}
 		}
@@ -288,19 +294,29 @@ public class Dataset {
 	 */
 	public int getNumOccurrences(State query) {
 		int numOccurrences = 0;
-		String[] nameVariables = query.getNameVariables();
+		List<String> nameVariables = query.getNameVariables();
 		// If all the variables are class variables, then it is not necessary to
 		// check the observations of each sequence
-		boolean onlyClassVariable = Arrays.asList(getNameClassVariables()).containsAll(Arrays.asList(nameVariables));
+		boolean onlyClassVariable = Arrays.asList(getNameClassVariables()).containsAll(nameVariables);
 		if (onlyClassVariable) {
 			for (Sequence sequence : getSequences()) {
 				boolean occurrence = true;
-				for (Event<String> event : query.getEvents()) {
-					String nameVariable = event.getNameNode();
-					occurrence = event.getValue().equals(sequence.getValueClassVariable(nameVariable));
+
+				// for (Event<String> event : query.getEvents()) {
+				// String nameVariable = event.getNameNode();
+				// occurrence =
+				// event.getValue().equals(sequence.getValueClassVariable(nameVariable));
+				// if (!occurrence)
+				// break;
+				// }
+
+				Map<String, String> events = new HashMap<String, String>();
+				for (String nameVariable : events.keySet()) {
+					occurrence = events.get(nameVariable).equals(sequence.getValueClassVariable(nameVariable));
 					if (!occurrence)
 						break;
 				}
+
 				if (occurrence)
 					numOccurrences++;
 			}
@@ -325,17 +341,12 @@ public class Dataset {
 	 * @return number of times the transition occurs
 	 */
 	public int getNumOccurrencesTransition(State fromState, State toState) {
-		String nameVariable = toState.getNameVariables()[0];
-
-		if (nameVariable.equals("Exercise")) {
-			System.out.println();
-		}
-
-		String[] nameParents = null;
+		String nameVariable = toState.getNameVariables().get(0);
+		List<String> nameParents = null;
 		if (fromState.getNumEvents() > 1) {
 			// The variable has parents
-			nameParents = Arrays.asList(fromState.getNameVariables()).stream()
-					.filter(name -> !name.equals(nameVariable)).toArray(String[]::new);
+			nameParents = fromState.getNameVariables().stream().filter(name -> !name.equals(nameVariable))
+					.collect(Collectors.toList());
 		}
 		int numOccurrences = 0;
 		for (Sequence sequence : getSequences()) {
@@ -346,11 +357,11 @@ public class Dataset {
 				Observation observationAfter = sequence.getObservations().get(i);
 
 				// Check if the variable starts from the expected value
-				boolean expectedValueBefore = observationBefore.getValueFeature(nameVariable)
+				boolean expectedValueBefore = observationBefore.getValueVariable(nameVariable)
 						.equals(fromState.getValueNode(nameVariable));
 
 				// Check if the studied variable transitions to the expected value
-				boolean expectedValueAfter = observationAfter.getValueFeature(nameVariable)
+				boolean expectedValueAfter = observationAfter.getValueVariable(nameVariable)
 						.equals(toState.getValueNode(nameVariable));
 
 				// It is only necessary to check the states of the parents if the variable
@@ -358,7 +369,7 @@ public class Dataset {
 				if (expectedValueBefore && expectedValueAfter && nameParents != null) {
 					boolean expectedValueParents = true;
 					for (String nameParent : nameParents) {
-						expectedValueParents = expectedValueParents && observationBefore.getValueFeature(nameParent)
+						expectedValueParents = expectedValueParents && observationBefore.getValueVariable(nameParent)
 								.equals(fromState.getValueNode(nameParent));
 					}
 
@@ -434,11 +445,11 @@ public class Dataset {
 	 * @return boolean that determines if the observation has the specified state
 	 */
 	private boolean observationInState(Observation observation, State state) {
-		String[] nameVariables = state.getNameVariables();
+		List<String> nameVariables = state.getNameVariables();
 		boolean ObservationHasState = true;
 		for (String nameVariable : nameVariables) {
 			ObservationHasState = ObservationHasState
-					& observation.getValueFeature(nameVariable).equals(state.getValueNode(nameVariable));
+					& observation.getValueVariable(nameVariable).equals(state.getValueNode(nameVariable));
 			// If any variable has a different state, it is not necessary to check the
 			// others
 			if (!ObservationHasState) {
@@ -449,31 +460,34 @@ public class Dataset {
 	}
 
 	/**
-	 * Create an index for the variables whose names are given.
-	 * 
-	 * @param nameVariables
-	 */
-	private void addIndex(String[] nameVariables) {
-		for (String nameVariable : nameVariables)
-			addIndex(nameVariable);
-	}
-
-	/**
 	 * Create an index for the the variable whose name is given. This index starts
 	 * from 0 and its maximum value is equal to the number of variables. This is
 	 * necessary for the adjacency matrices so it is always use the same rows and
-	 * columns to refer to a certain variable.
+	 * columns to refer to a certain variable. Therefore, the only variable that is
+	 * not added is the time variable.
 	 * 
 	 * @param nameVariable
 	 */
 	private void addIndex(String nameVariable) {
-		if (!indexVariables.containsKey(nameVariable)) {
+		if (!indexVariables.containsKey(nameVariable) && !nameVariable.equals(nameTimeVariable)) {
 			// Get next index
 			int index = 0;
 			if (indexVariables.size() != 0)
 				index = indexVariables.size();
 			indexVariables.put(nameVariable, index);
 		}
+	}
+
+	/**
+	 * Create an index for the variables whose names are given (except for the time
+	 * variable).
+	 * 
+	 * @param nameVariables
+	 */
+	private void addIndex(String[] nameVariables) {
+		for (String nameVariable : nameVariables)
+			if (!nameVariable.equals(nameTimeVariable))
+				addIndex(nameVariable);
 	}
 
 }

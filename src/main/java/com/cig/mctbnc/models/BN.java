@@ -26,7 +26,6 @@ public class BN<N extends Node> extends AbstractPGM {
 	private List<N> learnedNodes;
 	private ParameterLearningAlgorithm parameterLearningAlg;
 	private StructureLearningAlgorithm structureLearningAlg;
-	private Dataset dataset;
 
 	/**
 	 * Initialize a Bayesian network by receiving a list of nodes and a dataset.
@@ -121,7 +120,7 @@ public class BN<N extends Node> extends AbstractPGM {
 		}
 
 		parameterLearningAlg.learn(nodes, dataset);
-		this.learnedNodes = (List<N>) parameterLearningAlg.getParameters();
+		this.learnedNodes = (List<N>) parameterLearningAlg.getParameters();	
 	}
 
 	public BN() {
@@ -145,10 +144,6 @@ public class BN<N extends Node> extends AbstractPGM {
 	public Node getNodeByName(String name) {
 		Node selectedNode = nodes.stream().filter(node -> node.getName().equals(name)).findAny().orElse(null);
 		return selectedNode;
-	}
-
-	public Dataset getDataset() {
-		return dataset;
 	}
 
 	/**

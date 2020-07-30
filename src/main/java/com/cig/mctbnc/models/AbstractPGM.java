@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.graphstream.graph.Graph;
 
+import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
@@ -13,6 +14,7 @@ public abstract class AbstractPGM implements PGM {
 
 	protected List<Node> nodes;
 	protected NodeIndexer nodeIndexer;
+	protected Dataset dataset;
 
 	public AbstractPGM() {
 	}
@@ -98,15 +100,20 @@ public abstract class AbstractPGM implements PGM {
 	public int getNumNodes() {
 		return nodes.size();
 	}
-	
+
+	public Dataset getDataset() {
+		return dataset;
+	}
+
 	/**
 	 * Display the PGM using GraphStream.
+	 * 
 	 * @param graph
 	 */
 	public void display() {
-		//addNodes(graph, nodes);
-		//addEdges(graph, nodes);
-		//graph.display();
+		// addNodes(graph, nodes);
+		// addEdges(graph, nodes);
+		// graph.display();
 	}
 
 }

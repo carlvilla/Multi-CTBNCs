@@ -9,9 +9,7 @@ import org.graphstream.graph.implementations.SingleGraph;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.HillClimbing;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
-import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.Node;
 
 /**
@@ -27,7 +25,6 @@ public class CTBNC<N extends Node> extends AbstractPGM implements Classifier {
 	private List<N> learnedNodes;
 	private ParameterLearningAlgorithm parameterLearningAlg;
 	private StructureLearningAlgorithm structureLearningAlg;
-	private Dataset dataset;
 	static Logger logger = LogManager.getLogger(CTBNC.class);
 
 	/**
