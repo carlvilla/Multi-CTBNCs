@@ -1,32 +1,30 @@
 package ctbn;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.CTBNParameterMLE;
 import com.cig.mctbnc.nodes.CIMNode;
-import com.cig.mctbnc.nodes.DiscreteNode;
-import com.cig.mctbnc.nodes.Node;
 
 public class ParameterLearning {
 
-	CTBNParameterMLE ctbnParameterLearning;
+	static List<CIMNode> nodes;
 
 	/**
 	 * Defines a dataset by creating first the sequences.
 	 */
-	@Before
-	public void generateDatasetFromSequences() {
+	@BeforeAll
+	public static void generateDatasetFromSequences() {
 		// Define dataset
-		String[] nameClassVariables = {};
+		List<String> nameClassVariables = new ArrayList<String>();
 		String nameTimeVariable = "Time";
 
 		List<String[]> dataSequence1 = new ArrayList<String[]>();
@@ -72,10 +70,10 @@ public class ParameterLearning {
 		// Define nodes
 		// As it is tested the learned parameters, that a node is a class variable or
 		// not is irrelevant.
-		List<Node> nodes = new ArrayList<Node>();
+		nodes = new ArrayList<CIMNode>();
 		for (String nameFeature : dataset.getNameVariables()) {
 			int index = dataset.getIndexVariable(nameFeature);
-			nodes.add(new DiscreteNode(index, nameFeature, false, dataset.getStatesVariable(nameFeature)));
+			nodes.add(new CIMNode(index, nameFeature, dataset.getStatesVariable(nameFeature)));
 		}
 
 		// V2 and V3 are parents of V1 and V3 is parent of V2
@@ -84,7 +82,7 @@ public class ParameterLearning {
 		nodes.get(1).setParent(nodes.get(2));
 
 		// Learn sufficient parameters given the nodes and the dataset
-		ctbnParameterLearning = new CTBNParameterMLE();
+		CTBNParameterMLE ctbnParameterLearning = new CTBNParameterMLE();
 		ctbnParameterLearning.learn(nodes, dataset);
 	}
 
@@ -94,13 +92,12 @@ public class ParameterLearning {
 	 */
 	@Test
 	public void testSufficientStatisticNxxCTBN() {
-		List<CIMNode> cimNodes = ctbnParameterLearning.getParameters();
 		// Sufficient statistics V1
-		Map<State, Map<State, Integer>> ssV1 = cimNodes.get(0).getSufficientStatistics().getNxx();
+		Map<State, Map<State, Integer>> ssV1 = nodes.get(0).getSufficientStatistics().getNxy();
 		// Sufficient statistics V2
-		Map<State, Map<State, Integer>> ssV2 = cimNodes.get(1).getSufficientStatistics().getNxx();
+		Map<State, Map<State, Integer>> ssV2 = nodes.get(1).getSufficientStatistics().getNxy();
 		// Sufficient statistics V3
-		Map<State, Map<State, Integer>> ssV3 = cimNodes.get(2).getSufficientStatistics().getNxx();
+		Map<State, Map<State, Integer>> ssV3 = nodes.get(2).getSufficientStatistics().getNxy();
 
 		// Sufficient statistics V1
 		State fromState = new State();
@@ -166,13 +163,12 @@ public class ParameterLearning {
 	 */
 	@Test
 	public void testSufficientStatisticNxCTBN() {
-		List<CIMNode> cimNodes = ctbnParameterLearning.getParameters();
 		// Sufficient statistics V1
-		Map<State, Integer> ssV1 = cimNodes.get(0).getSufficientStatistics().getNx();
+		Map<State, Integer> ssV1 = nodes.get(0).getSufficientStatistics().getNx();
 		// Sufficient statistics V2
-		Map<State, Integer> ssV2 = cimNodes.get(1).getSufficientStatistics().getNx();
+		Map<State, Integer> ssV2 = nodes.get(1).getSufficientStatistics().getNx();
 		// Sufficient statistics V3
-		Map<State, Integer> ssV3 = cimNodes.get(2).getSufficientStatistics().getNx();
+		Map<State, Integer> ssV3 = nodes.get(2).getSufficientStatistics().getNx();
 
 		// Sufficient statistics V1
 		State fromState = new State();
@@ -228,14 +224,13 @@ public class ParameterLearning {
 	 */
 	@Test
 	public void testSufficientStatisticTCTBN() {
-		List<CIMNode> cimNodes = ctbnParameterLearning.getParameters();
 		// Test the sufficient parameters for certain combinations of states
 		// Sufficient statistics V1
-		Map<State, Double> ssV1 = cimNodes.get(0).getSufficientStatistics().getT();
+		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getTx();
 		// Sufficient statistics V2
-		Map<State, Double> ssV2 = cimNodes.get(1).getSufficientStatistics().getT();
+		Map<State, Double> ssV2 = nodes.get(1).getSufficientStatistics().getTx();
 		// Sufficient statistics V3
-		Map<State, Double> ssV3 = cimNodes.get(2).getSufficientStatistics().getT();
+		Map<State, Double> ssV3 = nodes.get(2).getSufficientStatistics().getTx();
 
 		// Sufficient statistics V1
 		State state = new State();
@@ -248,7 +243,7 @@ public class ParameterLearning {
 		state.addEvent("V1", "c");
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "c"); // Last observation of a sequence. It never changes, so the
-														// duration is unknown.
+									// duration is unknown.
 		assertEquals(0, (double) ssV1.get(state), 0.000001);
 
 		state = new State();

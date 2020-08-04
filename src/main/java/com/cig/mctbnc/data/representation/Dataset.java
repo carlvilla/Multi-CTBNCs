@@ -18,12 +18,12 @@ public class Dataset {
 
 	private List<Sequence> sequences;
 	private Map<String, Integer> indexVariables;
-	private String[] nameFeatures;
-	private String[] nameClassVariables;
+	private List<String> nameFeatures;
+	private List<String> nameClassVariables;
 	private String nameTimeVariable;
 	static Logger logger = LogManager.getLogger(Dataset.class);
 
-	public Dataset(String nameTimeVariable, String[] nameClassVariables) {
+	public Dataset(String nameTimeVariable, List<String> nameClassVariables) {
 		sequences = new ArrayList<Sequence>();
 		indexVariables = new HashMap<String, Integer>();
 		this.nameTimeVariable = nameTimeVariable;
@@ -52,14 +52,14 @@ public class Dataset {
 	 */
 	public void addSequence(List<String[]> data) {
 		try {
-			String[] nameVariables = data.get(0);
+			List<String> nameVariables = Arrays.asList(data.get(0));
 			// If there are no sequences in the dataset, it is stored the name of the
 			// features. They are given by the names of the variables that were not
 			// defined as the time variable or class variable.
 			if (getSequences().size() == 0) {
-				nameFeatures = Arrays.asList(nameVariables).stream().filter(
-						name -> !name.equals(nameTimeVariable) && !Arrays.asList(nameClassVariables).contains(name))
-						.toArray(String[]::new);
+				nameFeatures = nameVariables.stream()
+						.filter(name -> !name.equals(nameTimeVariable) && !nameClassVariables.contains(name))
+						.collect(Collectors.toList());
 
 				// Definition of the indexes for the features
 				addIndex(nameFeatures);
@@ -117,10 +117,9 @@ public class Dataset {
 	 * @return boolean that determines if the addition is valid
 	 * @throws Exception
 	 */
-	public boolean checkIntegrityData(String[] nameVariables) throws Exception {
+	public boolean checkIntegrityData(List<String> nameVariables) throws Exception {
 		boolean dataCorrect;
-		List<String> listNameVariables = Arrays.asList(nameVariables);
-		dataCorrect = listNameVariables.contains(nameTimeVariable);
+		dataCorrect = nameVariables.contains(nameTimeVariable);
 		if (!dataCorrect) {
 			// logger.warn("Sequence not added - Time variable '{}' not specified",
 			// nameTimeVariable);
@@ -128,7 +127,7 @@ public class Dataset {
 			throw new Exception(message);
 		}
 
-		dataCorrect = listNameVariables.containsAll(Arrays.asList(nameClassVariables));
+		dataCorrect = nameVariables.containsAll(nameClassVariables);
 		if (!dataCorrect) {
 			// logger.warn("Sequence not added - One or more class variables were not
 			// specified");
@@ -136,7 +135,7 @@ public class Dataset {
 			throw new Exception(message);
 		}
 
-		if (!listNameVariables.containsAll(indexVariables.keySet())) {
+		if (!nameVariables.containsAll(indexVariables.keySet())) {
 			// logger.warn("Sequence not added - Sequences cannot have different
 			// variables");
 			String message = "Sequence not added - Sequences cannot have different variables";
@@ -157,11 +156,11 @@ public class Dataset {
 		return nameTimeVariable;
 	}
 
-	public String[] getNameFeatures() {
+	public List<String> getNameFeatures() {
 		return nameFeatures;
 	}
 
-	public String[] getNameClassVariables() {
+	public List<String> getNameClassVariables() {
 		return nameClassVariables;
 	}
 
@@ -170,16 +169,17 @@ public class Dataset {
 	 * 
 	 * @return the name of all the variables
 	 */
-	public String[] getNameVariables() {
-		return indexVariables.keySet().stream().filter(name -> !name.equals(nameTimeVariable)).toArray(String[]::new);
+	public List<String> getNameVariables() {
+		return indexVariables.keySet().stream().filter(name -> !name.equals(nameTimeVariable))
+				.collect(Collectors.toList());
 	}
 
 	public int getNumFeatures() {
-		return nameFeatures.length;
+		return nameFeatures.size();
 	}
 
 	public int getNumClassVariables() {
-		return nameClassVariables.length;
+		return nameClassVariables.size();
 	}
 
 	/**
@@ -221,7 +221,7 @@ public class Dataset {
 	public String[][] getValuesVariables(String[] nameVaribles) {
 		// If all the variables are class variables, then it is not necessary to
 		// check the observations of each sequence
-		boolean onlyClassVariable = Arrays.asList(getNameClassVariables()).containsAll(Arrays.asList(nameVaribles));
+		boolean onlyClassVariable = getNameClassVariables().containsAll(Arrays.asList(nameVaribles));
 		if (onlyClassVariable) {
 			return getValuesClassVariables();
 		}
@@ -297,26 +297,17 @@ public class Dataset {
 		List<String> nameVariables = query.getNameVariables();
 		// If all the variables are class variables, then it is not necessary to
 		// check the observations of each sequence
-		boolean onlyClassVariable = Arrays.asList(getNameClassVariables()).containsAll(nameVariables);
+		boolean onlyClassVariable = getNameClassVariables().containsAll(nameVariables);
 		if (onlyClassVariable) {
 			for (Sequence sequence : getSequences()) {
 				boolean occurrence = true;
-
-				// for (Event<String> event : query.getEvents()) {
-				// String nameVariable = event.getNameNode();
-				// occurrence =
-				// event.getValue().equals(sequence.getValueClassVariable(nameVariable));
-				// if (!occurrence)
-				// break;
-				// }
-
-				Map<String, String> events = new HashMap<String, String>();
+				// Check if the events of the query are the same as the events in the sequence
+				Map<String, String> events = query.getEvents();
 				for (String nameVariable : events.keySet()) {
 					occurrence = events.get(nameVariable).equals(sequence.getValueClassVariable(nameVariable));
 					if (!occurrence)
 						break;
 				}
-
 				if (occurrence)
 					numOccurrences++;
 			}
@@ -360,24 +351,26 @@ public class Dataset {
 				boolean expectedValueBefore = observationBefore.getValueVariable(nameVariable)
 						.equals(fromState.getValueNode(nameVariable));
 
-				// Check if the studied variable transitions to the expected value
-				boolean expectedValueAfter = observationAfter.getValueVariable(nameVariable)
-						.equals(toState.getValueNode(nameVariable));
+				if (expectedValueBefore) {
+					// Check if the studied variable transitions to the expected value
+					boolean expectedValueAfter = observationAfter.getValueVariable(nameVariable)
+							.equals(toState.getValueNode(nameVariable));
 
-				// It is only necessary to check the states of the parents if the variable
-				// transitions from and to the expected values
-				if (expectedValueBefore && expectedValueAfter && nameParents != null) {
-					boolean expectedValueParents = true;
-					for (String nameParent : nameParents) {
-						expectedValueParents = expectedValueParents && observationBefore.getValueVariable(nameParent)
-								.equals(fromState.getValueNode(nameParent));
+					// It is only necessary to check the states of the parents if the variable
+					// transitions from and to the expected values
+					if (expectedValueAfter && nameParents != null) {
+						boolean expectedValueParents = true;
+						for (String nameParent : nameParents) {
+							expectedValueParents = expectedValueParents && observationBefore
+									.getValueVariable(nameParent).equals(fromState.getValueNode(nameParent));
+							if (!expectedValueParents)
+								continue;
+						}
+						numOccurrences++;
+					} else {
+						if (expectedValueAfter)
+							numOccurrences++;
 					}
-
-					if (expectedValueParents)
-						numOccurrences++;
-				} else {
-					if (expectedValueBefore && expectedValueAfter)
-						numOccurrences++;
 				}
 			}
 		}
@@ -484,7 +477,7 @@ public class Dataset {
 	 * 
 	 * @param nameVariables
 	 */
-	private void addIndex(String[] nameVariables) {
+	private void addIndex(List<String> nameVariables) {
 		for (String nameVariable : nameVariables)
 			if (!nameVariable.equals(nameTimeVariable))
 				addIndex(nameVariable);

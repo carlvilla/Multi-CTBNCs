@@ -1,6 +1,5 @@
 package com.cig.mctbnc.learning.parameters;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,47 +15,40 @@ import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
 public class BNParameterMLE implements ParameterLearningAlgorithm {
-
-	List<CPTNode> cptNodes;
 	static Logger logger = LogManager.getLogger(BNParameterMLE.class);
 
 	@Override
-	public void learn(List<Node> nodes, Dataset dataset) {
+	public void learn(List<? extends Node> nodes, Dataset dataset) {
 		logger.trace("Learning parameters BN with maximum likelihood estimation");
-		BNSufficientStatistics[] ssNodes = sufficientStatistics(nodes, dataset);
-		setCPTs(nodes, ssNodes);
-	}
-
-	public void setCPTs(List<Node> nodes, BNSufficientStatistics[] ss) {
-		// For each node it is created a new type of node that contains the CPTs.
-		cptNodes = new ArrayList<CPTNode>();
-		for (int i = 0; i < nodes.size(); i++) {
-			// The node has to be discrete
-			DiscreteNode node = (DiscreteNode) nodes.get(i);
-			Map<State, Integer> N = ss[i].getSufficientStatistics();
-			// Compute the parameters for the current node with its sufficient statistics
-			Map<State, Double> CPT = estimateCPT(node, N);
-			// Create a CPTNode to store the computed CPT and sufficient statistics
-			CPTNode cptNode = new CPTNode(node, CPT, N);
-			cptNodes.add(cptNode);
-		}
-	}
-
-	@Override
-	public List<CPTNode> getParameters() {
-		return getCPT();
+		setSufficientStatistics(nodes, dataset);
+		setCPTs(nodes);
 	}
 
 	/**
-	 * Return a list of CPTNode objects, i.e., an object that extend DiscreteNode in
-	 * order to store the conditional probability tables.
+	 * Obtain for each variable i, the number of times its parents are in the state
+	 * j and the variable is in the state k.
 	 * 
-	 * @return List of CPTNodes
+	 * @param nodes
+	 * @param dataset
 	 */
-	public List<CPTNode> getCPT() {
-		if (cptNodes.isEmpty())
-			logger.warn("CPTs were not learned");
-		return cptNodes;
+	public void setSufficientStatistics(List<? extends Node> nodes, Dataset dataset) {
+		for (int i = 0; i < nodes.size(); i++) {
+			BNSufficientStatistics ssNode = new BNSufficientStatistics(nodes.get(i));
+			ssNode.computeSufficientStatistics(dataset);
+			((CPTNode) nodes.get(i)).setSufficientStatistics(ssNode.getSufficientStatistics());
+		}
+	}
+
+	public void setCPTs(List<? extends Node> nodes) {
+		// For each node it is created a new type of node that contains the CPTs.
+		for (int i = 0; i < nodes.size(); i++) {
+			// The node has to have a CPT
+			CPTNode node = (CPTNode) nodes.get(i);
+			// Compute the parameters for the current node with its sufficient statistics
+			Map<State, Double> CPT = estimateCPT(node, node.getSufficientStatistics());
+			// CPTNode stores the computed CPT
+			node.setCPT(CPT);
+		}
 	}
 
 	/**
@@ -100,23 +92,4 @@ public class BNParameterMLE implements ParameterLearningAlgorithm {
 		return CPT;
 	}
 
-	/**
-	 * Obtain for each variable i, the number of times its parents are in the state
-	 * j and the variable is in the state k.
-	 * 
-	 * @param nodes
-	 * @param dataset
-	 * @return sufficient statistics for each variable
-	 */
-	public BNSufficientStatistics[] sufficientStatistics(List<Node> nodes, Dataset dataset) {
-		int numNodes = nodes.size();
-		BNSufficientStatistics[] ss = new BNSufficientStatistics[numNodes];
-
-		for (int i = 0; i < numNodes; i++) {
-			BNSufficientStatistics ssNode = new BNSufficientStatistics(nodes.get(i));
-			ssNode.computeSufficientStatistics(dataset);
-			ss[i] = ssNode;
-		}
-		return ss;
-	}
 }

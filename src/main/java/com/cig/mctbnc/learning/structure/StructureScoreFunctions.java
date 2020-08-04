@@ -27,14 +27,16 @@ public class StructureScoreFunctions {
 	 * @return penalized log-likelihood score
 	 */
 	public static double penalizedLogLikelihoodScore(PGM pgm) {
+		double llScore = 0;
 		if (pgm instanceof BN) {
 			logger.trace("Computing penalized log-likelihood of BN");
-			return penalizedLogLikelihoodScore((BN<CPTNode>) pgm);
+			llScore = penalizedLogLikelihoodScore((BN<CPTNode>) pgm);
 		} else if (pgm instanceof CTBNC) {
 			logger.trace("Computing penalized log-likelihood of CTBN");
-			return penalizedLogLikelihoodScore((CTBNC<CIMNode>) pgm);
+			llScore = penalizedLogLikelihoodScore((CTBNC<CIMNode>) pgm);
 		}
-		return 0;
+		logger.trace("Penalized log-likelihood is {}", llScore);
+		return llScore;
 	}
 
 	/**
@@ -111,13 +113,13 @@ public class StructureScoreFunctions {
 			for (State state : Qx.keySet()) {
 				double qx = Qx.get(state);
 				int nx = ss.getNx().get(state);
-				double tx = ss.getT().get(state);
+				double tx = ss.getTx().get(state);
 				// Probability density function of the exponential distribution
 				if (qx != 0)
 					llScore += nx * Math.log(qx) - qx * tx;
 				for (State toState : Oxx.get(state).keySet()) {
 					double oxx = Oxx.get(state).get(toState);
-					int nxx = ss.getNxx().get(state).get(toState);
+					int nxx = ss.getNxy().get(state).get(toState);
 					if (oxx != 0)
 						llScore += nxx * Math.log(oxx);
 				}

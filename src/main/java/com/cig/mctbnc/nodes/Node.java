@@ -11,7 +11,20 @@ public interface Node {
 	public List<Node> getChildren();
 
 	public List<Node> getParents();
-	
+
+	/**
+	 * Define if the node is a class variable.
+	 * 
+	 * @param isClassVariable
+	 *            boolean that determines if the node is a class variable
+	 */
+	public void isClassVariable(boolean isClassVariable);
+
+	/**
+	 * Specify if the node is a class variable.
+	 * 
+	 * @return boolean that determines if the node is a class variable
+	 */
 	public boolean isClassVariable();
 
 	public boolean hasParents();
@@ -19,6 +32,7 @@ public interface Node {
 	/**
 	 * Include nodeChild in the children list of the node, while including the node
 	 * in the list of parents of nodeChild.
+	 * 
 	 * @param nodeChild
 	 */
 	public void setChild(Node nodeChild);
@@ -26,6 +40,7 @@ public interface Node {
 	/**
 	 * Include nodeParent in the parent list of the node, while including the node
 	 * in the list of children of nodeParent.
+	 * 
 	 * @param nodeParent
 	 */
 	public void setParent(Node nodeParent);

@@ -28,11 +28,11 @@ public class SeparateCSVReader implements DatasetReader {
 
 	File[] files;
 	String nameTimeVariable;
-	String[] nameClassVariables;
+	List<String> nameClassVariables;
 	String[] excludeVariables;
 	static Logger logger = LogManager.getLogger(SeparateCSVReader.class);
 
-	public SeparateCSVReader(File[] files, String nameTimeVariable, String[] nameClassVariables,
+	public SeparateCSVReader(File[] files, String nameTimeVariable, List<String> nameClassVariables,
 			String[] excludeVariables) {
 		this.files = files;
 		this.nameTimeVariable = nameTimeVariable;

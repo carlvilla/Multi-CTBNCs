@@ -1,7 +1,6 @@
 package com.cig.mctbnc.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.cig.mctbnc.data.representation.State;
@@ -14,13 +13,27 @@ public class Util {
 	 * @param a
 	 *            list
 	 * @param b
-	 *            elements we do not want in "a"
+	 *            list of elements to filter from "a"
 	 * @return list of "a" without elements "b"
 	 */
-	@SuppressWarnings("unchecked")
-	public static <T> List<T> filterArray(List<T> a, T... b) {
+	public static <T> List<T> filter(List<T> a, List<T> b) {
 		List<T> listA = new ArrayList<T>(a);
-		listA.removeAll(Arrays.asList(b));
+		listA.removeAll(b);
+		return listA;
+	}
+	
+	/**
+	 * Return the elements of a list "a" except "b".
+	 * 
+	 * @param a
+	 *            list
+	 * @param b
+	 *            element to filter from "a"
+	 * @return list of "a" without "b"
+	 */
+	public static <T> List<T> filter(List<T> a, T b) {
+		List<T> listA = new ArrayList<T>(a);
+		listA.remove(b);
 		return listA;
 	}
 

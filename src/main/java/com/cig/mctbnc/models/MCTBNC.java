@@ -11,7 +11,6 @@ import org.graphstream.graph.implementations.SingleGraph;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
-import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
 /**
@@ -19,46 +18,32 @@ import com.cig.mctbnc.nodes.Node;
  * Implements the Multi-dimensional Continuous Time Bayesian Network Classifier.
  * 
  * @author Carlos Villa Blanco
- *
- * @param <T>
- *            Type of the nodes (discrete or continuous)
  * 
+ * @param <NodeTypeBN>   Type of the nodes of the Bayesian network (discrete or
+ *                       continuous)
+ * @param <NodeTypeCTBN> Type of the nodes of the continuous time Bayesian
+ *                       network (discrete or continuous)
  */
-public class MCTBNC<T extends Node> extends AbstractPGM {
+public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends AbstractPGM {
 	// The subgraph formed by class variables is a Bayesian network
-	private BN<T> bn;
-	private CTBNC<T> ctbnc;
+	private BN<NodeTypeBN> bn;
+	private CTBNC<NodeTypeCTBN> ctbnc;
 	static Logger logger = LogManager.getLogger(MCTBNC.class);
 
-	public MCTBNC(Dataset trainingDataset, ParameterLearningAlgorithm ctbnParameterLearningAlgorithm,
+	public MCTBNC(Dataset dataset, ParameterLearningAlgorithm ctbnParameterLearningAlgorithm,
 			StructureLearningAlgorithm ctbncStructureLearningAlgorithm,
 			ParameterLearningAlgorithm bnParameterLearningAlgorithm,
 			StructureLearningAlgorithm bnStructureLearningAlgorithm) {
+		// Set dataset
+		this.dataset = dataset;
 
-		// Define nodes of the MCTBNC
-		List<Node> nodes = new ArrayList<Node>();
-		for (String nameFeature : trainingDataset.getNameFeatures()) {
-			int index = trainingDataset.getIndexVariable(nameFeature);
-			nodes.add(new DiscreteNode(index, nameFeature, false, trainingDataset.getStatesVariable(nameFeature)));
-		}
-
-		for (String nameClassVariable : trainingDataset.getNameClassVariables()) {
-			int index = trainingDataset.getIndexVariable(nameClassVariable);
-			nodes.add(new DiscreteNode(index, nameClassVariable, true,
-					trainingDataset.getStatesVariable(nameClassVariable)));
-		}
-
-		// Add nodes to the model, creating an index for each of them when used with
-		// this model
-		addNodes(nodes);
+		// Define class subgraph with a Bayesian network
+		bn = new BN<NodeTypeBN>(dataset.getNameClassVariables(), dataset, bnParameterLearningAlgorithm,
+				bnStructureLearningAlgorithm);
 
 		// Define feature and bridge subgraphs with a continuous time Bayesian network
-		ctbnc = new CTBNC<T>(getNodes(), trainingDataset, ctbnParameterLearningAlgorithm,
+		ctbnc = new CTBNC<NodeTypeCTBN>(dataset.getNameVariables(), dataset, ctbnParameterLearningAlgorithm,
 				ctbncStructureLearningAlgorithm);
-		
-		// Define class subgraph with a Bayesian network
-		bn = new BN<T>(getNodesClassVariables(), trainingDataset, bnParameterLearningAlgorithm,
-				bnStructureLearningAlgorithm);
 	}
 
 	public void display() {
@@ -70,7 +55,10 @@ public class MCTBNC<T extends Node> extends AbstractPGM {
 
 	@Override
 	public void learn() {
-		// Learn structure
+		// Learn structure and parameters of class subgraph (Bayesian network)
+		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
+		bn.learn();
+		logger.info("Class subgraph established!");
 
 		// Learn structure and parameters of feature and bridge subgraph. These are
 		// modeled by
@@ -82,15 +70,73 @@ public class MCTBNC<T extends Node> extends AbstractPGM {
 				+ "Bayesian network)");
 		ctbnc.learn();
 		logger.info("Feature and bridge subgraphs established!");
-		
-		// Learn structure and parameters of class subgraph (Bayesian network)
-		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
-		bn.learn();
-		logger.info("Class subgraph established!");
-
 
 		// Join class subgraph with feature and bridge subgraphs
+		// Get nodes BN (class variables). Define them as class variables
+		List<Node> nodesBN = getNodesBN();
+		List<Node> nodesCTBN = getNodesCTBN();
+		setStructure(nodesBN, nodesCTBN);
+	}
 
+	private List<Node> getNodesBN() {
+		List<Node> nodesBN = bn.getNodes();
+		// Define nodes of the BN as class variables
+		for (Node node : nodesBN) {
+			node.isClassVariable(true);
+		}
+		return nodesBN;
+	}
+
+	private List<Node> getNodesCTBN() {
+		return ctbnc.getNodes();
+	}
+
+	/**
+	 * Defines the nodes of the MCTBNC by using the nodes obtained from the BN and
+	 * the CTBN.
+	 * 
+	 * @param nodesBN
+	 * @param nodesCTBN
+	 */
+	private void setStructure(List<Node> nodesBN, List<Node> nodesCTBN) {
+		this.nodes = new ArrayList<Node>();
+
+		for (Node nodeBN : nodesBN) {
+			// Add to the nodes of the BN the children obtained by the CTBN
+			// Obtain the node for the class variable in the BN
+			Node nodeInCTBN = nodesBN.stream().filter(nodeCTBN -> nodeCTBN.getIndex() == nodeBN.getIndex()).findFirst()
+					.orElse(null);
+
+			// Set the children of the node from the BN with the children from the same node
+			// in the CTBN
+			for (Node child : nodeInCTBN.getChildren()) {
+				nodeBN.setChild(child);
+			}
+
+			// Nodes of the class variables from the BN are added to the model
+			this.nodes.add(nodeBN);
+		}
+
+		// Add the nodes of the CTBN that are for features
+		for (Node nodeCTBN : nodesCTBN) {
+
+			if (!dataset.getNameClassVariables().contains(nodeCTBN.getName())) {
+				this.nodes.add(nodeCTBN);
+			}
+
+		}
+
+		/*
+		 * for (Node nodeCTBN : nodesCTBN) { if (nodeCTBN.isClassVariable()) { // Add to
+		 * the nodes of the BN the children obtained by the CTBN // Obtain the node for
+		 * the class variable in the BN Node nodeCVInBN = nodesBN.stream().filter(nodeBN
+		 * -> nodeBN.getIndex() == nodeCTBN.getIndex()) .findFirst().orElse(null); //
+		 * Set the children of the node from the BN with the children from the same node
+		 * // in the CTBN for (Node child : nodeCTBN.getChildren()) {
+		 * nodeCVInBN.setChild(child); } // Nodes of the class variables from the BN are
+		 * added to the model this.nodes.add(nodeCVInBN); } else { // Nodes of the
+		 * features from the CTBN are added to the model this.nodes.add(nodeCTBN); } }
+		 */
 	}
 
 	@Override

@@ -1,11 +1,12 @@
 package bn;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.BNParameterMLE;
@@ -13,7 +14,7 @@ import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.HillClimbing;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.models.BN;
-import com.cig.mctbnc.nodes.DiscreteNode;
+import com.cig.mctbnc.nodes.CPTNode;
 
 public class LearnBayesianNetwork {
 
@@ -25,7 +26,7 @@ public class LearnBayesianNetwork {
 	 */
 	@Test
 	public void buildBayesianNetwork() {
-		String[] nameClassVariables = { "V1", "V2", "V3" };
+		List<String> nameClassVariables = List.of("V1", "V2", "V3");
 		String nameTimeVariable = "Time";
 
 		List<String[]> dataSequence1 = new ArrayList<String[]>();
@@ -43,7 +44,7 @@ public class LearnBayesianNetwork {
 		List<String[]> dataSequence4 = new ArrayList<String[]>();
 		dataSequence4.add(new String[] { "Time", "V1", "V2", "V3" });
 		dataSequence4.add(new String[] { "0.0", "b", "b", "b" });
-		
+
 		Dataset dataset = new Dataset(nameTimeVariable, nameClassVariables);
 		dataset.addSequence(dataSequence1);
 		dataset.addSequence(dataSequence2);
@@ -56,10 +57,10 @@ public class LearnBayesianNetwork {
 		// Algorithm to learn structure
 		StructureLearningAlgorithm structureLearningAlgorithm = new HillClimbing();
 
-		BN<DiscreteNode> bn = new BN<DiscreteNode>(dataset, parameterLearningAlgorithm, structureLearningAlgorithm);
+		BN<CPTNode> bn = new BN<CPTNode>(dataset, parameterLearningAlgorithm, structureLearningAlgorithm);
 		bn.learn();
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, false, true }, { false, false, true },
 				{ false, false, false } };
-		assertEquals(expectedAdjacencyMatrix, bn.getAdjacencyMatrix());
+		assertArrayEquals(expectedAdjacencyMatrix, bn.getAdjacencyMatrix());
 	}
 }

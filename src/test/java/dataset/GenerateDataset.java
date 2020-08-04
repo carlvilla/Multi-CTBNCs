@@ -1,30 +1,29 @@
 package dataset;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
 
 public class GenerateDataset {
 
-	private Dataset dataset;
+	private static Dataset dataset;
 
 	/**
 	 * Defines a dataset by creating first the sequences.
 	 */
-	@Before
-	public void generateDatasetFromSequences() {
-		String[] nameVariables = { "Time", "V1", "V2", "V3" };
-		String[] nameClassVariables = { "V2" };
+	@BeforeAll
+	public static void generateDatasetFromSequences() {
+		List<String> nameVariables = List.of("Time", "V1", "V2", "V3");
+		List<String> nameClassVariables = List.of("V2");
 
 		List<String[]> dataSequence1 = new ArrayList<String[]>();
 		dataSequence1.add(new String[] { "0.0", "a", "a", "a" });
@@ -46,7 +45,7 @@ public class GenerateDataset {
 
 		Map<String, Integer> indexVariables = new HashMap<String, Integer>();
 		for (String nameVariable : nameVariables) {
-			indexVariables.put(nameVariable, Arrays.asList(nameVariables).indexOf(nameVariable));
+			indexVariables.put(nameVariable, nameVariables.indexOf(nameVariable));
 		}
 
 		List<Sequence> sequences = new ArrayList<Sequence>();
@@ -55,26 +54,42 @@ public class GenerateDataset {
 
 		dataset = new Dataset(indexVariables, sequences);
 	}
+	
+	/**
+	 * Defines a dataset with different order of variables for each sequence.
+	 */
+
+	@Test
+	public void testStatesVariables() {
+		assertEquals(10, dataset.getStatesVariable("V1").size());
+		assertEquals(2, dataset.getStatesVariable("V2").size());
+		assertEquals(1, dataset.getStatesVariable("V3").size());
+	}
+
+	@Test
+	public void testTimeVariable() {
+		assertEquals("Time", dataset.getNameTimeVariable());
+	}
 
 	@Test
 	/**
 	 * Defines a dataset by adding raw data sequentially.
 	 */
 	public void generateDatasetFromRawData() {
-		String[] nameVariables = { "Time", "V1", "V2", "V3", "V4" };
-		String[] nameClassVariables = { "V1", "V3" };
+		List<String> nameVariables = List.of("Time", "V1", "V2", "V3", "V4");
+		List<String> nameClassVariables = List.of("V1", "V3");
 		String nameTimeVariable = "Time";
 		Dataset dataset = new Dataset(nameTimeVariable, nameClassVariables);
 
 		List<String[]> dataSequence1 = new ArrayList<String[]>();
-		dataSequence1.add(nameVariables);
+		dataSequence1.add(nameVariables.toArray(new String[nameVariables.size()]));
 		dataSequence1.add(new String[] { "0.0", "a", "a", "a", "a" });
 		dataSequence1.add(new String[] { "0.1", "b", "a", "a", "b" });
 		dataSequence1.add(new String[] { "0.2", "c", "a", "a", "c" });
 		dataSequence1.add(new String[] { "0.4", null, "a", "a", "d" });
 
 		List<String[]> dataSequence2 = new ArrayList<String[]>();
-		dataSequence2.add(nameVariables);
+		dataSequence2.add(nameVariables.toArray(new String[nameVariables.size()]));
 		dataSequence2.add(new String[] { "0.0", "a", "b", "a", "a" });
 		dataSequence2.add(new String[] { "0.2", "e", "b", "a", "b" });
 		dataSequence2.add(new String[] { "0.4", "f", "b", "a", "c" });
@@ -102,7 +117,7 @@ public class GenerateDataset {
 		dataSequence6.add(new String[] { "V4", "V5" });
 		dataSequence6.add(new String[] { "b", "a" });
 		dataSequence6.add(new String[] { "b", "a" });
-		
+
 		// Empty sequence
 		List<String[]> dataSequence7 = new ArrayList<String[]>();
 
@@ -122,25 +137,6 @@ public class GenerateDataset {
 		assertEquals(2, dataset.getNumDataPoints());
 	}
 
-	/**
-	 * Defines a dataset with different order of variables for each sequence.
-	 */
 
-	@Test
-	public void testStatesVariables() {
-		assertEquals(10, dataset.getStatesVariable("V1").size());
-		assertEquals(2, dataset.getStatesVariable("V2").size());
-		assertEquals(1, dataset.getStatesVariable("V3").size());
-	}
-
-	@Test
-	public void testTimeVariable() {
-		assertEquals("Time", dataset.getNameTimeVariable());
-	}
-
-	@Test
-	public void testQuery() {
-
-	}
 
 }

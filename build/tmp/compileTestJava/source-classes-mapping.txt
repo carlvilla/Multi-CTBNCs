@@ -1,4 +1,0 @@
-dataset/GenerateDataset.java
- dataset.GenerateDataset
-structures/learnStructures.java
- structures.learnStructures

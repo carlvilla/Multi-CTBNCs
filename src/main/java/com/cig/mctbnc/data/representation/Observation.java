@@ -2,6 +2,7 @@ package com.cig.mctbnc.data.representation;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,13 +19,13 @@ public class Observation {
 	// Store the value of all the variables (except the time variable)
 	private Map<String, String> variablesValues;
 
-	public Observation(String[] nameVariables, String nameTimeVariable, String[] values) {
+	public Observation(List<String> nameVariables, String nameTimeVariable, String[] values) {
 		// Store name of the variable and its value for the observation
 		variablesValues = new HashMap<String, String>();
-		for (int i = 0; i < nameVariables.length; i++) {
-			if (!nameVariables[i].equals(nameTimeVariable)) {
-				variablesValues.put(nameVariables[i], values[i]);
-			} else if (nameVariables[i].equals(nameTimeVariable)) {
+		for (int i = 0; i < nameVariables.size(); i++) {
+			if (!nameVariables.get(i).equals(nameTimeVariable)) {
+				variablesValues.put(nameVariables.get(i), values[i]);
+			} else if (nameVariables.get(i).equals(nameTimeVariable)) {
 				timeValue = Double.parseDouble(values[i]);
 			}
 		}

@@ -11,6 +11,7 @@ import org.graphstream.graph.implementations.SingleGraph;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
@@ -18,12 +19,11 @@ import com.cig.mctbnc.nodes.Node;
  * 
  * @author Carlos Villa Blanco
  *
- * @param <N>
+ * @param <NodeType>
  *            Type of nodes that will be learned, e.g., nodes with conditional
  *            probability table (CPTNode)
  */
-public class BN<N extends Node> extends AbstractPGM {
-	private List<N> learnedNodes;
+public class BN<NodeType extends Node> extends AbstractPGM {
 	private ParameterLearningAlgorithm parameterLearningAlg;
 	private StructureLearningAlgorithm structureLearningAlg;
 
@@ -40,21 +40,32 @@ public class BN<N extends Node> extends AbstractPGM {
 	}
 
 	/**
-	 * Initialize a Bayesian network by receiving a list of nodes, a dataset and the
-	 * algorithms for parameter and structure learning. This constructor was thought
-	 * to be used by the MCTBNC.
+	 * Initialize a Bayesian network by receiving a dataset, a list of variables to
+	 * use and the algorithms for parameter and structure learning. This constructor
+	 * was thought to be used by the MCTBNC.
 	 * 
-	 * @param nodes
+	 * @param nameVariables
 	 * @param dataset
 	 * @param parameterLearningAlg
 	 * @param structureLearningAlg
 	 */
-	public BN(List<Node> nodes, Dataset dataset, ParameterLearningAlgorithm parameterLearningAlg,
+	public BN(List<String> nameVariables, Dataset dataset, ParameterLearningAlgorithm parameterLearningAlg,
 			StructureLearningAlgorithm structureLearningAlg) {
-		super(nodes);
+
+		// Create nodes using dataset
+		List<Node> nodes = new ArrayList<Node>();
+		for (String nameVariable : nameVariables) {
+			int index = dataset.getIndexVariable(nameVariable);
+
+			Node node = new CPTNode(index, nameVariable, dataset.getStatesVariable(nameVariable));
+
+			nodes.add(node);
+		}
+		addNodes(nodes);
 		setParameterLearningAlgorithm(parameterLearningAlg);
 		setStructureLearningAlgorithm(structureLearningAlg);
 		this.dataset = dataset;
+
 	}
 
 	/**
@@ -71,8 +82,10 @@ public class BN<N extends Node> extends AbstractPGM {
 		List<Node> nodes = new ArrayList<Node>();
 		for (String nameVariable : dataset.getNameVariables()) {
 			int index = dataset.getIndexVariable(nameVariable);
+
 			// THIS SHOULD BE CHANGED TO ADMIT OTHER TYPES OF NODES
-			Node node = new DiscreteNode(index, nameVariable, dataset.getStatesVariable(nameVariable));
+			Node node = new CPTNode(index, nameVariable, dataset.getStatesVariable(nameVariable));
+
 			nodes.add(node);
 		}
 		addNodes(nodes);
@@ -104,13 +117,11 @@ public class BN<N extends Node> extends AbstractPGM {
 	@Override
 	public void setStructure(boolean[][] adjacencyMatrix) {
 		// Current edges are removed
-		for (Node node : nodes) {
+		for (Node node : this.nodes) {
 			node.removeAllEdges();
 		}
-
 		for (int i = 0; i < adjacencyMatrix.length; i++) {
 			Node node = nodeIndexer.getNodeByIndex(i);
-
 			for (int j = 0; j < adjacencyMatrix.length; j++) {
 				if (adjacencyMatrix[i][j]) {
 					Node childNode = nodeIndexer.getNodeByIndex(j);
@@ -118,9 +129,8 @@ public class BN<N extends Node> extends AbstractPGM {
 				}
 			}
 		}
-
+		// Learn the sufficient statistics and parameters for each node
 		parameterLearningAlg.learn(nodes, dataset);
-		this.learnedNodes = (List<N>) parameterLearningAlg.getParameters();	
 	}
 
 	public BN() {
@@ -147,12 +157,13 @@ public class BN<N extends Node> extends AbstractPGM {
 	}
 
 	/**
-	 * Return the nodes with the learned parameters.
+	 * Return the nodes with the learned parameters. This can be, for example, a
+	 * list of CPTNode objects that store conditional probability tables.
 	 * 
 	 * @return nodes with learned parameters
 	 */
-	public List<N> getLearnedNodes() {
-		return this.learnedNodes;
+	public List<NodeType> getLearnedNodes() {
+		return (List<NodeType>) nodes;
 	}
 
 	@Override

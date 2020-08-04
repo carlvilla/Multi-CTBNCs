@@ -20,13 +20,13 @@ public class Sequence {
 	// directly from sequences
 	private List<String> featureNames;
 
-	public Sequence(String[] nameVariables, String nameTimeVariable, String[] nameClassVariables,
+	public Sequence(List<String> nameVariables, String nameTimeVariable, List<String> nameClassVariables,
 			List<String[]> valueObservations) {
 		// Set time variable
 		this.nameTimeVariable = nameTimeVariable;
 		// Set the names of the features
-		this.featureNames = Util.<String>filterArray(
-				Util.<String>filterArray(Arrays.asList(nameVariables), nameClassVariables), nameTimeVariable);
+		this.featureNames = Util.<String>filter(Util.<String>filter(nameVariables, nameClassVariables),
+				nameTimeVariable);
 
 		// Get observations with the values of all variables
 		observations = new ArrayList<Observation>();
@@ -39,8 +39,8 @@ public class Sequence {
 		classVariablesValues = new HashMap<String, String>();
 		for (String nameClassVariable : nameClassVariables) {
 			// It is obtained the index of each class variable in the observations
-			for (int i = 0; i < nameVariables.length; i++) {
-				if (nameVariables[i].equals(nameClassVariable)) {
+			for (int i = 0; i < nameVariables.size(); i++) {
+				if (nameVariables.get(i).equals(nameClassVariable)) {
 					classVariablesValues.put(nameClassVariable, valueObservations.get(0)[i]);
 				}
 			}
@@ -56,13 +56,13 @@ public class Sequence {
 		return classVariablesValues.get(nameClassVariable);
 	}
 
-	public String[] getClassVariablesNames() {
+	public List<String> getClassVariablesNames() {
 		Set<String> keys = classVariablesValues.keySet();
-		return keys.toArray(new String[keys.size()]);
+		return new ArrayList<String>(keys);
 	}
 
-	public String[] getFeatureNames() {
-		return featureNames.toArray(new String[featureNames.size()]);
+	public List<String> getFeatureNames() {
+		return featureNames;
 	}
 
 	public String getTimeVariableName() {
@@ -87,17 +87,18 @@ public class Sequence {
 	}
 
 	/**
-	 * Get all the possible states of a specific variable
+	 * Get all the possible states of a specific variable.
 	 * 
 	 * @param nameVariable
 	 *            name of the variable whose possible states we want to know
 	 * @return Array with the states of the variable.
 	 */
 	public String[] getStates(String nameVariable) {
+		// If it is a class variable, there can only be one value per sequence.
 		if (classVariablesValues.containsKey(nameVariable)) {
 			return new String[] { classVariablesValues.get(nameVariable) };
 		}
-
+		// If it is a feature, it is stored in set all its possible unique values.
 		Set<String> states = new HashSet<String>();
 		for (Observation observation : observations) {
 			states.add(observation.getValueVariable(nameVariable));

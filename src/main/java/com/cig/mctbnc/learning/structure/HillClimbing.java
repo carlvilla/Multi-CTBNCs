@@ -73,6 +73,7 @@ public class HillClimbing implements StructureLearningAlgorithm {
 			
 			if (iterationBestScore > bestScore) {
 				logger.debug("Score improved! From {} to {}", bestScore, iterationBestScore);
+				logger.debug("New structure: {}", adjacencyMatrices[idxBestOperation]);
 				bestScore = iterationBestScore;
 				bestStructure = adjacencyMatrices[idxBestOperation];
 				improvement = true;

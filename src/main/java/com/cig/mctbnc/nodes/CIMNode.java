@@ -1,5 +1,6 @@
 package com.cig.mctbnc.nodes;
 
+import java.util.List;
 import java.util.Map;
 
 import com.cig.mctbnc.data.representation.State;
@@ -23,12 +24,24 @@ public class CIMNode extends DiscreteNode {
 	Map<State, Map<State, Double>> Oxx;
 
 	CTBNSufficientStatistics sufficientStatistics;
+	
+	public CIMNode(int index, String name, List<State> states) {
+		super(index, name, states);
+	}
+	
+	public CIMNode(DiscreteNode node) {
+		super(node.getIndex(), node.getName(), node.isClassVariable(), node.getStates());
+	}
 
 	public CIMNode(DiscreteNode node, CTBNSufficientStatistics sufficientStatistics) {
 		super(node.getIndex(), node.getName(), node.isClassVariable(), node.getStates());
 		this.sufficientStatistics = sufficientStatistics;
 	}
 
+	public void setSufficientStatistics(CTBNSufficientStatistics sufficientStatistics) {
+		this.sufficientStatistics = sufficientStatistics;
+	}
+	
 	public CTBNSufficientStatistics getSufficientStatistics() {
 		return sufficientStatistics;
 	}

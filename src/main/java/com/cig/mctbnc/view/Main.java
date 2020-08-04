@@ -15,7 +15,7 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 
-		String datasetFolder = "src/main/java/resources/datasets/rehabilitation";
+		String datasetFolder = "src/main/resources/datasets/rehabilitation";
 
 		try {
 			logger.debug("Initializing MCTBNCs from Main");

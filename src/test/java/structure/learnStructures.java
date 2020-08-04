@@ -1,19 +1,16 @@
 package structure;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class learnStructures {
 
 	@Test
 	public void checkLegalGraphs() {
-
-		// BNStructureHillClimbing bnStructureLearning = new BNStructureHillClimbing();
-
 		int numNodes = 5;
 		boolean[][] adjacencyMatrix = new boolean[numNodes][numNodes];
 		adjacencyMatrix[0][1] = true;
@@ -38,7 +35,6 @@ public class learnStructures {
 		adjacencyMatrix[4][0] = true;
 
 		assertEquals(true, isCyclic(adjacencyMatrix));
-
 	}
 
 	private boolean isCyclic(boolean[][] adjacencyMatrix) {

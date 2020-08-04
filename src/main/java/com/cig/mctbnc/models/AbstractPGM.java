@@ -11,7 +11,6 @@ import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
 public abstract class AbstractPGM implements PGM {
-
 	protected List<Node> nodes;
 	protected NodeIndexer nodeIndexer;
 	protected Dataset dataset;

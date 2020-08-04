@@ -43,6 +43,11 @@ public abstract class AbstractNode implements Node {
 	}
 
 	@Override
+	public void isClassVariable(boolean isClassVariable) {
+		this.classVariable = isClassVariable;
+	}
+
+	@Override
 	public boolean isClassVariable() {
 		return classVariable;
 	}
@@ -127,6 +132,7 @@ public abstract class AbstractNode implements Node {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Name: " + getName() + "\n");
 		sb.append("Index: " + getIndex() + "\n");
+		sb.append("Class variable: " + isClassVariable() + "\n");
 		sb.append("Children: ");
 		String[] nameChildren = getChildren().stream().map(Node::getName).toArray(String[]::new);
 		sb.append(String.join(", ", nameChildren));
