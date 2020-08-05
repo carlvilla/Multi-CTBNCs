@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractNode implements Node {
-	private int index;
 	private String name;
 	private boolean classVariable;
 	private List<Node> children;
@@ -19,8 +18,7 @@ public abstract class AbstractNode implements Node {
 	 * @param index
 	 * @param name
 	 */
-	public AbstractNode(int index, String name) {
-		this.index = index;
+	public AbstractNode(String name) {
 		this.name = name;
 		children = new ArrayList<Node>();
 		parents = new ArrayList<Node>();
@@ -34,8 +32,7 @@ public abstract class AbstractNode implements Node {
 	 * @param name
 	 * @param classVariable
 	 */
-	public AbstractNode(int index, String name, boolean classVariable) {
-		this.index = index;
+	public AbstractNode(String name, boolean classVariable) {
 		this.name = name;
 		this.classVariable = classVariable;
 		children = new ArrayList<Node>();
@@ -50,11 +47,6 @@ public abstract class AbstractNode implements Node {
 	@Override
 	public boolean isClassVariable() {
 		return classVariable;
-	}
-
-	@Override
-	public int getIndex() {
-		return index;
 	}
 
 	@Override
@@ -131,7 +123,6 @@ public abstract class AbstractNode implements Node {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Name: " + getName() + "\n");
-		sb.append("Index: " + getIndex() + "\n");
 		sb.append("Class variable: " + isClassVariable() + "\n");
 		sb.append("Children: ");
 		String[] nameChildren = getChildren().stream().map(Node::getName).toArray(String[]::new);

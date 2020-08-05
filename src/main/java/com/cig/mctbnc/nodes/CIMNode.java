@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.cig.mctbnc.data.representation.State;
-import com.cig.mctbnc.learning.parameters.CTBNSufficientStatistics;
+import com.cig.mctbnc.learning.parameters.SufficientStatistics;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
 
 /**
  * Extends the DiscreteNode class in order to store a CIM and the sufficient
@@ -25,21 +26,23 @@ public class CIMNode extends DiscreteNode {
 
 	CTBNSufficientStatistics sufficientStatistics;
 	
-	public CIMNode(int index, String name, List<State> states) {
-		super(index, name, states);
+	public CIMNode(String name, List<State> states) {
+		super(name, states);
 	}
 	
 	public CIMNode(DiscreteNode node) {
-		super(node.getIndex(), node.getName(), node.isClassVariable(), node.getStates());
+		super(node.getName(), node.isClassVariable(), node.getStates());
 	}
 
 	public CIMNode(DiscreteNode node, CTBNSufficientStatistics sufficientStatistics) {
-		super(node.getIndex(), node.getName(), node.isClassVariable(), node.getStates());
+		super(node.getName(), node.isClassVariable(), node.getStates());
 		this.sufficientStatistics = sufficientStatistics;
 	}
 
-	public void setSufficientStatistics(CTBNSufficientStatistics sufficientStatistics) {
-		this.sufficientStatistics = sufficientStatistics;
+
+	@Override
+	public void setSufficientStatistics(SufficientStatistics sufficientStatistics) {
+		this.sufficientStatistics = (CTBNSufficientStatistics) sufficientStatistics;
 	}
 	
 	public CTBNSufficientStatistics getSufficientStatistics() {

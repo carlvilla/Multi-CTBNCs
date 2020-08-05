@@ -1,4 +1,4 @@
-package com.cig.mctbnc.learning.parameters;
+package com.cig.mctbnc.learning.parameters.ctbn;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +12,7 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Observation;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.learning.parameters.SufficientStatistics;
 import com.cig.mctbnc.nodes.Node;
 
 /**
@@ -31,15 +32,13 @@ import com.cig.mctbnc.nodes.Node;
  *
  */
 public class CTBNSufficientStatistics implements SufficientStatistics {
-	private Node node;
 	// Sufficient statistics
 	private Map<State, Map<State, Integer>> Nxy;
 	private Map<State, Integer> Nx;
 	private Map<State, Double> Tx;
 	static Logger logger = LogManager.getLogger(CTBNSufficientStatistics.class);
 
-	public CTBNSufficientStatistics(Node node) {
-		this.node = node;
+	public CTBNSufficientStatistics() {
 		Nxy = new HashMap<State, Map<State, Integer>>();
 		Nx = new HashMap<State, Integer>();
 		Tx = new HashMap<State, Double>();
@@ -48,10 +47,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	/**
 	 * Compute the sufficient statistics of a CTBN node.
 	 * 
-	 * @param dataset
-	 *            dataset from which sufficient statistics are extracted
+	 * @param dataset dataset from which sufficient statistics are extracted
 	 */
-	public void computeSufficientStatistics(Dataset dataset) {
+	public void computeSufficientStatistics(Node node, Dataset dataset) {
 		logger.trace("Computing sufficient statistics CTBN for node {}", node.getName());
 		String nameVariable = node.getName();
 
@@ -60,7 +58,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 		List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
 
 		// Initialize sufficient statistics
-		initializeSufficientStatistics(dataset);
+		initializeSufficientStatistics(node, dataset);
 
 		// Iterate over all the sequences and their observations to calculate the
 		// sufficient statistics
@@ -101,10 +99,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	/**
 	 * Initialize the structures to store the sufficient statistics of the node.
 	 * 
-	 * @param dataset
-	 *            dataset used to compute the sufficient statistics
+	 * @param dataset dataset used to compute the sufficient statistics
 	 */
-	private void initializeSufficientStatistics(Dataset dataset) {
+	private void initializeSufficientStatistics(Node node, Dataset dataset) {
 		String nameVariable = node.getName();
 		List<State> statesVariable = dataset.getStatesVariable(nameVariable);
 
@@ -148,12 +145,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * Update the number of occurrences where the node transitions from "fromState"
 	 * (with the parents taking a certain value) to "toState".
 	 * 
-	 * @param fromState
-	 *            current state
-	 * @param toState
-	 *            next state
-	 * @param numOccurrences
-	 *            number of occurrences
+	 * @param fromState      current state
+	 * @param toState        next state
+	 * @param numOccurrences number of occurrences
 	 */
 	private void updateOccurrencesNxy(State fromState, State toState, int numOccurrences) {
 		// If the state 'fromState' was never seen before, it is created a map to
@@ -169,10 +163,8 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * Update the number of occurrences where the node transitions from "fromState"
 	 * (with the parents taking a certain value) to any other state.
 	 * 
-	 * @param fromState
-	 *            current state
-	 * @param numOccurrences
-	 *            number of occurrences
+	 * @param fromState      current state
+	 * @param numOccurrences number of occurrences
 	 */
 	private void updateOccurrencesNx(State fromState, int numOccurrences) {
 		// Current value of Nx for 'fromState'
@@ -184,10 +176,8 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * Update the time the node spends in state "state" while its parents are in
 	 * certain state (information also included in "state").
 	 * 
-	 * @param state
-	 *            current state of the node and its parents
-	 * @param time
-	 *            time
+	 * @param state current state of the node and its parents
+	 * @param time  time
 	 */
 	private void updateOccurrencesTx(State state, double time) {
 		// Current time computed for the state
@@ -196,8 +186,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Return the number of times the variable transition from every state to
-	 * specific states (including itself) while its parents have certain values.
+	 * Return the sufficient statistic with the number of times the variable
+	 * transition from a certain state to another while its parents have certain
+	 * values
 	 * 
 	 * @return number of occurrences of every transition
 	 */
@@ -208,8 +199,8 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Return the number of times the variable leaves every state (i.e., the state
-	 * is changed) while its parents have certain values.
+	 * Return the sufficient statistic with the number of times the variable leaves
+	 * every state (i.e., the state changes) while its parents have certain values.
 	 * 
 	 * @return number of times the variable leaves every state
 	 */
@@ -220,8 +211,8 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Return the time that the variable stay in every state while its parents take
-	 * different values.
+	 * Return the sufficient statistic with the time that the variable stay in every
+	 * state while its parents take different values.
 	 * 
 	 * @return time that the variable stay for every state
 	 */

@@ -8,9 +8,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.State;
-import com.cig.mctbnc.learning.parameters.CTBNSufficientStatistics;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
 import com.cig.mctbnc.models.BN;
-import com.cig.mctbnc.models.CTBNC;
+import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
@@ -26,14 +26,15 @@ public class StructureScoreFunctions {
 	 * @param pgm
 	 * @return penalized log-likelihood score
 	 */
+	@SuppressWarnings("unchecked")
 	public static double penalizedLogLikelihoodScore(PGM pgm) {
 		double llScore = 0;
 		if (pgm instanceof BN) {
 			logger.trace("Computing penalized log-likelihood of BN");
 			llScore = penalizedLogLikelihoodScore((BN<CPTNode>) pgm);
-		} else if (pgm instanceof CTBNC) {
+		} else if (pgm instanceof CTBN) {
 			logger.trace("Computing penalized log-likelihood of CTBN");
-			llScore = penalizedLogLikelihoodScore((CTBNC<CIMNode>) pgm);
+			llScore = penalizedLogLikelihoodScore((CTBN<CIMNode>) pgm);
 		}
 		logger.trace("Penalized log-likelihood is {}", llScore);
 		return llScore;
@@ -96,13 +97,13 @@ public class StructureScoreFunctions {
 
 	/**
 	 * Compute the penalized log-likelihood score for a discrete continuous time
-	 * Bayesian network
+	 * Bayesian network.
 	 * 
 	 * @param ctbn
 	 *            continuous time Bayesian network
 	 * @return penalized log-likelihood score
 	 */
-	private static double penalizedLogLikelihoodScore(CTBNC<CIMNode> ctbn) {
+	private static double penalizedLogLikelihoodScore(CTBN<CIMNode> ctbn) {
 		// Obtain nodes of the Bayesian networks with the learned parameters
 		List<CIMNode> nodes = ctbn.getLearnedNodes();
 		double llScore = 0.0;

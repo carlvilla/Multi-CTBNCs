@@ -11,6 +11,8 @@ apply plugin: 'java-library'
 // Apply the application plugin that facilitates creating an executable JVM application
 apply plugin: 'application'
 
+mainClassName = "com.cig.mctbnc.view.Main"
+
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.

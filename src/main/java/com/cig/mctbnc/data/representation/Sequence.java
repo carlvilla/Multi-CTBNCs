@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.cig.mctbnc.exceptions.ErroneousSequenceException;
 import com.cig.mctbnc.util.Util;
 
 public class Sequence {
@@ -21,30 +22,25 @@ public class Sequence {
 	private List<String> featureNames;
 
 	public Sequence(List<String> nameVariables, String nameTimeVariable, List<String> nameClassVariables,
-			List<String[]> valueObservations) {
+			List<String[]> valueObservations) throws ErroneousSequenceException {
 		// Set time variable
 		this.nameTimeVariable = nameTimeVariable;
-		// Set the names of the features
+		// Set the names of the features by filtering the names of the class variables
+		// and time variable
 		this.featureNames = Util.<String>filter(Util.<String>filter(nameVariables, nameClassVariables),
 				nameTimeVariable);
+
+		// Define values class variables for the sequence
+		setValuesClassVariables(nameVariables, nameClassVariables, valueObservations);
 
 		// Get observations with the values of all variables
 		observations = new ArrayList<Observation>();
 		for (String[] valueObservation : valueObservations) {
-			observations.add(new Observation(nameVariables, nameTimeVariable, valueObservation));
+			Observation observation = new Observation(nameVariables, nameTimeVariable, valueObservation);
+			checkIntegrityObservation(observation);
+			observations.add(observation);
 		}
 
-		// A sequence has a unique value for each class variable, so it is stored the
-		// values of the class variables for the first observation
-		classVariablesValues = new HashMap<String, String>();
-		for (String nameClassVariable : nameClassVariables) {
-			// It is obtained the index of each class variable in the observations
-			for (int i = 0; i < nameVariables.size(); i++) {
-				if (nameVariables.get(i).equals(nameClassVariable)) {
-					classVariablesValues.put(nameClassVariable, valueObservations.get(0)[i]);
-				}
-			}
-		}
 	}
 
 	public String[] getValuesClassVariables() {
@@ -89,8 +85,8 @@ public class Sequence {
 	/**
 	 * Get all the possible states of a specific variable.
 	 * 
-	 * @param nameVariable
-	 *            name of the variable whose possible states we want to know
+	 * @param nameVariable name of the variable whose possible states we want to
+	 *                     know
 	 * @return Array with the states of the variable.
 	 */
 	public String[] getStates(String nameVariable) {
@@ -129,6 +125,45 @@ public class Sequence {
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * A sequence has a unique value for each class variable, so the values of the
+	 * class variables for the first observation are stored.
+	 * 
+	 * @param nameVariables
+	 * @param nameClassVariables
+	 * @param valueObservations
+	 */
+	private void setValuesClassVariables(List<String> nameVariables, List<String> nameClassVariables,
+			List<String[]> valueObservations) {
+		classVariablesValues = new HashMap<String, String>();
+		for (String nameClassVariable : nameClassVariables) {
+			// It is obtained the index of each class variable in the observations
+			for (int i = 0; i < nameVariables.size(); i++) {
+				if (nameVariables.get(i).equals(nameClassVariable)) {
+					classVariablesValues.put(nameClassVariable, valueObservations.get(0)[i]);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Check if the observation has different values for the class variables than
+	 * those defined for the sequence. In such a case, the sequence is erroneous and
+	 * an exception is thrown
+	 * 
+	 * @param observation observation to analyze
+	 * @throws ErroneousSequenceException 
+	 */
+	private void checkIntegrityObservation(Observation observation) throws ErroneousSequenceException {
+		for (String nameClassVariable : classVariablesValues.keySet()) {
+			if (!observation.getValueVariable(nameClassVariable).equals(classVariablesValues.get(nameClassVariable))) {
+				throw new ErroneousSequenceException(
+						"Observations have different values for the class variables");
+			}
+		}
+
 	}
 
 }

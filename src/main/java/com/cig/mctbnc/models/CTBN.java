@@ -20,13 +20,12 @@ import com.cig.mctbnc.nodes.Node;
  * 
  * @author Carlos Villa Blanco
  *
- * @param <NodeType>
- *            type of the learned nodes (e.g. nodes that learn a CIM)
+ * @param <NodeType> type of the learned nodes (e.g. nodes that learn a CIM)
  */
-public class CTBNC<NodeType extends Node> extends AbstractPGM implements Classifier {
+public class CTBN<NodeType extends Node> extends AbstractPGM implements Classifier {
 	private ParameterLearningAlgorithm parameterLearningAlg;
 	private StructureLearningAlgorithm structureLearningAlg;
-	static Logger logger = LogManager.getLogger(CTBNC.class);
+	static Logger logger = LogManager.getLogger(CTBN.class);
 
 	/**
 	 * Initialize a continuous Time Bayesian network given dataset, the list of
@@ -38,15 +37,14 @@ public class CTBNC<NodeType extends Node> extends AbstractPGM implements Classif
 	 * @param parameterLearningAlg
 	 * @param structureLearningAlg
 	 */
-	public CTBNC(List<String> nameVariables, Dataset dataset, ParameterLearningAlgorithm parameterLearningAlg,
+	public CTBN(Dataset dataset, List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
 			StructureLearningAlgorithm structureLearningAlg) {
 
 		List<Node> nodes = new ArrayList<Node>();
 		for (String nameVariable : dataset.getNameVariables()) {
-			int index = dataset.getIndexVariable(nameVariable);
 
 			// THIS SHOULD BE CHANGED TO ADMIT OTHER TYPES OF NODES
-			Node node = new CIMNode(index, nameVariable, dataset.getStatesVariable(nameVariable));
+			Node node = new CIMNode(nameVariable, dataset.getStatesVariable(nameVariable));
 
 			nodes.add(node);
 		}

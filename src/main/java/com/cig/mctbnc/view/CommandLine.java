@@ -10,9 +10,9 @@ import org.apache.logging.log4j.Logger;
 import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.reader.SeparateCSVReader;
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.BNParameterMLE;
-import com.cig.mctbnc.learning.parameters.CTBNParameterMLE;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
 import com.cig.mctbnc.learning.structure.HillClimbing;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.models.MCTBNC;
@@ -28,12 +28,12 @@ public class CommandLine {
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
 		List<String> nameClassVariables = List.of("ExerciseMode", "Exercise", "S1");
-		String[] excludeVariables = {"S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14",
-				"S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28",
-				"S29" };
+		String[] excludeVariables = { "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19",
+				"S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29" };
 		String nameTimeVariable = "t";
 
 		logger.info("Reading sequences from {}", datasetFolder);
+		logger.info("Number of sequences {}", files.length);
 		logger.info("Preparing training and testing datasets");
 
 		// Generate datasets
@@ -43,12 +43,14 @@ public class CommandLine {
 		DatasetReader dgTraining = new SeparateCSVReader(trainingFiles, nameTimeVariable, nameClassVariables,
 				excludeVariables);
 		Dataset trainingDataset = dgTraining.readDataset();
+		logger.info("Sequences for training {}", trainingDataset.getNumDataPoints());
 
 		// Define testing dataset
 		File[] testingFiles = Arrays.copyOfRange(files, (int) (files.length * 0.7), (int) (files.length));
 		DatasetReader dgTesting = new SeparateCSVReader(testingFiles, nameTimeVariable, nameClassVariables,
 				excludeVariables);
 		Dataset testingDataset = dgTesting.readDataset();
+		logger.info("Sequences for testing {}", testingDataset.getNumDataPoints());
 
 		logger.info("Time variable: {}", trainingDataset.getNameTimeVariable());
 		logger.info("Features: {}", trainingDataset.getNameFeatures());
@@ -59,7 +61,7 @@ public class CommandLine {
 		StructureLearningAlgorithm bnStructureLearningAlgorithm = new HillClimbing();
 
 		// Define learning algorithms for the feature and class subgraph
-		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNParameterMLE();
+		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNBayesianEstimation(1, 1, 0.05);
 		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbing();
 
 		// Define multi-dimensional continuous time Bayesian network model

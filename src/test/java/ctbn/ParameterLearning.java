@@ -11,7 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
-import com.cig.mctbnc.learning.parameters.CTBNParameterMLE;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterEstimation;
 import com.cig.mctbnc.nodes.CIMNode;
 
 public class ParameterLearning {
@@ -72,8 +73,7 @@ public class ParameterLearning {
 		// not is irrelevant.
 		nodes = new ArrayList<CIMNode>();
 		for (String nameFeature : dataset.getNameVariables()) {
-			int index = dataset.getIndexVariable(nameFeature);
-			nodes.add(new CIMNode(index, nameFeature, dataset.getStatesVariable(nameFeature)));
+			nodes.add(new CIMNode(nameFeature, dataset.getStatesVariable(nameFeature)));
 		}
 
 		// V2 and V3 are parents of V1 and V3 is parent of V2
@@ -82,7 +82,7 @@ public class ParameterLearning {
 		nodes.get(1).setParent(nodes.get(2));
 
 		// Learn sufficient parameters given the nodes and the dataset
-		CTBNParameterMLE ctbnParameterLearning = new CTBNParameterMLE();
+		CTBNParameterEstimation ctbnParameterLearning = new CTBNMaximumLikelihoodEstimation();
 		ctbnParameterLearning.learn(nodes, dataset);
 	}
 

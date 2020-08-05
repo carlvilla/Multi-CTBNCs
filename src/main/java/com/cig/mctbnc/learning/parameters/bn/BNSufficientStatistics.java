@@ -1,4 +1,4 @@
-package com.cig.mctbnc.learning.parameters;
+package com.cig.mctbnc.learning.parameters.bn;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,15 +10,14 @@ import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.learning.parameters.SufficientStatistics;
 import com.cig.mctbnc.nodes.Node;
 
 public class BNSufficientStatistics implements SufficientStatistics {
-	private Node node;
 	private Map<State, Integer> N;
 	static Logger logger = LogManager.getLogger(BNSufficientStatistics.class);
 
-	public BNSufficientStatistics(Node node) {
-		this.node = node;
+	public BNSufficientStatistics() {
 		N = new HashMap<State, Integer>();
 	}
 
@@ -28,7 +27,7 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	 * 
 	 * @param dataset
 	 */
-	public void computeSufficientStatistics(Dataset dataset) {
+	public void computeSufficientStatistics(Node node, Dataset dataset) {
 		logger.trace("Computing sufficient statistics BN for node {}", node.getName());
 		String nameVariable = node.getName();
 		List<State> statesVariable = dataset.getStatesVariable(nameVariable);

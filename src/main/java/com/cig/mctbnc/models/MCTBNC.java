@@ -27,7 +27,7 @@ import com.cig.mctbnc.nodes.Node;
 public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends AbstractPGM {
 	// The subgraph formed by class variables is a Bayesian network
 	private BN<NodeTypeBN> bn;
-	private CTBNC<NodeTypeCTBN> ctbnc;
+	private CTBN<NodeTypeCTBN> ctbnc;
 	static Logger logger = LogManager.getLogger(MCTBNC.class);
 
 	public MCTBNC(Dataset dataset, ParameterLearningAlgorithm ctbnParameterLearningAlgorithm,
@@ -38,11 +38,11 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		this.dataset = dataset;
 
 		// Define class subgraph with a Bayesian network
-		bn = new BN<NodeTypeBN>(dataset.getNameClassVariables(), dataset, bnParameterLearningAlgorithm,
+		bn = new BN<NodeTypeBN>(dataset, dataset.getNameClassVariables(), bnParameterLearningAlgorithm,
 				bnStructureLearningAlgorithm);
 
 		// Define feature and bridge subgraphs with a continuous time Bayesian network
-		ctbnc = new CTBNC<NodeTypeCTBN>(dataset.getNameVariables(), dataset, ctbnParameterLearningAlgorithm,
+		ctbnc = new CTBN<NodeTypeCTBN>(dataset, dataset.getNameVariables(), ctbnParameterLearningAlgorithm,
 				ctbncStructureLearningAlgorithm);
 	}
 
@@ -59,18 +59,14 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
 		bn.learn();
 		logger.info("Class subgraph established!");
-
 		// Learn structure and parameters of feature and bridge subgraph. These are
-		// modeled by
-		// a continuous time Bayesian network classifier where the restriction that the
-		// class
-		// variable does not depend on the states of the features is extended to more
-		// class variables
+		// modeled by a continuous time Bayesian network classifier where the
+		// restriction that the class variable does not depend on the states of the
+		// features is extended to more class variables
 		logger.info("Defining structure and parameters of the feature and bridge subgraphs (Continuous time "
 				+ "Bayesian network)");
 		ctbnc.learn();
 		logger.info("Feature and bridge subgraphs established!");
-
 		// Join class subgraph with feature and bridge subgraphs
 		// Get nodes BN (class variables). Define them as class variables
 		List<Node> nodesBN = getNodesBN();
@@ -104,7 +100,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		for (Node nodeBN : nodesBN) {
 			// Add to the nodes of the BN the children obtained by the CTBN
 			// Obtain the node for the class variable in the BN
-			Node nodeInCTBN = nodesBN.stream().filter(nodeCTBN -> nodeCTBN.getIndex() == nodeBN.getIndex()).findFirst()
+			Node nodeInCTBN = nodesBN.stream().filter(nodeCTBN -> nodeCTBN.getName() == nodeBN.getName()).findFirst()
 					.orElse(null);
 
 			// Set the children of the node from the BN with the children from the same node
@@ -119,24 +115,10 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 
 		// Add the nodes of the CTBN that are for features
 		for (Node nodeCTBN : nodesCTBN) {
-
 			if (!dataset.getNameClassVariables().contains(nodeCTBN.getName())) {
 				this.nodes.add(nodeCTBN);
 			}
-
 		}
-
-		/*
-		 * for (Node nodeCTBN : nodesCTBN) { if (nodeCTBN.isClassVariable()) { // Add to
-		 * the nodes of the BN the children obtained by the CTBN // Obtain the node for
-		 * the class variable in the BN Node nodeCVInBN = nodesBN.stream().filter(nodeBN
-		 * -> nodeBN.getIndex() == nodeCTBN.getIndex()) .findFirst().orElse(null); //
-		 * Set the children of the node from the BN with the children from the same node
-		 * // in the CTBN for (Node child : nodeCTBN.getChildren()) {
-		 * nodeCVInBN.setChild(child); } // Nodes of the class variables from the BN are
-		 * added to the model this.nodes.add(nodeCVInBN); } else { // Nodes of the
-		 * features from the CTBN are added to the model this.nodes.add(nodeCTBN); } }
-		 */
 	}
 
 	@Override

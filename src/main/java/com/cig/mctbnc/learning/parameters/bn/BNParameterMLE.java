@@ -1,4 +1,4 @@
-package com.cig.mctbnc.learning.parameters;
+package com.cig.mctbnc.learning.parameters.bn;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
@@ -33,9 +34,9 @@ public class BNParameterMLE implements ParameterLearningAlgorithm {
 	 */
 	public void setSufficientStatistics(List<? extends Node> nodes, Dataset dataset) {
 		for (int i = 0; i < nodes.size(); i++) {
-			BNSufficientStatistics ssNode = new BNSufficientStatistics(nodes.get(i));
-			ssNode.computeSufficientStatistics(dataset);
-			((CPTNode) nodes.get(i)).setSufficientStatistics(ssNode.getSufficientStatistics());
+			BNSufficientStatistics ss = new BNSufficientStatistics();
+			ss.computeSufficientStatistics(nodes.get(i), dataset);
+			nodes.get(i).setSufficientStatistics(ss);
 		}
 	}
 
@@ -62,18 +63,14 @@ public class BNParameterMLE implements ParameterLearningAlgorithm {
 	 */
 	public Map<State, Double> estimateCPT(DiscreteNode studiedNode, Map<State, Integer> N) {
 		Map<State, Double> CPT = new HashMap<State, Double>();
-
 		// Obtain an array with the values that the studied variable can take
 		String[] possibleValuesStudiedNode = studiedNode.getPossibleStates().stream()
 				.map(stateAux -> stateAux.getValueNode(studiedNode.getName())).toArray(String[]::new);
-
 		// All the possible states between the studied variable and its parents
 		Set<State> states = N.keySet();
-
 		for (State state : states) {
 			// Number of times the studied variable and its parents take a certain value
 			double Nijk = N.get(state);
-
 			// Number of times the parents of the studied variable have a certain
 			// state independently of the studied variable
 			double Nij = 0;
@@ -82,13 +79,11 @@ public class BNParameterMLE implements ParameterLearningAlgorithm {
 				query.modifyEventValue(studiedNode.getName(), k);
 				Nij += N.get(query);
 			}
-
 			// Probability that the studied variable has a state k given that
 			// its parents have a state j.
 			double prob = Nijk / Nij;
 			CPT.put(state, prob);
 		}
-
 		return CPT;
 	}
 

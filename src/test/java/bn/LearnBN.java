@@ -1,7 +1,6 @@
 package bn;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,23 +8,23 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.BNParameterMLE;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
 import com.cig.mctbnc.learning.structure.HillClimbing;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 
-public class LearnBayesianNetwork {
+public class LearnBN {
 
 	/**
-	 * Build a Bayesian network. The dataset used is formed by binary variables
+	 * Learn a Bayesian network. The dataset used is formed by binary variables
 	 * V1,V2 and V3 (plus Time) such that V3 has value "a" iff V1 and V2 have both
 	 * value "a". Otherwise, it is value is "b" (AND gate). It is expected
 	 * dependencies from V1 and V2 to V3.
 	 */
 	@Test
-	public void buildBayesianNetwork() {
+	public void learnBayesianNetwork() {
 		List<String> nameClassVariables = List.of("V1", "V2", "V3");
 		String nameTimeVariable = "Time";
 

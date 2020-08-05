@@ -23,11 +23,10 @@ public class Observation {
 		// Store name of the variable and its value for the observation
 		variablesValues = new HashMap<String, String>();
 		for (int i = 0; i < nameVariables.size(); i++) {
-			if (!nameVariables.get(i).equals(nameTimeVariable)) {
+			if (!nameVariables.get(i).equals(nameTimeVariable))
 				variablesValues.put(nameVariables.get(i), values[i]);
-			} else if (nameVariables.get(i).equals(nameTimeVariable)) {
+			else
 				timeValue = Double.parseDouble(values[i]);
-			}
 		}
 	}
 

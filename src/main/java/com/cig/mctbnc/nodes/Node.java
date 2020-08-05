@@ -2,9 +2,9 @@ package com.cig.mctbnc.nodes;
 
 import java.util.List;
 
-public interface Node {
+import com.cig.mctbnc.learning.parameters.SufficientStatistics;
 
-	public int getIndex();
+public interface Node {
 
 	public String getName();
 
@@ -15,8 +15,8 @@ public interface Node {
 	/**
 	 * Define if the node is a class variable.
 	 * 
-	 * @param isClassVariable
-	 *            boolean that determines if the node is a class variable
+	 * @param isClassVariable boolean that determines if the node is a class
+	 *                        variable
 	 */
 	public void isClassVariable(boolean isClassVariable);
 
@@ -27,6 +27,11 @@ public interface Node {
 	 */
 	public boolean isClassVariable();
 
+	/**
+	 * Specify if the node has parents.
+	 * 
+	 * @return boolean that determines if the node has parents
+	 */
 	public boolean hasParents();
 
 	/**
@@ -65,5 +70,12 @@ public interface Node {
 	 * Remove the children and parents.
 	 */
 	public void removeAllEdges();
+
+	/**
+	 * 
+	 * @param ss
+	 */
+	public void setSufficientStatistics(SufficientStatistics ss);
+
 
 }

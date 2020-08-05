@@ -4,31 +4,23 @@ import java.util.List;
 import java.util.Map;
 
 import com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.learning.parameters.SufficientStatistics;
+import com.cig.mctbnc.learning.parameters.bn.BNSufficientStatistics;
 
 /**
  * Extends the DiscreteNode class to store a CPT and the sufficient statistics
  * for a BN.
  * 
- * @author Carlos Villa (carlos.villa@upm.es)
+ * @author Carlos Villa Blanco
  *
  */
 public class CPTNode extends DiscreteNode {
 
 	Map<State, Double> CPT;
-	Map<State, Integer> sufficientStatistics;
-
-	public CPTNode(DiscreteNode node) {
-		super(node.getIndex(), node.getName(), node.isClassVariable(), node.getStates());
-	}
+	BNSufficientStatistics sufficientStatistics;
 	
-	public CPTNode(DiscreteNode node, Map<State, Double> CPT, Map<State, Integer> sufficientStatistics) {
-		super(node.getIndex(), node.getName(), node.isClassVariable(), node.getStates());
-		this.CPT = CPT;
-		this.sufficientStatistics = sufficientStatistics;
-	}
-
-	public CPTNode(int index, String nameVariable, List<State> statesVariable) {
-		super(index, nameVariable, statesVariable);
+	public CPTNode(String nameVariable, List<State> statesVariable) {
+		super(nameVariable, statesVariable);
 	}
 
 	public Map<State, Double> getCPT() {
@@ -36,7 +28,7 @@ public class CPTNode extends DiscreteNode {
 	}
 
 	public Map<State, Integer> getSufficientStatistics() {
-		return sufficientStatistics;
+		return sufficientStatistics.getSufficientStatistics();
 	}
 
 	public String toString() {
@@ -48,8 +40,8 @@ public class CPTNode extends DiscreteNode {
 		return sb.toString();
 	}
 
-	public void setSufficientStatistics(Map<State, Integer> sufficientStatistics) {
-		this.sufficientStatistics = sufficientStatistics;
+	public void setSufficientStatistics(SufficientStatistics sufficientStatistics) {
+		this.sufficientStatistics = (BNSufficientStatistics) sufficientStatistics;
 		
 	}
 

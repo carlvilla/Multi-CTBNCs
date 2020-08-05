@@ -2,7 +2,6 @@ package com.cig.mctbnc.data.representation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,30 +11,25 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.cig.mctbnc.exceptions.ErroneousSequenceException;
 import com.cig.mctbnc.util.Util;
 
 public class Dataset {
 
 	private List<Sequence> sequences;
-	private Map<String, Integer> indexVariables;
+	private String nameTimeVariable;
 	private List<String> nameFeatures;
 	private List<String> nameClassVariables;
-	private String nameTimeVariable;
 	static Logger logger = LogManager.getLogger(Dataset.class);
 
 	public Dataset(String nameTimeVariable, List<String> nameClassVariables) {
 		sequences = new ArrayList<Sequence>();
-		indexVariables = new HashMap<String, Integer>();
 		this.nameTimeVariable = nameTimeVariable;
 		this.nameClassVariables = nameClassVariables;
-		// Create index for time variable and class variables
-		addIndex(nameTimeVariable);
-		addIndex(nameClassVariables);
 	}
 
-	public Dataset(Map<String, Integer> indexVariables, List<Sequence> sequences) {
+	public Dataset(List<Sequence> sequences) {
 		this.sequences = sequences;
-		this.indexVariables = indexVariables;
 		nameFeatures = sequences.get(0).getFeatureNames();
 		nameClassVariables = sequences.get(0).getClassVariablesNames();
 		nameTimeVariable = sequences.get(0).getTimeVariableName();
@@ -46,58 +40,32 @@ public class Dataset {
 	 * to the dataset. The first array of Strings has to contain the name of the
 	 * variables.
 	 * 
-	 * @param data
-	 *            list of Strings (a sequence) where the first array contains the
-	 *            name of the variables
+	 * @param data list of Strings (a sequence) where the first array contains the
+	 *             name of the variables
 	 */
 	public void addSequence(List<String[]> data) {
 		try {
-			List<String> nameVariables = Arrays.asList(data.get(0));
+			// Check if it is possible to add the sequence
+			checkIntegrityData(data);
+			// Obtain names of variables
+			List<String> nameVariablesSequence = Arrays.asList(data.get(0));
 			// If there are no sequences in the dataset, it is stored the name of the
 			// features. They are given by the names of the variables that were not
 			// defined as the time variable or class variable.
 			if (getSequences().size() == 0) {
-				nameFeatures = nameVariables.stream()
+				nameFeatures = nameVariablesSequence.stream()
 						.filter(name -> !name.equals(nameTimeVariable) && !nameClassVariables.contains(name))
 						.collect(Collectors.toList());
-
-				// Definition of the indexes for the features
-				addIndex(nameFeatures);
 			}
-			// Check if it is possible to add the sequence
-			checkIntegrityData(nameVariables);
 			// Drop names of variables
 			data.remove(0);
-			// Create and add sequence to dataset
-			Sequence sequence = new Sequence(nameVariables, nameTimeVariable, nameClassVariables, data);
+			// Create and add sequence to the dataset
+			Sequence sequence = new Sequence(nameVariablesSequence, nameTimeVariable, nameClassVariables, data);
 			sequences.add(sequence);
-		} catch (IndexOutOfBoundsException e) {
-			logger.warn("Sequence not added - The sequence is empty");
-		} catch (Exception e) {
+		} catch (ErroneousSequenceException e) {
 			logger.warn(e.getMessage());
 		}
 	}
-
-	/*
-	 * 
-	 * 
-	 * public void addSequence(List<List<String>> data, String[] excludeVariables) {
-	 * 
-	 * List<String> nameVariables = data.get(0); List<Integer>
-	 * variableIndexesToExclude = new ArrayList<Integer>();
-	 * 
-	 * for(String excludeVariable: excludeVariables) { int index =
-	 * nameVariables.indexOf(excludeVariable); if(index == -1) { logger.
-	 * warn("Trying to exclude variable {}, but it does not exist in the dataset");
-	 * } else { // The name of the variable is removed nameVariables.remove(index);
-	 * // The data.stream().map(row -> row.remove(index));
-	 * 
-	 * 
-	 * } }
-	 * 
-	 * addSequence(data); }
-	 * 
-	 */
 
 	/**
 	 * Return the sequences of the dataset.
@@ -106,50 +74,6 @@ public class Dataset {
 	 */
 	public List<Sequence> getSequences() {
 		return sequences;
-	}
-
-	/**
-	 * Check if it is possible to add the specified variables to the dataset. It
-	 * will be throw and exception is this is not the case.
-	 * 
-	 * @param nameVariables
-	 *            names of the variables
-	 * @return boolean that determines if the addition is valid
-	 * @throws Exception
-	 */
-	public boolean checkIntegrityData(List<String> nameVariables) throws Exception {
-		boolean dataCorrect;
-		dataCorrect = nameVariables.contains(nameTimeVariable);
-		if (!dataCorrect) {
-			// logger.warn("Sequence not added - Time variable '{}' not specified",
-			// nameTimeVariable);
-			String message = String.format("Sequence not added - Time variable '%s' not specified", nameTimeVariable);
-			throw new Exception(message);
-		}
-
-		dataCorrect = nameVariables.containsAll(nameClassVariables);
-		if (!dataCorrect) {
-			// logger.warn("Sequence not added - One or more class variables were not
-			// specified");
-			String message = "Sequence not added - One or more class variables were not specified";
-			throw new Exception(message);
-		}
-
-		if (!nameVariables.containsAll(indexVariables.keySet())) {
-			// logger.warn("Sequence not added - Sequences cannot have different
-			// variables");
-			String message = "Sequence not added - Sequences cannot have different variables";
-			throw new Exception(message);
-		}
-		return dataCorrect;
-	}
-
-	public int getIndexVariable(String nameVariable) {
-		return indexVariables.get(nameVariable);
-	}
-
-	public Map<String, Integer> getIndexVariables() {
-		return indexVariables;
 	}
 
 	public String getNameTimeVariable() {
@@ -165,13 +89,26 @@ public class Dataset {
 	}
 
 	/**
-	 * Return the name of all the variables (without the variable for the time).
+	 * Return the name of all the variables except the time variable.
 	 * 
-	 * @return the name of all the variables
+	 * @return name of all the variables except the time variable
 	 */
 	public List<String> getNameVariables() {
-		return indexVariables.keySet().stream().filter(name -> !name.equals(nameTimeVariable))
-				.collect(Collectors.toList());
+		List<String> nameVariables = new ArrayList<String>();
+		nameVariables.addAll(getNameFeatures());
+		nameVariables.addAll(getNameClassVariables());
+		return nameVariables;
+	}
+
+	/**
+	 * Return the name of all the variables, including the time variable.
+	 * 
+	 * @return name of all the variables
+	 */
+	public List<String> getNameAllVariables() {
+		List<String> nameVariables = getNameVariables();
+		nameVariables.add(getNameTimeVariable());
+		return nameVariables;
 	}
 
 	public int getNumFeatures() {
@@ -214,8 +151,7 @@ public class Dataset {
 	/**
 	 * Get the values of the specified variables (by name) for all the sequences.
 	 * 
-	 * @param nameVaribles
-	 *            names of the variables
+	 * @param nameVaribles names of the variables
 	 * @return bidimensional array with the values of the specified variables
 	 */
 	public String[][] getValuesVariables(String[] nameVaribles) {
@@ -264,9 +200,8 @@ public class Dataset {
 	 * Get all the possible states of the specified variables together. It is
 	 * obtained all the combinations between the states of the variables.
 	 * 
-	 * @param nameVariables
-	 *            name of the variables whose possible combinations of states we
-	 *            want to know
+	 * @param nameVariables name of the variables whose possible combinations of
+	 *                      states we want to know
 	 * @return a list of as many objects State as possible combinations between the
 	 *         specified variables
 	 */
@@ -288,8 +223,7 @@ public class Dataset {
 	 * Count the number of times in the dataset that the specified variables (in
 	 * State object "query") take certain values.
 	 * 
-	 * @param query
-	 *            State object that specifies the variables and their values
+	 * @param query State object that specifies the variables and their values
 	 * @return number of times specified values take a certain state together
 	 */
 	public int getNumOccurrences(State query) {
@@ -325,10 +259,8 @@ public class Dataset {
 	 * take a certain state ("fromState"). It is assumed that the studied variable
 	 * is the first one of the State objects.
 	 * 
-	 * @param fromState
-	 *            give the original states of the variable and its parents
-	 * @param toState
-	 *            give the state of the variable after the transition
+	 * @param fromState give the original states of the variable and its parents
+	 * @param toState   give the state of the variable after the transition
 	 * @return number of times the transition occurs
 	 */
 	public int getNumOccurrencesTransition(State fromState, State toState) {
@@ -380,8 +312,7 @@ public class Dataset {
 	/**
 	 * Return how much time some variables stay in a certain state.
 	 * 
-	 * @param state
-	 *            state that contains the variables and the values to study
+	 * @param state state that contains the variables and the values to study
 	 * @return time the state is maintained
 	 */
 	public double getTimeState(State state) {
@@ -427,14 +358,42 @@ public class Dataset {
 	}
 
 	/**
+	 * Check if it is possible to create a sequence with the specified data. It will
+	 * be throw and exception if this is not the case.
+	 * 
+	 * @param data list of arrays that contains the data of the sequence
+	 * @throws ErroneousSequenceException
+	 */
+	private void checkIntegrityData(List<String[]> data) throws ErroneousSequenceException {
+		// Check content data. There should be at least two arrays, one for the names of
+		// the variables and another for an observation
+		if (data.size() < 2) {
+			String message = "The sequence is empty";
+			throw new ErroneousSequenceException(message);
+		}
+		// Check names of variables
+		List<String> nameVariablesSequence = Arrays.asList(data.get(0));
+		if (!nameVariablesSequence.contains(nameTimeVariable)) {
+			String message = String.format("Time variable '%s' not specified", nameTimeVariable);
+			throw new ErroneousSequenceException(message);
+		} else if (!nameVariablesSequence.containsAll(nameClassVariables)) {
+			String message = "One or more class variables were not specified";
+			throw new ErroneousSequenceException(message);
+		} else if (getNumDataPoints() > 0 && (!nameVariablesSequence.containsAll(getNameAllVariables())
+				|| !getNameAllVariables().containsAll(nameVariablesSequence))) {
+			// If there is a sequence in the dataset, they must have the same variables
+			String message = "Sequences cannot have different variables";
+			throw new ErroneousSequenceException(message);
+		}
+	}
+
+	/**
 	 * Check if an observation is in a specified state, i.e., if the values of the
 	 * variables specified in the state object are the same as the values specified
 	 * for those same variables in the observation object.
 	 * 
-	 * @param observation
-	 *            observation to study
-	 * @param state
-	 *            state that is checked in the observation
+	 * @param observation observation to study
+	 * @param state       state that is checked in the observation
 	 * @return boolean that determines if the observation has the specified state
 	 */
 	private boolean observationInState(Observation observation, State state) {
@@ -450,37 +409,6 @@ public class Dataset {
 			}
 		}
 		return ObservationHasState;
-	}
-
-	/**
-	 * Create an index for the the variable whose name is given. This index starts
-	 * from 0 and its maximum value is equal to the number of variables. This is
-	 * necessary for the adjacency matrices so it is always use the same rows and
-	 * columns to refer to a certain variable. Therefore, the only variable that is
-	 * not added is the time variable.
-	 * 
-	 * @param nameVariable
-	 */
-	private void addIndex(String nameVariable) {
-		if (!indexVariables.containsKey(nameVariable) && !nameVariable.equals(nameTimeVariable)) {
-			// Get next index
-			int index = 0;
-			if (indexVariables.size() != 0)
-				index = indexVariables.size();
-			indexVariables.put(nameVariable, index);
-		}
-	}
-
-	/**
-	 * Create an index for the variables whose names are given (except for the time
-	 * variable).
-	 * 
-	 * @param nameVariables
-	 */
-	private void addIndex(List<String> nameVariables) {
-		for (String nameVariable : nameVariables)
-			if (!nameVariable.equals(nameTimeVariable))
-				addIndex(nameVariable);
 	}
 
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.cig.mctbnc.data.representation.State;
 
-public class DiscreteNode extends AbstractNode {
+public abstract class DiscreteNode extends AbstractNode {
 
 	private List<State> states;
 
@@ -15,8 +15,8 @@ public class DiscreteNode extends AbstractNode {
 	 * @param name
 	 * @param list
 	 */
-	public DiscreteNode(int index, String name, List<State> list) {
-		super(index, name);
+	public DiscreteNode(String name, List<State> list) {
+		super(name);
 		this.states = list;
 	}
 
@@ -29,8 +29,8 @@ public class DiscreteNode extends AbstractNode {
 	 * @param classVariable
 	 * @param list
 	 */
-	public DiscreteNode(int index, String name, boolean classVariable, List<State> list) {
-		super(index, name, classVariable);
+	public DiscreteNode(String name, boolean classVariable, List<State> list) {
+		super(name, classVariable);
 		this.states = list;
 	}
 

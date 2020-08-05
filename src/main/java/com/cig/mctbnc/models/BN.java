@@ -12,16 +12,14 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.nodes.CPTNode;
-import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
 /**
  * 
  * @author Carlos Villa Blanco
  *
- * @param <NodeType>
- *            Type of nodes that will be learned, e.g., nodes with conditional
- *            probability table (CPTNode)
+ * @param <NodeType> Type of nodes that will be learned, e.g., nodes with
+ *                   conditional probability table (CPTNode)
  */
 public class BN<NodeType extends Node> extends AbstractPGM {
 	private ParameterLearningAlgorithm parameterLearningAlg;
@@ -49,15 +47,14 @@ public class BN<NodeType extends Node> extends AbstractPGM {
 	 * @param parameterLearningAlg
 	 * @param structureLearningAlg
 	 */
-	public BN(List<String> nameVariables, Dataset dataset, ParameterLearningAlgorithm parameterLearningAlg,
+	public BN(Dataset dataset, List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
 			StructureLearningAlgorithm structureLearningAlg) {
 
 		// Create nodes using dataset
 		List<Node> nodes = new ArrayList<Node>();
 		for (String nameVariable : nameVariables) {
-			int index = dataset.getIndexVariable(nameVariable);
 
-			Node node = new CPTNode(index, nameVariable, dataset.getStatesVariable(nameVariable));
+			Node node = new CPTNode(nameVariable, dataset.getStatesVariable(nameVariable));
 
 			nodes.add(node);
 		}
@@ -81,10 +78,9 @@ public class BN<NodeType extends Node> extends AbstractPGM {
 		// Create nodes using dataset
 		List<Node> nodes = new ArrayList<Node>();
 		for (String nameVariable : dataset.getNameVariables()) {
-			int index = dataset.getIndexVariable(nameVariable);
 
 			// THIS SHOULD BE CHANGED TO ADMIT OTHER TYPES OF NODES
-			Node node = new CPTNode(index, nameVariable, dataset.getStatesVariable(nameVariable));
+			Node node = new CPTNode(nameVariable, dataset.getStatesVariable(nameVariable));
 
 			nodes.add(node);
 		}

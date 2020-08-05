@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
+import com.cig.mctbnc.exceptions.ErroneousSequenceException;
 
 public class GenerateDataset {
 
@@ -19,9 +20,11 @@ public class GenerateDataset {
 
 	/**
 	 * Defines a dataset by creating first the sequences.
+	 * 
+	 * @throws ErroneousSequenceException
 	 */
 	@BeforeAll
-	public static void generateDatasetFromSequences() {
+	public static void generateDatasetFromSequences() throws ErroneousSequenceException {
 		List<String> nameVariables = List.of("Time", "V1", "V2", "V3");
 		List<String> nameClassVariables = List.of("V2");
 
@@ -52,9 +55,9 @@ public class GenerateDataset {
 		sequences.add(sequence1);
 		sequences.add(sequence2);
 
-		dataset = new Dataset(indexVariables, sequences);
+		dataset = new Dataset(sequences);
 	}
-	
+
 	/**
 	 * Defines a dataset with different order of variables for each sequence.
 	 */
@@ -83,60 +86,95 @@ public class GenerateDataset {
 
 		List<String[]> dataSequence1 = new ArrayList<String[]>();
 		dataSequence1.add(nameVariables.toArray(new String[nameVariables.size()]));
-		dataSequence1.add(new String[] { "0.0", "a", "a", "a", "a" });
-		dataSequence1.add(new String[] { "0.1", "b", "a", "a", "b" });
-		dataSequence1.add(new String[] { "0.2", "c", "a", "a", "c" });
-		dataSequence1.add(new String[] { "0.4", null, "a", "a", "d" });
+		dataSequence1.add(new String[] { "0.0", "a", "a", "b", "a" });
+		dataSequence1.add(new String[] { "0.1", "a", "b", "b", "b" });
+		dataSequence1.add(new String[] { "0.2", "a", null, "b", "c" });
+		dataSequence1.add(new String[] { "0.4", "a", "a", "b", "d" });
 
 		List<String[]> dataSequence2 = new ArrayList<String[]>();
 		dataSequence2.add(nameVariables.toArray(new String[nameVariables.size()]));
 		dataSequence2.add(new String[] { "0.0", "a", "b", "a", "a" });
-		dataSequence2.add(new String[] { "0.2", "e", "b", "a", "b" });
-		dataSequence2.add(new String[] { "0.4", "f", "b", "a", "c" });
-
-		// Sequence without time variable
-		List<String[]> dataSequence3 = new ArrayList<String[]>();
-		dataSequence3.add(new String[] { "V1", "V2", "V3", "V4" });
-		dataSequence2.add(new String[] { "0.0", "a", "b", "a", "a" });
-		dataSequence2.add(new String[] { "0.2", "e", "b", "a", "b" });
-
-		// Sequence without class variables
-		List<String[]> dataSequence4 = new ArrayList<String[]>();
-		dataSequence4.add(new String[] { "Time", "V2", "V4" });
-		dataSequence4.add(new String[] { "a", "b", "a" });
-		dataSequence4.add(new String[] { "e", "b", "a" });
-
-		// Sequence with less features
-		List<String[]> dataSequence5 = new ArrayList<String[]>();
-		dataSequence5.add(new String[] { "Time", "V1", "V2", "V3" });
-		dataSequence5.add(new String[] { "0.0", "a", "b" });
-		dataSequence5.add(new String[] { "0.2", "e", "b" });
-
-		// Sequence with variables not seen before
-		List<String[]> dataSequence6 = new ArrayList<String[]>();
-		dataSequence6.add(new String[] { "V4", "V5" });
-		dataSequence6.add(new String[] { "b", "a" });
-		dataSequence6.add(new String[] { "b", "a" });
-
-		// Empty sequence
-		List<String[]> dataSequence7 = new ArrayList<String[]>();
+		dataSequence2.add(new String[] { "0.2", "a", "b", "a", "b" });
+		dataSequence2.add(new String[] { "0.4", "a", "b", "a", "c" });
 
 		dataset.addSequence(dataSequence1);
 		assertEquals(1, dataset.getNumDataPoints());
 		dataset.addSequence(dataSequence2);
 		assertEquals(2, dataset.getNumDataPoints());
-		dataset.addSequence(dataSequence3);
-		assertEquals(2, dataset.getNumDataPoints());
-		dataset.addSequence(dataSequence4);
-		assertEquals(2, dataset.getNumDataPoints());
-		dataset.addSequence(dataSequence5);
-		assertEquals(2, dataset.getNumDataPoints());
-		dataset.addSequence(dataSequence6);
-		assertEquals(2, dataset.getNumDataPoints());
-		dataset.addSequence(dataSequence7);
-		assertEquals(2, dataset.getNumDataPoints());
 	}
 
+	@Test
+	/**
+	 * Try to generate erroneous sequences.
+	 */
+	public void generateDatasetWithErroneousSequences() {
+		List<String> nameVariables = List.of("Time", "V1", "V2", "V3", "V4");
+		List<String> nameClassVariables = List.of("V2", "V3");
+		String nameTimeVariable = "Time";
+		Dataset dataset = new Dataset(nameTimeVariable, nameClassVariables);
 
+		// Empty sequence
+		List<String[]> dataSequence1 = new ArrayList<String[]>();
+
+		// Sequence with only names of variables
+		List<String[]> dataSequence2 = new ArrayList<String[]>();
+		dataSequence2.add(nameVariables.toArray(new String[nameVariables.size()]));
+
+		// Class variables with different values
+		List<String[]> dataSequence3 = new ArrayList<String[]>();
+		dataSequence3.add(nameVariables.toArray(new String[nameVariables.size()]));
+		dataSequence3.add(new String[] { "0.0", "a", "a", "a", "b" });
+		dataSequence3.add(new String[] { "0.2", "e", "b", "c", "c" });
+		dataSequence3.add(new String[] { "0.4", "f", "c", "a", "a" });
+
+		// Sequence without time variable
+		List<String[]> dataSequence4 = new ArrayList<String[]>();
+		dataSequence4.add(new String[] { "V1", "V2", "V3", "V4" });
+		dataSequence4.add(new String[] { "a", "b", "a", "a" });
+		dataSequence4.add(new String[] { "a", "b", "a", "b" });
+
+		// Sequence without class variables
+		List<String[]> dataSequence5 = new ArrayList<String[]>();
+		dataSequence5.add(new String[] { "Time", "V1", "V4" });
+		dataSequence5.add(new String[] { "a", "b", "a" });
+		dataSequence5.add(new String[] { "e", "c", "d" });
+
+		// A correct sequence is added
+		List<String[]> dataSequence6 = new ArrayList<String[]>();
+		dataSequence6.add(nameVariables.toArray(new String[nameVariables.size()]));
+		dataSequence6.add(new String[] { "0.0", "a", "a", "c", "c", "b", "a" });
+		dataSequence6.add(new String[] { "0.1", "b", "a", "c", "d", "b", "a" });
+
+		// Sequence with less features
+		List<String[]> dataSequence7 = new ArrayList<String[]>();
+		dataSequence7.add(new String[] { "Time", "V1", "V2", "V3" });
+		dataSequence7.add(new String[] { "0.0", "a", "b", "c" });
+		dataSequence7.add(new String[] { "0.2", "e", "b", "c" });
+
+		// Sequence with variables not seen before
+		List<String[]> dataSequence8 = new ArrayList<String[]>();
+		dataSequence8.add(new String[] { "Time", "V1", "V2", "V3", "V4", "V5", "V6" });
+		dataSequence8.add(new String[] { "0.0", "a", "a", "c", "c", "b", "a" });
+		dataSequence8.add(new String[] { "0.1", "b", "a", "c", "d", "b", "a" });
+
+		// Another correct sequence is added
+		List<String[]> dataSequence9 = new ArrayList<String[]>();
+		dataSequence9.add(nameVariables.toArray(new String[nameVariables.size()]));
+		dataSequence9.add(new String[] { "0.0", "a", "a", "c", "c", "b", "a" });
+		dataSequence9.add(new String[] { "0.1", "b", "a", "c", "d", "b", "a" });
+
+		dataset.addSequence(dataSequence1);
+		dataset.addSequence(dataSequence2);
+		dataset.addSequence(dataSequence3);
+		dataset.addSequence(dataSequence4);
+		dataset.addSequence(dataSequence5);
+		dataset.addSequence(dataSequence6); // Correct sequence
+		dataset.addSequence(dataSequence7);
+		dataset.addSequence(dataSequence8);
+		dataset.addSequence(dataSequence9); // Correct sequence
+
+		// Only one sequence should have been added
+		assertEquals(2, dataset.getNumDataPoints());
+	}
 
 }
