@@ -17,16 +17,16 @@ import org.apache.logging.log4j.Logger;
  * @author Carlos Villa Blanco
  *
  */
-public class NodeIndexer {
+public class NodeIndexer<NodeType extends Node> {
 
 	private Map<String, Integer> nodeToIndex;
-	private Map<Integer, Node> indexToNode;
+	private Map<Integer, NodeType> indexToNode;
 	static Logger logger = LogManager.getLogger(NodeIndexer.class);
 
-	public NodeIndexer(List<Node> nodes) {
+	public NodeIndexer(List<NodeType> nodes) {
 		// Set to each node an index number
 		nodeToIndex = new HashMap<String, Integer>();
-		indexToNode = new HashMap<Integer, Node>();
+		indexToNode = new HashMap<Integer, NodeType>();
 		for (int i = 0; i < nodes.size(); i++) {
 			nodeToIndex.put(nodes.get(i).getName(), i);
 			indexToNode.put(i, nodes.get(i));

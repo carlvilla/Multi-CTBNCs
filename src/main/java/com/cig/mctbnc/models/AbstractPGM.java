@@ -10,34 +10,36 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
-public abstract class AbstractPGM implements PGM {
-	protected List<Node> nodes;
-	protected NodeIndexer nodeIndexer;
+public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType> {
+	protected List<NodeType> nodes;
+	protected NodeIndexer<NodeType> nodeIndexer;
 	protected Dataset dataset;
-
-	public AbstractPGM() {
-	}
-
+	
 	/**
 	 * Common initialization for PGM.
 	 * 
 	 * @param nodes
 	 */
-	public AbstractPGM(List<Node> nodes) {
+	public AbstractPGM(List<NodeType> nodes) {
 		addNodes(nodes);
 	}
+	
+	/**
+	 * Default constructor
+	 */
+	public AbstractPGM() {}
 
 	@Override
-	public void addNodes(List<Node> nodes) {
+	public void addNodes(List<NodeType> nodes) {
 		if (this.nodes == null) {
-			this.nodes = new ArrayList<Node>();
+			this.nodes = new ArrayList<NodeType>();
 		}
 		this.nodes.addAll(nodes);
-		nodeIndexer = new NodeIndexer(this.nodes);
+		nodeIndexer = new NodeIndexer<NodeType>(this.nodes);
 	}
 
 	@Override
-	public void addNodes(Graph graph, List<Node> nodes) {
+	public void addNodes(Graph graph, List<NodeType> nodes) {
 		for (Node node : nodes) {
 			String nameNode = node.getName();
 			graph.addNode(nameNode).addAttribute("ui.label", nameNode);
@@ -45,7 +47,7 @@ public abstract class AbstractPGM implements PGM {
 	}
 
 	@Override
-	public void addEdges(Graph graph, List<Node> nodes) {
+	public void addEdges(Graph graph, List<NodeType> nodes) {
 		for (Node node : nodes) {
 			String nameNode = node.getName();
 			for (Node child : node.getChildren()) {
@@ -76,7 +78,7 @@ public abstract class AbstractPGM implements PGM {
 	}
 
 	@Override
-	public List<Node> getNodes() {
+	public List<NodeType> getNodes() {
 		return nodes;
 	}
 
@@ -86,12 +88,12 @@ public abstract class AbstractPGM implements PGM {
 	}
 
 	@Override
-	public List<Node> getNodesClassVariables() {
+	public List<NodeType> getNodesClassVariables() {
 		return nodes.stream().filter(node -> node.isClassVariable()).collect(Collectors.toList());
 	}
 
 	@Override
-	public List<Node> getNodesFeatures() {
+	public List<NodeType> getNodesFeatures() {
 		return nodes.stream().filter(node -> !node.isClassVariable()).collect(Collectors.toList());
 	}
 

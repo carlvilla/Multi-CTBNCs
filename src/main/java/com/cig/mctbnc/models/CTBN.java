@@ -11,8 +11,8 @@ import org.graphstream.graph.implementations.SingleGraph;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
-import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.nodes.NodeFactory;
 
 /**
  * Implements a continuous time Bayesian network classifier. This is a modified
@@ -22,9 +22,10 @@ import com.cig.mctbnc.nodes.Node;
  *
  * @param <NodeType> type of the learned nodes (e.g. nodes that learn a CIM)
  */
-public class CTBN<NodeType extends Node> extends AbstractPGM implements Classifier {
+public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	private ParameterLearningAlgorithm parameterLearningAlg;
 	private StructureLearningAlgorithm structureLearningAlg;
+	NodeFactory<NodeType> nodeFactory;
 	static Logger logger = LogManager.getLogger(CTBN.class);
 
 	/**
@@ -36,20 +37,18 @@ public class CTBN<NodeType extends Node> extends AbstractPGM implements Classifi
 	 * @param dataset
 	 * @param parameterLearningAlg
 	 * @param structureLearningAlg
+	 * @param nodeClass type of the CTBN nodes
 	 */
 	public CTBN(Dataset dataset, List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
-			StructureLearningAlgorithm structureLearningAlg) {
-
-		List<Node> nodes = new ArrayList<Node>();
+			StructureLearningAlgorithm structureLearningAlg, Class<NodeType> nodeClass) {
+		// Node factory to create nodes of the specified type
+		this.nodeFactory = new NodeFactory<NodeType>(nodeClass);
+		List<NodeType> nodes = new ArrayList<NodeType>();
 		for (String nameVariable : dataset.getNameVariables()) {
-
-			// THIS SHOULD BE CHANGED TO ADMIT OTHER TYPES OF NODES
-			Node node = new CIMNode(nameVariable, dataset.getStatesVariable(nameVariable));
-
+			NodeType node = nodeFactory.createNode(nameVariable, dataset);
 			nodes.add(node);
 		}
 		addNodes(nodes);
-
 		setParameterLearningAlgorithm(parameterLearningAlg);
 		setStructureLearningAlgorithm(structureLearningAlg);
 		this.dataset = dataset;
@@ -108,16 +107,6 @@ public class CTBN<NodeType extends Node> extends AbstractPGM implements Classifi
 			}
 		}
 		return true;
-	}
-
-	@Override
-	public String[][] predict() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public List<NodeType> getLearnedNodes() {
-		return (List<NodeType>) this.nodes;
 	}
 
 	@Override

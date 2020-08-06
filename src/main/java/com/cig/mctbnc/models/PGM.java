@@ -12,7 +12,7 @@ import com.cig.mctbnc.nodes.Node;
  * @author Carlos Villa Blanco
  *
  */
-public interface PGM {
+public interface PGM<NodeType extends Node> {
 
 	/**
 	 * Learn the structure and parameters of the model.
@@ -25,7 +25,7 @@ public interface PGM {
 	 * 
 	 * @param nodes
 	 */
-	public void addNodes(List<Node> nodes);
+	public void addNodes(List<NodeType> nodes);
 
 	/**
 	 * Add nodes to a Graph object. This graph will be used to display the PGM.
@@ -33,7 +33,7 @@ public interface PGM {
 	 * @param graph
 	 * @param nodes
 	 */
-	public void addNodes(Graph graph, List<Node> nodes);
+	public void addNodes(Graph graph, List<NodeType> nodes);
 
 	/**
 	 * Add to a Graph object the nodes passed as an argument and edges with their
@@ -42,7 +42,7 @@ public interface PGM {
 	 * @param graph
 	 * @param nodes
 	 */
-	public void addEdges(Graph graph, List<Node> nodes);
+	public void addEdges(Graph graph, List<NodeType> nodes);
 
 	/**
 	 * Modify the structure of the PGM by modifying the parents of the nodes and
@@ -72,7 +72,7 @@ public interface PGM {
 	 * 
 	 * @return node list
 	 */
-	public List<Node> getNodes();
+	public List<NodeType> getNodes();
 
 	/**
 	 * Obtain the node (feature or class variable) with certain index.
@@ -87,14 +87,14 @@ public interface PGM {
 	 * 
 	 * @return list of nodes for the class variables
 	 */
-	public List<Node> getNodesClassVariables();
+	public List<NodeType> getNodesClassVariables();
 
 	/**
 	 * Return the list of nodes for the features.
 	 * 
 	 * @return list of nodes for the features
 	 */
-	public List<Node> getNodesFeatures();
+	public List<NodeType> getNodesFeatures();
 
 	/**
 	 * Return the number of nodes.

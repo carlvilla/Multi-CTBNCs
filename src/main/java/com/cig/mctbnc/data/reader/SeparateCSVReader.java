@@ -3,7 +3,6 @@ package com.cig.mctbnc.data.reader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.rmi.server.LogStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,10 +63,9 @@ public class SeparateCSVReader implements DatasetReader {
 	 * @throws VariableNotFoundException
 	 */
 	public List<String[]> readCSV(String pathFile, String[] excludeVariables) throws VariableNotFoundException {
-		FileReader reader;
 		List<String[]> list = new ArrayList<String[]>();
 		try {
-			reader = new FileReader(pathFile);
+			FileReader reader = new FileReader(pathFile);
 			CSVReader csvReader = new CSVReader(reader);
 			// If it was specified variables to ignore
 			if (excludeVariables.length > 0) {

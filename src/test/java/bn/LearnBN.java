@@ -56,7 +56,8 @@ public class LearnBN {
 		// Algorithm to learn structure
 		StructureLearningAlgorithm structureLearningAlgorithm = new HillClimbing();
 
-		BN<CPTNode> bn = new BN<CPTNode>(dataset, parameterLearningAlgorithm, structureLearningAlgorithm);
+		BN<CPTNode> bn = new BN<CPTNode>(dataset, parameterLearningAlgorithm, structureLearningAlgorithm,
+				CPTNode.class);
 		bn.learn();
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, false, true }, { false, false, true },
 				{ false, false, false } };

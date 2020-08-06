@@ -12,15 +12,16 @@ import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
 
 public class HillClimbing implements StructureLearningAlgorithm {
-	PGM pgm;
-	List<Node> nodes;
+	PGM<? extends Node> pgm;
+	List<? extends Node> nodes;
 	Dataset trainingDataset;
 	ParameterLearningAlgorithm parameterLearning;
 	boolean[][] initialAdjacencyMatrix;
 	static Logger logger = LogManager.getLogger(HillClimbing.class);
-	
+
 	@Override
-	public void learn(PGM pgm, Dataset trainingDataset, ParameterLearningAlgorithm bnParameterLearning) {
+	public void learn(PGM<? extends Node> pgm, Dataset trainingDataset,
+			ParameterLearningAlgorithm bnParameterLearning) {
 		logger.info("Learning {} using Hill Climbing", pgm.getType());
 		// Define model
 		this.pgm = pgm;
@@ -52,7 +53,7 @@ public class HillClimbing implements StructureLearningAlgorithm {
 		boolean improvement;
 		do {
 			improvement = false;
-			
+
 			// Store scores and respective structures for each operation (addition, deletion
 			// and reversal)
 			double[] scores = { Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY };
@@ -70,7 +71,7 @@ public class HillClimbing implements StructureLearningAlgorithm {
 			int idxBestOperation = Util.getIndexLargestValue(scores);
 			double iterationBestScore = scores[idxBestOperation];
 			logger.trace("Iteration best score {}", iterationBestScore);
-			
+
 			if (iterationBestScore > bestScore) {
 				logger.debug("Score improved! From {} to {}", bestScore, iterationBestScore);
 				logger.debug("New structure: {}", (Object) adjacencyMatrices[idxBestOperation]);
@@ -91,9 +92,9 @@ public class HillClimbing implements StructureLearningAlgorithm {
 	 * @param bestStructure
 	 * @param scores
 	 * @param adjacencyMatrices
-	 * @param operation
-	 *            Possible operations to perform over the adjacency matrix. These
-	 *            are addition, deletion or reversal of arcs.
+	 * @param operation         Possible operations to perform over the adjacency
+	 *                          matrix. These are addition, deletion or reversal of
+	 *                          arcs.
 	 */
 	private void findBestNeighbor(boolean[][] bestStructure, double[] scores, boolean[][][] adjacencyMatrices,
 			String operation) {
@@ -112,21 +113,21 @@ public class HillClimbing implements StructureLearningAlgorithm {
 						tempAdjacencyMatrix[r] = bestStructure[r].clone();
 					}
 					if (operation == "addition") {
-						if(tempAdjacencyMatrix[i][j]) {
+						if (tempAdjacencyMatrix[i][j]) {
 							// If there is already an arc, the operation is not performed
 							continue;
 						}
 						// Arc is added
 						tempAdjacencyMatrix[i][j] = true;
 					} else if (operation == "deletion") {
-						if(!tempAdjacencyMatrix[i][j]) {
+						if (!tempAdjacencyMatrix[i][j]) {
 							// If there is no arc, the operation cannot be performed
 							continue;
 						}
 						// Arc is removed
 						tempAdjacencyMatrix[i][j] = false;
 					} else {
-						if(!tempAdjacencyMatrix[i][j]) {
+						if (!tempAdjacencyMatrix[i][j]) {
 							// If there is no arc, the operation cannot be performed
 							continue;
 						}

@@ -15,6 +15,7 @@ import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.DiscreteNode;
+import com.cig.mctbnc.nodes.Node;
 
 public class StructureScoreFunctions {
 
@@ -27,7 +28,7 @@ public class StructureScoreFunctions {
 	 * @return penalized log-likelihood score
 	 */
 	@SuppressWarnings("unchecked")
-	public static double penalizedLogLikelihoodScore(PGM pgm) {
+	public static double penalizedLogLikelihoodScore(PGM<? extends Node> pgm) {
 		double llScore = 0;
 		if (pgm instanceof BN) {
 			logger.trace("Computing penalized log-likelihood of BN");
@@ -105,7 +106,7 @@ public class StructureScoreFunctions {
 	 */
 	private static double penalizedLogLikelihoodScore(CTBN<CIMNode> ctbn) {
 		// Obtain nodes of the Bayesian networks with the learned parameters
-		List<CIMNode> nodes = ctbn.getLearnedNodes();
+		List<CIMNode> nodes = ctbn.getNodes();
 		double llScore = 0.0;
 		for (CIMNode node : nodes) {
 			Map<State, Map<State, Double>> Oxx = node.getOxx();

@@ -11,8 +11,8 @@ import org.graphstream.graph.implementations.SingleGraph;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
-import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.nodes.NodeFactory;
 
 /**
  * 
@@ -21,9 +21,10 @@ import com.cig.mctbnc.nodes.Node;
  * @param <NodeType> Type of nodes that will be learned, e.g., nodes with
  *                   conditional probability table (CPTNode)
  */
-public class BN<NodeType extends Node> extends AbstractPGM {
+public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	private ParameterLearningAlgorithm parameterLearningAlg;
 	private StructureLearningAlgorithm structureLearningAlg;
+	NodeFactory<NodeType> nodeFactory;
 
 	/**
 	 * Initialize a Bayesian network by receiving a list of nodes and a dataset.
@@ -32,7 +33,7 @@ public class BN<NodeType extends Node> extends AbstractPGM {
 	 * @param nodes
 	 * @param dataset
 	 */
-	public BN(List<Node> nodes, Dataset dataset) {
+	public BN(List<NodeType> nodes, Dataset dataset) {
 		super(nodes);
 		this.dataset = dataset;
 	}
@@ -48,14 +49,13 @@ public class BN<NodeType extends Node> extends AbstractPGM {
 	 * @param structureLearningAlg
 	 */
 	public BN(Dataset dataset, List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
-			StructureLearningAlgorithm structureLearningAlg) {
-
+			StructureLearningAlgorithm structureLearningAlg, Class<NodeType> nodeClass) {
+		// Node factory to create nodes of the specified type
+		this.nodeFactory = new NodeFactory<NodeType>(nodeClass);
 		// Create nodes using dataset
-		List<Node> nodes = new ArrayList<Node>();
+		List<NodeType> nodes = new ArrayList<NodeType>();
 		for (String nameVariable : nameVariables) {
-
-			Node node = new CPTNode(nameVariable, dataset.getStatesVariable(nameVariable));
-
+			NodeType node = nodeFactory.createNode(nameVariable, dataset);
 			nodes.add(node);
 		}
 		addNodes(nodes);
@@ -74,14 +74,13 @@ public class BN<NodeType extends Node> extends AbstractPGM {
 	 * @param dataset
 	 */
 	public BN(Dataset dataset, ParameterLearningAlgorithm parameterLearningAlg,
-			StructureLearningAlgorithm structureLearningAlg) {
+			StructureLearningAlgorithm structureLearningAlg, Class<NodeType> nodeClass) {
+		// Node factory to create nodes of the specified type
+		this.nodeFactory = new NodeFactory<NodeType>(nodeClass);
 		// Create nodes using dataset
-		List<Node> nodes = new ArrayList<Node>();
+		List<NodeType> nodes = new ArrayList<NodeType>();
 		for (String nameVariable : dataset.getNameVariables()) {
-
-			// THIS SHOULD BE CHANGED TO ADMIT OTHER TYPES OF NODES
-			Node node = new CPTNode(nameVariable, dataset.getStatesVariable(nameVariable));
-
+			NodeType node = nodeFactory.createNode(nameVariable, dataset);
 			nodes.add(node);
 		}
 		addNodes(nodes);
@@ -147,8 +146,8 @@ public class BN<NodeType extends Node> extends AbstractPGM {
 	 * @param name
 	 * @return node of the provided name
 	 */
-	public Node getNodeByName(String name) {
-		Node selectedNode = nodes.stream().filter(node -> node.getName().equals(name)).findAny().orElse(null);
+	public NodeType getNodeByName(String name) {
+		NodeType selectedNode = nodes.stream().filter(node -> node.getName().equals(name)).findAny().orElse(null);
 		return selectedNode;
 	}
 

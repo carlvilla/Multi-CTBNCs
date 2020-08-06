@@ -74,7 +74,7 @@ public class LearnCTBN {
 		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbing();
 
 		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(dataset, nameFeatures, ctbnParameterLearningAlgorithm,
-				ctbnStructureLearningAlgorithm);
+				ctbnStructureLearningAlgorithm, CIMNode.class);
 		ctbn.learn();
 
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, true, false, false },

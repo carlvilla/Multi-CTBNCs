@@ -27,7 +27,7 @@ public class CommandLine {
 
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
-		List<String> nameClassVariables = List.of("ExerciseMode", "Exercise", "S1");
+		List<String> nameClassVariables = List.of("Exercise");
 		String[] excludeVariables = { "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19",
 				"S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29" };
 		String nameTimeVariable = "t";
@@ -40,16 +40,16 @@ public class CommandLine {
 		// For now it will be used 70% sequences for training and 30% for testing
 		// Define training dataset
 		File[] trainingFiles = Arrays.copyOfRange(files, 0, (int) (files.length * 0.7));
-		DatasetReader dgTraining = new SeparateCSVReader(trainingFiles, nameTimeVariable, nameClassVariables,
+		DatasetReader drTraining = new SeparateCSVReader(trainingFiles, nameTimeVariable, nameClassVariables,
 				excludeVariables);
-		Dataset trainingDataset = dgTraining.readDataset();
+		Dataset trainingDataset = drTraining.readDataset();
 		logger.info("Sequences for training {}", trainingDataset.getNumDataPoints());
 
 		// Define testing dataset
 		File[] testingFiles = Arrays.copyOfRange(files, (int) (files.length * 0.7), (int) (files.length));
-		DatasetReader dgTesting = new SeparateCSVReader(testingFiles, nameTimeVariable, nameClassVariables,
+		DatasetReader drTesting = new SeparateCSVReader(testingFiles, nameTimeVariable, nameClassVariables,
 				excludeVariables);
-		Dataset testingDataset = dgTesting.readDataset();
+		Dataset testingDataset = drTesting.readDataset();
 		logger.info("Sequences for testing {}", testingDataset.getNumDataPoints());
 
 		logger.info("Time variable: {}", trainingDataset.getNameTimeVariable());
@@ -66,7 +66,8 @@ public class CommandLine {
 
 		// Define multi-dimensional continuous time Bayesian network model
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(trainingDataset, ctbnParameterLearningAlgorithm,
-				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
+				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm,
+				CPTNode.class, CIMNode.class);
 
 		// Initial structure
 		// Define initial structure - IT MAY NOT BE WORKING CORRECTLY DUE TO THE NODE
@@ -86,6 +87,9 @@ public class CommandLine {
 		// Train model
 		mctbnc.learn();
 		mctbnc.display();
+		
+		// Perform predictions with MCTBNC
+		mctbnc.predict(testingDataset);
 
 	}
 
