@@ -176,7 +176,8 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		String[][] predictions = new String[numSequences][numClassVariables];
 
 		for (int i = 0; i < numSequences; i++) {
-			predictions[i] = predict(dataset.getSequences().get(i));
+			Sequence evidenceSequence = dataset.getSequences().get(i);
+			predictions[i] = predict(evidenceSequence);
 		}
 
 		return predictions;
