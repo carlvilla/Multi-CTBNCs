@@ -23,7 +23,8 @@ public class NodeFactory<NodeType extends Node> {
 		if (nodeClass == CIMNode.class) {
 			// Create a CIMNode
 			List<State> states = dataset.getStatesVariable(nameVariable);
-			return (NodeType) new CIMNode(nameVariable, states);
+			boolean isClassVariable = dataset.getNameClassVariables().contains(nameVariable);
+			return (NodeType) new CIMNode(nameVariable, states, isClassVariable);
 		} else {
 			// Create a CPTNode
 			List<State> states = dataset.getStatesVariable(nameVariable);

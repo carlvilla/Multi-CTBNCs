@@ -11,6 +11,7 @@ import org.graphstream.graph.implementations.SingleGraph;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeFactory;
 
@@ -23,8 +24,6 @@ import com.cig.mctbnc.nodes.NodeFactory;
  * @param <NodeType> type of the learned nodes (e.g. nodes that learn a CIM)
  */
 public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
-	private ParameterLearningAlgorithm parameterLearningAlg;
-	private StructureLearningAlgorithm structureLearningAlg;
 	NodeFactory<NodeType> nodeFactory;
 	static Logger logger = LogManager.getLogger(CTBN.class);
 
@@ -37,10 +36,11 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * @param dataset
 	 * @param parameterLearningAlg
 	 * @param structureLearningAlg
+	 * @param structureConstraints 
 	 * @param nodeClass type of the CTBN nodes
 	 */
 	public CTBN(Dataset dataset, List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
-			StructureLearningAlgorithm structureLearningAlg, Class<NodeType> nodeClass) {
+			StructureLearningAlgorithm structureLearningAlg, StructureConstraints structureConstraints, Class<NodeType> nodeClass) {
 		// Node factory to create nodes of the specified type
 		this.nodeFactory = new NodeFactory<NodeType>(nodeClass);
 		List<NodeType> nodes = new ArrayList<NodeType>();
@@ -51,16 +51,8 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		addNodes(nodes);
 		setParameterLearningAlgorithm(parameterLearningAlg);
 		setStructureLearningAlgorithm(structureLearningAlg);
+		setStructureConstraints(structureConstraints);
 		this.dataset = dataset;
-	}
-
-	private void setParameterLearningAlgorithm(ParameterLearningAlgorithm parameterLearningAlg) {
-		this.parameterLearningAlg = parameterLearningAlg;
-	}
-
-	private void setStructureLearningAlgorithm(StructureLearningAlgorithm structureLearningAlg) {
-		this.structureLearningAlg = structureLearningAlg;
-
 	}
 
 	@Override
@@ -85,28 +77,6 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 			}
 		}
 		parameterLearningAlg.learn(nodes, dataset);
-	}
-
-	@Override
-	public boolean isStructureLegal(boolean[][] adjacencyMatrix) {
-		int numNodes = adjacencyMatrix.length;
-
-		// As this model is used to calculate a MCTBNC, it is added extra restrictions
-		// that a CTBN does not have
-
-		// The class variables cannot have parents
-		for (int i = 0; i < numNodes; i++) {
-			for (int j = 0; j < numNodes; j++) { // If there is an arc
-				if (adjacencyMatrix[i][j]) { // If the arc is from a feature to a class variable, the structure is
-												// illegal
-					if (!getNodeByIndex(i).isClassVariable() && getNodeByIndex(j).isClassVariable()) {
-						logger.debug("Illegal structure - A feature cannot be a parent of a class variable");
-						return false;
-					}
-				}
-			}
-		}
-		return true;
 	}
 
 	@Override

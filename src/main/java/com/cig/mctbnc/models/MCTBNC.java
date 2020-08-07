@@ -9,11 +9,12 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 
 import com.cig.mctbnc.classification.Classifier;
-import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
+import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.constraints.MCTBNC.StructureConstraintsMCTBNC;
 import com.cig.mctbnc.nodes.Node;
 
 /**
@@ -55,17 +56,18 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 			StructureLearningAlgorithm ctbnStructureLearningAlgorithm,
 			ParameterLearningAlgorithm bnParameterLearningAlgorithm,
 			StructureLearningAlgorithm bnStructureLearningAlgorithm, Class<NodeTypeBN> bnNodeClass,
-			Class<NodeTypeCTBN> ctbnNodeClass) {
+			Class<NodeTypeCTBN> ctbnNodeClass, StructureConstraintsMCTBNC structureConstraintsMCTBNC) {
 		// Set dataset
 		this.dataset = dataset;
 
 		// Define class subgraph with a Bayesian network
 		bn = new BN<NodeTypeBN>(dataset, dataset.getNameClassVariables(), bnParameterLearningAlgorithm,
-				bnStructureLearningAlgorithm, bnNodeClass);
+				bnStructureLearningAlgorithm, structureConstraintsMCTBNC.getStructureConstraintsBN(), bnNodeClass);
 
 		// Define feature and bridge subgraphs with a continuous time Bayesian network
 		ctbn = new CTBN<NodeTypeCTBN>(dataset, dataset.getNameVariables(), ctbnParameterLearningAlgorithm,
-				ctbnStructureLearningAlgorithm, ctbnNodeClass);
+				ctbnStructureLearningAlgorithm, structureConstraintsMCTBNC.getStructureConstraintsCTBN(),
+				ctbnNodeClass);
 	}
 
 	public void display() {
@@ -174,17 +176,34 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		int numSequences = dataset.getNumDataPoints();
 		int numClassVariables = this.dataset.getNumClassVariables();
 		String[][] predictions = new String[numSequences][numClassVariables];
-
+		// Make predictions on all the sequences 
 		for (int i = 0; i < numSequences; i++) {
 			Sequence evidenceSequence = dataset.getSequences().get(i);
 			predictions[i] = predict(evidenceSequence);
 		}
-
 		return predictions;
 	}
 
+	/**
+	 * Performs classification over a sequence according to the maximum aposteriori
+	 * rule.
+	 * 
+	 * @param sequence
+	 * @return array of strings with the predicted states of the class variables
+	 */
 	public String[] predict(Sequence sequence) {
-
+		// Obtain graphs of the Bayesian network and continuous time Bayesian network
+		List<NodeTypeBN> nodesBN = getNodesBN();
+		List<NodeTypeCTBN> nodesCTBN = getNodesCTBN();
+		// Obtain the name of the class variables 
+		List<String> nameClassVariables = dataset.getNameClassVariables();
+		// Obtation all possible states of the class variables
+		List<State> statesClassVariables = dataset.getStatesVariables(nameClassVariables);
+		
+		
+		// TO DO
+		
+		
 		return null;
 	}
 

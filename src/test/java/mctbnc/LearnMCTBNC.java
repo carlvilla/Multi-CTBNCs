@@ -16,6 +16,8 @@ import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.structure.HillClimbing;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.constraints.MCTBNC.GeneralMCTBNC;
+import com.cig.mctbnc.learning.structure.constraints.MCTBNC.StructureConstraintsMCTBNC;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
@@ -34,6 +36,7 @@ public class LearnMCTBNC {
 	static StructureLearningAlgorithm bnStructureLearningAlgorithm;
 	static ParameterLearningAlgorithm ctbnParameterLearningAlgorithm;
 	static StructureLearningAlgorithm ctbnStructureLearningAlgorithm;
+	static StructureConstraintsMCTBNC structureConstraintsMCTBNC;
 
 	/**
 	 * 
@@ -181,7 +184,6 @@ public class LearnMCTBNC {
 
 			dataSequence6
 					.add(new String[] { String.valueOf(i * 0.1), valuesF1[i], valuesF2[i], valuesF3[i], "1", "a" });
-
 		}
 
 		dataset = new Dataset(nameTimeVariable, nameClassVariables);
@@ -197,6 +199,7 @@ public class LearnMCTBNC {
 		bnStructureLearningAlgorithm = new HillClimbing();
 		ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
 		ctbnStructureLearningAlgorithm = new HillClimbing();
+		structureConstraintsMCTBNC = new GeneralMCTBNC();
 	}
 
 	/**
@@ -206,7 +209,7 @@ public class LearnMCTBNC {
 	public void learnMultidimensionalContinuousTimeBayesianNetwork() {
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(dataset, ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm,
-				CPTNode.class, CIMNode.class);
+				CPTNode.class, CIMNode.class, structureConstraintsMCTBNC);
 		mctbnc.learn();
 
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, false, true, false, false },
@@ -215,7 +218,7 @@ public class LearnMCTBNC {
 		assertArrayEquals(expectedAdjacencyMatrix, mctbnc.getAdjacencyMatrix());
 
 		// Show results (don't forget breakpoint)
-		mctbnc.display();
-		System.out.println();
+		//mctbnc.display();
+		//System.out.println();
 	}
 }

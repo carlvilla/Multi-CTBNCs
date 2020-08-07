@@ -15,6 +15,8 @@ import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
 import com.cig.mctbnc.learning.structure.HillClimbing;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.constraints.MCTBNC.MCTNBC;
+import com.cig.mctbnc.learning.structure.constraints.MCTBNC.StructureConstraintsMCTBNC;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
@@ -63,11 +65,15 @@ public class CommandLine {
 		// Define learning algorithms for the feature and class subgraph
 		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNBayesianEstimation(1, 1, 0.05);
 		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbing();
+		
+		// Define type of MCTBNC that will be learned (structure constraints)
+		//StructureConstraintsMCTBNC structureConstraintsMCTBNC = new GeneralMCTBNC();
+		StructureConstraintsMCTBNC structureConstraintsMCTBNC = new MCTNBC();
 
 		// Define multi-dimensional continuous time Bayesian network model
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(trainingDataset, ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm,
-				CPTNode.class, CIMNode.class);
+				CPTNode.class, CIMNode.class, structureConstraintsMCTBNC);
 
 		// Initial structure
 		// Define initial structure - IT MAY NOT BE WORKING CORRECTLY DUE TO THE NODE

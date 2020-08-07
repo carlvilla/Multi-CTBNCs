@@ -26,19 +26,23 @@ public class CIMNode extends DiscreteNode {
 
 	CTBNSufficientStatistics sufficientStatistics;
 	
+	/**
+	 * Construct a CIMNode given its name and possible states.
+	 * @param name
+	 * @param states
+	 */
 	public CIMNode(String name, List<State> states) {
 		super(name, states);
 	}
 	
-	public CIMNode(DiscreteNode node) {
-		super(node.getName(), node.isClassVariable(), node.getStates());
+	/**
+	 * Construct a CIMNode given its name, possible states and if it is a class variable or not.
+	 * @param name
+	 * @param states
+	 */
+	public CIMNode(String name, List<State> states, boolean isClassVariable) {
+		super(name, states, isClassVariable);
 	}
-
-	public CIMNode(DiscreteNode node, CTBNSufficientStatistics sufficientStatistics) {
-		super(node.getName(), node.isClassVariable(), node.getStates());
-		this.sufficientStatistics = sufficientStatistics;
-	}
-
 
 	@Override
 	public void setSufficientStatistics(SufficientStatistics sufficientStatistics) {

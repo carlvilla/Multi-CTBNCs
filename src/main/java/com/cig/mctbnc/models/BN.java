@@ -1,9 +1,7 @@
 package com.cig.mctbnc.models;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -11,6 +9,7 @@ import org.graphstream.graph.implementations.SingleGraph;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeFactory;
 
@@ -22,8 +21,6 @@ import com.cig.mctbnc.nodes.NodeFactory;
  *                   conditional probability table (CPTNode)
  */
 public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
-	private ParameterLearningAlgorithm parameterLearningAlg;
-	private StructureLearningAlgorithm structureLearningAlg;
 	NodeFactory<NodeType> nodeFactory;
 
 	/**
@@ -47,9 +44,12 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * @param dataset
 	 * @param parameterLearningAlg
 	 * @param structureLearningAlg
+	 * @param structureConstraints
+	 * @param nodeClass
 	 */
 	public BN(Dataset dataset, List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
-			StructureLearningAlgorithm structureLearningAlg, Class<NodeType> nodeClass) {
+			StructureLearningAlgorithm structureLearningAlg, StructureConstraints structureConstraints,
+			Class<NodeType> nodeClass) {
 		// Node factory to create nodes of the specified type
 		this.nodeFactory = new NodeFactory<NodeType>(nodeClass);
 		// Create nodes using dataset
@@ -61,6 +61,7 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		addNodes(nodes);
 		setParameterLearningAlgorithm(parameterLearningAlg);
 		setStructureLearningAlgorithm(structureLearningAlg);
+		setStructureConstraints(structureConstraints);
 		this.dataset = dataset;
 
 	}
@@ -87,26 +88,6 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		setParameterLearningAlgorithm(parameterLearningAlg);
 		setStructureLearningAlgorithm(structureLearningAlg);
 		this.dataset = dataset;
-	}
-
-	/**
-	 * Establish the algorithm that will be used to learn the parameters of the
-	 * Bayesian network.
-	 * 
-	 * @param parameterLearningAlg
-	 */
-	public void setParameterLearningAlgorithm(ParameterLearningAlgorithm parameterLearningAlg) {
-		this.parameterLearningAlg = parameterLearningAlg;
-	}
-
-	/**
-	 * Establish the algorithm that will be used to learn the structure of the
-	 * Bayesian network.
-	 * 
-	 * @param structureLearningAlg
-	 */
-	public void setStructureLearningAlgorithm(StructureLearningAlgorithm structureLearningAlg) {
-		this.structureLearningAlg = structureLearningAlg;
 	}
 
 	@Override
@@ -190,58 +171,6 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	@Override
 	public String getType() {
 		return "Bayesian network";
-	}
-
-	/**
-	 * Check if the structure (given by an adjacencyMatrix) is legal for a Bayesian
-	 * network. The method determines if there are cycles in an adjacency matrix.
-	 * Modified version of code in
-	 * https://www.geeksforgeeks.org/detect-cycle-in-a-directed-graph-using-bfs/.
-	 * 
-	 * @param adjacencyMatrix
-	 * @return boolean that determines if the structure is valid
-	 */
-	public boolean isStructureLegal(boolean[][] adjacencyMatrix) {
-		int numNodes = adjacencyMatrix.length;
-
-		// Indegrees of all nodes.
-		int[] inDegree = new int[numNodes];
-
-		for (int i = 0; i < numNodes; i++) {
-			for (int j = 0; j < numNodes; j++) {
-				if (i != j && adjacencyMatrix[i][j]) {
-					inDegree[j]++;
-				}
-			}
-		}
-
-		// Enqueue all nodes with indegree 0
-		Queue<Integer> q = new LinkedList<Integer>();
-		for (int i = 0; i < numNodes; i++)
-			if (inDegree[i] == 0)
-				q.add(i);
-
-		// Initialize count of visited vertices
-		int countVisitedNodes = 0;
-
-		// One by one dequeue vertices from queue and enqueue
-		// adjacents if indegree of adjacent becomes 0
-		while (!q.isEmpty()) {
-
-			// Extract node from queue
-			int i = q.poll();
-
-			// Iterate over all children nodes of dequeued node i and
-			// decrease their in-degree by 1
-			for (int j = 0; j < numNodes; j++)
-				if (i != j && adjacencyMatrix[i][j] && --inDegree[j] == 0)
-					q.add(j);
-			countVisitedNodes++;
-		}
-
-		// There are cycles if the number of visited nodes are different from the number
-		// of nodes in the graph
-		return countVisitedNodes == numNodes;
 	}
 
 }

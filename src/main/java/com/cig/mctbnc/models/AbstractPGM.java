@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 import org.graphstream.graph.Graph;
 
 import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
@@ -14,7 +17,10 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	protected List<NodeType> nodes;
 	protected NodeIndexer<NodeType> nodeIndexer;
 	protected Dataset dataset;
-	
+	protected ParameterLearningAlgorithm parameterLearningAlg;
+	protected StructureLearningAlgorithm structureLearningAlg;
+	protected StructureConstraints structureConstraints;
+
 	/**
 	 * Common initialization for PGM.
 	 * 
@@ -23,11 +29,12 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	public AbstractPGM(List<NodeType> nodes) {
 		addNodes(nodes);
 	}
-	
+
 	/**
 	 * Default constructor
 	 */
-	public AbstractPGM() {}
+	public AbstractPGM() {
+	}
 
 	@Override
 	public void addNodes(List<NodeType> nodes) {
@@ -58,7 +65,34 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Return the adjacency matrix of the PGM by analysing the children of each
+	 * Establish the algorithm that will be used to learn the parameters of the PGM.
+	 * 
+	 * @param parameterLearningAlg
+	 */
+	public void setParameterLearningAlgorithm(ParameterLearningAlgorithm parameterLearningAlg) {
+		this.parameterLearningAlg = parameterLearningAlg;
+	}
+
+	/**
+	 * Establish the algorithm that will be used to learn the structure of the PGM.
+	 * 
+	 * @param structureLearningAlg
+	 */
+	public void setStructureLearningAlgorithm(StructureLearningAlgorithm structureLearningAlg) {
+		this.structureLearningAlg = structureLearningAlg;
+	}
+	
+	/**
+	 * Establish the constraints that the PGM needs to meet.
+	 * 
+	 * @param structureConstraints
+	 */
+	public void setStructureConstraints(StructureConstraints structureConstraints) {
+		this.structureConstraints = structureConstraints;
+	}
+
+	/**
+	 * Return the adjacency matrix of the PGM by analyzing the children of each
 	 * node.
 	 * 
 	 * @return bidimensional boolean array representing the adjacency matrix
@@ -87,6 +121,15 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		return nodeIndexer.getNodeByIndex(index);
 	}
 
+	/**
+	 * Return the node indexer of the model.
+	 * 
+	 * @return node indexer
+	 */
+	public NodeIndexer<NodeType> getNodeIndexer() {
+		return nodeIndexer;
+	}
+
 	@Override
 	public List<NodeType> getNodesClassVariables() {
 		return nodes.stream().filter(node -> node.isClassVariable()).collect(Collectors.toList());
@@ -104,6 +147,16 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 
 	public Dataset getDataset() {
 		return dataset;
+	}
+	
+	/**
+	 * Determine if the structure is legal.
+	 * 
+	 * @param adjacencyMatrix
+	 * @return boolean that determines if the structure is valid
+	 */
+	public boolean isStructureLegal(boolean[][] adjacencyMatrix) {
+		return structureConstraints.isStructureLegal(adjacencyMatrix, getNodeIndexer());
 	}
 
 	/**

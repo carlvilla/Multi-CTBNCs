@@ -29,7 +29,7 @@ public abstract class DiscreteNode extends AbstractNode {
 	 * @param classVariable
 	 * @param list
 	 */
-	public DiscreteNode(String name, boolean classVariable, List<State> list) {
+	public DiscreteNode(String name, List<State> list, boolean classVariable) {
 		super(name, classVariable);
 		this.states = list;
 	}
