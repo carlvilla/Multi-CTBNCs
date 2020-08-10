@@ -18,6 +18,10 @@ This software provides the following algorithms for the learning of a MCTBNC.
 * Log-likelihood score
   * BIC penalization
 
+#### Available models by structure constraints
+* Multi-dimensional continuous time Bayesian network classifier (MCTBNC): no structure constraints.
+* Multi-dimensional continuous time naive Bayes classifier (MCTNBC): assumes independence between class variables and between features. The model is formed by a complete bridge subgraph, so each class variable is parent of all features.
+
 ## Inference over MCTBNCs
 
 
