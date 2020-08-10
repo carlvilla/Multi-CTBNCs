@@ -12,6 +12,8 @@ import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
 import com.cig.mctbnc.learning.structure.HillClimbing;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
+import com.cig.mctbnc.learning.structure.constraints.MCTBNC.GeneralMCTBNC;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 
@@ -55,9 +57,11 @@ public class LearnBN {
 		ParameterLearningAlgorithm parameterLearningAlgorithm = new BNParameterMLE();
 		// Algorithm to learn structure
 		StructureLearningAlgorithm structureLearningAlgorithm = new HillClimbing();
+		// Structure constraints
+		StructureConstraints structureConstraintsBN = new GeneralMCTBNC().getStructureConstraintsBN();
 
 		BN<CPTNode> bn = new BN<CPTNode>(dataset, parameterLearningAlgorithm, structureLearningAlgorithm,
-				CPTNode.class);
+				structureConstraintsBN, CPTNode.class);
 		bn.learn();
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, false, true }, { false, false, true },
 				{ false, false, false } };
