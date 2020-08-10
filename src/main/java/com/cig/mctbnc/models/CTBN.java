@@ -49,9 +49,12 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 			nodes.add(node);
 		}
 		addNodes(nodes);
+		// Set necessary algorithms to learn the model
 		setParameterLearningAlgorithm(parameterLearningAlg);
 		setStructureLearningAlgorithm(structureLearningAlg);
 		setStructureConstraints(structureConstraints);
+		// Initialize structure of the model
+		structureConstraints.initializeStructure(nodes);
 		this.dataset = dataset;
 	}
 

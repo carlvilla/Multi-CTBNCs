@@ -1,6 +1,7 @@
 package com.cig.mctbnc.learning.structure.constraints.BN;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
@@ -58,5 +59,8 @@ public class GeneralDAG implements StructureConstraints {
 		// of nodes in the graph
 		return countVisitedNodes == numNodes;
 	}
+
+	@Override
+	public void initializeStructure(List<? extends Node> nodes) {}
 
 }

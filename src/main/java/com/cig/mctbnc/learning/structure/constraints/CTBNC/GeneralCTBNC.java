@@ -1,5 +1,7 @@
 package com.cig.mctbnc.learning.structure.constraints.CTBNC;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,5 +39,8 @@ public class GeneralCTBNC implements StructureConstraints {
 		}
 		return true;
 	}
+
+	@Override
+	public void initializeStructure(List<? extends Node> nodes) {}
 
 }

@@ -7,12 +7,13 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.cig.mctbnc.classification.Metrics;
 import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.reader.SeparateCSVReader;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.structure.HillClimbing;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.MCTBNC.MCTNBC;
@@ -29,7 +30,7 @@ public class CommandLine {
 
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
-		List<String> nameClassVariables = List.of("Exercise");
+		List<String> nameClassVariables = List.of("Exercise", "ExerciseMode");
 		String[] excludeVariables = { "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19",
 				"S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29" };
 		String nameTimeVariable = "t";
@@ -63,11 +64,11 @@ public class CommandLine {
 		StructureLearningAlgorithm bnStructureLearningAlgorithm = new HillClimbing();
 
 		// Define learning algorithms for the feature and class subgraph
-		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNBayesianEstimation(1, 1, 0.05);
+		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation(); // new CTBNBayesianEstimation(1, 1, 0.05);
 		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbing();
-		
+
 		// Define type of MCTBNC that will be learned (structure constraints)
-		//StructureConstraintsMCTBNC structureConstraintsMCTBNC = new GeneralMCTBNC();
+		// StructureConstraintsMCTBNC structureConstraintsMCTBNC = new GeneralMCTBNC();
 		StructureConstraintsMCTBNC structureConstraintsMCTBNC = new MCTNBC();
 
 		// Define multi-dimensional continuous time Bayesian network model
@@ -93,9 +94,13 @@ public class CommandLine {
 		// Train model
 		mctbnc.learn();
 		mctbnc.display();
-		
+
 		// Perform predictions with MCTBNC
-		mctbnc.predict(testingDataset);
+		//String[][] predictions = mctbnc.predict(testingDataset);
+		String[][] predictions = mctbnc.predict(trainingDataset);
+		
+		logger.info("1/0 subset accuracy: {}",
+				Metrics.subsetAccuracy(predictions, trainingDataset.getValuesClassVariables()));
 
 	}
 

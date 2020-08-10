@@ -1,5 +1,7 @@
 package com.cig.mctbnc.learning.structure.constraints;
 
+import java.util.List;
+
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
@@ -20,5 +22,13 @@ public interface StructureConstraints {
 	 * @return boolean that determines if the structure is legal
 	 */
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix, NodeIndexer<? extends Node> nodeIndexer);
+
+	/**
+	 * The structure of the PGM is initialized. This method is necessary for models
+	 * such as naive Bayes.
+	 * 
+	 * @param nodes
+	 */
+	public void initializeStructure(List<? extends Node> nodes);
 
 }

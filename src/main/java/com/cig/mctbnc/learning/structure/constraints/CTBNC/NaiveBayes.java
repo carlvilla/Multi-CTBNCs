@@ -1,5 +1,7 @@
 package com.cig.mctbnc.learning.structure.constraints.CTBNC;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,25 +22,45 @@ public class NaiveBayes implements StructureConstraints {
 
 	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix, NodeIndexer<? extends Node> nodeIndexer) {
-		// First it s check that the structure is from a correct CTBNC
-		StructureConstraints generalCTBNC = new GeneralCTBNC();
-		boolean isLegal = generalCTBNC.isStructureLegal(adjacencyMatrix, nodeIndexer);
-		// We avoid the following checks if the structure is not a general CTBNC
-		if (!isLegal)
-			return false;
 		// There can only be arcs from the class variables to the features
 		int numNodes = adjacencyMatrix.length;
 		for (int i = 0; i < numNodes; i++) {
 			for (int j = 0; j < numNodes; j++) {
-				if (i != j && !adjacencyMatrix[i][j]) {
+				// No self-loops
+				if (i == j && adjacencyMatrix[i][j])
+					return false;
+				else if (i != j) {
 					Node nodeI = nodeIndexer.getNodeByIndex(i);
 					Node nodeJ = nodeIndexer.getNodeByIndex(j);
-					if (nodeI.isClassVariable() && !nodeJ.isClassVariable())
-						isLegal = isLegal && false;
+					// No missing arcs from class variables to features
+					if (!adjacencyMatrix[i][j] && nodeI.isClassVariable() && !nodeJ.isClassVariable())
+						return false;
+					else if (adjacencyMatrix[i][j])
+						// No arcs from features to class variables, between features or between class
+						// variables
+						if (!nodeI.isClassVariable() && nodeJ.isClassVariable()
+								|| !nodeI.isClassVariable() && !nodeJ.isClassVariable()
+								|| nodeI.isClassVariable() && nodeJ.isClassVariable())
+							return false;
 				}
 			}
 		}
-		return isLegal;
+		return true;
+	}
+
+	@Override
+	public void initializeStructure(List<? extends Node> nodes) {
+		// There is only one structure for a naive Bayes
+		for (int i = 0; i < nodes.size(); i++) {
+			Node nodeI = nodes.get(i);
+			for (int j = 0; j < nodes.size(); j++) {
+				Node nodeJ = nodes.get(j);
+				if (i != j && nodeI.isClassVariable() && !nodeJ.isClassVariable()) {
+					nodeI.setChild(nodeJ);
+				}
+			}
+		}
+
 	}
 
 }

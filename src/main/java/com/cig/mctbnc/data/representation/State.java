@@ -40,10 +40,8 @@ public class State {
 	/**
 	 * Given the name of a node, it is modified its value.
 	 * 
-	 * @param nameNode
-	 *            name of the node
-	 * @param newValue
-	 *            new value for the node in this state
+	 * @param nameNode name of the node
+	 * @param newValue new value for the node in this state
 	 */
 	public void modifyEventValue(String nameNode, String newValue) {
 		events.replace(nameNode, newValue);
@@ -69,6 +67,19 @@ public class State {
 	 */
 	public String getValueNode(String nameNode) {
 		return events.get(nameNode);
+	}
+
+	/**
+	 * Return the values for some specified nodes.
+	 * 
+	 * @param nameNodes names of the nodes
+	 * @return values of the specified nodes for this state
+	 */
+	public String[] getValueNodes(List<String> nameNodes) {
+		String[] values = new String[nameNodes.size()];
+		for (int i = 0; i < nameNodes.size(); i++)
+			values[i] = events.get(nameNodes.get(i));
+		return values;
 	}
 
 	@Override

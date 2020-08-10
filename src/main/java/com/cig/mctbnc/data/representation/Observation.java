@@ -1,5 +1,6 @@
 package com.cig.mctbnc.data.representation;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -13,12 +14,19 @@ import java.util.Set;
  *
  */
 public class Observation {
-
 	// Store the value of the time variable when the observation occurred
 	private double timeValue;
 	// Store the value of all the variables (except the time variable)
 	private Map<String, String> variablesValues;
 
+	/**
+	 * Create an observation given the name of the variables and time variable, and
+	 * their values.
+	 * 
+	 * @param nameVariables    name of the variables
+	 * @param nameTimeVariable name of the time variable
+	 * @param values           values of all the variables
+	 */
 	public Observation(List<String> nameVariables, String nameTimeVariable, String[] values) {
 		// Store name of the variable and its value for the observation
 		variablesValues = new HashMap<String, String>();
@@ -30,22 +38,58 @@ public class Observation {
 		}
 	}
 
-	public String[] getVariableNames() {
+	/**
+	 * Return the name of the variables in the observation (except the time
+	 * variable).
+	 * 
+	 * @return name of the variables
+	 */
+	public List<String> getVariableNames() {
 		Set<String> keys = variablesValues.keySet();
-		return keys.toArray(new String[keys.size()]);
+		return new ArrayList<String>(keys);
 	}
 
+	/**
+	 * Return the value of all the variables (except the time variable) for the
+	 * observation.
+	 * 
+	 * @return values of the variables
+	 */
 	public String[] getValues() {
 		Collection<String> values = variablesValues.values();
 		return values.toArray(new String[values.size()]);
 	}
 
-	public String getValueVariable(String nodeName) {
-		return variablesValues.get(nodeName);
-	}
-
+	/**
+	 * Return the value of the time variable for the observation.
+	 * 
+	 * @return value of the time variable
+	 */
 	public double getTimeValue() {
 		return timeValue;
+	}
+
+	/**
+	 * Given the name of a variable, return its value for the observation.
+	 * 
+	 * @param nameVariable name of the variable
+	 * @return value of the variable for the observation
+	 */
+	public String getValueVariable(String nameVariable) {
+		return variablesValues.get(nameVariable);
+	}
+
+	/**
+	 * Given the names of variables, return their value for the observation.
+	 * 
+	 * @param nameVariables names of the variable
+	 * @return values of the variables for the observation
+	 */
+	public String[] getValueVariables(List<String> nameVariables) {
+		String[] values = new String[nameVariables.size()];
+		for (int i = 0; i < nameVariables.size(); i++)
+			values[i] = getValueVariable(nameVariables.get(i));
+		return values;
 	}
 
 }

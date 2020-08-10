@@ -1,5 +1,7 @@
 package com.cig.mctbnc.learning.structure.constraints.BN;
 
+import java.util.List;
+
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
@@ -25,4 +27,7 @@ public class EmptyBN implements StructureConstraints {
 		}
 		return true;
 	}
+
+	@Override
+	public void initializeStructure(List<? extends Node> nodes) {}
 }
