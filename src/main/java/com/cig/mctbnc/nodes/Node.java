@@ -4,12 +4,32 @@ import java.util.List;
 
 import com.cig.mctbnc.learning.parameters.SufficientStatistics;
 
+/**
+ * Interface for a generic node of a PGM.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 public interface Node {
-
+	/**
+	 * Return the name of the node.
+	 * 
+	 * @return node name
+	 */
 	public String getName();
 
+	/**
+	 * Return the children of the node.
+	 * 
+	 * @return child node list
+	 */
 	public List<Node> getChildren();
 
+	/**
+	 * Return the parents of the node.
+	 * 
+	 * @return parent node list
+	 */
 	public List<Node> getParents();
 
 	/**
@@ -35,47 +55,57 @@ public interface Node {
 	public boolean hasParents();
 
 	/**
-	 * Include nodeChild in the children list of the node, while including the node
-	 * in the list of parents of nodeChild.
-	 * 
-	 * @param nodeChild
-	 */
-	public void setChild(Node nodeChild);
-
-	/**
 	 * Include nodeParent in the parent list of the node, while including the node
 	 * in the list of children of nodeParent.
 	 * 
-	 * @param nodeParent
+	 * @param parentNode
 	 */
-	public void setParent(Node nodeParent);
+	public void setParent(Node parentNode);
 
 	/**
-	 * Remove a certain child of the node. This implies that the node is removed
-	 * from the list of parents of that child.
+	 * Include nodeChild in the children list of the node, while including the node
+	 * in the list of parents of nodeChild.
 	 * 
-	 * @param nodeChild
+	 * @param childNode
 	 */
-	public void removeChild(Node nodeChild);
+	public void setChild(Node childNode);
 
 	/**
 	 * Remove a certain parent of the node. This implies that the node is removed
 	 * from the list of children of that parent.
 	 * 
-	 * @param nodeParent
+	 * @param parentNode
 	 */
-	public void removeParent(Node nodeParent);
+	public void removeParent(Node parentNode);
 
 	/**
-	 * Remove the children and parents.
+	 * Remove a certain child of the node. This implies that the node is removed
+	 * from the list of parents of that child.
+	 * 
+	 * @param childNode
+	 */
+	public void removeChild(Node childNode);
+
+	/**
+	 * Remove the parents of the node.
+	 */
+	public void removeParents();
+
+	/**
+	 * Remove the children of the node.
+	 */
+	public void removeChildren();
+
+	/**
+	 * Remove the children and parents of the node.
 	 */
 	public void removeAllEdges();
 
 	/**
+	 * Establish the sufficient statistics of the node.
 	 * 
-	 * @param ss
+	 * @param ss sufficient statistics
 	 */
 	public void setSufficientStatistics(SufficientStatistics ss);
-
 
 }

@@ -3,11 +3,17 @@ package com.cig.mctbnc.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Contains common variables and methods for any kind of node.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 public abstract class AbstractNode implements Node {
 	private String name;
 	private boolean classVariable;
 	private List<Node> children;
-	private List<Node> parents;
+	protected List<Node> parents;
 
 	/**
 	 * Common initialization of a node. This constructor initializes the node as not
@@ -40,6 +46,61 @@ public abstract class AbstractNode implements Node {
 	}
 
 	@Override
+	public void setParent(Node nodeParent) {
+		if (!parents.contains(nodeParent))
+			parents.add(nodeParent);
+		if (!nodeParent.getChildren().contains(this))
+			nodeParent.getChildren().add(this);
+	}
+
+	@Override
+	public void setChild(Node nodeChild) {
+		nodeChild.setParent(this);
+	}
+
+	@Override
+	public void removeParent(Node nodeParent) {
+		if (parents.contains(nodeParent))
+			parents.remove(nodeParent);
+		if (nodeParent.getChildren().contains(this))
+			nodeParent.getChildren().remove(this);
+
+	}
+
+	@Override
+	public void removeChild(Node nodeChild) {
+		nodeChild.removeParent(this);
+	}
+
+	@Override
+	public void removeParents() {
+		// Parent nodes are removed using a temporary list to avoid a concurrent
+		// modification exception
+		List<Node> tempList = new ArrayList<Node>(parents);
+		for (Node parentNode : tempList) {
+			removeParent(parentNode);
+		}
+	}
+
+	@Override
+	public void removeChildren() {
+		// Child nodes are removed using a temporary list to avoid a concurrent
+		// modification exception
+		List<Node> tempList = new ArrayList<Node>(children);
+		for (Node childNode : tempList) {
+			removeChild(childNode);
+		}
+	}
+
+	@Override
+	public void removeAllEdges() {
+		// Remove children
+		removeChildren();
+		// Remove parents
+		removeParents();
+	}
+
+	@Override
 	public void isClassVariable(boolean isClassVariable) {
 		this.classVariable = isClassVariable;
 	}
@@ -62,56 +123,6 @@ public abstract class AbstractNode implements Node {
 	@Override
 	public List<Node> getParents() {
 		return parents;
-	}
-
-	@Override
-	public void setChild(Node nodeChild) {
-		if (!children.contains(nodeChild))
-			children.add(nodeChild);
-		if (!nodeChild.getParents().contains(this))
-			nodeChild.setParent(this);
-	}
-
-	@Override
-	public void setParent(Node nodeParent) {
-		if (!parents.contains(nodeParent))
-			parents.add(nodeParent);
-		if (!nodeParent.getChildren().contains(this))
-			nodeParent.setChild(this);
-	}
-
-	@Override
-	public void removeChild(Node nodeChild) {
-		if (children.contains(nodeChild))
-			children.remove(nodeChild);
-		// if(nodeChild.getParents().contains(this))
-		// nodeChild.removeParent(this);
-	}
-
-	@Override
-	public void removeParent(Node nodeParent) {
-		if (parents.contains(nodeParent))
-			parents.remove(nodeParent);
-		if (nodeParent.getChildren().contains(this))
-			nodeParent.removeChild(this);
-
-	}
-
-	@Override
-	public void removeAllEdges() {
-		// Remove children
-		// The node is removed from the parent list of its children
-		for (Node child : children) {
-			child.getParents().remove(this);
-		}
-		// The child list is cleared
-		children.clear();
-
-		// Remove parents
-		for (Node parent : parents) {
-			parent.getChildren().remove(this);
-		}
-		parents.clear();
 	}
 
 	@Override

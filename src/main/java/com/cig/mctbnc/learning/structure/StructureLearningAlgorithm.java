@@ -13,7 +13,8 @@ public interface StructureLearningAlgorithm {
 	 * @param pgm
 	 * @param trainingDataset
 	 * @param bnParameterLearning
+	 * @param penalize penalize the structure complexity
 	 */
-	public void learn(PGM<? extends Node> pgm, Dataset trainingDataset, ParameterLearningAlgorithm bnParameterLearning);
+	public void learn(PGM<? extends Node> pgm, Dataset trainingDataset, ParameterLearningAlgorithm bnParameterLearning, String penalizationFunction);
 	
 }

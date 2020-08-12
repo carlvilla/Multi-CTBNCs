@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
+import com.cig.mctbnc.learning.structure.constraints.AbstractStructureConstraints;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
@@ -14,7 +14,7 @@ import com.cig.mctbnc.nodes.NodeIndexer;
  * @author Carlos Villa Blanco
  *
  */
-public class GeneralDAG implements StructureConstraints {
+public class GeneralDAG extends AbstractStructureConstraints {
 
 	/**
 	 * Check if the structure (given by an adjacencyMatrix) is legal for a Bayesian

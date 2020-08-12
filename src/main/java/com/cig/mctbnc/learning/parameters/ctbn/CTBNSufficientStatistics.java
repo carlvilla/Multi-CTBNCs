@@ -13,11 +13,12 @@ import com.cig.mctbnc.data.representation.Observation;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.SufficientStatistics;
+import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
 /**
- * Compute and store the sufficient statistics of a CTBN node. The sufficient
- * statistics are:
+ * Compute and store the sufficient statistics of a discrete CTBN node. The
+ * sufficient statistics are:
  * 
  * (1) Nxx: number of times a variable transitions from a certain state to
  * another one while its parents take a certain value.
@@ -50,9 +51,10 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @param dataset dataset from which sufficient statistics are extracted
 	 */
 	public void computeSufficientStatistics(Node node, Dataset dataset) {
-		logger.trace("Computing sufficient statistics CTBN for node {}", node.getName());
+		// TODO The node has to be discrete. Improve code to be able to easily include
+		// sufficient statistics for other types of nodes
 		String nameVariable = node.getName();
-
+		logger.trace("Computing sufficient statistics CTBN for node {}", nameVariable);
 		// Variables that are only used if the node has parents
 		List<Node> parents = node.getParents();
 		List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
@@ -102,9 +104,10 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @param dataset dataset used to compute the sufficient statistics
 	 */
 	private void initializeSufficientStatistics(Node node, Dataset dataset) {
-		String nameVariable = node.getName();
-		List<State> statesVariable = dataset.getStatesVariable(nameVariable);
-
+		// Retrieve state the variable can take
+		// TODO Instead of passing a node, the class should only accept DiscreteNode.
+		// Improve architecture
+		List<State> statesVariable = ((DiscreteNode) node).getStates();
 		if (node.hasParents()) {
 			List<Node> parents = node.getParents();
 			List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
@@ -114,9 +117,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 					State fromStateWithParents = new State(fromState.getEvents());
 					fromStateWithParents.addEvents(stateParents.getEvents());
 					// Initialize Nx
-					updateOccurrencesNx(fromStateWithParents, 0);
+					Nx.put(fromStateWithParents, 0);
 					// Initialize Tx
-					updateOccurrencesTx(fromStateWithParents, 0);
+					Tx.put(fromStateWithParents, 0.0);
 					for (State toState : statesVariable) {
 						if (!fromState.equals(toState)) {
 							// Initialize Nxy
@@ -128,9 +131,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 		} else {
 			for (State fromState : statesVariable) {
 				// Initialize Nx
-				updateOccurrencesNx(fromState, 0);
+				Nx.put(fromState, 0);
 				// Initialize Tx
-				updateOccurrencesTx(fromState, 0);
+				Tx.put(fromState, 0.0);
 				for (State toState : statesVariable) {
 					if (!fromState.equals(toState)) {
 						// Initialize Nxy
@@ -152,11 +155,16 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	private void updateOccurrencesNxy(State fromState, State toState, int numOccurrences) {
 		// If the state 'fromState' was never seen before, it is created a map to
 		// contain all the occurrences of it transitioning to other states
-		if (!Nxy.containsKey(fromState))
-			Nxy.put(fromState, new HashMap<State, Integer>());
+		Map<State, Integer> mapFromState = Nxy.get(fromState);
+		if (mapFromState == null) {
+			mapFromState = new HashMap<State, Integer>();
+			Nxy.put(fromState, mapFromState);
+		}
 		// Current value of Nxy for 'fromState' and 'toState'
-		int currentNxy = Nxy.get(fromState).containsKey(toState) ? Nxy.get(fromState).get(toState) : 0;
-		Nxy.get(fromState).put(toState, currentNxy + numOccurrences);
+		Integer currentNxy = mapFromState.get(toState);
+		if (currentNxy == null)
+			currentNxy = 0;
+		mapFromState.put(toState, currentNxy + numOccurrences);
 	}
 
 	/**
@@ -168,7 +176,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 */
 	private void updateOccurrencesNx(State fromState, int numOccurrences) {
 		// Current value of Nx for 'fromState'
-		int currentNx = Nx.containsKey(fromState) ? Nx.get(fromState) : 0;
+		Integer currentNx = Nx.get(fromState);
+		if (currentNx == null)
+			currentNx = 0;
 		Nx.put(fromState, currentNx + numOccurrences);
 	}
 
@@ -181,7 +191,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 */
 	private void updateOccurrencesTx(State state, double time) {
 		// Current time computed for the state
-		double currentTime = Tx.containsKey(state) ? Tx.get(state) : 0;
+		Double currentTime = Tx.get(state);
+		if (currentTime == null)
+			currentTime = 0.0;
 		Tx.put(state, currentTime + time);
 	}
 

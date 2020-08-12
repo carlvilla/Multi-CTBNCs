@@ -101,14 +101,13 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	@Override
 	public void setStructure(boolean[][] adjacencyMatrix) {
 		// Current edges are removed
-		for (Node node : this.nodes) {
+		for (NodeType node : this.nodes)
 			node.removeAllEdges();
-		}
 		for (int i = 0; i < adjacencyMatrix.length; i++) {
-			Node node = nodeIndexer.getNodeByIndex(i);
+			NodeType node = (NodeType) nodeIndexer.getNodeByIndex(i);
 			for (int j = 0; j < adjacencyMatrix.length; j++) {
 				if (adjacencyMatrix[i][j]) {
-					Node childNode = nodeIndexer.getNodeByIndex(j);
+					NodeType childNode = (NodeType) nodeIndexer.getNodeByIndex(j);
 					node.setChild(childNode);
 				}
 			}
@@ -119,12 +118,7 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 
 	public BN() {
 	}
-
-	@Override
-	public void learn() {
-		structureLearningAlg.learn(this, dataset, parameterLearningAlg);
-	}
-
+	
 	public String[] getNameNodes() {
 		return nodes.stream().map(Node::getName).toArray(String[]::new);
 	}

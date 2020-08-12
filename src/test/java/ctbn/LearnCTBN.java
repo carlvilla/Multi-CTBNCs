@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.structure.HillClimbing;
+import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.CTBNC.GeneralCTBNC;
@@ -73,7 +73,7 @@ public class LearnCTBN {
 		dataset.addSequence(dataSequence3);
 
 		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
-		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbing();
+		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbingCTBN();
 		StructureConstraints structureConstraints = new GeneralCTBNC();
 
 		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(dataset, nameFeatures, ctbnParameterLearningAlgorithm,

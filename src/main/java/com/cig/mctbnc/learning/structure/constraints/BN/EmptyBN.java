@@ -2,7 +2,7 @@ package com.cig.mctbnc.learning.structure.constraints.BN;
 
 import java.util.List;
 
-import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
+import com.cig.mctbnc.learning.structure.constraints.AbstractStructureConstraints;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
@@ -13,7 +13,7 @@ import com.cig.mctbnc.nodes.NodeIndexer;
  * @author Carlos Villa Blanco
  *
  */
-public class EmptyBN implements StructureConstraints {
+public class EmptyBN extends AbstractStructureConstraints {
 
 	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix, NodeIndexer<? extends Node> nodeIndexer) {

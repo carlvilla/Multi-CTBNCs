@@ -5,6 +5,7 @@ import java.util.List;
 import org.graphstream.graph.Graph;
 
 import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.nodes.NodeIndexer;
 
 /**
  * Defines the methods of a probabilistic graphical model
@@ -55,9 +56,8 @@ public interface PGM<NodeType extends Node> {
 	/**
 	 * Check if a structure is legal for the PGM.
 	 * 
-	 * @param adjacencyMatrix
-	 *            bidimensional boolean array representing the adjacency matrix to
-	 *            Analyze
+	 * @param adjacencyMatrix bidimensional boolean array representing the adjacency
+	 *                        matrix to Analyze
 	 * @return boolean that determines if the structure is legal
 	 */
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix);
@@ -116,5 +116,12 @@ public interface PGM<NodeType extends Node> {
 	 * @return string describing the type of PGM
 	 */
 	public String getType();
+
+	/**
+	 * Return the node indexer used by the PGM.
+	 * 
+	 * @return node indexer
+	 */
+	public NodeIndexer getNodeIndexer();
 
 }

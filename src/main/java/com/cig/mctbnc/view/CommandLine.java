@@ -14,9 +14,10 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.structure.HillClimbing;
+import com.cig.mctbnc.learning.structure.HillClimbingBN;
+import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.constraints.MCTBNC.MCTNBC;
+import com.cig.mctbnc.learning.structure.constraints.MCTBNC.GeneralMCTBNC;
 import com.cig.mctbnc.learning.structure.constraints.MCTBNC.StructureConstraintsMCTBNC;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
@@ -30,26 +31,30 @@ public class CommandLine {
 
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
-		List<String> nameClassVariables = List.of("Exercise", "ExerciseMode");
-		String[] excludeVariables = { "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19",
-				"S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29" };
+		List<String> nameClassVariables = List.of("ExerciseMode");
+		String[] excludeVariables = { "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16",
+				"S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29" };
 		String nameTimeVariable = "t";
 
 		logger.info("Reading sequences from {}", datasetFolder);
 		logger.info("Number of sequences {}", files.length);
-		logger.info("Preparing training and testing datasets");
+		logger.info("Preparing training and testing datasets (Hold-out)");
+
+		// Random permutation of the set of sequences
+		// logger.info("Sequences are randomly permuted");
+		// Collections.shuffle(Arrays.asList(files));
 
 		// Generate datasets
 		// For now it will be used 70% sequences for training and 30% for testing
 		// Define training dataset
-		File[] trainingFiles = Arrays.copyOfRange(files, 0, (int) (files.length * 0.7));
+		File[] trainingFiles = Arrays.copyOfRange(files, 0, (int) (files.length * 0.8));
 		DatasetReader drTraining = new SeparateCSVReader(trainingFiles, nameTimeVariable, nameClassVariables,
 				excludeVariables);
 		Dataset trainingDataset = drTraining.readDataset();
 		logger.info("Sequences for training {}", trainingDataset.getNumDataPoints());
 
 		// Define testing dataset
-		File[] testingFiles = Arrays.copyOfRange(files, (int) (files.length * 0.7), (int) (files.length));
+		File[] testingFiles = Arrays.copyOfRange(files, (int) (files.length * 0.8), (int) (files.length));
 		DatasetReader drTesting = new SeparateCSVReader(testingFiles, nameTimeVariable, nameClassVariables,
 				excludeVariables);
 		Dataset testingDataset = drTesting.readDataset();
@@ -61,15 +66,18 @@ public class CommandLine {
 
 		// Define learning algorithms for the class subgraph
 		ParameterLearningAlgorithm bnParameterLearningAlgorithm = new BNParameterMLE();
-		StructureLearningAlgorithm bnStructureLearningAlgorithm = new HillClimbing();
+		StructureLearningAlgorithm bnStructureLearningAlgorithm = new HillClimbingBN();
 
 		// Define learning algorithms for the feature and class subgraph
-		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation(); // new CTBNBayesianEstimation(1, 1, 0.05);
-		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbing();
-
+		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
+		// new CTBNBayesianEstimation(1, 1, 0.05);
+		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbingCTBN();
 		// Define type of MCTBNC that will be learned (structure constraints)
-		// StructureConstraintsMCTBNC structureConstraintsMCTBNC = new GeneralMCTBNC();
-		StructureConstraintsMCTBNC structureConstraintsMCTBNC = new MCTNBC();
+		StructureConstraintsMCTBNC structureConstraintsMCTBNC = new GeneralMCTBNC(); // new MCTNBC();
+		// Determine if the structure complexity (of the BN and CTBN) should be penalized
+		String penalizationFunction = "None";
+		structureConstraintsMCTBNC.setPenalizationFunction(penalizationFunction);
+		logger.info("Using penalization function {}", penalizationFunction);
 
 		// Define multi-dimensional continuous time Bayesian network model
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(trainingDataset, ctbnParameterLearningAlgorithm,
@@ -96,11 +104,11 @@ public class CommandLine {
 		mctbnc.display();
 
 		// Perform predictions with MCTBNC
-		//String[][] predictions = mctbnc.predict(testingDataset);
-		String[][] predictions = mctbnc.predict(trainingDataset);
-		
+		// String[][] predictions = mctbnc.predict(testingDataset);
+		String[][] predictions = mctbnc.predict(testingDataset);
+
 		logger.info("1/0 subset accuracy: {}",
-				Metrics.subsetAccuracy(predictions, trainingDataset.getValuesClassVariables()));
+				Metrics.subsetAccuracy(predictions, testingDataset.getValuesClassVariables()));
 
 	}
 

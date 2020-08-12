@@ -13,6 +13,13 @@ import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
+/**
+ * Contains common attributes and methods for PGM.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ * @param <NodeType>
+ */
 public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType> {
 	protected List<NodeType> nodes;
 	protected NodeIndexer<NodeType> nodeIndexer;
@@ -64,6 +71,25 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		}
 	}
 
+	@Override
+	public void setStructure(boolean[][] adjacencyMatrix) {
+		// Current edges are removed
+		for (Node node : this.nodes) {
+			node.removeAllEdges();
+		}
+		for (int i = 0; i < adjacencyMatrix.length; i++) {
+			Node node = nodeIndexer.getNodeByIndex(i);
+			for (int j = 0; j < adjacencyMatrix.length; j++) {
+				if (adjacencyMatrix[i][j]) {
+					Node childNode = nodeIndexer.getNodeByIndex(j);
+					node.setChild(childNode);
+				}
+			}
+		}
+		// Learn the sufficient statistics and parameters for each node
+		parameterLearningAlg.learn(nodes, dataset);
+	}
+
 	/**
 	 * Establish the algorithm that will be used to learn the parameters of the PGM.
 	 * 
@@ -81,7 +107,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	public void setStructureLearningAlgorithm(StructureLearningAlgorithm structureLearningAlg) {
 		this.structureLearningAlg = structureLearningAlg;
 	}
-	
+
 	/**
 	 * Establish the constraints that the PGM needs to meet.
 	 * 
@@ -89,6 +115,12 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 */
 	public void setStructureConstraints(StructureConstraints structureConstraints) {
 		this.structureConstraints = structureConstraints;
+	}
+
+	@Override
+	public void learn() {
+		structureLearningAlg.learn(this, dataset, parameterLearningAlg,
+				structureConstraints.getPenalizationFunction());
 	}
 
 	/**
@@ -148,7 +180,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	public Dataset getDataset() {
 		return dataset;
 	}
-	
+
 	/**
 	 * Determine if the structure is legal.
 	 * 

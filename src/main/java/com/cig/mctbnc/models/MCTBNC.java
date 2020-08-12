@@ -1,7 +1,10 @@
 package com.cig.mctbnc.models;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,6 +86,9 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 
 	@Override
 	public void learn() {
+		logger.info("Learning MCTBNC model");
+		// Measure execution time
+		Instant start = Instant.now();
 		// Learn structure and parameters of class subgraph (Bayesian network)
 		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
 		bn.learn();
@@ -100,6 +106,8 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		List<NodeTypeBN> nodesBN = getNodesBN();
 		List<NodeTypeCTBN> nodesCTBN = getNodesCTBN();
 		setStructure(nodesBN, nodesCTBN);
+		Instant end = Instant.now();
+		logger.info("MCTBNC model learnt in {} seconds", Duration.between(start, end));
 	}
 
 	private List<NodeTypeBN> getNodesBN() {
@@ -124,7 +132,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 */
 	private void setStructure(List<NodeTypeBN> nodesBN, List<NodeTypeCTBN> nodesCTBN) {
 		List<Node> nodes = new ArrayList<Node>();
-
 		// It is important to respect the original order of the variables to generate a
 		// correct adjacency matrix
 		for (String nameVariable : dataset.getNameVariables()) {
@@ -175,7 +182,15 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		return false;
 	}
 
-	@Override
+	/**
+	 * Performs classification over the sequences in a dataset according to the
+	 * maximum aposteriori rule, i.e., the class variable values which obtain the
+	 * largest log-likelihood are returned.
+	 * 
+	 * @param dataset dataset from which the sequences to predict are extracted
+	 * @return bidimensional string array with the predictions of the class
+	 *         variables for all the sequences
+	 */
 	public String[][] predict(Dataset dataset) {
 		logger.info("Performing prediction over {} sequences", dataset.getNumDataPoints());
 		int numSequences = dataset.getNumDataPoints();
@@ -192,123 +207,116 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 
 	/**
 	 * Performs classification over a sequence according to the maximum aposteriori
-	 * rule.
+	 * rule, i.e., the class variable values which obtain the largest log-likelihood
+	 * are returned.
 	 * 
-	 * @param sequence
+	 * @param sequence sequence whose class variables are predicted
 	 * @return array of strings with the predicted states of the class variables
 	 */
 	public String[] predict(Sequence sequence) {
+		// Obtain the name of the class variables
+		List<String> nameClassVariables = dataset.getNameClassVariables();
+		// Obtation all possible states of the class variables
+		List<State> statesClassVariables = dataset.getStatesVariables(nameClassVariables);
 		// Obtain graphs of the Bayesian network and continuous time Bayesian network
 		List<NodeTypeBN> nodesBN = getNodesBN();
 		List<NodeTypeCTBN> nodesCTBN = getNodesCTBN();
-		// Obtain the name of the class variables
-		List<String> nameClassVariables = dataset.getNameClassVariables();
-		// Obtain the name of the features
-		List<String> nameFeatures = dataset.getNameFeatures();
-		// Obtation all possible states of the class variables
-		List<State> statesClassVariables = dataset.getStatesVariables(nameClassVariables);
-
-		// Get the observations of the sequence
+		// Get observations of the sequence
 		List<Observation> observations = sequence.getObservations();
-
-		// Compute the posterior probability for each possible combination of states of
-		// the class variables
-
+		// Posterior probability of each state combination of the class variables
 		double[] posteriorProbability = new double[statesClassVariables.size()];
 		for (int i = 0; i < statesClassVariables.size(); i++) {
 			// Get states 'i' of the class variables
 			State stateClassVariables = statesClassVariables.get(i);
-			// Store log-likelihood obtained with the current states of the class variables
+			// Compute log-likelihood with current states of the class variables
 			double ll = 0;
-
 			for (int j = 0; j < observations.size(); j++) {
 				// Get observation 'j' of the sequence to predict
 				Observation observation = observations.get(j);
-				String[] valuesFeatures = observation.getValueVariables(nameFeatures);
 
 				// Estimate class probability
-				for (NodeTypeBN node : bn.getLearnedNodes()) {
-					// Obtain node of BN
+				for (NodeTypeBN node : nodesBN) {
+					// Obtain class variable node from the BN
 					CPTNode nodeBN = (CPTNode) node;
-					// Obtain names of the parents of the node
-					String[] nameParents = nodeBN.getParents().stream().map(nodeParent -> nodeParent.getName())
-							.toArray(String[]::new);
+					// Obtain parents of the node
+					List<Node> parentNodes = nodeBN.getParents();
 					// Define State object for node and parents having certain values
 					State query = new State();
-					// Add value of the node
+					// Add value of the class variable
 					query.addEvent(nodeBN.getName(), stateClassVariables.getValueNode(nodeBN.getName()));
 					// Add values of the parents
-					for (String nameParent : nameParents)
+					for (Node parentNode : parentNodes) {
+						String nameParent = parentNode.getName();
 						query.addEvent(nameParent, stateClassVariables.getValueNode(nameParent));
-					// Obtain probability of the node having certain state given its parents' state
-					ll += Math.log(nodeBN.getCPT().get(query));
+					}
+					// Probability of the class variable and its parents having a certain state
+					Double Ox = nodeBN.getCPT().get(query);
+					ll += Ox != null && Ox > 0 ? Math.log(nodeBN.getCPT().get(query)) : 0;
 				}
 
 				// Estimate posterior probability
-				// Obtain time difference between the observation 'j' and 'j-1'
-				double timeCurrentObservation = observation.getTimeValue();
-				double deltaT = j != 0 ? timeCurrentObservation - observations.get(j - 1).getTimeValue()
-						: timeCurrentObservation;
-				for (NodeTypeCTBN node : ctbn.getNodes()) {
+				// Obtain time difference between observation 'j' and 'j-1'
+				double timeObservation = observation.getTimeValue();
+				double deltaTime = j != 0 ? timeObservation - observations.get(j - 1).getTimeValue() : timeObservation;
+				for (NodeTypeCTBN node : nodesCTBN) {
 					// Obtain node of CTBN
 					CIMNode nodeCTBN = (CIMNode) node;
-					// Define State object for node and parents (if any) having certain values
-					State fromState = new State();
-					// Check if the node is from a feature
+					// Check that the node is from a feature
 					if (!nodeCTBN.isClassVariable()) {
-						// Obtain names of the parents of the node
-						String[] nameParents = nodeCTBN.getParents().stream().map(nodeParent -> nodeParent.getName())
-								.toArray(String[]::new);
-						// Add value of the node
+						// Obtain parents of the feature node
+						List<Node> parentNodes = nodeCTBN.getParents();
+						// Define State object for the node and parents (if any) having certain state
+						State fromState = new State();
+						// Add value of the feature to the State object
 						fromState.addEvent(nodeCTBN.getName(), observation.getValueVariable(nodeCTBN.getName()));
-						// Add values of the parents
-						for (String nameParent : nameParents) {
-							// Check if the parent is a class variable or a feature
+						// Add values of the parents to the State object
+						for (Node parentNode : parentNodes) {
+							String nameParent = parentNode.getName();
+							// Check if the parent is a class variable or a feature to retrieve its state
 							if (nameClassVariables.contains(nameParent)) {
 								fromState.addEvent(nameParent, stateClassVariables.getValueNode(nameParent));
 							} else {
 								fromState.addEvent(nameParent, observation.getValueVariable(nameParent));
 							}
 						}
+						// Obtain the instantaneous probability of the feature leaving its current
+						// state while its parents are in a certain state. NOTE: It is possible that
+						// some states of the features were not considered during model training
+						Double qx = nodeCTBN.getQx().get(fromState);
+						qx = qx != null ? qx : 0;
+						// Probability of the feature staying in a certain state (while its parent have
+						// a particular state) for an amount of time 'deltaTime' is exponentially
+						// distributed with parameter 'qx'. The log-likelihood is updated
+						ll += -qx * deltaTime;
 
-						// It is possible that the state of the feature was not considered during the
-						// training of the model
-						double qx = nodeCTBN.getQx().get(fromState) != null ? nodeCTBN.getQx().get(fromState) : 0;
-						ll += -qx * deltaT;
-
-					}
-
-					// Get following observation (if there is any) if the the node will transition
-					// to another state
-					if (i + 1 < observations.size()) {
-
-						String nextState = observations.get(i + 1).getValueVariable(nodeCTBN.getName());
-
-						if (!observation.getValueVariable(nodeCTBN.getName()).equals(nextState)) {
-
-							State toState = new State();
-							toState.addEvent(nodeCTBN.getName(), nextState);
-							// If there is a transition, obtain its probability
-
-							// The probability of a transition would be zero if either the current state or
-							// following state was not considered during the training of the model
-							if (nodeCTBN.getOxx().get(fromState) != null
-									&& nodeCTBN.getOxx().get(fromState).get(toState) != null) {
-								double qxy = nodeCTBN.getOxx().get(fromState).get(toState);
-								ll += Math.log(qxy);
+						// Get following observation (if any) and if the feature transition to another
+						// state, get the probability that this occurs given the state of the parents
+						if (i + 1 < observations.size()) {
+							// Get value of the feature in the following observation
+							String nextValue = observations.get(i + 1).getValueVariable(nodeCTBN.getName());
+							// Check if the variable changed its state
+							if (!observation.getValueVariable(nodeCTBN.getName()).equals(nextValue)) {
+								// Define State object with next feature value to get the correct parameter
+								State toState = new State();
+								toState.addEvent(nodeCTBN.getName(), nextValue);
+								// Probability that the feature transitions from one state to another while its
+								// parents have a certain state. NOTE: the probability would be zero if either
+								// the departure or arrival state was not considered during model training
+								Map<State, Double> Oxx = nodeCTBN.getOxx().get(fromState);
+								if (Oxx != null) {
+									// Obtain the probability and update the log-likelihood
+									Double qxy = Oxx.get(toState);
+									ll += qxy != null && qxy > 0 ? Math.log(qxy) : 0;
+								}
 							}
 						}
-
 					}
 				}
-
 			}
-
 			// Store log likelihood obtained when class variables take states 'i'
 			posteriorProbability[i] = ll;
-
 		}
-
+		// Retrieve states of class variables which obtain the largest log-likelihood
 		int indexBestStateClassVariables = Util.getIndexLargestValue(posteriorProbability);
 		return statesClassVariables.get(indexBestStateClassVariables).getValueNodes(nameClassVariables);
 	}

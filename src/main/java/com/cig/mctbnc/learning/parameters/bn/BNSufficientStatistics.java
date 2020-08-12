@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.SufficientStatistics;
+import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
 public class BNSufficientStatistics implements SufficientStatistics {
@@ -29,8 +30,7 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	 */
 	public void computeSufficientStatistics(Node node, Dataset dataset) {
 		logger.trace("Computing sufficient statistics BN for node {}", node.getName());
-		String nameVariable = node.getName();
-		List<State> statesVariable = dataset.getStatesVariable(nameVariable);
+		List<State> statesVariable = ((DiscreteNode) node).getStates();
 
 		if (node.hasParents()) {
 			List<Node> parents = node.getParents();

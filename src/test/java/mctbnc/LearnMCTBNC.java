@@ -14,7 +14,8 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.structure.HillClimbing;
+import com.cig.mctbnc.learning.structure.HillClimbingBN;
+import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.MCTBNC.GeneralMCTBNC;
 import com.cig.mctbnc.learning.structure.constraints.MCTBNC.StructureConstraintsMCTBNC;
@@ -196,9 +197,9 @@ public class LearnMCTBNC {
 		dataset.addSequence(dataSequence6);
 
 		bnParameterLearningAlgorithm = new BNParameterMLE();
-		bnStructureLearningAlgorithm = new HillClimbing();
+		bnStructureLearningAlgorithm = new HillClimbingBN();
 		ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
-		ctbnStructureLearningAlgorithm = new HillClimbing();
+		ctbnStructureLearningAlgorithm = new HillClimbingCTBN();
 		structureConstraintsMCTBNC = new GeneralMCTBNC();
 	}
 

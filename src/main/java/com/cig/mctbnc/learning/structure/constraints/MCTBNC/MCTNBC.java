@@ -11,16 +11,20 @@ import com.cig.mctbnc.learning.structure.constraints.CTBNC.NaiveBayes;
  * @author Carlos Villa Blanco
  *
  */
-public class MCTNBC implements StructureConstraintsMCTBNC {
+public class MCTNBC extends AbstractStructureConstraintsMCTBNC {
 
 	@Override
 	public StructureConstraints getStructureConstraintsBN() {
-		return new EmptyBN();
+		StructureConstraints structureConstrintsBN = new EmptyBN();
+		structureConstrintsBN.setPenalizationFunction(getPenalizationFunction());
+		return structureConstrintsBN;
 	}
 
 	@Override
 	public StructureConstraints getStructureConstraintsCTBN() {
-		return new NaiveBayes();
+		StructureConstraints structureConstrintsCTBN = new NaiveBayes();
+		structureConstrintsCTBN.setPenalizationFunction(getPenalizationFunction());
+		return structureConstrintsCTBN;
 	}
 
 }

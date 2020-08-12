@@ -11,16 +11,20 @@ import com.cig.mctbnc.learning.structure.constraints.CTBNC.GeneralCTBNC;
  * @author Carlos Villa Blanco
  *
  */
-public class GeneralMCTBNC implements StructureConstraintsMCTBNC {
+public class GeneralMCTBNC extends AbstractStructureConstraintsMCTBNC {
 
 	@Override
 	public StructureConstraints getStructureConstraintsBN() {
-		return new GeneralDAG();
+		StructureConstraints structureConstrintsBN = new GeneralDAG();
+		structureConstrintsBN.setPenalizationFunction(getPenalizationFunction());
+		return structureConstrintsBN;
 	}
 
 	@Override
 	public StructureConstraints getStructureConstraintsCTBN() {
-		return new GeneralCTBNC();
+		StructureConstraints structureConstrintsCTBN = new GeneralCTBNC();
+		structureConstrintsCTBN.setPenalizationFunction(getPenalizationFunction());
+		return structureConstrintsCTBN;
 	}
 
 }

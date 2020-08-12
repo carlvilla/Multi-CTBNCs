@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
-import com.cig.mctbnc.learning.structure.HillClimbing;
+import com.cig.mctbnc.learning.structure.HillClimbingBN;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.MCTBNC.GeneralMCTBNC;
@@ -56,7 +56,7 @@ public class LearnBN {
 		// Algorithm to learn parameters
 		ParameterLearningAlgorithm parameterLearningAlgorithm = new BNParameterMLE();
 		// Algorithm to learn structure
-		StructureLearningAlgorithm structureLearningAlgorithm = new HillClimbing();
+		StructureLearningAlgorithm structureLearningAlgorithm = new HillClimbingBN();
 		// Structure constraints
 		StructureConstraints structureConstraintsBN = new GeneralMCTBNC().getStructureConstraintsBN();
 

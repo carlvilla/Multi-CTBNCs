@@ -26,4 +26,20 @@ public interface StructureConstraintsMCTBNC {
 	 */
 	public StructureConstraints getStructureConstraintsCTBN();
 
+	/**
+	 * Establish the penalization function used for the structure complexity of the
+	 * BNs and CTBNs.
+	 * 
+	 * @param penalizationFunction name of the penalization function
+	 */
+	public void setPenalizationFunction(String penalizationFunction);
+
+	/**
+	 * Return the penalization function that is used for the structure complexity of
+	 * the BNs and CTBNs.
+	 * 
+	 * @return name of the penalization function
+	 */
+	String getPenalizationFunction();
+
 }

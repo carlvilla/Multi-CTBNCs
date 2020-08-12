@@ -84,21 +84,32 @@ public class State {
 
 	@Override
 	public boolean equals(Object object) {
-		if (this == object)
-			return true;
-
 		if (object == null || object.getClass() != this.getClass())
 			return false;
-
+		// The object has State type
 		State otherState = (State) object;
+		// Extract the events of the other State object
 		Map<String, String> eventsOther = otherState.getEvents();
-
-		return events.equals(eventsOther);
+		// If there is a different number of events, the states cannot be equal
+		if (events.size() != eventsOther.size())
+			return false;
+		// Check if both maps has the same variables and values
+		for (Map.Entry<String, String> entry : events.entrySet()) {
+			String valueOther = eventsOther.get(entry.getKey());
+			if (valueOther == null || !entry.getValue().equals(valueOther))
+				return false;
+		}
+		return true;
 	}
 
 	@Override
 	public int hashCode() {
-		return events.hashCode();
+		final int prime = 31;
+		int hashcode = 1;
+		for (Map.Entry<String, String> entry : events.entrySet()) {
+			hashcode *= (prime + entry.getKey().hashCode() + entry.getValue().hashCode());	
+		}
+		return hashcode;
 	}
 
 	@Override

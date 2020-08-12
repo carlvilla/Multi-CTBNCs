@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
+import com.cig.mctbnc.learning.structure.constraints.AbstractStructureConstraints;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
@@ -17,7 +17,7 @@ import com.cig.mctbnc.nodes.NodeIndexer;
  * @author Carlos Villa Blanco
  *
  */
-public class GeneralCTBNC implements StructureConstraints {
+public class GeneralCTBNC extends AbstractStructureConstraints {
 	static Logger logger = LogManager.getLogger(GeneralCTBNC.class);
 
 	@Override

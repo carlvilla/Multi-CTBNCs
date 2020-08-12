@@ -36,11 +36,12 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * @param dataset
 	 * @param parameterLearningAlg
 	 * @param structureLearningAlg
-	 * @param structureConstraints 
-	 * @param nodeClass type of the CTBN nodes
+	 * @param structureConstraints
+	 * @param nodeClass            type of the CTBN nodes
 	 */
 	public CTBN(Dataset dataset, List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
-			StructureLearningAlgorithm structureLearningAlg, StructureConstraints structureConstraints, Class<NodeType> nodeClass) {
+			StructureLearningAlgorithm structureLearningAlg, StructureConstraints structureConstraints,
+			Class<NodeType> nodeClass) {
 		// Node factory to create nodes of the specified type
 		this.nodeFactory = new NodeFactory<NodeType>(nodeClass);
 		List<NodeType> nodes = new ArrayList<NodeType>();
@@ -58,25 +59,22 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		this.dataset = dataset;
 	}
 
-	@Override
-	public void learn() {
-		structureLearningAlg.learn(this, dataset, parameterLearningAlg);
-	}
-
-	@Override
-	public void setStructure(boolean[][] adjacencyMatrix) {
-		// Current edges are removed
-		for (Node node : nodes) {
-			node.removeAllEdges();
-		}
+	/**
+	 * Modify the structure of the CTBN by changing the parent set of an specified
+	 * node and update the parameters of the model. This method is necessary to
+	 * learn the structure of a CTBN by optimizing the parent set of its nodes.
+	 * 
+	 * @param nodeIndex
+	 * @param adjacencyMatrix
+	 */
+	public void setStructure(int nodeIndex, boolean[][] adjacencyMatrix) {
+		Node node = nodeIndexer.getNodeByIndex(nodeIndex);
+		// Current parents of the node are removed
+		node.removeParents();
 		for (int i = 0; i < adjacencyMatrix.length; i++) {
-			Node node = nodeIndexer.getNodeByIndex(i);
-
-			for (int j = 0; j < adjacencyMatrix.length; j++) {
-				if (adjacencyMatrix[i][j]) {
-					Node childNode = nodeIndexer.getNodeByIndex(j);
-					node.setChild(childNode);
-				}
+			if (adjacencyMatrix[i][nodeIndex]) {
+				Node parentNode = nodeIndexer.getNodeByIndex(i);
+				node.setParent(parentNode);
 			}
 		}
 		parameterLearningAlg.learn(nodes, dataset);
