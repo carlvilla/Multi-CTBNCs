@@ -14,7 +14,7 @@ import com.cig.mctbnc.nodes.NodeIndexer;
  * @author Carlos Villa Blanco
  *
  */
-public class GeneralDAG extends AbstractStructureConstraints {
+public class DAG extends AbstractStructureConstraints {
 
 	/**
 	 * Check if the structure (given by an adjacencyMatrix) is legal for a Bayesian
@@ -59,8 +59,5 @@ public class GeneralDAG extends AbstractStructureConstraints {
 		// of nodes in the graph
 		return countVisitedNodes == numNodes;
 	}
-
-	@Override
-	public void initializeStructure(List<? extends Node> nodes) {}
 
 }

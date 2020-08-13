@@ -18,6 +18,7 @@ import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.DiscreteNode;
+import com.cig.mctbnc.nodes.Node;
 
 /**
  * Contains evaluation function to measures the fitness of the structures of
@@ -110,7 +111,7 @@ public class StructureScoreFunctions {
 		// Obtain node to evaluate
 		CIMNode node = ctbn.getNodes().get(nodeIndex);
 		double llScore = 0.0;
-
+		
 		// Obtain parameters and sufficient statistics of the node
 		// Contains the probabilities of transitioning from one state to another
 		Map<State, Map<State, Double>> Oxx = node.getOxx();

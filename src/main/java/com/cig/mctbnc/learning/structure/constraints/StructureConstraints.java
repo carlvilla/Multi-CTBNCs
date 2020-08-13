@@ -1,7 +1,6 @@
 package com.cig.mctbnc.learning.structure.constraints;
 
-import java.util.List;
-
+import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
@@ -27,9 +26,17 @@ public interface StructureConstraints {
 	 * The structure of the PGM is initialized. This method is necessary for models
 	 * such as naive Bayes.
 	 * 
-	 * @param nodes
+	 * @param pgm probabilistic graphical model
 	 */
-	public void initializeStructure(List<? extends Node> nodes);
+	public void initializeStructure(PGM<? extends Node> pgm);
+
+	/**
+	 * Determine if there is only one possible structure. This is the case of models
+	 * such as naive Bayes, for which it is not necessary to find a structure.
+	 * 
+	 * @return boolean that determines if there is only one possible structure
+	 */
+	public boolean uniqueStructure();
 
 	/**
 	 * Establishes the penalization function to apply over the structure complexity.

@@ -2,6 +2,7 @@ package com.cig.mctbnc.learning.structure;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.Node;
 
@@ -13,8 +14,9 @@ public interface StructureLearningAlgorithm {
 	 * @param pgm
 	 * @param trainingDataset
 	 * @param bnParameterLearning
-	 * @param penalize penalize the structure complexity
+	 * @param structureConstraints define constraints on the structure of the PGM
 	 */
-	public void learn(PGM<? extends Node> pgm, Dataset trainingDataset, ParameterLearningAlgorithm bnParameterLearning, String penalizationFunction);
-	
+	public void learn(PGM<? extends Node> pgm, Dataset trainingDataset, ParameterLearningAlgorithm bnParameterLearning,
+			StructureConstraints structureConstraints);
+
 }

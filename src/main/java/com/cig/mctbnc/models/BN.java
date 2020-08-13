@@ -64,7 +64,7 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		setStructureLearningAlgorithm(structureLearningAlg);
 		setStructureConstraints(structureConstraints);
 		// Initialize structure of the model
-		structureConstraints.initializeStructure(nodes);
+		structureConstraints.initializeStructure(this);
 		this.dataset = dataset;
 
 	}
@@ -93,30 +93,7 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		setParameterLearningAlgorithm(parameterLearningAlg);
 		setStructureLearningAlgorithm(structureLearningAlg);
 		setStructureConstraints(structureConstraints);
-		// Initialize structure of the model
-		structureConstraints.initializeStructure(nodes);
 		this.dataset = dataset;
-	}
-
-	@Override
-	public void setStructure(boolean[][] adjacencyMatrix) {
-		// Current edges are removed
-		for (NodeType node : this.nodes)
-			node.removeAllEdges();
-		for (int i = 0; i < adjacencyMatrix.length; i++) {
-			NodeType node = (NodeType) nodeIndexer.getNodeByIndex(i);
-			for (int j = 0; j < adjacencyMatrix.length; j++) {
-				if (adjacencyMatrix[i][j]) {
-					NodeType childNode = (NodeType) nodeIndexer.getNodeByIndex(j);
-					node.setChild(childNode);
-				}
-			}
-		}
-		// Learn the sufficient statistics and parameters for each node
-		parameterLearningAlg.learn(nodes, dataset);
-	}
-
-	public BN() {
 	}
 	
 	public String[] getNameNodes() {

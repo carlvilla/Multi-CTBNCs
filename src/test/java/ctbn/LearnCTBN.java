@@ -13,7 +13,7 @@ import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
-import com.cig.mctbnc.learning.structure.constraints.CTBNC.GeneralCTBNC;
+import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 
@@ -74,11 +74,14 @@ public class LearnCTBN {
 
 		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
 		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbingCTBN();
-		StructureConstraints structureConstraints = new GeneralCTBNC();
+		StructureConstraints structureConstraints = new CTBNC();
 
 		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(dataset, nameFeatures, ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, structureConstraints, CIMNode.class);
+		ctbn.setPenalizationFunction("BIC");
 		ctbn.learn();
+		
+		ctbn.display();
 
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, true, false, false },
 				{ false, false, true, false }, { false, false, false, true }, { true, false, false, false } };

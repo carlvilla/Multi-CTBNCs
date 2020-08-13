@@ -32,8 +32,8 @@ public class GenerateDataset {
 		dataSequence1.add(new String[] { "0.0", "a", "a", "a" });
 		dataSequence1.add(new String[] { "0.1", "b", "a", "a" });
 		dataSequence1.add(new String[] { "0.2", "c", "a", "a" });
-		dataSequence1.add(new String[] { "0.4", null, "a", "a" });
-		dataSequence1.add(new String[] { "0.6", "d", "a", "a" });
+		dataSequence1.add(new String[] { "0.4", "c", "a", "a" });
+		dataSequence1.add(new String[] { "0.6", "e", "a", "a" });
 
 		List<String[]> dataSequence2 = new ArrayList<String[]>();
 		dataSequence2.add(new String[] { "0.0", "a", "b", "a" });
@@ -64,7 +64,7 @@ public class GenerateDataset {
 
 	@Test
 	public void testStatesVariables() {
-		assertEquals(10, dataset.getStatesVariable("V1").size());
+		assertEquals(8, dataset.getStatesVariable("V1").size());
 		assertEquals(2, dataset.getStatesVariable("V2").size());
 		assertEquals(1, dataset.getStatesVariable("V3").size());
 	}

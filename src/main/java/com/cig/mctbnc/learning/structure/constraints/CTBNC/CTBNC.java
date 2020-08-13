@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.learning.structure.constraints.AbstractStructureConstraints;
+import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
@@ -17,8 +18,8 @@ import com.cig.mctbnc.nodes.NodeIndexer;
  * @author Carlos Villa Blanco
  *
  */
-public class GeneralCTBNC extends AbstractStructureConstraints {
-	static Logger logger = LogManager.getLogger(GeneralCTBNC.class);
+public class CTBNC extends AbstractStructureConstraints {
+	static Logger logger = LogManager.getLogger(CTBNC.class);
 
 	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix, NodeIndexer<? extends Node> nodeIndexer) {
@@ -39,8 +40,5 @@ public class GeneralCTBNC extends AbstractStructureConstraints {
 		}
 		return true;
 	}
-
-	@Override
-	public void initializeStructure(List<? extends Node> nodes) {}
 
 }

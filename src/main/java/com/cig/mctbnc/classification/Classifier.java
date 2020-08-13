@@ -19,6 +19,6 @@ public interface Classifier {
 	 * @return predictions bidimensional string array with the predictions of the
 	 *         class variables for all the instances of the dataset
 	 */
-	public String[][] predict(Dataset dataset);
+	public Prediction[] predict(Dataset dataset);
 
 }

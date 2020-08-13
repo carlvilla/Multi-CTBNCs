@@ -12,13 +12,16 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 
 import com.cig.mctbnc.classification.Classifier;
+import com.cig.mctbnc.classification.Prediction;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Observation;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.constraints.MCTBNC.StructureConstraintsMCTBNC;
+import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
+import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
+import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
@@ -63,25 +66,17 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 			StructureLearningAlgorithm ctbnStructureLearningAlgorithm,
 			ParameterLearningAlgorithm bnParameterLearningAlgorithm,
 			StructureLearningAlgorithm bnStructureLearningAlgorithm, Class<NodeTypeBN> bnNodeClass,
-			Class<NodeTypeCTBN> ctbnNodeClass, StructureConstraintsMCTBNC structureConstraintsMCTBNC) {
+			Class<NodeTypeCTBN> ctbnNodeClass) {
 		// Set dataset
 		this.dataset = dataset;
 
 		// Define class subgraph with a Bayesian network
 		bn = new BN<NodeTypeBN>(dataset, dataset.getNameClassVariables(), bnParameterLearningAlgorithm,
-				bnStructureLearningAlgorithm, structureConstraintsMCTBNC.getStructureConstraintsBN(), bnNodeClass);
+				bnStructureLearningAlgorithm, getStructureConstraintsBN(), bnNodeClass);
 
 		// Define feature and bridge subgraphs with a continuous time Bayesian network
 		ctbn = new CTBN<NodeTypeCTBN>(dataset, dataset.getNameVariables(), ctbnParameterLearningAlgorithm,
-				ctbnStructureLearningAlgorithm, structureConstraintsMCTBNC.getStructureConstraintsCTBN(),
-				ctbnNodeClass);
-	}
-
-	public void display() {
-		Graph graph = new SingleGraph("MCTBNC");
-		addNodes(graph, nodes);
-		addEdges(graph, nodes);
-		graph.display();
+				ctbnStructureLearningAlgorithm, getStructureConstraintsCTBN(), ctbnNodeClass);
 	}
 
 	@Override
@@ -108,19 +103,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		setStructure(nodesBN, nodesCTBN);
 		Instant end = Instant.now();
 		logger.info("MCTBNC model learnt in {} seconds", Duration.between(start, end));
-	}
-
-	private List<NodeTypeBN> getNodesBN() {
-		List<NodeTypeBN> nodesBN = bn.getNodes();
-		// Define nodes of the BN as class variables
-		for (Node node : nodesBN) {
-			node.isClassVariable(true);
-		}
-		return nodesBN;
-	}
-
-	private List<NodeTypeCTBN> getNodesCTBN() {
-		return ctbn.getNodes();
 	}
 
 	/**
@@ -171,15 +153,16 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		}
 	}
 
-	@Override
-	public String getType() {
-		return "Multidimensional Continuous time Bayesian network";
-	}
-
-	@Override
-	public boolean isStructureLegal(boolean[][] adjacencyMatrix) {
-		// TODO Auto-generated method stub
-		return false;
+	/**
+	 * Establish the penalization function used for the structure complexity of the
+	 * BNs and CTBNs. By default it is not applied any penalization.
+	 * 
+	 * @param penalizationFunction name of the penalization function
+	 */
+	public void setPenalizationFunction(String penalizationFunction) {
+		logger.info("Penalizing model structure with {} penalization function", penalizationFunction);
+		bn.setPenalizationFunction(penalizationFunction);
+		ctbn.setPenalizationFunction(penalizationFunction);
 	}
 
 	/**
@@ -191,11 +174,10 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 * @return bidimensional string array with the predictions of the class
 	 *         variables for all the sequences
 	 */
-	public String[][] predict(Dataset dataset) {
+	public Prediction[] predict(Dataset dataset) {
 		logger.info("Performing prediction over {} sequences", dataset.getNumDataPoints());
 		int numSequences = dataset.getNumDataPoints();
-		int numClassVariables = this.dataset.getNumClassVariables();
-		String[][] predictions = new String[numSequences][numClassVariables];
+		Prediction[] predictions = new Prediction[numSequences];
 		// Make predictions on all the sequences
 		for (int i = 0; i < numSequences; i++) {
 			logger.trace("Performing prediction over sequence {}/{}", i, dataset.getNumDataPoints());
@@ -207,13 +189,13 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 
 	/**
 	 * Performs classification over a sequence according to the maximum aposteriori
-	 * rule, i.e., the class variable values which obtain the largest log-likelihood
-	 * are returned.
+	 * rule, i.e., the class variable values which obtain the largest posterior
+	 * probability are returned.
 	 * 
 	 * @param sequence sequence whose class variables are predicted
 	 * @return array of strings with the predicted states of the class variables
 	 */
-	public String[] predict(Sequence sequence) {
+	public Prediction predict(Sequence sequence) {
 		// Obtain the name of the class variables
 		List<String> nameClassVariables = dataset.getNameClassVariables();
 		// Obtation all possible states of the class variables
@@ -230,34 +212,17 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 			State stateClassVariables = statesClassVariables.get(i);
 			// Compute log-likelihood with current states of the class variables
 			double ll = 0;
-			for (int j = 0; j < observations.size(); j++) {
+			for (int j = 1; j < observations.size(); j++) {
 				// Get observation 'j' of the sequence to predict
 				Observation observation = observations.get(j);
 
 				// Estimate class probability
-				for (NodeTypeBN node : nodesBN) {
-					// Obtain class variable node from the BN
-					CPTNode nodeBN = (CPTNode) node;
-					// Obtain parents of the node
-					List<Node> parentNodes = nodeBN.getParents();
-					// Define State object for node and parents having certain values
-					State query = new State();
-					// Add value of the class variable
-					query.addEvent(nodeBN.getName(), stateClassVariables.getValueNode(nodeBN.getName()));
-					// Add values of the parents
-					for (Node parentNode : parentNodes) {
-						String nameParent = parentNode.getName();
-						query.addEvent(nameParent, stateClassVariables.getValueNode(nameParent));
-					}
-					// Probability of the class variable and its parents having a certain state
-					Double Ox = nodeBN.getCPT().get(query);
-					ll += Ox != null && Ox > 0 ? Math.log(nodeBN.getCPT().get(query)) : 0;
-				}
+				ll += classProbability(nodesBN, stateClassVariables);
 
 				// Estimate posterior probability
 				// Obtain time difference between observation 'j' and 'j-1'
 				double timeObservation = observation.getTimeValue();
-				double deltaTime = j != 0 ? timeObservation - observations.get(j - 1).getTimeValue() : timeObservation;
+				double deltaTime = timeObservation - observations.get(j - 1).getTimeValue();
 				for (NodeTypeCTBN node : nodesCTBN) {
 					// Obtain node of CTBN
 					CIMNode nodeCTBN = (CIMNode) node;
@@ -313,12 +278,88 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 					}
 				}
 			}
+
 			// Store log likelihood obtained when class variables take states 'i'
 			posteriorProbability[i] = ll;
 		}
 		// Retrieve states of class variables which obtain the largest log-likelihood
 		int indexBestStateClassVariables = Util.getIndexLargestValue(posteriorProbability);
-		return statesClassVariables.get(indexBestStateClassVariables).getValueNodes(nameClassVariables);
+		String[] predictedClasses = statesClassVariables.get(indexBestStateClassVariables)
+				.getValueNodes(nameClassVariables);
+		Prediction prediction = new Prediction(predictedClasses, posteriorProbability[indexBestStateClassVariables]);
+		return prediction;
+	}
+
+	private double classProbability(List<NodeTypeBN> nodesBN, State stateClassVariables) {
+		double ll = 0;
+		for (NodeTypeBN node : nodesBN) {
+			// Obtain class variable node from the BN
+			CPTNode nodeBN = (CPTNode) node;
+			// Obtain parents of the node
+			List<Node> parentNodes = nodeBN.getParents();
+			// Define State object for node and parents having certain values
+			State query = new State();
+			// Add value of the class variable
+			query.addEvent(nodeBN.getName(), stateClassVariables.getValueNode(nodeBN.getName()));
+			// Add values of the parents
+			for (Node parentNode : parentNodes) {
+				String nameParent = parentNode.getName();
+				query.addEvent(nameParent, stateClassVariables.getValueNode(nameParent));
+			}
+			// Probability of the class variable and its parents having a certain state
+			Double Ox = nodeBN.getCPT().get(query);
+			ll += Ox != null && Ox > 0 ? Math.log(nodeBN.getCPT().get(query)) : 0;
+		}
+		return ll;
+	}
+
+	private double posteriorProbability(List<NodeTypeCTBN> nodesCTBN, int indexObservation,
+			List<Observation> observations, State stateClassVariables) {
+		List<String> nameClassVariables = stateClassVariables.getNameVariables();
+		return 0.0;
+	}
+
+	/**
+	 * Return the structure constraints for the BN.
+	 * 
+	 * @return StructureConstraint object
+	 */
+	public StructureConstraints getStructureConstraintsBN() {
+		return new DAG();
+	}
+
+	/**
+	 * Return the structure constraints for the CTBN.
+	 * 
+	 * @return StructureConstraint object
+	 */
+	public StructureConstraints getStructureConstraintsCTBN() {
+		return new CTBNC();
+	}
+
+	@Override
+	public String getType() {
+		return "Multidimensional Continuous time Bayesian network";
+	}
+
+	public void display() {
+		Graph graph = new SingleGraph("MCTBNC");
+		addNodes(graph, nodes);
+		addEdges(graph, nodes);
+		graph.display();
+	}
+
+	private List<NodeTypeBN> getNodesBN() {
+		List<NodeTypeBN> nodesBN = bn.getNodes();
+		// Define nodes of the BN as class variables
+		for (Node node : nodesBN) {
+			node.isClassVariable(true);
+		}
+		return nodesBN;
+	}
+
+	private List<NodeTypeCTBN> getNodesCTBN() {
+		return ctbn.getNodes();
 	}
 
 }

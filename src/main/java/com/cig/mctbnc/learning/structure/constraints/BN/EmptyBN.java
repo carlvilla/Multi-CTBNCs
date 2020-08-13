@@ -27,7 +27,4 @@ public class EmptyBN extends AbstractStructureConstraints {
 		}
 		return true;
 	}
-
-	@Override
-	public void initializeStructure(List<? extends Node> nodes) {}
 }

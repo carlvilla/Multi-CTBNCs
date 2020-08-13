@@ -109,7 +109,7 @@ public class HillClimbingBN extends HillClimbing {
 						// Define PGM with the modified adjacency matrix
 						pgm.setStructure(tempAdjacencyMatrix);
 						double obtainedScore = StructureScoreFunctions.logLikelihoodScore((BN) pgm,
-								this.penalizationFunction);
+								structureConstraints.getPenalizationFunction());
 						if (scores[idxOperation] < obtainedScore) {
 							scores[idxOperation] = obtainedScore;
 							adjacencyMatrices[idxOperation] = tempAdjacencyMatrix;

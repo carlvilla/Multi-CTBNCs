@@ -74,21 +74,25 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	@Override
 	public void setStructure(boolean[][] adjacencyMatrix) {
 		// Current edges are removed
-		for (Node node : this.nodes) {
+		for (Node node : this.nodes)
 			node.removeAllEdges();
-		}
 		for (int i = 0; i < adjacencyMatrix.length; i++) {
 			Node node = nodeIndexer.getNodeByIndex(i);
-			for (int j = 0; j < adjacencyMatrix.length; j++) {
+			for (int j = 0; j < adjacencyMatrix.length; j++)
 				if (adjacencyMatrix[i][j]) {
 					Node childNode = nodeIndexer.getNodeByIndex(j);
 					node.setChild(childNode);
 				}
-			}
 		}
+		learnParameters();
+	}
+	
+	@Override 
+	public void learnParameters() {
 		// Learn the sufficient statistics and parameters for each node
 		parameterLearningAlg.learn(nodes, dataset);
 	}
+	
 
 	/**
 	 * Establish the algorithm that will be used to learn the parameters of the PGM.
@@ -116,11 +120,18 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	public void setStructureConstraints(StructureConstraints structureConstraints) {
 		this.structureConstraints = structureConstraints;
 	}
+	
+	/**
+	 * Establish the penalization function.
+	 * @param penalizationFunction name of the penalization function
+	 */
+	public void setPenalizationFunction(String penalizationFunction) {
+		this.structureConstraints.setPenalizationFunction(penalizationFunction);
+	}
 
 	@Override
 	public void learn() {
-		structureLearningAlg.learn(this, dataset, parameterLearningAlg,
-				structureConstraints.getPenalizationFunction());
+		structureLearningAlg.learn(this, dataset, parameterLearningAlg, structureConstraints);
 	}
 
 	/**

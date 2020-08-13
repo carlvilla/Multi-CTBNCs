@@ -63,6 +63,11 @@ public interface PGM<NodeType extends Node> {
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix);
 
 	/**
+	 * Learn the parameters of the PGM.
+	 */
+	public void learnParameters();
+
+	/**
 	 * Displays the probabilistic graphical model.
 	 */
 	public void display();
@@ -123,5 +128,4 @@ public interface PGM<NodeType extends Node> {
 	 * @return node indexer
 	 */
 	public NodeIndexer getNodeIndexer();
-
 }

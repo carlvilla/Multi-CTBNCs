@@ -13,7 +13,7 @@ import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
 import com.cig.mctbnc.learning.structure.HillClimbingBN;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
-import com.cig.mctbnc.learning.structure.constraints.MCTBNC.GeneralMCTBNC;
+import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 
@@ -58,7 +58,7 @@ public class LearnBN {
 		// Algorithm to learn structure
 		StructureLearningAlgorithm structureLearningAlgorithm = new HillClimbingBN();
 		// Structure constraints
-		StructureConstraints structureConstraintsBN = new GeneralMCTBNC().getStructureConstraintsBN();
+		StructureConstraints structureConstraintsBN = new DAG();
 
 		BN<CPTNode> bn = new BN<CPTNode>(dataset, parameterLearningAlgorithm, structureLearningAlgorithm,
 				structureConstraintsBN, CPTNode.class);

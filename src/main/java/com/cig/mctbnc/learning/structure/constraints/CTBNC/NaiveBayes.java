@@ -1,11 +1,10 @@
 package com.cig.mctbnc.learning.structure.constraints.CTBNC;
 
-import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.learning.structure.constraints.AbstractStructureConstraints;
+import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
@@ -49,18 +48,24 @@ public class NaiveBayes extends AbstractStructureConstraints {
 	}
 
 	@Override
-	public void initializeStructure(List<? extends Node> nodes) {
+	public void initializeStructure(PGM<? extends Node> pgm) {
 		// There is only one structure for a naive Bayes
-		for (int i = 0; i < nodes.size(); i++) {
-			Node nodeI = nodes.get(i);
-			for (int j = 0; j < nodes.size(); j++) {
-				Node nodeJ = nodes.get(j);
+		for (int i = 0; i < pgm.getNumNodes(); i++) {
+			Node nodeI = pgm.getNodes().get(i);
+			for (int j = 0; j < pgm.getNumNodes(); j++) {
+				Node nodeJ = pgm.getNodes().get(j);
 				if (i != j && nodeI.isClassVariable() && !nodeJ.isClassVariable()) {
 					nodeI.setChild(nodeJ);
 				}
 			}
 		}
+		// The parameters of the naive Bayes are established
+		pgm.learnParameters();
+	}
 
+	@Override
+	public boolean uniqueStructure() {
+		return true;
 	}
 
 }

@@ -189,7 +189,6 @@ public class Dataset {
 
 				// Event<String> event = new Event<String>(nameVariable, statesSequence[i]);
 				state.addEvent(nameVariable, statesSequence[i]);
-
 				states.add(state);
 			}
 		}

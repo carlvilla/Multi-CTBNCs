@@ -2,38 +2,75 @@ package com.cig.mctbnc.view;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.cig.mctbnc.classification.Metrics;
+import com.cig.mctbnc.classification.Prediction;
 import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.reader.SeparateCSVReader;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.structure.HillClimbingBN;
 import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.constraints.MCTBNC.GeneralMCTBNC;
-import com.cig.mctbnc.learning.structure.constraints.MCTBNC.StructureConstraintsMCTBNC;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
+import com.cig.mctbnc.performance.Metrics;
 
 public class CommandLine {
 
 	static Logger logger = LogManager.getLogger(CommandLine.class);
+
+	Map<String, ParameterLearningAlgorithm> parameterLearningBN = new HashMap<String, ParameterLearningAlgorithm>() {
+		{
+			put("MLE", new BNParameterMLE());
+		}
+	};
+
+	Map<String, ParameterLearningAlgorithm> parameterLearningCTBN = new HashMap<String, ParameterLearningAlgorithm>() {
+		{
+			put("MLE", new CTBNMaximumLikelihoodEstimation()); // Maximum likelihood estimation
+			put("BE", new CTBNBayesianEstimation()); // Bayesian estimation
+		}
+	};
+	
+	Map<String, StructureLearningAlgorithm> structureLearningBN = new HashMap<String, StructureLearningAlgorithm>() {
+		{
+			put("HillClimbing", new HillClimbingBN());
+		}
+	};
+
+	Map<String, StructureLearningAlgorithm> structureLearningCTBN = new HashMap<String, StructureLearningAlgorithm>() {
+		{
+			put("HillClimbing", new HillClimbingCTBN());
+		}
+	};
+
+	// There are different types of MCTBNCs depending on the restrictions on their
+	// structures
+	/*
+	 * Map<String, Classifier> classifiers = new HashMap<String, Classifier>() { {
+	 * put("MCTBNC", new MCTBNC()); // Multidimensional continuous time Bayesian
+	 * network classifier put("MCTNBC", new MCTNBC()); // Multidimensioal continuous
+	 * time Naive Bayes classifier } };
+	 */
 
 	public CommandLine(String datasetFolder) throws Exception {
 
 		File folder = new File(datasetFolder);
 		File[] files = folder.listFiles();
 		List<String> nameClassVariables = List.of("ExerciseMode");
-		String[] excludeVariables = { "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16",
-				"S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29" };
+		String[] excludeVariables = {"S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14",
+				"S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28",
+				"S29" };
 		String nameTimeVariable = "t";
 
 		logger.info("Reading sequences from {}", datasetFolder);
@@ -70,19 +107,18 @@ public class CommandLine {
 
 		// Define learning algorithms for the feature and class subgraph
 		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
-		// new CTBNBayesianEstimation(1, 1, 0.05);
 		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbingCTBN();
-		// Define type of MCTBNC that will be learned (structure constraints)
-		StructureConstraintsMCTBNC structureConstraintsMCTBNC = new GeneralMCTBNC(); // new MCTNBC();
-		// Determine if the structure complexity (of the BN and CTBN) should be penalized
-		String penalizationFunction = "None";
-		structureConstraintsMCTBNC.setPenalizationFunction(penalizationFunction);
-		logger.info("Using penalization function {}", penalizationFunction);
 
-		// Define multi-dimensional continuous time Bayesian network model
+		// Define the type of multi-dimensional continuous time Bayesian network
+		// classifier to use
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(trainingDataset, ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm,
-				CPTNode.class, CIMNode.class, structureConstraintsMCTBNC);
+				CPTNode.class, CIMNode.class);
+
+		// Determine the penalization function (for complexity of the BN and CTBN
+		// structure)
+		String penalizationFunction = "BIC";
+		mctbnc.setPenalizationFunction(penalizationFunction);
 
 		// Initial structure
 		// Define initial structure - IT MAY NOT BE WORKING CORRECTLY DUE TO THE NODE
@@ -105,10 +141,9 @@ public class CommandLine {
 
 		// Perform predictions with MCTBNC
 		// String[][] predictions = mctbnc.predict(testingDataset);
-		String[][] predictions = mctbnc.predict(testingDataset);
-
-		logger.info("1/0 subset accuracy: {}",
-				Metrics.subsetAccuracy(predictions, testingDataset.getValuesClassVariables()));
+		Prediction[] predictions = mctbnc.predict(testingDataset);
+		// Evaluate the performance of the model
+		Metrics.evaluate(predictions, testingDataset.getValuesClassVariables());
 
 	}
 

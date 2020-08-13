@@ -74,7 +74,12 @@ public class HillClimbingCTBN extends HillClimbing {
 				((CTBN) pgm).setStructure(indexNode, tempAdjacencyMatrix);
 				// Obtain the local log-likelihood of the node 'indexNode'
 				double obtainedScore = StructureScoreFunctions.logLikelihoodScore(((CTBN) pgm), indexNode,
-						this.penalizationFunction);
+						structureConstraints.getPenalizationFunction());
+				
+				
+				System.out.println(obtainedScore);
+				
+				
 				if (obtainedScore > bestScore) {
 					// Set the obtained score and adjacency matrix as the best ones so far
 					bestScore = obtainedScore;

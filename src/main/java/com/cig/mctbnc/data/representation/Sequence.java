@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -137,7 +138,8 @@ public class Sequence {
 	 */
 	private void setValuesClassVariables(List<String> nameVariables, List<String> nameClassVariables,
 			List<String[]> valueObservations) {
-		classVariablesValues = new HashMap<String, String>();
+		// LinkedHashMap maintains the order of the class variables as in the dataset
+		classVariablesValues = new LinkedHashMap<String, String>();
 		for (String nameClassVariable : nameClassVariables) {
 			// It is obtained the index of each class variable in the observations
 			for (int i = 0; i < nameVariables.size(); i++) {
@@ -154,13 +156,12 @@ public class Sequence {
 	 * an exception is thrown
 	 * 
 	 * @param observation observation to analyze
-	 * @throws ErroneousSequenceException 
+	 * @throws ErroneousSequenceException
 	 */
 	private void checkIntegrityObservation(Observation observation) throws ErroneousSequenceException {
 		for (String nameClassVariable : classVariablesValues.keySet()) {
 			if (!observation.getValueVariable(nameClassVariable).equals(classVariablesValues.get(nameClassVariable))) {
-				throw new ErroneousSequenceException(
-						"Observations have different values for the class variables");
+				throw new ErroneousSequenceException("Observations have different values for the class variables");
 			}
 		}
 

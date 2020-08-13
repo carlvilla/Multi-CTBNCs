@@ -17,8 +17,6 @@ import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.structure.HillClimbingBN;
 import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.constraints.MCTBNC.GeneralMCTBNC;
-import com.cig.mctbnc.learning.structure.constraints.MCTBNC.StructureConstraintsMCTBNC;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
@@ -37,7 +35,6 @@ public class LearnMCTBNC {
 	static StructureLearningAlgorithm bnStructureLearningAlgorithm;
 	static ParameterLearningAlgorithm ctbnParameterLearningAlgorithm;
 	static StructureLearningAlgorithm ctbnStructureLearningAlgorithm;
-	static StructureConstraintsMCTBNC structureConstraintsMCTBNC;
 
 	/**
 	 * 
@@ -76,7 +73,7 @@ public class LearnMCTBNC {
 
 		// It is necessary to create a relatively big dataset to learn the MCTBNC
 		// Number of observations in each sequence
-		int numObservations = 500;
+		int numObservations = 1000;
 
 		// Create data of sequence 1
 		List<String[]> dataSequence1 = new ArrayList<String[]>();
@@ -200,7 +197,6 @@ public class LearnMCTBNC {
 		bnStructureLearningAlgorithm = new HillClimbingBN();
 		ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
 		ctbnStructureLearningAlgorithm = new HillClimbingCTBN();
-		structureConstraintsMCTBNC = new GeneralMCTBNC();
 	}
 
 	/**
@@ -210,16 +206,20 @@ public class LearnMCTBNC {
 	public void learnMultidimensionalContinuousTimeBayesianNetwork() {
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(dataset, ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm,
-				CPTNode.class, CIMNode.class, structureConstraintsMCTBNC);
+				CPTNode.class, CIMNode.class);
+	
+		mctbnc.setPenalizationFunction("BIC");
+		
 		mctbnc.learn();
 
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, false, true, false, false },
 				{ false, false, true, false, false }, { false, true, false, false, false },
 				{ true, false, false, false, true }, { false, true, false, false, false } };
+
 		assertArrayEquals(expectedAdjacencyMatrix, mctbnc.getAdjacencyMatrix());
 
 		// Show results (don't forget breakpoint)
-		//mctbnc.display();
-		//System.out.println();
+		// mctbnc.display();
+		// System.out.println();
 	}
 }
