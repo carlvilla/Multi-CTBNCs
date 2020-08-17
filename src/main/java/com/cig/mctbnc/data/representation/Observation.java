@@ -3,6 +3,7 @@ package com.cig.mctbnc.data.representation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,13 +30,21 @@ public class Observation {
 	 */
 	public Observation(List<String> nameVariables, String nameTimeVariable, String[] values) {
 		// Store name of the variable and its value for the observation
-		variablesValues = new HashMap<String, String>();
+		variablesValues = new LinkedHashMap<String, String>();
 		for (int i = 0; i < nameVariables.size(); i++) {
 			if (!nameVariables.get(i).equals(nameTimeVariable))
 				variablesValues.put(nameVariables.get(i), values[i]);
 			else
 				timeValue = Double.parseDouble(values[i]);
 		}
+	}
+	
+	/**
+	 * Remove the value of a feature from the observation.
+	 * @param nameFeature
+	 */
+	public void removeFeatures(String nameFeature) {
+		variablesValues.remove(nameFeature);
 	}
 
 	/**

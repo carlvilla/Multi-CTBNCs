@@ -8,18 +8,24 @@ package com.cig.mctbnc.learning.structure;
  *
  */
 public class HillClimbingSolution {
-	private boolean[][] adjacencyMatrix;
-	private double score;
+	private boolean[][] adjacencyMatrix; 
+	private double score = Double.NEGATIVE_INFINITY;;
 
 	/**
-	 * Constructor that receive the adjacency matrix and score obtained from the
-	 * execution of a hill climbing algorithm.
+	 * Set adjacency matrix.
 	 * 
 	 * @param adjacencyMatrix
+	 */
+	public void setAdjacencyMatrix(boolean[][] adjacencyMatrix) {
+		this.adjacencyMatrix = adjacencyMatrix;
+	}
+
+	/**
+	 * Set score.
+	 * 
 	 * @param score
 	 */
-	public HillClimbingSolution(boolean[][] adjacencyMatrix, double score) {
-		this.adjacencyMatrix = adjacencyMatrix;
+	public void setScore(double score) {
 		this.score = score;
 	}
 

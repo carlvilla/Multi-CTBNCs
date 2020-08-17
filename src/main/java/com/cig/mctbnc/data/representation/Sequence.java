@@ -3,7 +3,6 @@ package com.cig.mctbnc.data.representation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,6 +12,14 @@ import java.util.Set;
 import com.cig.mctbnc.exceptions.ErroneousSequenceException;
 import com.cig.mctbnc.util.Util;
 
+/**
+ * Represent a sequence of multivariate data, i.e., a set of data points with
+ * multiple variables where the order is relevant. In this case, a sequence
+ * represent a time series, since the data is ordered by a time variable.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 public class Sequence {
 
 	private List<Observation> observations;
@@ -41,7 +48,17 @@ public class Sequence {
 			checkIntegrityObservation(observation);
 			observations.add(observation);
 		}
+	}
 
+	/**
+	 * Remove a feature from the sequence.
+	 * 
+	 * @param nameFeature
+	 */
+	public void removeFeature(String nameFeature) {
+		for (Observation observation : observations)
+			observation.removeFeatures(nameFeature);
+		featureNames.remove(nameFeature);
 	}
 
 	public String[] getValuesClassVariables() {
@@ -166,5 +183,4 @@ public class Sequence {
 		}
 
 	}
-
 }

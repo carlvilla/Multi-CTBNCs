@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.cig.mctbnc.classification.ClassifierFactory;
 import com.cig.mctbnc.classification.Prediction;
 import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.reader.SeparateCSVReader;
@@ -21,6 +22,7 @@ import com.cig.mctbnc.learning.structure.HillClimbingBN;
 import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.models.MCTBNC;
+import com.cig.mctbnc.models.MCTNBC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.performance.Metrics;
@@ -41,7 +43,7 @@ public class CommandLine {
 			put("BE", new CTBNBayesianEstimation()); // Bayesian estimation
 		}
 	};
-	
+
 	Map<String, StructureLearningAlgorithm> structureLearningBN = new HashMap<String, StructureLearningAlgorithm>() {
 		{
 			put("HillClimbing", new HillClimbingBN());
@@ -65,55 +67,56 @@ public class CommandLine {
 
 	public CommandLine(String datasetFolder) throws Exception {
 
-		File folder = new File(datasetFolder);
-		File[] files = folder.listFiles();
+		// Specify the folder path from which the data is extracted
+		String folder = datasetFolder;
+		logger.info("Reading sequences from {}", datasetFolder);
+
+		// Rehabilitation dataset
 		List<String> nameClassVariables = List.of("ExerciseMode");
-		String[] excludeVariables = {"S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14",
-				"S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28",
-				"S29" };
+		List<String> excludeVariables = List.of("S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16",
+				"S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29");
 		String nameTimeVariable = "t";
 
-		logger.info("Reading sequences from {}", datasetFolder);
-		logger.info("Number of sequences {}", files.length);
-		logger.info("Preparing training and testing datasets (Hold-out)");
+		// Artificial dataset
+		// List<String> nameClassVariables = List.of("C1", "C2");
+		// String[] excludeVariables = {};
+		// String nameTimeVariable = "Time";
 
-		// Random permutation of the set of sequences
-		// logger.info("Sequences are randomly permuted");
-		// Collections.shuffle(Arrays.asList(files));
-
-		// Generate datasets
-		// For now it will be used 70% sequences for training and 30% for testing
-		// Define training dataset
-		File[] trainingFiles = Arrays.copyOfRange(files, 0, (int) (files.length * 0.8));
-		DatasetReader drTraining = new SeparateCSVReader(trainingFiles, nameTimeVariable, nameClassVariables,
+		// ---------------- Definition datasets for hold-out testing ----------------
+		// Define dataset reader
+		DatasetReader datasetReader = new SeparateCSVReader(folder, nameTimeVariable, nameClassVariables,
 				excludeVariables);
-		Dataset trainingDataset = drTraining.readDataset();
+		// Generate training and testing datasets
+		double trainingSize = 0.8;
+		datasetReader.generateTrainAndTest(trainingSize, false);
+		// Obtain training dataset
+		Dataset trainingDataset = datasetReader.getTraining();
+		// Obtain testing dataset
+		Dataset testingDataset = datasetReader.getTesting();
+
+		// ---------------- Definition datasets for hold-out testing ----------------
+
 		logger.info("Sequences for training {}", trainingDataset.getNumDataPoints());
-
-		// Define testing dataset
-		File[] testingFiles = Arrays.copyOfRange(files, (int) (files.length * 0.8), (int) (files.length));
-		DatasetReader drTesting = new SeparateCSVReader(testingFiles, nameTimeVariable, nameClassVariables,
-				excludeVariables);
-		Dataset testingDataset = drTesting.readDataset();
 		logger.info("Sequences for testing {}", testingDataset.getNumDataPoints());
-
 		logger.info("Time variable: {}", trainingDataset.getNameTimeVariable());
 		logger.info("Features: {}", trainingDataset.getNameFeatures());
 		logger.info("Class variables: {}", (Arrays.toString(nameClassVariables.toArray())));
 
+		// -------------------------- LEARNING ALGORITHMS --------------------------
 		// Define learning algorithms for the class subgraph
-		ParameterLearningAlgorithm bnParameterLearningAlgorithm = new BNParameterMLE();
-		StructureLearningAlgorithm bnStructureLearningAlgorithm = new HillClimbingBN();
+		ParameterLearningAlgorithm bnParameterLearningAlgorithm = parameterLearningBN.get("MLE");
+		StructureLearningAlgorithm bnStructureLearningAlgorithm = structureLearningBN.get("HillClimbing");
 
 		// Define learning algorithms for the feature and class subgraph
-		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
-		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbingCTBN();
+		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = parameterLearningCTBN.get("MLE");
+		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = structureLearningCTBN.get("HillClimbing");
+		// -------------------------- LEARNING ALGORITHMS --------------------------
 
 		// Define the type of multi-dimensional continuous time Bayesian network
 		// classifier to use
-		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(trainingDataset, ctbnParameterLearningAlgorithm,
-				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm,
-				CPTNode.class, CIMNode.class);
+		MCTBNC<CPTNode, CIMNode> mctbnc = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("MCTBNC", trainingDataset,
+				ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm,
+				bnStructureLearningAlgorithm, CPTNode.class, CIMNode.class);
 
 		// Determine the penalization function (for complexity of the BN and CTBN
 		// structure)
@@ -143,7 +146,7 @@ public class CommandLine {
 		// String[][] predictions = mctbnc.predict(testingDataset);
 		Prediction[] predictions = mctbnc.predict(testingDataset);
 		// Evaluate the performance of the model
-		Metrics.evaluate(predictions, testingDataset.getValuesClassVariables());
+		Metrics.evaluate(predictions, testingDataset);
 
 	}
 

@@ -36,7 +36,8 @@ public class HillClimbingCTBN extends HillClimbing {
 					// Store adjacency matrix of the current iteration
 					boolean[][] iterationAdjacencyMatrix = bestAdjacencyMatrix.clone();
 					HillClimbingSolution bestNeighbor = findBestNeighbor(indexNode, iterationAdjacencyMatrix);
-					if (bestNeighbor.getScore() > bestScore) {
+					improvement = bestNeighbor.getScore() > bestScore;
+					if (improvement) {
 						bestScore = bestNeighbor.getScore();
 						bestAdjacencyMatrix = bestNeighbor.getAdjacencyMatrix();
 					}
@@ -59,9 +60,9 @@ public class HillClimbingCTBN extends HillClimbing {
 	 * @return
 	 */
 	private HillClimbingSolution findBestNeighbor(int indexNode, boolean[][] adjacencyMatrix) {
+		HillClimbingSolution solution = new HillClimbingSolution();
 		int numNodes = adjacencyMatrix.length;
 		// Find the best neighbor structure at node 'indexNode'
-		double bestScore = Double.NEGATIVE_INFINITY;
 		for (int parentIndex = 0; parentIndex < numNodes; parentIndex++) {
 			if (indexNode != parentIndex && !adjacencyMatrix[parentIndex][indexNode]) {
 				// Define a temporal adjacency matrix to try a new structure
@@ -75,19 +76,13 @@ public class HillClimbingCTBN extends HillClimbing {
 				// Obtain the local log-likelihood of the node 'indexNode'
 				double obtainedScore = StructureScoreFunctions.logLikelihoodScore(((CTBN) pgm), indexNode,
 						structureConstraints.getPenalizationFunction());
-				
-				
-				System.out.println(obtainedScore);
-				
-				
-				if (obtainedScore > bestScore) {
+				if (obtainedScore > solution.getScore()) {
 					// Set the obtained score and adjacency matrix as the best ones so far
-					bestScore = obtainedScore;
-					adjacencyMatrix = tempAdjacencyMatrix;
+					solution.setAdjacencyMatrix(tempAdjacencyMatrix);
+					solution.setScore(obtainedScore);
 				}
 			}
 		}
-		HillClimbingSolution solution = new HillClimbingSolution(adjacencyMatrix, bestScore);
 		return solution;
 	}
 

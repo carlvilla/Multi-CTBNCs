@@ -15,11 +15,11 @@ import com.cig.mctbnc.exceptions.ErroneousSequenceException;
 import com.cig.mctbnc.util.Util;
 
 public class Dataset {
-
 	private List<Sequence> sequences;
 	private String nameTimeVariable;
 	private List<String> nameFeatures;
 	private List<String> nameClassVariables;
+	private List<String> nameFiles;
 	static Logger logger = LogManager.getLogger(Dataset.class);
 
 	public Dataset(String nameTimeVariable, List<String> nameClassVariables) {
@@ -64,6 +64,38 @@ public class Dataset {
 			sequences.add(sequence);
 		} catch (ErroneousSequenceException e) {
 			logger.warn(e.getMessage());
+		}
+	}
+
+	/**
+	 * Those features with zero variance are removed from the dataset.
+	 */
+	public void removeZeroVarianceFeatures() {
+		for (String nameFeature : nameFeatures) {
+			if (getStatesVariable(nameFeature).size() == 1) {
+				logger.warn("Features {} is removed since its variance is zero.", nameFeature);
+				removeFeature(nameFeature);
+			}
+		}
+	}
+
+	/**
+	 * Set the names of the files from which the data was extracted.
+	 * 
+	 * @param list
+	 */
+	public void setNameFiles(List<String> list) {
+		this.nameFiles = list;
+	}
+
+	/**
+	 * Remove a feature from the dataset.
+	 * 
+	 * @param nameFeature
+	 */
+	private void removeFeature(String nameFeature) {
+		for (Sequence sequence : sequences) {
+			sequence.removeFeature(nameFeature);
 		}
 	}
 
@@ -182,11 +214,9 @@ public class Dataset {
 		Set<State> states = new HashSet<State>();
 		for (Sequence sequence : getSequences()) {
 			String[] statesSequence = sequence.getStates(nameVariable);
-
 			for (int i = 0; i < statesSequence.length; i++) {
 				// For every possible value of the variable it is created a State.
 				State state = new State();
-
 				// Event<String> event = new Event<String>(nameVariable, statesSequence[i]);
 				state.addEvent(nameVariable, statesSequence[i]);
 				states.add(state);
@@ -354,6 +384,15 @@ public class Dataset {
 			}
 		}
 		return time;
+	}
+
+	/**
+	 * Get the names of the files from which the data was extracted.
+	 * 
+	 * @return names of the files
+	 */
+	public List<String> getNameFiles() {
+		return nameFiles;
 	}
 
 	/**

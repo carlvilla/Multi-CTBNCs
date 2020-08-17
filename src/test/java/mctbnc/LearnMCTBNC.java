@@ -207,9 +207,9 @@ public class LearnMCTBNC {
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(dataset, ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm,
 				CPTNode.class, CIMNode.class);
-	
+
 		mctbnc.setPenalizationFunction("BIC");
-		
+
 		mctbnc.learn();
 
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, false, true, false, false },

@@ -205,7 +205,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @return number of occurrences of every transition
 	 */
 	public Map<State, Map<State, Integer>> getNxy() {
-		if (Nxy.isEmpty())
+		// It is possible that Nxy is empty if the variable do not have any transition
+		// TODO remove variables with zero variance during preprocessing
+		if (Nxy.isEmpty() && !Nx.isEmpty() && !Tx.isEmpty())
 			logger.warn("Sufficient statistic Nxy was not computed");
 		return Nxy;
 	}
