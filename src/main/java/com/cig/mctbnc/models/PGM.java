@@ -50,6 +50,11 @@ public interface PGM<NodeType extends Node> {
 	public void addEdges(Graph graph, List<NodeType> nodes);
 
 	/**
+	 * Remove all the nodes from the PGM.
+	 */
+	public void removeAllNodes();
+
+	/**
 	 * Modify the structure of the PGM by modifying the parents of the nodes and
 	 * their CPD.
 	 * 
@@ -139,6 +144,6 @@ public interface PGM<NodeType extends Node> {
 	 * 
 	 * @return node indexer
 	 */
-	public NodeIndexer getNodeIndexer();
+	public NodeIndexer<NodeType> getNodeIndexer();
 
 }

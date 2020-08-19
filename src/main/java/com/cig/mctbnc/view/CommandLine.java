@@ -1,7 +1,5 @@
 package com.cig.mctbnc.view;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.classification.ClassifierFactory;
-import com.cig.mctbnc.classification.Prediction;
 import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.reader.SeparateCSVReader;
 import com.cig.mctbnc.data.representation.Dataset;
@@ -22,11 +19,9 @@ import com.cig.mctbnc.learning.structure.HillClimbingBN;
 import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.models.MCTBNC;
-import com.cig.mctbnc.models.MCTNBC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
-import com.cig.mctbnc.performance.HoldOut;
-import com.cig.mctbnc.performance.Metrics;
+import com.cig.mctbnc.performance.CrossValidation;
 
 public class CommandLine {
 
@@ -83,20 +78,13 @@ public class CommandLine {
 //		List<String> excludeVariables = List.of();
 //		String nameTimeVariable = "Time";
 
-		// ---------------- Definition datasets for hold-out testing ----------------
+		// Define if the model will be validated or only learned
+		boolean modelValidation = false;
+
+		// ---------------- Definition datasets reader ----------------
 		// Define dataset reader
 		DatasetReader datasetReader = new SeparateCSVReader(folder, nameTimeVariable, nameClassVariables,
 				excludeVariables);
-		// Generate training and testing datasets
-		double trainingSize = 0.7;
-		boolean shuffleSequences = true;
-		HoldOut testingMethod = new HoldOut(datasetReader, trainingSize, shuffleSequences);
-		// Obtain training dataset
-		Dataset trainingDataset = testingMethod.getTraining();
-
-		logger.info("Time variable: {}", trainingDataset.getNameTimeVariable());
-		logger.info("Features: {}", trainingDataset.getNameFeatures());
-		logger.info("Class variables: {}", (Arrays.toString(nameClassVariables.toArray())));
 
 		// -------------------------- LEARNING ALGORITHMS --------------------------
 		// Define learning algorithms for the class subgraph
@@ -134,14 +122,29 @@ public class CommandLine {
 		 * mctbnc.setStructure(initialStructure);
 		 */
 
-		// After the testing of the model, learn the model with all the data?
-		// Allow to decide if it is tested the model, or just trained with all available
-		// data
+		if (modelValidation) {
+			// Hold-out validation
+			// double trainingSize = 0.7;
+			// boolean shuffleSequences = true;
+			// HoldOut testingMethod = new HoldOut(datasetReader, trainingSize,
+			// shuffleSequences);
 
-		// Evaluate the performance of the model
-		testingMethod.evaluate(mctbnc);
-		// Display model
-		mctbnc.display();
+			// Cross-validation
+			int folds = 50;
+			boolean shuffleSequences = true;
+			CrossValidation testingMethod = new CrossValidation(datasetReader, folds, shuffleSequences);
+
+			// Evaluate the performance of the model
+			testingMethod.evaluate(mctbnc);
+		} else {
+			// Obtain whole dataset
+			Dataset dataset = datasetReader.readDataset();
+			// Learn model
+			mctbnc.learn(dataset);
+			// Display model
+			mctbnc.display();
+		}
+
 	}
 
 }

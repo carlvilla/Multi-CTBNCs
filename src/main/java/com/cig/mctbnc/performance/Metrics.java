@@ -45,14 +45,14 @@ public class Metrics {
 	 * @param predicted
 	 * @param actualDataset dataset with actual classes
 	 */
-	private static void showPredictions(Prediction[] predicted, Dataset actualDataset) {
+	public static void showPredictions(Prediction[] predicted, Dataset actualDataset) {
 		String[][] actualValues = actualDataset.getValuesClassVariables();
 		int numInstances = actualValues.length;
 		List<String> nameFiles = actualDataset.getNameFiles();
 		for (int i = 0; i < numInstances; i++) {
 			// If there are as many files as instances, show the predicted and actual
 			// classes along with the name of the file
-			if (nameFiles.size() == numInstances) {
+			if (nameFiles != null && nameFiles.size() == numInstances) {
 				logger.info("File {} / Real classes: {} / Predicted classes {} / Prob. {}",
 						actualDataset.getNameFiles().get(i), actualValues[i], predicted[i].getPrediction(),
 						predicted[i].getProbability());
@@ -74,7 +74,7 @@ public class Metrics {
 	 * @param actualDataset dataset with actual classes
 	 * @return 0/1 subset accuracy
 	 */
-	private static double globalAccuracy(Prediction[] predicted, Dataset actualDataset) {
+	public static double globalAccuracy(Prediction[] predicted, Dataset actualDataset) {
 		String[][] actualValues = actualDataset.getValuesClassVariables();
 		int numCorrectInstances = 0;
 		int numInstances = actualValues.length;
@@ -93,7 +93,7 @@ public class Metrics {
 	 * @param actual
 	 * @return
 	 */
-	private static double meanAccuracy(Prediction[] predicted, Dataset actualDataset) {
+	public static double meanAccuracy(Prediction[] predicted, Dataset actualDataset) {
 		String[][] actualValues = actualDataset.getValuesClassVariables();
 		int numClassVariables = actualValues[0].length;
 		int numInstances = actualValues.length;

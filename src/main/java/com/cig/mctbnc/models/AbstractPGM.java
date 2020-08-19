@@ -76,6 +76,12 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	@Override
+	public void removeAllNodes() {
+		nodes = new ArrayList<NodeType>();
+		nodeIndexer = null;
+	}
+
+	@Override
 	public void setStructure(boolean[][] adjacencyMatrix) {
 		// Current edges are removed
 		for (Node node : this.nodes)
@@ -175,11 +181,10 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		return nodes;
 	}
 
-	
 	public NodeType getNodeByIndex(int index) {
 		return nodeIndexer.getNodeByIndex(index);
 	}
-	
+
 	@Override
 	public NodeType getNodeByName(String nameVariable) {
 		return nodes.stream().filter(node -> node.getName().equals(nameVariable)).findFirst().orElse(null);

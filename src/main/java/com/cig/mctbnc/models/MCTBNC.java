@@ -90,6 +90,8 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	@Override
 	public void learn(Dataset dataset) {
 		logger.info("Learning MCTBNC model");
+		// Remove previous instantiation of the model (if any)
+		removeAllNodes();
 		// Save dataset used for training
 		this.dataset = dataset;
 		// Measure execution time
@@ -129,6 +131,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 * @param nodesCTBN
 	 */
 	private void setStructure() {
+		// Obtain nodes that will be added to the model
 		List<Node> nodes = new ArrayList<Node>();
 		// It is important to respect the original order of the variables to generate a
 		// correct adjacency matrix
@@ -149,10 +152,9 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 					child.setParent(nodeInBN);
 				}
 				nodes.add(nodeInBN);
-			} else {
+			} else
 				// It is a feature node
 				nodes.add(nodeInCTBN);
-			}
 		}
 		// The nodes are added to the MCTBNC
 		addNodes(nodes);

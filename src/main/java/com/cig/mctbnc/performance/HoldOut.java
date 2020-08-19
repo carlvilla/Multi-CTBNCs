@@ -25,15 +25,22 @@ public class HoldOut {
 	Logger logger = LogManager.getLogger(HoldOut.class);
 
 	public HoldOut(DatasetReader datasetReader, double trainingSize, boolean shuffle) {
+		logger.info("Generating training ({}%) and testing ({}%) datasets (Hold-out validation)", trainingSize * 100,
+				(1 - trainingSize) * 100);
 		generateTrainAndTest(datasetReader, trainingSize, shuffle);
 		logger.info("Sequences for training {}", trainingDataset.getNumDataPoints());
 		logger.info("Sequences for testing {}", testingDataset.getNumDataPoints());
 	}
 
-	public void evaluate(MCTBNC model) {
+	/**
+	 * Evaluate the performance of the specified model using hold-out validation.
+	 * 
+	 * @param model model to evaluate
+	 */
+	public void evaluate(MCTBNC<?, ?> model) {
 		// Train the model
 		model.learn(this.trainingDataset);
-		// Perform predictions with MCTBNC
+		// Make predictions with the model
 		Prediction[] predictions = model.predict(this.testingDataset);
 		// Evaluate the performance of the model
 		Metrics.evaluate(predictions, this.testingDataset);
@@ -48,8 +55,6 @@ public class HoldOut {
 	 *                      training and testing
 	 */
 	public void generateTrainAndTest(DatasetReader datasetReader, double trainingSize, boolean shuffle) {
-		logger.info("Generating training ({}%) and testing ({}%) datasets (Hold-out evaluation)", trainingSize * 100,
-				(1 - trainingSize) * 100);
 		// Obtain entire dataset
 		Dataset dataset = datasetReader.readDataset();
 		// Obtain files from which the dataset was read
