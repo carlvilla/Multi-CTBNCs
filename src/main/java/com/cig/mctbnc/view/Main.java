@@ -10,12 +10,11 @@ public class Main {
 	/**
 	 * Application entry point.
 	 * 
-	 * @param args
-	 *            application command line arguments
+	 * @param args application command line arguments
 	 */
 	public static void main(String[] args) {
 
-		String datasetFolder = "src/main/resources/datasets/rehabilitation";
+		String datasetFolder = "src/main/resources/datasets/rehabilitation/exercise1";
 
 		try {
 			logger.debug("Initializing MCTBNCs from Main");

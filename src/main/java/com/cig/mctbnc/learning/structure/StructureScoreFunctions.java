@@ -49,16 +49,13 @@ public class StructureScoreFunctions {
 	static double logLikelihoodScore(BN<CPTNode> bn, String penalizationFunction) {
 		// Obtain nodes of the Bayesian networks with the CPTs
 		List<CPTNode> nodes = bn.getLearnedNodes();
-
 		double llScore = 0.0;
 		for (CPTNode node : nodes) {
 			Map<State, Double> CPT = node.getCPT();
 			Map<State, Integer> N = node.getSufficientStatistics();
-
 			// Obtain an array with the values that the studied variable can take
 			String[] possibleValuesStudiedVariable = node.getStates().stream()
 					.map(stateAux -> stateAux.getValueNode(node.getName())).toArray(String[]::new);
-
 			// All the possible states between the studied variable and its parents
 			Set<State> states = N.keySet();
 			for (State state : states) {
@@ -94,7 +91,6 @@ public class StructureScoreFunctions {
 				llScore -= networkComplexity * penalization;
 			}
 		}
-
 		return llScore;
 	}
 

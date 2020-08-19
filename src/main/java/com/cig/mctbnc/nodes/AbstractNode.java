@@ -2,6 +2,9 @@ package com.cig.mctbnc.nodes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import com.cig.mctbnc.data.representation.State;
 
 /**
  * Contains common variables and methods for any kind of node.
@@ -128,6 +131,23 @@ public abstract class AbstractNode implements Node {
 	@Override
 	public boolean hasParents() {
 		return parents.size() > 0;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (object == null || object.getClass() != this.getClass())
+			return false;
+		// The object if of Node type
+		Node otherNode = (Node) object;
+		// Nodes must have a unique name, which is enough to determine if two are equal.
+		// This method will not differentiate nodes from different models
+		return this.name.equals(otherNode.getName());
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		return this.name.hashCode() * prime;
 	}
 
 	@Override

@@ -23,13 +23,12 @@ import com.cig.mctbnc.nodes.CPTNode;
 
 /**
  * Tests to evaluate the learning of multidimensional continuous time Bayesian
- * networks.
+ * networks classifiers.
  * 
  * @author Carlos Villa Blanco
  *
  */
 public class LearnMCTBNC {
-
 	static Dataset dataset;
 	static ParameterLearningAlgorithm bnParameterLearningAlgorithm;
 	static StructureLearningAlgorithm bnStructureLearningAlgorithm;
@@ -203,14 +202,14 @@ public class LearnMCTBNC {
 	 * Learn a multidimensional continuous time Bayesian network.
 	 */
 	@Test
-	public void learnMultidimensionalContinuousTimeBayesianNetwork() {
-		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(dataset, ctbnParameterLearningAlgorithm,
+	public void learnModel() {
+		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm,
 				CPTNode.class, CIMNode.class);
 
 		mctbnc.setPenalizationFunction("BIC");
 
-		mctbnc.learn();
+		mctbnc.learn(dataset);
 
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, false, true, false, false },
 				{ false, false, true, false, false }, { false, true, false, false, false },
@@ -218,8 +217,8 @@ public class LearnMCTBNC {
 
 		assertArrayEquals(expectedAdjacencyMatrix, mctbnc.getAdjacencyMatrix());
 
-		// Show results (don't forget breakpoint)
+		// Show results
 		// mctbnc.display();
-		// System.out.println();
+		// System.out.println(); // (don't forget breakpoint)
 	}
 }

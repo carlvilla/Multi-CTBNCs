@@ -25,7 +25,6 @@ import com.opencsv.CSVReader;
  */
 public class SeparateCSVReader extends AbstractDatasetReader {
 	File[] files;
-	List<String> nameAcceptedFiles;
 
 	/**
 	 * Constructor. Extracts all the csv files from the specified folder.
@@ -123,30 +122,4 @@ public class SeparateCSVReader extends AbstractDatasetReader {
 		}
 		return list;
 	}
-
-	@Override
-	public void generateTrainAndTest(double trainingSize, boolean shuffle) {
-		logger.info("Generating training ({}%) and testing ({}%) datasets (Hold-out testing)", trainingSize * 100,
-				(1 - trainingSize) * 100);
-		// Obtain entire dataset
-		Dataset dataset = readDataset();
-		List<Sequence> sequences = dataset.getSequences();		
-		if (shuffle) {
-			// The sequences are shuffled before splitting into training and testing
-			Random rd = new Random(7); 
-			Collections.shuffle(sequences, rd);
-			Collections.shuffle(nameAcceptedFiles, rd);
-		}
-		// Define training and testing sequences
-		int lastIndexTraining = (int) (trainingSize * sequences.size());
-		List<Sequence> trainingSequences = sequences.subList(0, lastIndexTraining);
-		List<Sequence> testingSequences = sequences.subList(lastIndexTraining, sequences.size());
-		// Define training and testing datasets
-		trainingDataset = new Dataset(trainingSequences);
-		testingDataset = new Dataset(testingSequences);
-		// Set in the datasets the names of the files from which the data was extracted
-		trainingDataset.setNameFiles(nameAcceptedFiles.subList(0, lastIndexTraining));
-		testingDataset.setNameFiles(nameAcceptedFiles.subList(lastIndexTraining, sequences.size()));
-	}
-
 }

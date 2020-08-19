@@ -25,6 +25,7 @@ import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.models.MCTNBC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
+import com.cig.mctbnc.performance.HoldOut;
 import com.cig.mctbnc.performance.Metrics;
 
 public class CommandLine {
@@ -73,31 +74,26 @@ public class CommandLine {
 
 		// Rehabilitation dataset
 		List<String> nameClassVariables = List.of("ExerciseMode");
-		List<String> excludeVariables = List.of("S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16",
-				"S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29");
+		List<String> excludeVariables = List.of("S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15",
+				"S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29");
 		String nameTimeVariable = "t";
 
 		// Artificial dataset
-		// List<String> nameClassVariables = List.of("C1", "C2");
-		// String[] excludeVariables = {};
-		// String nameTimeVariable = "Time";
+//		List<String> nameClassVariables = List.of("C1", "C2");
+//		List<String> excludeVariables = List.of();
+//		String nameTimeVariable = "Time";
 
 		// ---------------- Definition datasets for hold-out testing ----------------
 		// Define dataset reader
 		DatasetReader datasetReader = new SeparateCSVReader(folder, nameTimeVariable, nameClassVariables,
 				excludeVariables);
 		// Generate training and testing datasets
-		double trainingSize = 0.8;
-		datasetReader.generateTrainAndTest(trainingSize, false);
+		double trainingSize = 0.7;
+		boolean shuffleSequences = true;
+		HoldOut testingMethod = new HoldOut(datasetReader, trainingSize, shuffleSequences);
 		// Obtain training dataset
-		Dataset trainingDataset = datasetReader.getTraining();
-		// Obtain testing dataset
-		Dataset testingDataset = datasetReader.getTesting();
+		Dataset trainingDataset = testingMethod.getTraining();
 
-		// ---------------- Definition datasets for hold-out testing ----------------
-
-		logger.info("Sequences for training {}", trainingDataset.getNumDataPoints());
-		logger.info("Sequences for testing {}", testingDataset.getNumDataPoints());
 		logger.info("Time variable: {}", trainingDataset.getNameTimeVariable());
 		logger.info("Features: {}", trainingDataset.getNameFeatures());
 		logger.info("Class variables: {}", (Arrays.toString(nameClassVariables.toArray())));
@@ -114,7 +110,7 @@ public class CommandLine {
 
 		// Define the type of multi-dimensional continuous time Bayesian network
 		// classifier to use
-		MCTBNC<CPTNode, CIMNode> mctbnc = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("MCTBNC", trainingDataset,
+		MCTBNC<CPTNode, CIMNode> mctbnc = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("MCTNBC",
 				ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm,
 				bnStructureLearningAlgorithm, CPTNode.class, CIMNode.class);
 
@@ -138,16 +134,14 @@ public class CommandLine {
 		 * mctbnc.setStructure(initialStructure);
 		 */
 
-		// Train model
-		mctbnc.learn();
-		mctbnc.display();
+		// After the testing of the model, learn the model with all the data?
+		// Allow to decide if it is tested the model, or just trained with all available
+		// data
 
-		// Perform predictions with MCTBNC
-		// String[][] predictions = mctbnc.predict(testingDataset);
-		Prediction[] predictions = mctbnc.predict(testingDataset);
 		// Evaluate the performance of the model
-		Metrics.evaluate(predictions, testingDataset);
-
+		testingMethod.evaluate(mctbnc);
+		// Display model
+		mctbnc.display();
 	}
 
 }

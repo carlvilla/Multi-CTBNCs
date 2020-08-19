@@ -37,8 +37,8 @@ public class NodeIndexer<NodeType extends Node> {
 		return nodeToIndex.get(nameNode);
 	}
 
-	public Node getNodeByIndex(int indexNode) {
-		Node node = indexToNode.get(indexNode);
+	public NodeType getNodeByIndex(int indexNode) {
+		NodeType node = indexToNode.get(indexNode);
 		if (node == null) {
 			logger.warn("There is no node with index {}", indexNode);
 		}

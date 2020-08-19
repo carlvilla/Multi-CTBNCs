@@ -60,9 +60,9 @@ public class LearnBN {
 		// Structure constraints
 		StructureConstraints structureConstraintsBN = new DAG();
 
-		BN<CPTNode> bn = new BN<CPTNode>(dataset, parameterLearningAlgorithm, structureLearningAlgorithm,
+		BN<CPTNode> bn = new BN<CPTNode>(nameClassVariables, parameterLearningAlgorithm, structureLearningAlgorithm,
 				structureConstraintsBN, CPTNode.class);
-		bn.learn();
+		bn.learn(dataset);
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, false, true }, { false, false, true },
 				{ false, false, false } };
 		assertArrayEquals(expectedAdjacencyMatrix, bn.getAdjacencyMatrix());

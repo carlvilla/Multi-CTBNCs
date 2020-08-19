@@ -11,6 +11,7 @@ import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.nodes.NodeFactory;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
 /**
@@ -21,12 +22,15 @@ import com.cig.mctbnc.nodes.NodeIndexer;
  * @param <NodeType>
  */
 public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType> {
-	protected List<NodeType> nodes;
-	protected NodeIndexer<NodeType> nodeIndexer;
-	protected Dataset dataset;
-	protected ParameterLearningAlgorithm parameterLearningAlg;
-	protected StructureLearningAlgorithm structureLearningAlg;
-	protected StructureConstraints structureConstraints;
+	Dataset dataset;
+	List<String> nameVariables;
+	List<NodeType> nodes;
+	NodeIndexer<NodeType> nodeIndexer;
+	NodeFactory<NodeType> nodeFactory;
+	Class<NodeType> nodeClass;
+	ParameterLearningAlgorithm parameterLearningAlg;
+	StructureLearningAlgorithm structureLearningAlg;
+	StructureConstraints structureConstraints;
 
 	/**
 	 * Common initialization for PGM.
@@ -86,13 +90,12 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		}
 		learnParameters();
 	}
-	
-	@Override 
+
+	@Override
 	public void learnParameters() {
 		// Learn the sufficient statistics and parameters for each node
 		parameterLearningAlg.learn(nodes, dataset);
 	}
-	
 
 	/**
 	 * Establish the algorithm that will be used to learn the parameters of the PGM.
@@ -120,9 +123,10 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	public void setStructureConstraints(StructureConstraints structureConstraints) {
 		this.structureConstraints = structureConstraints;
 	}
-	
+
 	/**
 	 * Establish the penalization function.
+	 * 
 	 * @param penalizationFunction name of the penalization function
 	 */
 	public void setPenalizationFunction(String penalizationFunction) {
@@ -130,7 +134,19 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	@Override
-	public void learn() {
+	public void learn(Dataset dataset) {
+		// Save dataset used to learn the model
+		this.dataset = dataset;
+		// Use node factory to create nodes of the specified type
+		nodeFactory = new NodeFactory<NodeType>(nodeClass);
+		// Create nodes using the dataset
+		List<NodeType> nodes = new ArrayList<NodeType>();
+		for (String nameVariable : nameVariables) {
+			NodeType node = nodeFactory.createNode(nameVariable, dataset);
+			nodes.add(node);
+		}
+		addNodes(nodes);
+		// Learn structure and paramters
 		structureLearningAlg.learn(this, dataset, parameterLearningAlg, structureConstraints);
 	}
 
@@ -159,9 +175,14 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		return nodes;
 	}
 
-	@Override
-	public Node getNodeByIndex(int index) {
+	
+	public NodeType getNodeByIndex(int index) {
 		return nodeIndexer.getNodeByIndex(index);
+	}
+	
+	@Override
+	public NodeType getNodeByName(String nameVariable) {
+		return nodes.stream().filter(node -> node.getName().equals(nameVariable)).findFirst().orElse(null);
 	}
 
 	/**

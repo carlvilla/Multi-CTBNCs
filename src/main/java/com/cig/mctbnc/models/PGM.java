@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.graphstream.graph.Graph;
 
+import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
@@ -17,8 +18,11 @@ public interface PGM<NodeType extends Node> {
 
 	/**
 	 * Learn the structure and parameters of the model.
+	 * 
+	 * @param dataset dataset used to learn the model
+	 * 
 	 */
-	public void learn();
+	public void learn(Dataset dataset);
 
 	/**
 	 * Add the nodes to list of the PGM. It is necessary to include a NodeIndexer
@@ -85,7 +89,15 @@ public interface PGM<NodeType extends Node> {
 	 * @param index
 	 * @return node with the specified index
 	 */
-	public Node getNodeByIndex(int index);
+	public NodeType getNodeByIndex(int index);
+
+	/**
+	 * Return the node whose variable name is given.
+	 * 
+	 * @param nameVariable name of the variable
+	 * @return node requested node
+	 */
+	public NodeType getNodeByName(String nameVariable);
 
 	/**
 	 * Return the list of nodes for the class variables.
@@ -128,4 +140,5 @@ public interface PGM<NodeType extends Node> {
 	 * @return node indexer
 	 */
 	public NodeIndexer getNodeIndexer();
+
 }

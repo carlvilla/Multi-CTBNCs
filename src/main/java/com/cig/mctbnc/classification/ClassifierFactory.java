@@ -33,22 +33,20 @@ public class ClassifierFactory {
 	 * @return classifier
 	 */
 	public static <NodeTypeBN extends Node, NodeTypeCTBN extends Node> MCTBNC getMCTBNC(String nameClassifier,
-			Dataset dataset, ParameterLearningAlgorithm ctbnParameterLearningAlgorithm,
+			ParameterLearningAlgorithm ctbnParameterLearningAlgorithm,
 			StructureLearningAlgorithm ctbnStructureLearningAlgorithm,
 			ParameterLearningAlgorithm bnParameterLearningAlgorithm,
 			StructureLearningAlgorithm bnStructureLearningAlgorithm, Class<NodeTypeBN> bnNodeClass,
 			Class<NodeTypeCTBN> ctbnNodeClass) {
 		if (nameClassifier.equals("MCTNBC")) {
 			logger.info("Creating a multi-dimensional continuous naive Bayes classifier");
-			return new MCTNBC<NodeTypeBN, NodeTypeCTBN>(dataset, ctbnParameterLearningAlgorithm,
-					ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm,
-					bnNodeClass, ctbnNodeClass);
+			return new MCTNBC<NodeTypeBN, NodeTypeCTBN>(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm,
+					bnParameterLearningAlgorithm, bnStructureLearningAlgorithm, bnNodeClass, ctbnNodeClass);
 		} else {
 			// If the specified classifier is not found, a MCTBNC is created
 			logger.info("Creating a multi-dimensional continuous time Bayesian network classifier");
-			return new MCTBNC<NodeTypeBN, NodeTypeCTBN>(dataset, ctbnParameterLearningAlgorithm,
-					ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm,
-					bnNodeClass, ctbnNodeClass);
+			return new MCTBNC<NodeTypeBN, NodeTypeCTBN>(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm,
+					bnParameterLearningAlgorithm, bnStructureLearningAlgorithm, bnNodeClass, ctbnNodeClass);
 		}
 
 	}

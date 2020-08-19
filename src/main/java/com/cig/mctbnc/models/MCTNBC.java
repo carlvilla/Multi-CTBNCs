@@ -3,7 +3,6 @@ package com.cig.mctbnc.models;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 
-import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
@@ -30,12 +29,12 @@ public class MCTNBC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 * @param bnNodeClass
 	 * @param ctbnNodeClass
 	 */
-	public MCTNBC(Dataset dataset, ParameterLearningAlgorithm ctbnParameterLearningAlgorithm,
+	public MCTNBC(ParameterLearningAlgorithm ctbnParameterLearningAlgorithm,
 			StructureLearningAlgorithm ctbnStructureLearningAlgorithm,
 			ParameterLearningAlgorithm bnParameterLearningAlgorithm,
 			StructureLearningAlgorithm bnStructureLearningAlgorithm, Class<NodeTypeBN> bnNodeClass,
 			Class<NodeTypeCTBN> ctbnNodeClass) {
-		super(dataset, ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm,
+		super(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm,
 				bnStructureLearningAlgorithm, bnNodeClass, ctbnNodeClass);
 	}
 

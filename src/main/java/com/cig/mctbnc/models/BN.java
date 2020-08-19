@@ -1,6 +1,5 @@
 package com.cig.mctbnc.models;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.graphstream.graph.Graph;
@@ -11,7 +10,6 @@ import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.nodes.Node;
-import com.cig.mctbnc.nodes.NodeFactory;
 
 /**
  * 
@@ -21,8 +19,6 @@ import com.cig.mctbnc.nodes.NodeFactory;
  *                   conditional probability table (CPTNode)
  */
 public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
-	NodeFactory<NodeType> nodeFactory;
-
 	/**
 	 * Initialize a Bayesian network by receiving a list of nodes and a dataset.
 	 * This constructor was thought to be used by the MCTBNC.
@@ -47,68 +43,19 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * @param structureConstraints
 	 * @param nodeClass
 	 */
-	public BN(Dataset dataset, List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
+	public BN(List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
 			StructureLearningAlgorithm structureLearningAlg, StructureConstraints structureConstraints,
 			Class<NodeType> nodeClass) {
-		// Node factory to create nodes of the specified type
-		this.nodeFactory = new NodeFactory<NodeType>(nodeClass);
-		// Create nodes using dataset
-		List<NodeType> nodes = new ArrayList<NodeType>();
-		for (String nameVariable : nameVariables) {
-			NodeType node = nodeFactory.createNode(nameVariable, dataset);
-			nodes.add(node);
-		}
-		addNodes(nodes);
+		// Set variables to use
+		this.nameVariables = nameVariables;
+		// Set node type
+		this.nodeClass = nodeClass;
 		// Set necessary algorithms to learn the model
 		setParameterLearningAlgorithm(parameterLearningAlg);
 		setStructureLearningAlgorithm(structureLearningAlg);
 		setStructureConstraints(structureConstraints);
 		// Initialize structure of the model
-		structureConstraints.initializeStructure(this);
-		this.dataset = dataset;
-
-	}
-
-	/**
-	 * Initialize a Bayesian network by receiving a dataset and the algorithmms for
-	 * parameter and structure. The list of nodes is created from the dataset.
-	 * 
-	 * @param parameterLearningAlg
-	 * @param structureLearningAlg
-	 * @param dataset
-	 */
-	public BN(Dataset dataset, ParameterLearningAlgorithm parameterLearningAlg,
-			StructureLearningAlgorithm structureLearningAlg, StructureConstraints structureConstraints,
-			Class<NodeType> nodeClass) {
-		// Node factory to create nodes of the specified type
-		this.nodeFactory = new NodeFactory<NodeType>(nodeClass);
-		// Create nodes using dataset
-		List<NodeType> nodes = new ArrayList<NodeType>();
-		for (String nameVariable : dataset.getNameVariables()) {
-			NodeType node = nodeFactory.createNode(nameVariable, dataset);
-			nodes.add(node);
-		}
-		addNodes(nodes);
-		// Set necessary algorithms to learn the model
-		setParameterLearningAlgorithm(parameterLearningAlg);
-		setStructureLearningAlgorithm(structureLearningAlg);
-		setStructureConstraints(structureConstraints);
-		this.dataset = dataset;
-	}
-	
-	public String[] getNameNodes() {
-		return nodes.stream().map(Node::getName).toArray(String[]::new);
-	}
-
-	/**
-	 * Obtain the node with certain name
-	 * 
-	 * @param name
-	 * @return node of the provided name
-	 */
-	public NodeType getNodeByName(String name) {
-		NodeType selectedNode = nodes.stream().filter(node -> node.getName().equals(name)).findAny().orElse(null);
-		return selectedNode;
+		// structureConstraints.initializeStructure(this);
 	}
 
 	/**

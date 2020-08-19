@@ -1,5 +1,7 @@
 package com.cig.mctbnc.data.reader;
 
+import java.util.List;
+
 import com.cig.mctbnc.data.representation.Dataset;
 
 /**
@@ -18,26 +20,11 @@ public interface DatasetReader {
 	public Dataset readDataset();
 
 	/**
-	 * Generate a training and a testing dataset.
+	 * Return the names of the files from which the dataset was read. Some files
+	 * could be rejected due to problems in its content.
 	 * 
-	 * @param trainingSize
-	 * @param shuffle      determines if the data is shuffled before splitting into
-	 *                     training and testing
+	 * @return names accepted files
 	 */
-	public void generateTrainAndTest(double trainingSize, boolean shuffle);
-
-	/**
-	 * Return training dataset.
-	 * 
-	 * @return training dataset
-	 */
-	public Dataset getTraining();
-
-	/**
-	 * Return testing dataset.
-	 * 
-	 * @return testing dataset
-	 */
-	public Dataset getTesting();
+	List<String> getAcceptedFiles();
 
 }

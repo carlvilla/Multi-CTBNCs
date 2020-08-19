@@ -76,10 +76,10 @@ public class LearnCTBN {
 		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbingCTBN();
 		StructureConstraints structureConstraints = new CTBNC();
 
-		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(dataset, nameFeatures, ctbnParameterLearningAlgorithm,
+		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(nameFeatures, ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm, structureConstraints, CIMNode.class);
 		ctbn.setPenalizationFunction("BIC");
-		ctbn.learn();
+		ctbn.learn(dataset);
 		
 		ctbn.display();
 

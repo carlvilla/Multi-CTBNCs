@@ -39,22 +39,17 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * @param structureConstraints
 	 * @param nodeClass            type of the CTBN nodes
 	 */
-	public CTBN(Dataset dataset, List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
+	public CTBN(List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
 			StructureLearningAlgorithm structureLearningAlg, StructureConstraints structureConstraints,
-			Class<NodeType> nodeClass) {
-		// Node factory to create nodes of the specified type
-		this.nodeFactory = new NodeFactory<NodeType>(nodeClass);
-		List<NodeType> nodes = new ArrayList<NodeType>();
-		for (String nameVariable : dataset.getNameVariables()) {
-			NodeType node = nodeFactory.createNode(nameVariable, dataset);
-			nodes.add(node);
-		}
-		addNodes(nodes);
+			Class<NodeType> nodeClass) {		
+		// Set variables to use
+		this.nameVariables = nameVariables;
+		// Set node type
+		this.nodeClass = nodeClass;
 		// Set necessary algorithms to learn the model
 		setParameterLearningAlgorithm(parameterLearningAlg);
 		setStructureLearningAlgorithm(structureLearningAlg);
 		setStructureConstraints(structureConstraints);
-		this.dataset = dataset;
 	}
 
 	/**

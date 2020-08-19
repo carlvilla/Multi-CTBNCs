@@ -15,6 +15,7 @@ import com.cig.mctbnc.data.representation.Dataset;
  */
 public abstract class AbstractDatasetReader implements DatasetReader {
 	String datasetFolder;
+	List<String> nameAcceptedFiles;
 	String nameTimeVariable;
 	List<String> nameClassVariables;
 	List<String> excludeVariables;
@@ -31,19 +32,8 @@ public abstract class AbstractDatasetReader implements DatasetReader {
 	}
 
 	@Override
-	public Dataset getTraining() {
-		if (trainingDataset == null) {
-			logger.warn("The training dataset was not generated.");
-		}
-		return trainingDataset;
-	}
-
-	@Override
-	public Dataset getTesting() {
-		if (trainingDataset == null) {
-			logger.warn("The testing dataset was not generated.");
-		}
-		return testingDataset;
+	public List<String> getAcceptedFiles() {
+		return this.nameAcceptedFiles;
 	}
 
 }

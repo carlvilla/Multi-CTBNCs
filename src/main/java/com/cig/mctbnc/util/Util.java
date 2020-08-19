@@ -10,10 +10,8 @@ public class Util {
 	/**
 	 * Return the elements of a list "a" except those in "b".
 	 * 
-	 * @param a
-	 *            list
-	 * @param b
-	 *            list of elements to filter from "a"
+	 * @param a list
+	 * @param b list of elements to filter from "a"
 	 * @return list of "a" without elements "b"
 	 */
 	public static <T> List<T> filter(List<T> a, List<T> b) {
@@ -21,14 +19,12 @@ public class Util {
 		listA.removeAll(b);
 		return listA;
 	}
-	
+
 	/**
 	 * Return the elements of a list "a" except "b".
 	 * 
-	 * @param a
-	 *            list
-	 * @param b
-	 *            element to filter from "a"
+	 * @param a list
+	 * @param b element to filter from "a"
 	 * @return list of "a" without "b"
 	 */
 	public static <T> List<T> filter(List<T> a, T b) {
@@ -61,8 +57,8 @@ public class Util {
 	 * returns the Cartesian product between each of the possible state of each
 	 * variable.
 	 * 
-	 * @param statesVariables
-	 *            contains for each variable a list with its possible states
+	 * @param statesVariables contains for each variable a list with its possible
+	 *                        states
 	 * @return a list of as many states as possible combinations between the states
 	 *         of the variables
 	 */

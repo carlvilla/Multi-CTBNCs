@@ -86,7 +86,7 @@ public class State {
 	public boolean equals(Object object) {
 		if (object == null || object.getClass() != this.getClass())
 			return false;
-		// The object has State type
+		// The object is of State type
 		State otherState = (State) object;
 		// Extract the events of the other State object
 		Map<String, String> eventsOther = otherState.getEvents();
