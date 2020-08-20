@@ -1,5 +1,10 @@
 package com.cig.mctbnc.classification;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.cig.mctbnc.data.representation.State;
+
 /**
  * Contains a multidimensional prediction and its probability.
  * 
@@ -7,18 +12,38 @@ package com.cig.mctbnc.classification;
  *
  */
 public class Prediction {
-	String[] prediction;
-	double probability;
+	String[] predictedClasses;
+	double probabilityPrediction;
+	Map<State, Double> probabilities;
 
 	/**
-	 * Constructor that receives a prediction and its probability.
+	 * Set the predicted classes
 	 * 
-	 * @param prediction
+	 * @param predictedClasses
+	 */
+	public void setPredictedClasses(String[] predictedClasses) {
+		this.predictedClasses = predictedClasses;
+	}
+
+	/**
+	 * Set the probability of the prediction.
+	 * 
+	 * @param probabilityPrediction
+	 */
+	public void setProbabilityPrediction(double probabilityPrediction) {
+		this.probabilityPrediction = probabilityPrediction;
+	}
+
+	/**
+	 * Set the probability of the specified classes.
+	 * 
+	 * @param classes
 	 * @param probability
 	 */
-	public Prediction(String[] prediction, double probability) {
-		this.prediction = prediction;
-		this.probability = probability;
+	public void setProbability(State classes, double probability) {
+		if (probabilities == null)
+			probabilities = new HashMap<State, Double>();
+		probabilities.put(classes, probability);
 	}
 
 	/**
@@ -26,17 +51,25 @@ public class Prediction {
 	 * 
 	 * @return prediction
 	 */
-	public String[] getPrediction() {
-		return prediction;
+	public String[] getPredictedClasses() {
+		return predictedClasses;
 	}
 
 	/**
-	 * Return probability of the prediction.
+	 * Return the probability of the prediction.
 	 * 
 	 * @return probability
 	 */
-	public double getProbability() {
-		return probability;
+	public double getProbabilityPrediction() {
+		return probabilityPrediction;
 	}
 
+	/**
+	 * Return the probabilities of every possible classes.
+	 * 
+	 * @return probability
+	 */
+	public Map<State, Double> getProbabilities() {
+		return probabilities;
+	}
 }

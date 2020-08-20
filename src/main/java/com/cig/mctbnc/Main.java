@@ -1,7 +1,9 @@
-package com.cig.mctbnc.view;
+package com.cig.mctbnc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.cig.mctbnc.view.CommandLine;
 
 public class Main {
 

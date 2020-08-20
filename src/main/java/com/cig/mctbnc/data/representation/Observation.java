@@ -38,9 +38,10 @@ public class Observation {
 				timeValue = Double.parseDouble(values[i]);
 		}
 	}
-	
+
 	/**
 	 * Remove the value of a feature from the observation.
+	 * 
 	 * @param nameFeature
 	 */
 	public void removeFeatures(String nameFeature) {
@@ -99,6 +100,18 @@ public class Observation {
 		for (int i = 0; i < nameVariables.size(); i++)
 			values[i] = getValueVariable(nameVariables.get(i));
 		return values;
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Time|");
+		for (String nameVariable : variablesValues.keySet())
+			sb.append(nameVariable + "|");
+		sb.append("\n");
+		sb.append(timeValue + "|");
+		for (String valueVariable : variablesValues.values())
+			sb.append(valueVariable + "|");
+		return sb.toString();
 	}
 
 }

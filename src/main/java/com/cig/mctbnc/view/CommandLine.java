@@ -52,25 +52,15 @@ public class CommandLine {
 		}
 	};
 
-	// There are different types of MCTBNCs depending on the restrictions on their
-	// structures
-	/*
-	 * Map<String, Classifier> classifiers = new HashMap<String, Classifier>() { {
-	 * put("MCTBNC", new MCTBNC()); // Multidimensional continuous time Bayesian
-	 * network classifier put("MCTNBC", new MCTNBC()); // Multidimensioal continuous
-	 * time Naive Bayes classifier } };
-	 */
-
 	public CommandLine(String datasetFolder) throws Exception {
-
 		// Specify the folder path from which the data is extracted
 		String folder = datasetFolder;
 		logger.info("Reading sequences from {}", datasetFolder);
 
 		// Rehabilitation dataset
 		List<String> nameClassVariables = List.of("ExerciseMode");
-		List<String> excludeVariables = List.of("S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15",
-				"S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29");
+		List<String> excludeVariables = List.of("S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16",
+				"S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29");
 		String nameTimeVariable = "t";
 
 		// Artificial dataset
@@ -79,7 +69,7 @@ public class CommandLine {
 //		String nameTimeVariable = "Time";
 
 		// Define if the model will be validated or only learned
-		boolean modelValidation = false;
+		boolean modelValidation = true;
 
 		// ---------------- Definition datasets reader ----------------
 		// Define dataset reader
@@ -98,7 +88,8 @@ public class CommandLine {
 
 		// Define the type of multi-dimensional continuous time Bayesian network
 		// classifier to use
-		MCTBNC<CPTNode, CIMNode> mctbnc = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("MCTNBC",
+		String classMCTBNC = "MCTBNC";
+		MCTBNC<CPTNode, CIMNode> mctbnc = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(classMCTBNC,
 				ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm,
 				bnStructureLearningAlgorithm, CPTNode.class, CIMNode.class);
 
@@ -130,7 +121,7 @@ public class CommandLine {
 			// shuffleSequences);
 
 			// Cross-validation
-			int folds = 50;
+			int folds = 5;
 			boolean shuffleSequences = true;
 			CrossValidation testingMethod = new CrossValidation(datasetReader, folds, shuffleSequences);
 
@@ -144,7 +135,6 @@ public class CommandLine {
 			// Display model
 			mctbnc.display();
 		}
-
 	}
 
 }

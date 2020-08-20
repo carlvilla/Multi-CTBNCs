@@ -1,8 +1,12 @@
 package com.cig.mctbnc.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
+import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.data.representation.State;
 
 public class Util {
@@ -49,7 +53,32 @@ public class Util {
 			largestIdx = array[i] > array[largestIdx] ? i : largestIdx;
 		}
 		return largestIdx;
+	}
 
+	/**
+	 * Objects in a list are shuffled.
+	 * 
+	 * @param <T>  type of the elements to shuffle
+	 * @param list
+	 * @param seed
+	 */
+	public static <T> void shuffle(List<T> list, Integer seed) {
+		Random rd = new Random();
+		if (seed != null)
+			rd.setSeed(seed);
+		Collections.shuffle(list, rd);
+	}
+
+	/**
+	 * Kronecker delta function. It returns 1 if 'a' and 'b' are equal and 0
+	 * otherwise.
+	 * 
+	 * @param a
+	 * @param b
+	 * @return 1 if 'a' and 'b' are equal and 0 otherwise
+	 */
+	public static int kroneckerDelta(String[] a, String[] b) {
+		return Arrays.equals(a, b) ? 1 : 0;
 	}
 
 	/**

@@ -2,7 +2,9 @@ package com.cig.mctbnc.performance;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +14,7 @@ import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.models.MCTBNC;
+import com.cig.mctbnc.util.Util;
 
 /**
  * Implements cross-validation method.
@@ -21,8 +24,8 @@ import com.cig.mctbnc.models.MCTBNC;
  */
 public class CrossValidation {
 	Dataset dataset;
-	// Number of folds
 	int folds;
+	boolean shuffle;
 	Logger logger = LogManager.getLogger(CrossValidation.class);
 
 	public CrossValidation(DatasetReader datasetReader, int folds, boolean shuffle) {
@@ -37,6 +40,8 @@ public class CrossValidation {
 			logger.warn("Number of folds must be between 2 and the dataset size (leave-one-out cross validation)");
 		// Set number of folds
 		this.folds = folds;
+		// Set if the sequences should be shuffled
+		this.shuffle = shuffle;
 	}
 
 	/**
@@ -48,15 +53,20 @@ public class CrossValidation {
 		// Get sequences from the dataset
 		List<Sequence> sequences = dataset.getSequences();
 		int numSequences = sequences.size();
+		if (shuffle) {
+			// Shuffle the sequences before performing cross-validation
+			Integer seed = 10;
+			Util.shuffle(sequences, seed);
+			logger.info("Sequences shuffled");
+		}
 		// Obtain size of each fold
 		int[] sizeFolds = new int[folds];
 		Arrays.fill(sizeFolds, numSequences / folds);
 		// Sequences without fold are added one by one to the first folds
 		for (int i = 0; i < numSequences % folds; i++)
 			sizeFolds[i] += 1;
-		// Performance metrics (for now only for classification)
-		double globalAccuracy = 0.0;
-		double meanAccuracy = 0.0;
+		// Save performance metrics
+		Map<String, Double> resultsCV = new LinkedHashMap<String, Double>();
 		// Iterate over each fold
 		int fromIndex = 0;
 		// TODO PARALELLIZE
@@ -73,15 +83,30 @@ public class CrossValidation {
 			// Train the model
 			model.learn(trainingDataset);
 			// Make predictions over the current fold
-			Prediction[] predictions = model.predict(testingDataset);
-			// Metrics to evaluate the performance of the model for the current fold
-			globalAccuracy += Metrics.globalAccuracy(predictions, testingDataset);
-			meanAccuracy += Metrics.meanAccuracy(predictions, testingDataset);
+			Prediction[] predictions = model.predict(testingDataset, true);
+			// Result of performance metrics when evaluating the model with the current fold
+			Map<String, Double> resultsFold = Metrics.evaluate(predictions, testingDataset);
+			// Update the final results of the metrics after seeing all the folds
+			resultsFold.forEach((metric, value) -> resultsCV.merge(metric, value, (a, b) -> a + b));
+			// Display results fold
+			logger.info("Results fold {}", i);
+			displayResults(resultsFold);
 			fromIndex += sizeFolds[i];
 		}
+		// The average of each metric is computed
+		resultsCV.forEach((metric, value) -> resultsCV.put(metric, value / folds));
 		// Display results
-		logger.info("Global accuracy ({}-cross validation): {}", folds, globalAccuracy / folds);
-		logger.info("Mean accuracy ({}-cross validation): {}", folds, meanAccuracy / folds);
+		logger.info("Results cross-validation");
+		displayResults(resultsCV);
+	}
+
+	/**
+	 * Display the results of the cross validation.
+	 * 
+	 * @param results
+	 */
+	private void displayResults(Map<String, Double> results) {
+		results.forEach((metric, value) -> logger.info("{} ({}-cross validation): {}", metric, folds, value));
 	}
 
 }

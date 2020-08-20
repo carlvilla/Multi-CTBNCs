@@ -1,8 +1,7 @@
 package com.cig.mctbnc.performance;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +11,7 @@ import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.models.MCTBNC;
+import com.cig.mctbnc.util.Util;
 
 /**
  * Implements hold-out validation method.
@@ -41,9 +41,11 @@ public class HoldOut {
 		// Train the model
 		model.learn(this.trainingDataset);
 		// Make predictions with the model
-		Prediction[] predictions = model.predict(this.testingDataset);
+		Prediction[] predictions = model.predict(this.testingDataset, true);
 		// Evaluate the performance of the model
-		Metrics.evaluate(predictions, this.testingDataset);
+		Map<String, Double> results = Metrics.evaluate(predictions, this.testingDataset);
+		// Display results
+		displayResults(results);
 	}
 
 	/**
@@ -62,10 +64,11 @@ public class HoldOut {
 		// Obtain sequences of the dataset
 		List<Sequence> sequences = dataset.getSequences();
 		if (shuffle) {
-			// The sequences are shuffled before splitting into training and testing
-			Random rd = new Random(7);
-			Collections.shuffle(sequences, rd);
-			Collections.shuffle(files, rd);
+			// Sequences and their files are shuffled before splitting into train and test
+			int seed = 10;
+			Util.shuffle(sequences, seed);
+			Util.shuffle(files, seed);
+			logger.info("Sequences shuffled");
 		}
 		// Define training and testing sequences
 		int lastIndexTraining = (int) (trainingSize * sequences.size());
@@ -101,6 +104,15 @@ public class HoldOut {
 			logger.warn("The testing dataset was not generated.");
 		}
 		return testingDataset;
+	}
+
+	/**
+	 * Display the testing results.
+	 * 
+	 * @param results
+	 */
+	private void displayResults(Map<String, Double> results) {
+		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
 	}
 
 }

@@ -3,6 +3,7 @@ package com.cig.mctbnc.models;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -187,15 +188,19 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Performs classification over the sequences in a dataset according to the
-	 * maximum aposteriori rule, i.e., the class variable values which obtain the
-	 * largest log-likelihood are returned.
+	 * Perform classification over the sequences of a dataset according to the
+	 * maximum a posteriori probability. Classes that obtain the highest posterior
+	 * probability given each sequence are predicted.
 	 * 
-	 * @param dataset dataset from which the sequences to predict are extracted
-	 * @return bidimensional string array with the predictions of the class
-	 *         variables for all the sequences
+	 * @param dataset               dataset from which the sequences to predict are
+	 *                              extracted
+	 * @param estimateProbabilities determines if the probabilities of the classes
+	 *                              are estimated
+	 * @return array of Prediction object (one per sequence) that contain the
+	 *         predicted classes and, if requested, the probabilities of all
+	 *         possible classes
 	 */
-	public Prediction[] predict(Dataset dataset) {
+	public Prediction[] predict(Dataset dataset, boolean estimateProbabilities) {
 		logger.info("Performing prediction over {} sequences", dataset.getNumDataPoints());
 		int numSequences = dataset.getNumDataPoints();
 		Prediction[] predictions = new Prediction[numSequences];
@@ -203,64 +208,68 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		for (int i = 0; i < numSequences; i++) {
 			logger.trace("Performing prediction over sequence {}/{}", i, dataset.getNumDataPoints());
 			Sequence evidenceSequence = dataset.getSequences().get(i);
-			predictions[i] = predict(evidenceSequence);
+			predictions[i] = predict(evidenceSequence, estimateProbabilities);
 		}
 		return predictions;
 	}
 
 	/**
-	 * Performs classification over a sequence according to the maximum aposteriori
-	 * rule, i.e., the class variable values which obtain the largest posterior
-	 * probability are returned.
+	 * Perform classification over a sequence according to the maximum a posteriori
+	 * probability. Classes that obtain the highest posterior probability given the
+	 * sequence are predicted.
 	 * 
-	 * @param sequence sequence whose class variables are predicted
-	 * @return array of strings with the predicted states of the class variables
+	 * @param sequence              sequence whose class variables are predicted
+	 * @param estimateProbabilities determines if the probabilities of the classes
+	 *                              are estimated
+	 * @return Prediction object that contains the predicted classes and, if
+	 *         requested, the probabilities of all possible classes
 	 */
-	public Prediction predict(Sequence sequence) {
+	public Prediction predict(Sequence sequence, boolean estimateProbabilities) {
 		// Obtain the name of the class variables
 		List<String> nameClassVariables = dataset.getNameClassVariables();
 		// Obtation all possible states of the class variables
 		List<State> statesClassVariables = dataset.getStatesVariables(nameClassVariables);
-		// Obtain graphs of the Bayesian network and continuous time Bayesian network
+		// Obtain nodes of the Bayesian network and continuous time Bayesian network
 		List<NodeTypeBN> nodesBN = getNodesBN();
 		List<NodeTypeCTBN> nodesCTBN = getNodesCTBN();
-		// Logarithm posterior probabilities of each state combination of the class
-		// variables
-		double[] lpps = new double[statesClassVariables.size()];
+		// Estimate the log-a-posteriori probabilities (without normalizing constant)
+		// of each combination of classes
+		double[] laps = new double[statesClassVariables.size()];
 		for (int i = 0; i < statesClassVariables.size(); i++) {
-			// Get states 'i' of the class variables
+			// Get state/classes 'i' of the class variables
 			State stateClassVariables = statesClassVariables.get(i);
-			// Compute logarithm posterior probability of class variables state 'i' given
-			// the sequence
-			double lpp = 0;
-			// Estimate prior probability of the classes
-			lpp += logPriorProbabilityClassVariables(nodesBN, stateClassVariables);
-			// Estimate likelihood of the sequence given the classes
-			lpp += logLikelihood(sequence, nodesCTBN, stateClassVariables);
-			// Store log likelihood obtained when class variables take states 'i'
-			lpps[i] = lpp;
+			// Compute the log-a-posteriori probability of current classes 'i'
+			double lap = 0;
+			// Estimate the log-prior probability of the classes 'i'
+			lap += logPriorProbabilityClassVariables(nodesBN, stateClassVariables);
+			// Estimate log-likelihood of the sequence given the classes 'i'
+			lap += logLikelihood(sequence, nodesCTBN, stateClassVariables);
+			// Store log-a-posteriori probability of class variables taking classes 'i'
+			laps[i] = lap;
 		}
-
-		// If it is requested, compute the probabilities of each state of the class
-		// variable
-		// This is the denominator term of the
-		// double priorSequence = logPriorProbabilitySequence(sequence, nodesBN,
-		// nodesCTBN, statesClassVariables);
-		// for (int i = 0; i < statesClassVariables.size(); i++) {
-		// lpps[i] = lpps[i] - priorSequence;
-		// }
-
+		// Define a Prediction object to save the result
+		Prediction prediction = new Prediction();
 		// Retrieve the classes which obtain the largest posterior probability
-		int indexBestStateClassVariables = Util.getIndexLargestValue(lpps);
+		int indexBestStateClassVariables = Util.getIndexLargestValue(laps);
 		String[] predictedClasses = statesClassVariables.get(indexBestStateClassVariables)
 				.getValueNodes(nameClassVariables);
-		// Save the predicted classes and, if requested, its probability
-
-		// Transform logarithm of the posterior probability to simply posterior
-		// probability
-		double pp = Math.exp(lpps[indexBestStateClassVariables]);
-		Prediction prediction = new Prediction(predictedClasses, pp);
-
+		// Save the predicted classes
+		prediction.setPredictedClasses(predictedClasses);
+		// If requested, compute and save the a posteriori probabilities of the classes
+		if (estimateProbabilities) {
+			// Estimate the log-prior probability of the sequence (normalizing constant)
+			double priorSequence = logPriorProbabilitySequence(sequence, nodesBN, nodesCTBN, statesClassVariables);
+			// Normalize log-a-posteriori probabilities
+			for (int i = 0; i < statesClassVariables.size(); i++) {
+				// Normalize log-a-posteriori
+				laps[i] = laps[i] - priorSequence;
+				// Save a posteriori probability
+				prediction.setProbability(statesClassVariables.get(i), Math.exp(laps[i]));
+			}
+			// Save a posteriori probability of prediction
+			double ap = Math.exp(laps[indexBestStateClassVariables]);
+			prediction.setProbabilityPrediction(ap);
+		}
 		return prediction;
 	}
 
