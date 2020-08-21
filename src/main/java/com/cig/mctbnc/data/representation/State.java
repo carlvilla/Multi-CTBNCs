@@ -7,8 +7,9 @@ import java.util.Map;
 
 /**
  * 
- * Represent the state of certain nodes (events) by keeping their names and
- * values. A certain state can only contain one event for each variable.
+ * Represent the state of certain nodes/variables (events) by keeping their
+ * names and values. A certain state can only contain one event for each
+ * variable.
  * 
  * @author Carlos Villa Blanco
  *
@@ -17,20 +18,39 @@ public class State {
 
 	private Map<String, String> events;
 
+	/**
+	 * Default constructor.
+	 */
 	public State() {
 		events = new HashMap<String, String>();
 	}
 
+	/**
+	 * Create an State instance with some events.
+	 * 
+	 * @param events events to include to the State
+	 */
 	public State(Map<String, String> events) {
 		this.events = new HashMap<String, String>();
 		addEvents(events);
 	}
 
+	/**
+	 * Add an event (a variable taking a certain value) to the state.
+	 * 
+	 * @param nameVariable  name of the variable
+	 * @param valueVariable value of the variable
+	 */
 	public void addEvent(String nameVariable, String valueVariable) {
 		this.events.put(nameVariable, valueVariable);
 
 	}
 
+	/**
+	 * Add events to the state.
+	 * 
+	 * @param events events to add
+	 */
 	public void addEvents(Map<String, String> events) {
 		for (Map.Entry<String, String> event : events.entrySet()) {
 			addEvent(event.getKey(), event.getValue());
@@ -38,47 +58,71 @@ public class State {
 	}
 
 	/**
-	 * Given the name of a node, it is modified its value.
+	 * Given the name of a variables, its value is modified.
 	 * 
-	 * @param nameNode name of the node
-	 * @param newValue new value for the node in this state
+	 * @param nameVariable name of the variable
+	 * @param newValue     new value for the variable in this state
 	 */
-	public void modifyEventValue(String nameNode, String newValue) {
-		events.replace(nameNode, newValue);
+	public void modifyEventValue(String nameVariable, String newValue) {
+		events.replace(nameVariable, newValue);
 	}
 
+	/**
+	 * Return the events of the state.
+	 * 
+	 * @return Map with events
+	 */
 	public Map<String, String> getEvents() {
 		return events;
 	}
 
+	/**
+	 * Return number of events.
+	 * 
+	 * @return number of events
+	 */
 	public int getNumEvents() {
 		return events.size();
 	}
 
+	/**
+	 * Return the names of the variables collected by the State object.
+	 * 
+	 * @return names of the variables
+	 */
 	public List<String> getNameVariables() {
 		return new ArrayList<>(events.keySet());
 	}
 
 	/**
-	 * Return the value for a specified node.
+	 * Return all the values in the State.
 	 * 
-	 * @param nameNode
 	 * @return value of the specified node for this state
 	 */
-	public String getValueNode(String nameNode) {
-		return events.get(nameNode);
+	public String[] getValues() {
+		return events.values().toArray(String[]::new);
 	}
 
 	/**
-	 * Return the values for some specified nodes.
+	 * Return the value for a specific variable.
 	 * 
-	 * @param nameNodes names of the nodes
-	 * @return values of the specified nodes for this state
+	 * @param nameVariable name of the variable
+	 * @return value of the specified node for this state
 	 */
-	public String[] getValueNodes(List<String> nameNodes) {
-		String[] values = new String[nameNodes.size()];
-		for (int i = 0; i < nameNodes.size(); i++)
-			values[i] = events.get(nameNodes.get(i));
+	public String getValueVariable(String nameVariable) {
+		return events.get(nameVariable);
+	}
+
+	/**
+	 * Return the values for some specific variables.
+	 * 
+	 * @param nameVariables names of the variables
+	 * @return values of the specified variables for this state
+	 */
+	public String[] getValueVariables(List<String> nameVariables) {
+		String[] values = new String[nameVariables.size()];
+		for (int i = 0; i < nameVariables.size(); i++)
+			values[i] = events.get(nameVariables.get(i));
 		return values;
 	}
 
@@ -107,7 +151,7 @@ public class State {
 		final int prime = 31;
 		int hashcode = 1;
 		for (Map.Entry<String, String> entry : events.entrySet()) {
-			hashcode *= (prime + entry.getKey().hashCode() + entry.getValue().hashCode());	
+			hashcode *= (prime + entry.getKey().hashCode() + entry.getValue().hashCode());
 		}
 		return hashcode;
 	}

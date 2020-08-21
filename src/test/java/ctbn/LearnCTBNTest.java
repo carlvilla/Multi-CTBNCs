@@ -17,7 +17,7 @@ import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 
-public class LearnCTBN {
+public class LearnCTBNTest {
 
 	@Test
 	/**

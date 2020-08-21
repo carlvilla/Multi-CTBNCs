@@ -23,8 +23,9 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Compute the sufficient statistics of the node in a BN. This is the number of
-	 * the variable is in a certain state while its parents take a certain value.
+	 * Compute the sufficient statistics of a node in a BN. This is the number of
+	 * times the variable is in a certain state while its parents take a certain
+	 * value.
 	 * 
 	 * @param dataset
 	 */
@@ -52,6 +53,8 @@ public class BNSufficientStatistics implements SufficientStatistics {
 
 					// Query the dataset with the state k for the variables and
 					// the state j for its parents
+					// TODO Instead of looking for the occurrences of each state, iterate the
+					// observations just once
 					int Nijk = dataset.getNumOccurrences(query);
 					N.put(query, Nijk);
 				}

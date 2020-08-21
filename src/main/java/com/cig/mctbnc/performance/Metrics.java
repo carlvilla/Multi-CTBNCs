@@ -56,21 +56,25 @@ public class Metrics {
 	 * @param actualDataset dataset with actual classes
 	 */
 	public static void showPredictions(Prediction[] predicted, Dataset actualDataset) {
-		String[][] actualValues = actualDataset.getValuesClassVariables();
-		int numInstances = actualValues.length;
+		// Obtain actual class configurations
+		State[] actualCCs = actualDataset.getStatesClassVariables();
+		// Obtain the files used to generate the dataset
 		List<String> nameFiles = actualDataset.getNameFiles();
+		// Iterate over each instance
+		int numInstances = actualCCs.length;
 		for (int i = 0; i < numInstances; i++) {
+			String[] predictedCC = predicted[i].getPredictedClasses().getValues();
+			String[] actualCC = actualCCs[i].getValues();
+			// Get the estimated probability of our prediction
+			double probability = predicted[i].getProbabilityPrediction();
 			// If there are as many files as instances, show the predicted and actual
 			// classes along with the name of the file
 			if (nameFiles != null && nameFiles.size() == numInstances) {
 				logger.info("File {} / Real classes: {} / Predicted classes {} / Prob. {}",
-						actualDataset.getNameFiles().get(i), actualValues[i], predicted[i].getPredictedClasses(),
-						predicted[i].getProbabilityPrediction());
+						actualDataset.getNameFiles().get(i), actualCC, predictedCC, probability);
 			} else {
-				logger.info("Real classes: {} / Predicted classes {} / Prob. {}", actualValues[i],
-						predicted[i].getPredictedClasses(), predicted[i].getProbabilityPrediction());
+				logger.info("Real classes: {} / Predicted classes {} / Prob. {}", actualCC, predictedCC, probability);
 			}
-
 		}
 	}
 
@@ -85,11 +89,11 @@ public class Metrics {
 	 * @return 0/1 subset accuracy
 	 */
 	public static double globalAccuracy(Prediction[] predicted, Dataset actualDataset) {
-		String[][] actualValues = actualDataset.getValuesClassVariables();
+		State[] actualValues = actualDataset.getStatesClassVariables();
 		int numCorrectInstances = 0;
 		int numInstances = actualValues.length;
 		for (int i = 0; i < numInstances; i++)
-			if (compareArrays(predicted[i].getPredictedClasses(), actualValues[i]))
+			if (predicted[i].getPredictedClasses().equals(actualValues[i]))
 				numCorrectInstances++;
 		double subsetAccuracy = (double) numCorrectInstances / numInstances;
 		return subsetAccuracy;
@@ -100,23 +104,31 @@ public class Metrics {
 	 * 2011).
 	 * 
 	 * @param predicted
-	 * @param actual
-	 * @return
+	 * @param actualDataset
+	 * @return mean accuracy
 	 */
 	public static double meanAccuracy(Prediction[] predicted, Dataset actualDataset) {
-		String[][] actualValues = actualDataset.getValuesClassVariables();
-		int numClassVariables = actualValues[0].length;
-		int numInstances = actualValues.length;
+		// Obtain the actual class configurations
+		State[] actualCCs = actualDataset.getStatesClassVariables();
+		// Obtain number of instances
+		int numInstances = actualCCs.length;
+		// Initialize mean accuracy
 		double meanAccuracy = 0.0;
-		for (int i = 0; i < numClassVariables; i++) {
+		// Iterate over every class variable
+		List<String> nameCVs = predicted[0].getPredictedClasses().getNameVariables();
+		for (String nameCV : nameCVs) {
 			int numCorrectInstances = 0;
+			// Iterate over every instance
 			for (int j = 0; j < numInstances; j++) {
-				if (predicted[j].getPredictedClasses()[i].equals(actualValues[j][i]))
+				String predictedClass = predicted[j].getPredictedClasses().getValueVariable(nameCV);
+				String actualClass = actualCCs[j].getValueVariable(nameCV);
+				if (predictedClass.equals(actualClass))
 					numCorrectInstances++;
 			}
 			meanAccuracy += (double) numCorrectInstances / numInstances;
 		}
-		meanAccuracy /= numClassVariables;
+		int numCVs = nameCVs.size();
+		meanAccuracy /= numCVs;
 		return meanAccuracy;
 	}
 
@@ -124,23 +136,35 @@ public class Metrics {
 	 * The Brier score measures the performance of probabilistic predictions. Models
 	 * that assign a higher probability to correct predictions will have a lower
 	 * brier score (0 is the best). This method implements a generalized version for
-	 * multi-dimensional problems (Fernandes et al. 2013).
+	 * multi-dimensional problems, which rewards only the probability of the class
+	 * configuration where all classes are correct (Fernandes et al. 2013).
 	 * 
 	 * @param predicted
-	 * @param actual
-	 * @param approach
-	 * @return
+	 * @param actualDataset
+	 * @return global brier score
 	 */
-	private static double globalBrierScore(Prediction[] predicted, Dataset actualDataset) {
-		String[][] actualClassConfigurations = actualDataset.getValuesClassVariables();
-		int numInstances = actualClassConfigurations.length;
-		List<State> classConfigurations = new ArrayList<State>(predicted[0].getProbabilities().keySet());
+	public static double globalBrierScore(Prediction[] predicted, Dataset actualDataset) {
+		int numInstances = predicted.length;
+		// Obtain names class variables
+		// Obtain all possible class configurations
+		List<State> possibleCCs = new ArrayList<State>(predicted[0].getProbabilities().keySet());
+		// Obtain the actual class configuration of every instance
+		State[] actualCCs = actualDataset.getStatesClassVariables();
+		// Initialize global brier score
 		double gBs = 0.0;
+		// Iterate over all instances
 		for (int i = 0; i < numInstances; i++) {
-			for (State classConfiguration : classConfigurations) {
-				String[] valuesClassConfiguration = classConfiguration.getEvents().values().toArray(String[]::new);
-				double probabilityClass = predicted[i].getProbabilities().get(classConfiguration);
-				int kroneckerDelta = Util.kroneckerDelta(valuesClassConfiguration, actualClassConfigurations[i]);
+			// Extract the values of the actual class configuration
+			String[] actualValues = actualCCs[i].getValues();
+			// Iterate over all possible class configurations
+			for (State cc : possibleCCs) {
+				// Extract the values of the class configuration
+				String[] valuesCC = cc.getEvents().values().toArray(String[]::new);
+				// Extract the probability given to the class configuration
+				double probabilityClass = predicted[i].getProbabilities().get(cc);
+				// Determine if the evaluated class configuration is actually the correct one
+				int kroneckerDelta = Util.kroneckerDelta(valuesCC, actualValues);
+				// Update the global brier score
 				gBs += Math.pow(probabilityClass - kroneckerDelta, 2);
 			}
 		}

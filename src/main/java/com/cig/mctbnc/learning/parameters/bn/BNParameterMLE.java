@@ -65,7 +65,7 @@ public class BNParameterMLE implements ParameterLearningAlgorithm {
 		Map<State, Double> CPT = new HashMap<State, Double>();
 		// Obtain an array with the values that the studied variable can take
 		String[] possibleValuesStudiedNode = studiedNode.getStates().stream()
-				.map(stateAux -> stateAux.getValueNode(studiedNode.getName())).toArray(String[]::new);
+				.map(stateAux -> stateAux.getValueVariable(studiedNode.getName())).toArray(String[]::new);
 		// All the possible states between the studied variable and its parents
 		Set<State> states = N.keySet();
 		for (State state : states) {

@@ -55,7 +55,7 @@ public class StructureScoreFunctions {
 			Map<State, Integer> N = node.getSufficientStatistics();
 			// Obtain an array with the values that the studied variable can take
 			String[] possibleValuesStudiedVariable = node.getStates().stream()
-					.map(stateAux -> stateAux.getValueNode(node.getName())).toArray(String[]::new);
+					.map(stateAux -> stateAux.getValueVariable(node.getName())).toArray(String[]::new);
 			// All the possible states between the studied variable and its parents
 			Set<State> states = N.keySet();
 			for (State state : states) {

@@ -106,7 +106,7 @@ public class CrossValidation {
 	 * @param results
 	 */
 	private void displayResults(Map<String, Double> results) {
-		results.forEach((metric, value) -> logger.info("{} ({}-cross validation): {}", metric, folds, value));
+		results.forEach((metric, value) -> logger.info("{}: {}", metric, folds, value));
 	}
 
 }

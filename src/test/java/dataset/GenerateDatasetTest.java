@@ -14,7 +14,7 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.exceptions.ErroneousSequenceException;
 
-public class GenerateDataset {
+public class GenerateDatasetTest {
 
 	private static Dataset dataset;
 

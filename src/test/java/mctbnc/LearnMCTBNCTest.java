@@ -28,7 +28,7 @@ import com.cig.mctbnc.nodes.CPTNode;
  * @author Carlos Villa Blanco
  *
  */
-public class LearnMCTBNC {
+public class LearnMCTBNCTest {
 	static Dataset dataset;
 	static ParameterLearningAlgorithm bnParameterLearningAlgorithm;
 	static StructureLearningAlgorithm bnStructureLearningAlgorithm;

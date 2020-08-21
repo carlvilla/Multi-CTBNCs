@@ -249,10 +249,9 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		}
 		// Define a Prediction object to save the result
 		Prediction prediction = new Prediction();
-		// Retrieve the classes which obtain the largest posterior probability
+		// Retrieve class configuration which obtain largest posterior probability
 		int indexBestStateClassVariables = Util.getIndexLargestValue(laps);
-		String[] predictedClasses = statesClassVariables.get(indexBestStateClassVariables)
-				.getValueNodes(nameClassVariables);
+		State predictedClasses = statesClassVariables.get(indexBestStateClassVariables);
 		// Save the predicted classes
 		prediction.setPredictedClasses(predictedClasses);
 		// If requested, compute and save the a posteriori probabilities of the classes
@@ -291,11 +290,11 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 			// Define State object for node and parents having certain values
 			State query = new State();
 			// Add value of the class variable
-			query.addEvent(nodeBN.getName(), stateClassVariables.getValueNode(nodeBN.getName()));
+			query.addEvent(nodeBN.getName(), stateClassVariables.getValueVariable(nodeBN.getName()));
 			// Add values of the parents
 			for (Node parentNode : parentNodes) {
 				String nameParent = parentNode.getName();
-				query.addEvent(nameParent, stateClassVariables.getValueNode(nameParent));
+				query.addEvent(nameParent, stateClassVariables.getValueVariable(nameParent));
 			}
 			// Probability of the class variable and its parents having a certain state
 			Double Ox = nodeBN.getCPT().get(query);
@@ -365,7 +364,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 						String nameParent = parentNode.getName();
 						// Check if the parent is a class variable or a feature to retrieve its state
 						if (nameClassVariables.contains(nameParent)) {
-							fromState.addEvent(nameParent, stateClassVariables.getValueNode(nameParent));
+							fromState.addEvent(nameParent, stateClassVariables.getValueVariable(nameParent));
 						} else {
 							fromState.addEvent(nameParent, currentObservation.getValueVariable(nameParent));
 						}

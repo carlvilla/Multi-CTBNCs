@@ -15,7 +15,7 @@ import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterEstimation;
 import com.cig.mctbnc.nodes.CIMNode;
 
-public class ParameterLearning {
+public class ParameterLearningTest {
 
 	static List<CIMNode> nodes;
 
@@ -23,7 +23,7 @@ public class ParameterLearning {
 	 * Defines a dataset by creating first the sequences.
 	 */
 	@BeforeAll
-	public static void generateDatasetFromSequences() {
+	public static void setUp() {
 		// Define dataset
 		List<String> nameClassVariables = new ArrayList<String>();
 		String nameTimeVariable = "Time";

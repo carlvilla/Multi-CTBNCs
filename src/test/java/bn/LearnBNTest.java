@@ -17,7 +17,7 @@ import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 
-public class LearnBN {
+public class LearnBNTest {
 
 	/**
 	 * Learn a Bayesian network. The dataset used is formed by binary variables

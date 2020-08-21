@@ -14,6 +14,13 @@ import org.apache.logging.log4j.Logger;
 import com.cig.mctbnc.exceptions.ErroneousSequenceException;
 import com.cig.mctbnc.util.Util;
 
+/**
+ * Represents a time series dataset, which stores sequences and provides methods
+ * to access and modify their information.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 public class Dataset {
 	private List<Sequence> sequences;
 	private String nameTimeVariable;
@@ -181,35 +188,23 @@ public class Dataset {
 	}
 
 	/**
-	 * Get the values of the specified variables (by name) for all the sequences.
+	 * Get the states of the class variables for each of the sequences.
 	 * 
-	 * @param nameVaribles names of the variables
-	 * @return bidimensional array with the values of the specified variables
+	 * @return array of State objects
 	 */
-	public String[][] getValuesVariables(String[] nameVaribles) {
-		// If all the variables are class variables, then it is not necessary to
-		// check the observations of each sequence
-		boolean onlyClassVariable = getNameClassVariables().containsAll(Arrays.asList(nameVaribles));
-		if (onlyClassVariable) {
-			return getValuesClassVariables();
-		}
-
-		// TODO
-		return null;
+	public State[] getStatesClassVariables() {
+		State[] stateClassVariables = new State[getSequences().size()];
+		for (int i = 0; i < getSequences().size(); i++)
+			stateClassVariables[i] = new State(getSequences().get(i).getClassVariables());
+		return stateClassVariables;
 	}
 
 	/**
-	 * Get the values of the class variables for all the sequences.
+	 * Return the possible states of the specified variable.
 	 * 
-	 * @return bidimensional array with the values of the class variables
+	 * @param nameVariable
+	 * @return states of the variable
 	 */
-	public String[][] getValuesClassVariables() {
-		String[][] valuesClassVariables = new String[getSequences().size()][getNumClassVariables()];
-		for (int i = 0; i < getSequences().size(); i++)
-			valuesClassVariables[i] = getSequences().get(i).getValuesClassVariables();
-		return valuesClassVariables;
-	}
-
 	public List<State> getStatesVariable(String nameVariable) {
 		Set<State> states = new HashSet<State>();
 		for (Sequence sequence : getSequences()) {
@@ -217,7 +212,6 @@ public class Dataset {
 			for (int i = 0; i < statesSequence.length; i++) {
 				// For every possible value of the variable it is created a State.
 				State state = new State();
-				// Event<String> event = new Event<String>(nameVariable, statesSequence[i]);
 				state.addEvent(nameVariable, statesSequence[i]);
 				states.add(state);
 			}
@@ -310,12 +304,12 @@ public class Dataset {
 
 				// Check if the variable starts from the expected value
 				boolean expectedValueBefore = observationBefore.getValueVariable(nameVariable)
-						.equals(fromState.getValueNode(nameVariable));
+						.equals(fromState.getValueVariable(nameVariable));
 
 				if (expectedValueBefore) {
 					// Check if the studied variable transitions to the expected value
 					boolean expectedValueAfter = observationAfter.getValueVariable(nameVariable)
-							.equals(toState.getValueNode(nameVariable));
+							.equals(toState.getValueVariable(nameVariable));
 
 					// It is only necessary to check the states of the parents if the variable
 					// transitions from and to the expected values
@@ -323,7 +317,7 @@ public class Dataset {
 						boolean expectedValueParents = true;
 						for (String nameParent : nameParents) {
 							expectedValueParents = expectedValueParents && observationBefore
-									.getValueVariable(nameParent).equals(fromState.getValueNode(nameParent));
+									.getValueVariable(nameParent).equals(fromState.getValueVariable(nameParent));
 							if (!expectedValueParents)
 								continue;
 						}
@@ -439,7 +433,7 @@ public class Dataset {
 		boolean ObservationHasState = true;
 		for (String nameVariable : nameVariables) {
 			ObservationHasState = ObservationHasState
-					& observation.getValueVariable(nameVariable).equals(state.getValueNode(nameVariable));
+					& observation.getValueVariable(nameVariable).equals(state.getValueVariable(nameVariable));
 			// If any variable has a different state, it is not necessary to check the
 			// others
 			if (!ObservationHasState) {

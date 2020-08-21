@@ -61,28 +61,58 @@ public class Sequence {
 		featureNames.remove(nameFeature);
 	}
 
-	public String[] getValuesClassVariables() {
-		Collection<String> values = classVariablesValues.values();
-		return values.toArray(new String[values.size()]);
+	/**
+	 * Return a Map object with the names and the values of the class variables.
+	 * 
+	 * @return Map with names and values of the class variables
+	 */
+	public Map<String, String> getClassVariables() {
+		return classVariablesValues;
 	}
 
+	/**
+	 * Return the values of the specified class variable.
+	 * 
+	 * @param nameClassVariable name of the class variable
+	 * @return values of the class variable
+	 */
 	public String getValueClassVariable(String nameClassVariable) {
 		return classVariablesValues.get(nameClassVariable);
 	}
 
+	/**
+	 * Return the names of the class variables.
+	 * 
+	 * @return names of the class variables
+	 */
 	public List<String> getClassVariablesNames() {
 		Set<String> keys = classVariablesValues.keySet();
 		return new ArrayList<String>(keys);
 	}
 
+	/**
+	 * Return the names of the features.
+	 * 
+	 * @return names of the features.
+	 */
 	public List<String> getFeatureNames() {
 		return featureNames;
 	}
 
+	/**
+	 * Return the name of the time variable.
+	 * 
+	 * @return name of the time variable
+	 */
 	public String getTimeVariableName() {
 		return nameTimeVariable;
 	}
 
+	/**
+	 * Return all the observations of the sequence.
+	 * 
+	 * @return list of observations
+	 */
 	public List<Observation> getObservations() {
 		return observations;
 	}
@@ -94,10 +124,6 @@ public class Sequence {
 	 */
 	public int getNumObservations() {
 		return observations.size();
-	}
-
-	public Double[] getTimeValues() {
-		return observations.stream().map(ob -> ob.getTimeValue()).toArray(Double[]::new);
 	}
 
 	/**
@@ -183,4 +209,5 @@ public class Sequence {
 		}
 
 	}
+
 }

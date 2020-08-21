@@ -12,7 +12,7 @@ import com.cig.mctbnc.data.representation.State;
  *
  */
 public class Prediction {
-	String[] predictedClasses;
+	State predictedClasses;
 	double probabilityPrediction;
 	Map<State, Double> probabilities;
 
@@ -21,7 +21,7 @@ public class Prediction {
 	 * 
 	 * @param predictedClasses
 	 */
-	public void setPredictedClasses(String[] predictedClasses) {
+	public void setPredictedClasses(State predictedClasses) {
 		this.predictedClasses = predictedClasses;
 	}
 
@@ -51,7 +51,7 @@ public class Prediction {
 	 * 
 	 * @return prediction
 	 */
-	public String[] getPredictedClasses() {
+	public State getPredictedClasses() {
 		return predictedClasses;
 	}
 
