@@ -78,7 +78,9 @@ public class Dataset {
 	 * Those features with zero variance are removed from the dataset.
 	 */
 	public void removeZeroVarianceFeatures() {
-		for (String nameFeature : nameFeatures) {
+		// Use temporal list to avoid a concurrent modification exception
+		List<String> tempList = new ArrayList<String>(nameFeatures);
+		for (String nameFeature : tempList) {
 			if (getStatesVariable(nameFeature).size() == 1) {
 				logger.warn("Features {} is removed since its variance is zero.", nameFeature);
 				removeFeature(nameFeature);
@@ -101,9 +103,11 @@ public class Dataset {
 	 * @param nameFeature
 	 */
 	private void removeFeature(String nameFeature) {
-		for (Sequence sequence : sequences) {
+		// Remove the feature from all the sequences of the dataset
+		for (Sequence sequence : sequences)
 			sequence.removeFeature(nameFeature);
-		}
+		// Remove the name of the feature from the dataset
+		nameFeatures.remove(nameFeature);
 	}
 
 	/**

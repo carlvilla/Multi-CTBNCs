@@ -114,6 +114,7 @@ public class CommandLine {
 		 */
 
 		if (modelValidation) {
+			logger.info("Validating model");
 			// Hold-out validation
 			// double trainingSize = 0.7;
 			// boolean shuffleSequences = true;
@@ -121,20 +122,21 @@ public class CommandLine {
 			// shuffleSequences);
 
 			// Cross-validation
-			int folds = 5;
+			int folds = 4;
 			boolean shuffleSequences = true;
 			CrossValidation testingMethod = new CrossValidation(datasetReader, folds, shuffleSequences);
-
+			
 			// Evaluate the performance of the model
 			testingMethod.evaluate(mctbnc);
-		} else {
-			// Obtain whole dataset
-			Dataset dataset = datasetReader.readDataset();
-			// Learn model
-			mctbnc.learn(dataset);
-			// Display model
-			mctbnc.display();
 		}
+		logger.info("Training model with all available data");
+		// Obtain whole dataset
+		Dataset dataset = datasetReader.readDataset();
+		// Learn model
+		mctbnc.learn(dataset);
+		// Display model
+		mctbnc.display();
+
 	}
 
 }
