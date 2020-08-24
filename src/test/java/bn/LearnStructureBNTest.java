@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
+import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.structure.HillClimbingBN;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
@@ -17,7 +17,7 @@ import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 
-public class LearnBNTest {
+public class LearnStructureBNTest {
 
 	/**
 	 * Learn a Bayesian network. The dataset used is formed by binary variables
@@ -54,7 +54,7 @@ public class LearnBNTest {
 
 		// Class subgraph is defined with a Bayesian network
 		// Algorithm to learn parameters
-		ParameterLearningAlgorithm parameterLearningAlgorithm = new BNParameterMLE();
+		ParameterLearningAlgorithm parameterLearningAlgorithm = new BNMaximumLikelihoodEstimation();
 		// Algorithm to learn structure
 		StructureLearningAlgorithm structureLearningAlgorithm = new HillClimbingBN();
 		// Structure constraints

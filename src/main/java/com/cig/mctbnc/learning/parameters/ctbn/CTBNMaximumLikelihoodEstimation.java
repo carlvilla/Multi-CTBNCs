@@ -36,21 +36,21 @@ public class CTBNMaximumLikelihoodEstimation extends CTBNParameterEstimation {
 		// Parameter with probabilities of leaving a certain state
 		for (State fromState : Nx.keySet()) {
 			double qx = Nx.get(fromState) / Tx.get(fromState);
-			// If the operation gives NaN (state does not occur in the dataset), the
-			// parameter is set to zero
-			if (Double.isInfinite(qx) || Double.isNaN(qx))
+			// If the operation gives NaN (the states of the node and its parents do not
+			// occur simultaneously in the training dataset), the parameter is set to zero
+			if (Double.isNaN(qx))
 				qx = 0;
 			Qx.put(fromState, qx);
 		}
-		// Parameter with probabilities of leaving a certain state for another
+		// Parameter with probabilities of leaving (transitioning) a certain state for another
 		for (State fromState : Nxy.keySet()) {
 			for (State toState : Nxy.get(fromState).keySet()) {
 				if (!Oxx.containsKey(fromState))
 					Oxx.put(fromState, new HashMap<State, Double>());
 				double oxx = (double) Nxy.get(fromState).get(toState) / Nx.get(fromState);
-				// If the operation gives NaN (state does not occur in the dataset), the
-				// parameter is set to zero
-				if (Double.isInfinite(oxx) || Double.isNaN(oxx))
+				// If the operation gives NaN (the transition does not occur in the training
+				// dataset), the parameter is set to zero
+				if (Double.isNaN(oxx))
 					oxx = 0;
 				Oxx.get(fromState).put(toState, oxx);
 			}

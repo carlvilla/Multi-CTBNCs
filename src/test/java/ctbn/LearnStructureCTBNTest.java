@@ -17,7 +17,7 @@ import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 
-public class LearnCTBNTest {
+public class LearnStructureCTBNTest {
 
 	@Test
 	/**
@@ -81,8 +81,6 @@ public class LearnCTBNTest {
 		ctbn.setPenalizationFunction("BIC");
 		ctbn.learn(dataset);
 		
-		ctbn.display();
-
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, true, false, false },
 				{ false, false, true, false }, { false, false, false, true }, { true, false, false, false } };
 		assertArrayEquals(expectedAdjacencyMatrix, ctbn.getAdjacencyMatrix());

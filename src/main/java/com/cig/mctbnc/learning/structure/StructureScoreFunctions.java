@@ -1,5 +1,6 @@
 package com.cig.mctbnc.learning.structure;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,6 +133,22 @@ public class StructureScoreFunctions {
 					llScore += nxx * Math.log(oxx);
 			}
 		}
+		
+		
+		
+		
+		// Mostrar nodo si contiene variable clase como padre. Quitar permutaciones en el otro y comparar los resultados.	
+		boolean a = node.getParents().stream().anyMatch(nodoP -> nodoP.isClassVariable());
+		if(a) {
+			String[] namesP = node.getParents().stream().map(nodoP->nodoP.getName()).toArray(String[]::new);
+			System.out.println("Nodo: "+ node.getName());
+			System.out.println(Arrays.toString(namesP));
+		System.out.println(llScore);
+		}
+		
+		
+		
+		
 		// If the specified penalization function is available, it is applied
 		if (penalizationFunctionMap.containsKey(penalizationFunction)) {
 			// Overfitting is avoid by penalizing the complexity of the network

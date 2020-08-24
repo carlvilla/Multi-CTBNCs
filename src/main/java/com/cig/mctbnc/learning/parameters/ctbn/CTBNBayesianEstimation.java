@@ -69,6 +69,9 @@ public class CTBNBayesianEstimation extends CTBNParameterEstimation {
 		// Parameter with probabilities of leaving a certain state
 		for (State fromState : Nx.keySet()) {
 			double qx = (this.NxyPrior + Nx.get(fromState)) / (this.TxPrior + Tx.get(fromState));
+			// The previous operation can be undefined if the priors are 0
+			if (Double.isNaN(qx))
+				qx = 0;
 			Qx.put(fromState, qx);
 		}
 		// Parameter with probabilities of leaving a certain state for another
@@ -77,6 +80,9 @@ public class CTBNBayesianEstimation extends CTBNParameterEstimation {
 				if (!Oxx.containsKey(fromState))
 					Oxx.put(fromState, new HashMap<State, Double>());
 				double oxx = (this.NxyPrior + Nxy.get(fromState).get(toState)) / (this.NxPrior + Nx.get(fromState));
+				// The previous operation can be undefined if the priors are 0
+				if (Double.isNaN(oxx))
+					oxx = 0;
 				Oxx.get(fromState).put(toState, oxx);
 			}
 		}

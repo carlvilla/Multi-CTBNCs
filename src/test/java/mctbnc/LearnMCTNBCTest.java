@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
+import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.structure.HillClimbingBN;
 import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
@@ -54,7 +54,7 @@ public class LearnMCTNBCTest {
 		dataset.addSequence(dataSequence1);
 		dataset.addSequence(dataSequence2);
 		// Definition of learning algorithms
-		bnParameterLearningAlgorithm = new BNParameterMLE();
+		bnParameterLearningAlgorithm = new BNMaximumLikelihoodEstimation();
 		bnStructureLearningAlgorithm = new HillClimbingBN();
 		ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
 		ctbnStructureLearningAlgorithm = new HillClimbingCTBN();

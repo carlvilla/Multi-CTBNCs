@@ -42,18 +42,9 @@ public abstract class HillClimbing implements StructureLearningAlgorithm {
 		this.initialAdjacencyMatrix = pgm.getAdjacencyMatrix();
 		// Define training dataset
 		this.trainingDataset = trainingDataset;
-		// Obtain a better than the initial one
-		boolean[][] structureFound;
-		// Depending on the model to learn, there could be a unique structure (naive
-		// Bayes) or it has to be optimized
-		if (!structureConstraints.uniqueStructure()) {
-			// Optimize structure
-			structureFound = findStructure();
-			pgm.setStructure(structureFound);
-		} else
-			// One possible structure. It is set in the PGM and the parameters learned
-			structureConstraints.initializeStructure(pgm);
-
+		// Optimize structure. Obtain a better one than the initial
+		boolean[][] structureFound = findStructure();
+		pgm.setStructure(structureFound);
 	}
 
 	/**

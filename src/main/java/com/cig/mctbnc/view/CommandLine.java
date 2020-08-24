@@ -11,29 +11,30 @@ import com.cig.mctbnc.classification.ClassifierFactory;
 import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.reader.SeparateCSVReader;
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.parameters.bn.BNParameterMLE;
+import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
+import com.cig.mctbnc.learning.parameters.bn.BNParameterEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterEstimation;
 import com.cig.mctbnc.learning.structure.HillClimbingBN;
 import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
-import com.cig.mctbnc.performance.CrossValidation;
+import com.cig.mctbnc.performance.HoldOut;
 
 public class CommandLine {
 
 	static Logger logger = LogManager.getLogger(CommandLine.class);
 
-	Map<String, ParameterLearningAlgorithm> parameterLearningBN = new HashMap<String, ParameterLearningAlgorithm>() {
+	Map<String, BNParameterEstimation> parameterLearningBN = new HashMap<String, BNParameterEstimation>() {
 		{
-			put("MLE", new BNParameterMLE());
+			put("MLE", new BNMaximumLikelihoodEstimation());
 		}
 	};
 
-	Map<String, ParameterLearningAlgorithm> parameterLearningCTBN = new HashMap<String, ParameterLearningAlgorithm>() {
+	Map<String, CTBNParameterEstimation> parameterLearningCTBN = new HashMap<String, CTBNParameterEstimation>() {
 		{
 			put("MLE", new CTBNMaximumLikelihoodEstimation()); // Maximum likelihood estimation
 			put("BE", new CTBNBayesianEstimation()); // Bayesian estimation
@@ -78,11 +79,11 @@ public class CommandLine {
 
 		// -------------------------- LEARNING ALGORITHMS --------------------------
 		// Define learning algorithms for the class subgraph
-		ParameterLearningAlgorithm bnParameterLearningAlgorithm = parameterLearningBN.get("MLE");
+		BNParameterEstimation bnParameterLearningAlgorithm = parameterLearningBN.get("MLE");
 		StructureLearningAlgorithm bnStructureLearningAlgorithm = structureLearningBN.get("HillClimbing");
 
 		// Define learning algorithms for the feature and class subgraph
-		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = parameterLearningCTBN.get("MLE");
+		CTBNParameterEstimation ctbnParameterLearningAlgorithm = parameterLearningCTBN.get("MLE");
 		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = structureLearningCTBN.get("HillClimbing");
 		// -------------------------- LEARNING ALGORITHMS --------------------------
 
@@ -116,16 +117,15 @@ public class CommandLine {
 		if (modelValidation) {
 			logger.info("Validating model");
 			// Hold-out validation
-			// double trainingSize = 0.7;
-			// boolean shuffleSequences = true;
-			// HoldOut testingMethod = new HoldOut(datasetReader, trainingSize,
-			// shuffleSequences);
+			double trainingSize = 0.8;
+			boolean shuffleSequences = true;
+			HoldOut testingMethod = new HoldOut(datasetReader, trainingSize, shuffleSequences);
 
 			// Cross-validation
-			int folds = 4;
-			boolean shuffleSequences = true;
-			CrossValidation testingMethod = new CrossValidation(datasetReader, folds, shuffleSequences);
-			
+//			int folds = 4;
+//			boolean shuffleSequences = true;
+//			CrossValidation testingMethod = new CrossValidation(datasetReader, folds, shuffleSequences);
+
 			// Evaluate the performance of the model
 			testingMethod.evaluate(mctbnc);
 		}

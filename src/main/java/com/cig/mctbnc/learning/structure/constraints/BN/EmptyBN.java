@@ -1,8 +1,10 @@
 package com.cig.mctbnc.learning.structure.constraints.BN;
 
-import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.learning.structure.constraints.AbstractStructureConstraints;
+import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
@@ -14,6 +16,7 @@ import com.cig.mctbnc.nodes.NodeIndexer;
  *
  */
 public class EmptyBN extends AbstractStructureConstraints {
+	static Logger logger = LogManager.getLogger(EmptyBN.class);
 
 	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix, NodeIndexer<? extends Node> nodeIndexer) {
@@ -25,6 +28,17 @@ public class EmptyBN extends AbstractStructureConstraints {
 				}
 			}
 		}
+		return true;
+	}
+
+	@Override
+	public void initializeStructure(PGM<? extends Node> pgm) {
+		// As it is a disconnected Bayesian network, it is not established any arc.
+		logger.info("Estimating parameters of empty Bayesian network");
+	}
+
+	@Override
+	public boolean uniqueStructure() {
 		return true;
 	}
 }

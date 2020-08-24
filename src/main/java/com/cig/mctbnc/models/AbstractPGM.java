@@ -152,8 +152,15 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 			nodes.add(node);
 		}
 		addNodes(nodes);
-		// Learn structure and paramters
-		structureLearningAlg.learn(this, dataset, parameterLearningAlg, structureConstraints);
+		// Depending on the class of model to learn, there could be a unique structure
+		// (naive Bayes or empty graph) or the initial one has to be optimized
+		if (structureConstraints.uniqueStructure()) {
+			// One possible structure. It is set in the PGM and the parameters learned
+			structureConstraints.initializeStructure(this);
+			learnParameters();
+		} else
+			// Learn structure and parameters with the specified algorithms
+			structureLearningAlg.learn(this, dataset, parameterLearningAlg, structureConstraints);
 	}
 
 	/**
