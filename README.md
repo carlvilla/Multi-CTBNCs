@@ -1,4 +1,4 @@
-# MCTBNCs
+# MCTBNCs [![Build Status](https://travis-ci.com/carlvilla/MCTBNCs.svg?token=aJzHjLbR53QnhrMdqpW5&branch=master)](https://travis-ci.com/carlvilla/MCTBNCs)
 
 ## Supported datasets
 Datasets can be stored and presented in different formats. Currently, this software supports the following:
