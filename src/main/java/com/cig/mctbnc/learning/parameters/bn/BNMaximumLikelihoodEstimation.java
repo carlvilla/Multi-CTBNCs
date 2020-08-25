@@ -50,6 +50,11 @@ public class BNMaximumLikelihoodEstimation extends BNParameterEstimation {
 			// Probability that the studied variable has a state k given that
 			// its parents have a state j.
 			double prob = Nijk / Nij;
+			// The state may not occur in the training dataset. In that case the probability
+			// is set to 0.
+			if (Double.isNaN(prob))
+				prob = 0;
+			// Save the probability of the state
 			CPT.put(state, prob);
 		}
 		return CPT;

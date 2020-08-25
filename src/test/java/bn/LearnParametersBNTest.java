@@ -78,7 +78,7 @@ public class LearnParametersBNTest {
 		dataSequence6.add(new String[] { "0.1", "a", "b", "b" });
 
 		List<String[]> dataSequence7 = new ArrayList<String[]>();
-		dataSequence7.add(new String[] { "Time", "V1", "V2", "V3" });
+		dataSequence7.add(new String[] { "Time", "C1", "C2", "C3" });
 		dataSequence7.add(new String[] { "0.5", "c", "b", "b" });
 
 		dataset = new Dataset(nameTimeVariable, nameClassVariables);
@@ -110,6 +110,62 @@ public class LearnParametersBNTest {
 		// Learn sufficient statistics and parameters given the nodes and the dataset
 		BNParameterEstimation bnParameterLearning = new BNMaximumLikelihoodEstimation();
 		bnParameterLearning.learn(nodes, dataset);
+		
+		// Parameters C1
+		Map<State, Double> cptC1 = nodes.get(0).getCPT();
+		// Parameters C2
+		Map<State, Double> cptC2 = nodes.get(1).getCPT();
+		// Parameters C3
+		Map<State, Double> cptC3 = nodes.get(2).getCPT();
+		
+		// Parameters C1
+		State state = new State();
+		state.addEvent("C1", "a");
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "b");
+		assertEquals(0.5, cptC1.get(state), 0.001);
+
+		state = new State();
+		state.addEvent("C1", "b");
+		state.addEvent("C2", "a");
+		state.addEvent("C3", "b");
+		assertEquals(0, cptC1.get(state), 0.001);
+
+		state = new State();
+		state.addEvent("C1", "c");
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "b");
+		assertEquals(0.333, cptC1.get(state), 0.001);
+		
+		// Parameters C2
+		state = new State();
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "b");
+		assertEquals(1, cptC2.get(state), 0.001);
+		
+		state = new State();
+		state.addEvent("C2", "a");
+		state.addEvent("C3", "a");
+		assertEquals(1, cptC2.get(state), 0.001);
+		
+		// Never seen state
+		state = new State(); 
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "c");
+		assertEquals(null, cptC2.get(state));
+		
+		// Parameters C3
+		state = new State();
+		state.addEvent("C3", "a");
+		assertEquals(0.142, cptC3.get(state), 0.001);
+		
+		state = new State();
+		state.addEvent("C3", "b");
+		assertEquals(0.857, cptC3.get(state), 0.001);
+		
+		state = new State();
+		state.addEvent("C3", "c");
+		assertEquals(null, cptC3.get(state));
 	}
 
 	@Test
@@ -122,52 +178,53 @@ public class LearnParametersBNTest {
 		Map<State, Integer> ssC3 = nodes.get(2).getSufficientStatistics();
 
 		// Sufficient statistics C1
-		State fromState = new State();
-		fromState.addEvent("C1", "a");
-		fromState.addEvent("C2", "b");
-		fromState.addEvent("C3", "b");
-		assertEquals(3, ssC1.get(fromState));
+		State state = new State();
+		state.addEvent("C1", "a");
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "b");
+		assertEquals(3, ssC1.get(state));
 
-		fromState = new State();
-		fromState.addEvent("C1", "b");
-		fromState.addEvent("C2", "a");
-		fromState.addEvent("C3", "b");
-		assertEquals(0, ssC1.get(fromState));
+		state = new State();
+		state.addEvent("C1", "b");
+		state.addEvent("C2", "a");
+		state.addEvent("C3", "b");
+		assertEquals(0, ssC1.get(state));
 
-		fromState = new State();
-		fromState.addEvent("C1", "c");
-		fromState.addEvent("C2", "b");
-		fromState.addEvent("C3", "b");
-		assertEquals(1, ssC1.get(fromState));
+		state = new State();
+		state.addEvent("C1", "c");
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "b");
+		assertEquals(2, ssC1.get(state));
 		
 		// Sufficient statistics C2
-		fromState = new State();
-		fromState.addEvent("C2", "b");
-		fromState.addEvent("C3", "b");
-		assertEquals(6, ssC2.get(fromState));
+		state = new State();
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "b");
+		assertEquals(6, ssC2.get(state));
 		
-		fromState = new State();
-		fromState.addEvent("C2", "a");
-		fromState.addEvent("C3", "a");
-		assertEquals(2, ssC2.get(fromState));
+		state = new State();
+		state.addEvent("C2", "a");
+		state.addEvent("C3", "a");
+		assertEquals(1, ssC2.get(state));
 		
-		fromState = new State();
-		fromState.addEvent("C2", "b");
-		fromState.addEvent("C3", "c");
-		assertEquals(0, ssC2.get(fromState));
+		// Never seen state
+		state = new State(); 
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "c");
+		assertEquals(null, ssC2.get(state));
 		
 		// Sufficient statistics C3
-		fromState = new State();
-		fromState.addEvent("C3", "a");
-		assertEquals(6, ssC3.get(fromState));
+		state = new State();
+		state.addEvent("C3", "a");
+		assertEquals(1, ssC3.get(state));
 		
-		fromState = new State();
-		fromState.addEvent("C3", "b");
-		assertEquals(1, ssC3.get(fromState));
+		state = new State();
+		state.addEvent("C3", "b");
+		assertEquals(6, ssC3.get(state));
 		
-		fromState = new State();
-		fromState.addEvent("C3", "c");
-		assertEquals(0, ssC3.get(fromState));
+		state = new State();
+		state.addEvent("C3", "c");
+		assertEquals(null, ssC3.get(state));
 	}
 
 }
