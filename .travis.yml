@@ -2,7 +2,7 @@ language: java
 
 os: linux
 dist: trusty
-jdk: oraclejdk
+jdk: oraclejdk14
 
 script:
   - ./gradlew build --scan -s
