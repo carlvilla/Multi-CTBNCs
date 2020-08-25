@@ -1,5 +1,7 @@
 language: java
 
+os: linux
+dist: trusty
 jdk: oraclejdk
 
 script:
