@@ -5,18 +5,21 @@
  * For more details take a look at the Java Libraries chapter in the Gradle
  * User Manual available at https://docs.gradle.org/6.3/userguide/java_library_plugin.html
  */
-
-// Apply the java-library plugin to add support for Java Library
-apply plugin: 'java-library'
-// Apply the application plugin that facilitates creating an executable JVM application
-apply plugin: 'application'
+plugins{
+	// Apply the java-library plugin to add support for Java Library
+	id 'java-library'
+	// Apply the application plugin that facilitates creating an executable JVM application
+	id 'application'
+	// Apply the JavaFX gradle plugin:
+	id 'org.openjfx.javafxplugin' version '0.0.8'
+}
 
 mainClassName = "com.cig.mctbnc.Main"
 
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+	jcenter()
 }
 
 test {
@@ -43,5 +46,9 @@ dependencies {
   	
   	//OpenCSV
   	compile group: 'com.opencsv', name: 'opencsv', version: '3.7'
-  	
+}
+
+javafx{
+    version = "14"
+    modules = [ 'javafx.controls', 'javafx.fxml']
 }

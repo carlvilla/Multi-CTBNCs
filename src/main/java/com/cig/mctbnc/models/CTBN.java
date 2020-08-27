@@ -14,8 +14,7 @@ import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeFactory;
 
 /**
- * Implements a continuous time Bayesian network classifier. This is a modified
- * version of the original where there can be more than one class variable.
+ * Implements a continuous time Bayesian network.
  * 
  * @author Carlos Villa Blanco
  *
@@ -39,7 +38,7 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 */
 	public CTBN(List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
 			StructureLearningAlgorithm structureLearningAlg, StructureConstraints structureConstraints,
-			Class<NodeType> nodeClass) {		
+			Class<NodeType> nodeClass) {
 		// Set variables to use
 		this.nameVariables = nameVariables;
 		// Set node type

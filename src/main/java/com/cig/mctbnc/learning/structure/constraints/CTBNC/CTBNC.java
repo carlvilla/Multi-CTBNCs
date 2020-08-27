@@ -1,19 +1,16 @@
 package com.cig.mctbnc.learning.structure.constraints.CTBNC;
 
-import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.learning.structure.constraints.AbstractStructureConstraints;
-import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
 /**
- * Specify the general structure restrictions of a CTBNC. As it is used for the
- * learning of MCTBNCs, it is assumed the possible existence of more than one
- * class variable.
+ * Specify the structure restrictions of a CTBNC. As it is used for the learning
+ * of MCTBNCs, it is assumed the possible existence of more than one class
+ * variable.
  * 
  * @author Carlos Villa Blanco
  *

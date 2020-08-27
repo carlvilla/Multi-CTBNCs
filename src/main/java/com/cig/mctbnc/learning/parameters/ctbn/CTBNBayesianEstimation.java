@@ -68,24 +68,35 @@ public class CTBNBayesianEstimation extends CTBNParameterEstimation {
 		Map<State, Double> Tx = node.getSufficientStatistics().getTx();
 		// Parameter with probabilities of leaving a certain state
 		for (State fromState : Nx.keySet()) {
+			// Number of transitions from this state
+			int NxFromState = Nx.get(fromState);
+			// Instantaneous probability
 			double qx = (this.NxyPrior + Nx.get(fromState)) / (this.TxPrior + Tx.get(fromState));
 			// The previous operation can be undefined if the priors are 0
 			if (Double.isNaN(qx))
 				qx = 0;
+			// Save the estimated instantaneous probability
 			Qx.put(fromState, qx);
-		}
-		// Parameter with probabilities of leaving a certain state for another
-		for (State fromState : Nxy.keySet()) {
-			for (State toState : Nxy.get(fromState).keySet()) {
-				if (!Oxx.containsKey(fromState))
-					Oxx.put(fromState, new HashMap<State, Double>());
-				double oxx = (this.NxyPrior + Nxy.get(fromState).get(toState)) / (this.NxPrior + Nx.get(fromState));
-				// The previous operation can be undefined if the priors are 0
-				if (Double.isNaN(oxx))
-					oxx = 0;
-				Oxx.get(fromState).put(toState, oxx);
+			// Obtain the map with all the transitions from "fromState" to other states
+			Map<State, Integer> mapNxyFromState = Nxy.get(fromState);
+			// It may happen that a variable has not transitions in a training set (e.g.
+			// when using CV without stratification)
+			if (mapNxyFromState != null) {
+				// Iterate over all possible transitions to obtain their probabilities
+				for (State toState : mapNxyFromState.keySet()) {
+					if (!Oxx.containsKey(fromState))
+						Oxx.put(fromState, new HashMap<State, Double>());
+					double oxx = (this.NxyPrior + mapNxyFromState.get(toState)) / (this.NxPrior + NxFromState);
+					// The previous operation can be undefined if the priors are 0
+					if (Double.isNaN(oxx))
+						oxx = 0;
+					// Save the probability of transitioning from "fromState" to "toState"
+					Oxx.get(fromState).put(toState, oxx);
+				}
 			}
+
 		}
+
 		// Set parameters in the CIMNode object
 		node.setParameters(Qx, Oxx);
 	}

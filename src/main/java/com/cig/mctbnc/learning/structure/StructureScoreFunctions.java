@@ -1,13 +1,10 @@
 package com.cig.mctbnc.learning.structure;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.IntUnaryOperator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +31,6 @@ public class StructureScoreFunctions {
 
 	static Map<String, DoubleUnaryOperator> penalizationFunctionMap = new HashMap<>() {
 		private static final long serialVersionUID = 1L;
-
 		{
 			put("BIC", N -> Math.log(N) / 2);
 			put("AIC", N -> 1.0);
@@ -108,47 +104,8 @@ public class StructureScoreFunctions {
 		// Obtain node to evaluate
 		CIMNode node = ctbn.getNodes().get(nodeIndex);
 		double llScore = 0.0;
-		
-		// Obtain parameters and sufficient statistics of the node
-		// Contains the probabilities of transitioning from one state to another
-		Map<State, Map<State, Double>> Oxx = node.getOxx();
-		// CIMs. Given the state of a variable and its parents is obtained the
-		// instantaneous probability
-		Map<State, Double> Qx = node.getQx();
-		CTBNSufficientStatistics ss = node.getSufficientStatistics();
 		// Obtain all possible state of the variable and its parents
-		for (State state : Qx.keySet()) {
-			double qx = Qx.get(state);
-			int nx = ss.getNx().get(state);
-			double tx = ss.getTx().get(state);
-			// Probability density function of the exponential distribution
-			if (qx != 0)
-				llScore += nx * Math.log(qx) - qx * tx;
-			for (State toState : Oxx.get(state).keySet()) {
-				// Probability of transitioning from "state" to "toState"
-				double oxx = Oxx.get(state).get(toState);
-				// Number of times the variable transitions from "state" to "toState"
-				int nxx = ss.getNxy().get(state).get(toState);
-				if (oxx != 0)
-					llScore += nxx * Math.log(oxx);
-			}
-		}
-		
-		
-		
-		
-		// Mostrar nodo si contiene variable clase como padre. Quitar permutaciones en el otro y comparar los resultados.	
-		boolean a = node.getParents().stream().anyMatch(nodoP -> nodoP.isClassVariable());
-		if(a) {
-			String[] namesP = node.getParents().stream().map(nodoP->nodoP.getName()).toArray(String[]::new);
-			System.out.println("Nodo: "+ node.getName());
-			System.out.println(Arrays.toString(namesP));
-		System.out.println(llScore);
-		}
-		
-		
-		
-		
+		llScore += marginalLogLikelihood(node);
 		// If the specified penalization function is available, it is applied
 		if (penalizationFunctionMap.containsKey(penalizationFunction)) {
 			// Overfitting is avoid by penalizing the complexity of the network
@@ -159,14 +116,61 @@ public class StructureScoreFunctions {
 			int numStatesParents = node.getNumStateParents();
 			// Complexity of the network
 			int networkComplexity = numTransitions * numStatesParents;
-			// Sample size
-			int sampleSize = ctbn.getDataset().getNumObservation();
-			// Non-negative penalization (For now it is performing a BIC penalization)
+			// Sample size (number of sequences)
+			int sampleSize = ctbn.getDataset().getNumDataPoints();
+			// Non-negative penalization
 			double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
-
 			llScore -= (double) networkComplexity * penalization;
 		}
 		return llScore;
+	}
+
+	/**
+	 * Compute the marginal log likelihood for a certain node.
+	 * 
+	 * @param node
+	 * @return marginal log likelihood
+	 */
+	private static double marginalLogLikelihood(CIMNode node) {
+		// Retrieve sufficient statistics of the node
+		CTBNSufficientStatistics ss = node.getSufficientStatistics();
+		// Obtain parameters and sufficient statistics of the node
+		// Contains the probabilities of transitioning from one state to another
+		Map<State, Map<State, Double>> Oxx = node.getOxx();
+		// CIMs. Given the state of a variable and its parents is obtained the
+		// instantaneous probability
+		Map<State, Double> Qx = node.getQx();
+		// Store marginal log likelihood
+		double mll = 0.0;
+		for (State state : Qx.keySet()) {
+			double qx = Qx.get(state);
+			int nx = ss.getNx().get(state);
+			double tx = ss.getTx().get(state);
+			// Probability density function of the exponential distribution. If it is 0,
+			// there are no transitions from this state
+			if (qx != 0) {
+				mll += nx * Math.log(qx) - qx * tx;
+				for (State toState : Oxx.get(state).keySet()) {
+					// Probability of transitioning from "state" to "toState"
+					double oxx = Oxx.get(state).get(toState);
+					// Number of times the variable transitions from "state" to "toState"
+					int nxx = ss.getNxy().get(state).get(toState);
+					if (oxx != 0)
+						mll += nxx * Math.log(oxx);
+				}
+			}
+		}
+		return mll;
+	}
+
+	/**
+	 * Check if a node has at least one class variable as parent.
+	 * 
+	 * @param node node to evaluate
+	 * @return
+	 */
+	private static boolean classVariablesAsParent(Node node) {
+		return node.getParents().stream().anyMatch(nodoP -> nodoP.isClassVariable());
 	}
 
 }

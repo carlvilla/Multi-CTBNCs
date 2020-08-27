@@ -90,12 +90,11 @@ public class Metrics {
 	 */
 	public static double globalAccuracy(Prediction[] predicted, Dataset actualDataset) {
 		State[] actualValues = actualDataset.getStatesClassVariables();
-		int numCorrectInstances = 0;
 		int numInstances = actualValues.length;
+		double subsetAccuracy = 0;
 		for (int i = 0; i < numInstances; i++)
 			if (predicted[i].getPredictedClasses().equals(actualValues[i]))
-				numCorrectInstances++;
-		double subsetAccuracy = (double) numCorrectInstances / numInstances;
+				subsetAccuracy += (double) 1 / numInstances;
 		return subsetAccuracy;
 	}
 
@@ -123,9 +122,8 @@ public class Metrics {
 				String predictedClass = predicted[j].getPredictedClasses().getValueVariable(nameCV);
 				String actualClass = actualCCs[j].getValueVariable(nameCV);
 				if (predictedClass.equals(actualClass))
-					numCorrectInstances++;
+					meanAccuracy += (double) 1 / numInstances;
 			}
-			meanAccuracy += (double) numCorrectInstances / numInstances;
 		}
 		int numCVs = nameCVs.size();
 		meanAccuracy /= numCVs;

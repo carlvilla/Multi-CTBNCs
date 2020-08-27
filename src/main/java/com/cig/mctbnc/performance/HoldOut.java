@@ -46,6 +46,8 @@ public class HoldOut {
 		Map<String, Double> results = Metrics.evaluate(predictions, this.testingDataset);
 		// Display results
 		displayResults(results);
+		// Display learned model
+		model.display();
 	}
 
 	/**

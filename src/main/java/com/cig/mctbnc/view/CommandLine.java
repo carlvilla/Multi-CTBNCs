@@ -60,8 +60,8 @@ public class CommandLine {
 
 		// Rehabilitation dataset
 		List<String> nameClassVariables = List.of("ExerciseMode");
-		List<String> excludeVariables = List.of("S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16",
-				"S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29");
+		List<String> excludeVariables = List.of("S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15",
+				"S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29");
 		String nameTimeVariable = "t";
 
 		// Artificial dataset
@@ -83,13 +83,13 @@ public class CommandLine {
 		StructureLearningAlgorithm bnStructureLearningAlgorithm = structureLearningBN.get("HillClimbing");
 
 		// Define learning algorithms for the feature and class subgraph
-		CTBNParameterEstimation ctbnParameterLearningAlgorithm = parameterLearningCTBN.get("MLE");
+		CTBNParameterEstimation ctbnParameterLearningAlgorithm = new CTBNBayesianEstimation(1, 1, 0.0005); //parameterLearningCTBN.get("MLE");
 		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = structureLearningCTBN.get("HillClimbing");
 		// -------------------------- LEARNING ALGORITHMS --------------------------
 
 		// Define the type of multi-dimensional continuous time Bayesian network
 		// classifier to use
-		String classMCTBNC = "MCTBNC";
+		String classMCTBNC = "MCTNBC";
 		MCTBNC<CPTNode, CIMNode> mctbnc = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(classMCTBNC,
 				ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm,
 				bnStructureLearningAlgorithm, CPTNode.class, CIMNode.class);
@@ -117,8 +117,8 @@ public class CommandLine {
 		if (modelValidation) {
 			logger.info("Validating model");
 			// Hold-out validation
-			double trainingSize = 0.8;
-			boolean shuffleSequences = true;
+			double trainingSize = 0.7;
+			boolean shuffleSequences = false;
 			HoldOut testingMethod = new HoldOut(datasetReader, trainingSize, shuffleSequences);
 
 			// Cross-validation
@@ -128,15 +128,15 @@ public class CommandLine {
 
 			// Evaluate the performance of the model
 			testingMethod.evaluate(mctbnc);
+		} else {
+			logger.info("Training model with all available data");
+			// Obtain whole dataset
+			Dataset dataset = datasetReader.readDataset();
+			// Learn model
+			mctbnc.learn(dataset);
+			// Display model
+			mctbnc.display();
 		}
-		logger.info("Training model with all available data");
-		// Obtain whole dataset
-		Dataset dataset = datasetReader.readDataset();
-		// Learn model
-		mctbnc.learn(dataset);
-		// Display model
-		mctbnc.display();
-
 	}
 
 }

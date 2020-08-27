@@ -397,14 +397,14 @@ public class MetricsTest {
 	@Test
 	public void testGlobalBrierScore() {
 		// Perfect classification
-		double globalAccuracy = Metrics.globalBrierScore(perfectPredictions, actualDataset);
-		assertEquals(0, globalAccuracy, 0.01);
+		double globalBrierScore = Metrics.globalBrierScore(perfectPredictions, actualDataset);
+		assertEquals(0, globalBrierScore, 0.01);
 		// Perfect predictions but with uncertainty
-		globalAccuracy = Metrics.globalBrierScore(perfectPredictionWithUncertainty, actualDataset);
-		assertEquals(0.33, globalAccuracy, 0.01);
+		globalBrierScore = Metrics.globalBrierScore(perfectPredictionWithUncertainty, actualDataset);
+		assertEquals(0.33, globalBrierScore, 0.01);
 		// Two class variables correct, one wrong
-		globalAccuracy = Metrics.globalBrierScore(predictionsWithTwoCorrectClasses, actualDataset);
-		assertEquals(2, globalAccuracy, 0.01);
+		globalBrierScore = Metrics.globalBrierScore(predictionsWithTwoCorrectClasses, actualDataset);
+		assertEquals(2, globalBrierScore, 0.01);
 	}
 
 }

@@ -5,7 +5,14 @@ import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.view.CommandLine;
 
-public class Main {
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
+
+public class Main extends Application {
 
 	static Logger logger = LogManager.getLogger(Main.class);
 
@@ -15,8 +22,20 @@ public class Main {
 	 * @param args application command line arguments
 	 */
 	public static void main(String[] args) {
+		launch(args);
+	}
 
-		String datasetFolder = "src/main/resources/datasets/rehabilitation/exercise1";
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		
+		Parent root;
+		root = FXMLLoader.load(getClass().getResource("/fxml/Main.fxml"));
+		
+		Scene scene = new Scene(root);
+		primaryStage.setScene(scene);
+		primaryStage.show();
+
+		String datasetFolder = "src/main/resources/datasets/rehabilitation/Exercise1";
 
 		try {
 			logger.debug("Initializing MCTBNCs from Main");

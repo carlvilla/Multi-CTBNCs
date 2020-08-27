@@ -3,7 +3,6 @@ package com.cig.mctbnc.models;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -438,7 +437,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		Graph graph = new SingleGraph("MCTBNC");
 		addNodes(graph, nodes);
 		addEdges(graph, nodes);
-		graph.display();
+		graph.display();		
 	}
 
 	private List<NodeTypeBN> getNodesBN() {

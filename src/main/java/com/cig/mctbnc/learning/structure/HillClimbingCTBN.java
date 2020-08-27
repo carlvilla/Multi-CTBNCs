@@ -19,8 +19,7 @@ public class HillClimbingCTBN extends HillClimbing {
 		// Store adjacency matrix of the best structure found
 		boolean[][] bestAdjacencyMatrix = initialAdjacencyMatrix.clone();
 		int numNodes = bestAdjacencyMatrix.length;
-
-		// A CTBN can have cycles, so the parent set of each node is optimized
+		// As a CTBN can have cycles, the parent set of each node is optimized
 		// individually
 		for (int indexNode = 0; indexNode < numNodes; indexNode++) {
 			Node node = pgm.getNodeByIndex(indexNode);
@@ -28,9 +27,9 @@ public class HillClimbingCTBN extends HillClimbing {
 			// cannot have parents
 			if (!node.isClassVariable()) {
 				logger.info("Finding best parent set for node {}", node.getName());
-
-				// Store score of the best neighbor structure for the node
-				double bestScore = Double.NEGATIVE_INFINITY;
+				// Set as initial best score the one obtained with the initial structure
+				double bestScore = setStructure(indexNode, initialAdjacencyMatrix); // Double.NEGATIVE_INFINITY;
+				// Try to improve the current structure
 				boolean improvement = false;
 				do {
 					// Store adjacency matrix of the current iteration
@@ -41,7 +40,6 @@ public class HillClimbingCTBN extends HillClimbing {
 						bestScore = bestNeighbor.getScore();
 						bestAdjacencyMatrix = bestNeighbor.getAdjacencyMatrix();
 					}
-
 				} while (improvement);
 				logger.debug("New structure: {}", (Object) bestAdjacencyMatrix);
 			}
@@ -67,15 +65,12 @@ public class HillClimbingCTBN extends HillClimbing {
 			if (indexNode != parentIndex && !adjacencyMatrix[parentIndex][indexNode]) {
 				// Define a temporal adjacency matrix to try a new structure
 				boolean[][] tempAdjacencyMatrix = new boolean[numNodes][numNodes];
-				for (int r = 0; r < numNodes; r++) {
+				for (int r = 0; r < numNodes; r++)
 					tempAdjacencyMatrix[r] = adjacencyMatrix[r].clone();
-				}
 				// Set the node 'parentIndex' as parent of the node 'indexNode'
 				tempAdjacencyMatrix[parentIndex][indexNode] = true;
-				((CTBN) pgm).setStructure(indexNode, tempAdjacencyMatrix);
-				// Obtain the local log-likelihood of the node 'indexNode'
-				double obtainedScore = StructureScoreFunctions.logLikelihoodScore(((CTBN) pgm), indexNode,
-						structureConstraints.getPenalizationFunction());
+				// Set structure and obtain the local log-likelihood at the node 'indexNode'
+				double obtainedScore = setStructure(indexNode, tempAdjacencyMatrix);
 				if (obtainedScore > solution.getScore()) {
 					// Set the obtained score and adjacency matrix as the best ones so far
 					solution.setAdjacencyMatrix(tempAdjacencyMatrix);
@@ -84,6 +79,24 @@ public class HillClimbingCTBN extends HillClimbing {
 			}
 		}
 		return solution;
+	}
+
+	/**
+	 * Establish for the indicated node (in the CTBN) the parent set defined in an
+	 * adjacency matrix and return the score for the new structure.
+	 * 
+	 * @param indexNode
+	 * @param adjacencyMatrix
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private double setStructure(int indexNode, boolean[][] adjacencyMatrix) {
+		// Establish the parent set of the node
+		((CTBN) pgm).setStructure(indexNode, adjacencyMatrix);
+		// Obtain the local log-likelihood at the node
+		double score = StructureScoreFunctions.logLikelihoodScore(((CTBN) pgm), indexNode,
+				structureConstraints.getPenalizationFunction());
+		return score;
 	}
 
 }
