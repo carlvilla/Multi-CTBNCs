@@ -1,4 +1,4 @@
-package com.cig.mctbnc.learning.structure;
+package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
 /**
  * Class used to contain the solution given by the hill climbing algorithms.

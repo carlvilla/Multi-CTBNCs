@@ -11,14 +11,18 @@ import com.cig.mctbnc.classification.ClassifierFactory;
 import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.reader.SeparateCSVReader;
 import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.learning.BNLearningAlgorithms;
+import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.parameters.bn.BNParameterEstimation;
+import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterEstimation;
-import com.cig.mctbnc.learning.structure.HillClimbingBN;
-import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.optimization.hillclimbing.BNHillClimbing;
+import com.cig.mctbnc.learning.structure.optimization.hillclimbing.CTBNHillClimbing;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
@@ -28,28 +32,28 @@ public class CommandLine {
 
 	static Logger logger = LogManager.getLogger(CommandLine.class);
 
-	Map<String, BNParameterEstimation> parameterLearningBN = new HashMap<String, BNParameterEstimation>() {
+	Map<String, BNParameterLearningAlgorithm> parameterLearningBN = new HashMap<String, BNParameterLearningAlgorithm>() {
 		{
 			put("MLE", new BNMaximumLikelihoodEstimation());
 		}
 	};
 
-	Map<String, CTBNParameterEstimation> parameterLearningCTBN = new HashMap<String, CTBNParameterEstimation>() {
+	Map<String, CTBNParameterLearningAlgorithm> parameterLearningCTBN = new HashMap<String, CTBNParameterLearningAlgorithm>() {
 		{
 			put("MLE", new CTBNMaximumLikelihoodEstimation()); // Maximum likelihood estimation
 			put("BE", new CTBNBayesianEstimation()); // Bayesian estimation
 		}
 	};
 
-	Map<String, StructureLearningAlgorithm> structureLearningBN = new HashMap<String, StructureLearningAlgorithm>() {
+	Map<String, BNStructureLearningAlgorithm> structureLearningBN = new HashMap<String, BNStructureLearningAlgorithm>() {
 		{
-			put("HillClimbing", new HillClimbingBN());
+			put("HillClimbing", new BNHillClimbing());
 		}
 	};
 
-	Map<String, StructureLearningAlgorithm> structureLearningCTBN = new HashMap<String, StructureLearningAlgorithm>() {
+	Map<String, CTBNStructureLearningAlgorithm> structureLearningCTBN = new HashMap<String, CTBNStructureLearningAlgorithm>() {
 		{
-			put("HillClimbing", new HillClimbingCTBN());
+			put("HillClimbing", new CTBNHillClimbing());
 		}
 	};
 
@@ -79,24 +83,29 @@ public class CommandLine {
 
 		// -------------------------- LEARNING ALGORITHMS --------------------------
 		// Define learning algorithms for the class subgraph
-		BNParameterEstimation bnParameterLearningAlgorithm = parameterLearningBN.get("MLE");
-		StructureLearningAlgorithm bnStructureLearningAlgorithm = structureLearningBN.get("HillClimbing");
+		BNParameterLearningAlgorithm bnParameterLearningAlgorithm = parameterLearningBN.get("MLE");
+		BNStructureLearningAlgorithm bnStructureLearningAlgorithm = structureLearningBN.get("HillClimbing");
+		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnParameterLearningAlgorithm,
+				bnStructureLearningAlgorithm);
 
 		// Define learning algorithms for the feature and class subgraph
-		CTBNParameterEstimation ctbnParameterLearningAlgorithm = new CTBNBayesianEstimation(1, 1, 0.0005); //parameterLearningCTBN.get("MLE");
-		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = structureLearningCTBN.get("HillClimbing");
+		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNBayesianEstimation(1, 1, 0.0005); // parameterLearningCTBN.get("MLE");
+		CTBNStructureLearningAlgorithm ctbnStructureLearningAlgorithm = structureLearningCTBN.get("HillClimbing");
+		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnParameterLearningAlgorithm,
+				ctbnStructureLearningAlgorithm);
+
 		// -------------------------- LEARNING ALGORITHMS --------------------------
 
 		// Define the type of multi-dimensional continuous time Bayesian network
 		// classifier to use
-		String classMCTBNC = "MCTNBC";
-		MCTBNC<CPTNode, CIMNode> mctbnc = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(classMCTBNC,
-				ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm,
-				bnStructureLearningAlgorithm, CPTNode.class, CIMNode.class);
+		String classMCTBNC = "KMCTNBC";
+		String[] args = { "4" };
+		MCTBNC<CPTNode, CIMNode> mctbnc = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(classMCTBNC, bnLearningAlgs,
+				ctbnLearningAlgs, args, CPTNode.class, CIMNode.class);
 
 		// Determine the penalization function (for complexity of the BN and CTBN
 		// structure)
-		String penalizationFunction = "BIC";
+		String penalizationFunction = "NO";
 		mctbnc.setPenalizationFunction(penalizationFunction);
 
 		// Initial structure
@@ -118,7 +127,7 @@ public class CommandLine {
 			logger.info("Validating model");
 			// Hold-out validation
 			double trainingSize = 0.7;
-			boolean shuffleSequences = false;
+			boolean shuffleSequences = true;
 			HoldOut testingMethod = new HoldOut(datasetReader, trainingSize, shuffleSequences);
 
 			// Cross-validation

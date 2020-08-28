@@ -1,8 +1,10 @@
-package com.cig.mctbnc.learning.structure;
+package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.optimization.StructureScoreFunctions;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.Node;
 
@@ -12,8 +14,8 @@ import com.cig.mctbnc.nodes.Node;
  * @author Carlos Villa Blanco
  *
  */
-public class HillClimbingCTBN extends HillClimbing {
-	static Logger logger = LogManager.getLogger(HillClimbingCTBN.class);
+public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearningAlgorithm {
+	static Logger logger = LogManager.getLogger(CTBNHillClimbing.class);
 
 	public boolean[][] findStructure() {
 		// Store adjacency matrix of the best structure found
@@ -69,12 +71,15 @@ public class HillClimbingCTBN extends HillClimbing {
 					tempAdjacencyMatrix[r] = adjacencyMatrix[r].clone();
 				// Set the node 'parentIndex' as parent of the node 'indexNode'
 				tempAdjacencyMatrix[parentIndex][indexNode] = true;
-				// Set structure and obtain the local log-likelihood at the node 'indexNode'
-				double obtainedScore = setStructure(indexNode, tempAdjacencyMatrix);
-				if (obtainedScore > solution.getScore()) {
-					// Set the obtained score and adjacency matrix as the best ones so far
-					solution.setAdjacencyMatrix(tempAdjacencyMatrix);
-					solution.setScore(obtainedScore);
+				// Check if the structure is legal
+				if (pgm.isStructureLegal(tempAdjacencyMatrix)) {
+					// Set structure and obtain the local log-likelihood at the node 'indexNode'
+					double obtainedScore = setStructure(indexNode, tempAdjacencyMatrix);
+					if (obtainedScore > solution.getScore()) {
+						// Set the obtained score and adjacency matrix as the best ones so far
+						solution.setAdjacencyMatrix(tempAdjacencyMatrix);
+						solution.setScore(obtainedScore);
+					}
 				}
 			}
 		}

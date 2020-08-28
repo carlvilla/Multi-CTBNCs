@@ -8,12 +8,13 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.structure.HillClimbingBN;
-import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
+import com.cig.mctbnc.learning.structure.optimization.hillclimbing.BNHillClimbing;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 
@@ -54,14 +55,17 @@ public class LearnStructureBNTest {
 
 		// Class subgraph is defined with a Bayesian network
 		// Algorithm to learn parameters
-		ParameterLearningAlgorithm parameterLearningAlgorithm = new BNMaximumLikelihoodEstimation();
+		BNParameterLearningAlgorithm parameterLearningAlgorithm = new BNMaximumLikelihoodEstimation();
 		// Algorithm to learn structure
-		StructureLearningAlgorithm structureLearningAlgorithm = new HillClimbingBN();
+		BNStructureLearningAlgorithm structureLearningAlgorithm = new BNHillClimbing();
+		// Define object containing the learning algorithms
+		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(parameterLearningAlgorithm,
+				structureLearningAlgorithm);
 		// Structure constraints
 		StructureConstraints structureConstraintsBN = new DAG();
-
-		BN<CPTNode> bn = new BN<CPTNode>(nameClassVariables, parameterLearningAlgorithm, structureLearningAlgorithm,
-				structureConstraintsBN, CPTNode.class);
+		// Create the Bayesian network
+		BN<CPTNode> bn = new BN<CPTNode>(nameClassVariables, bnLearningAlgs, structureConstraintsBN, CPTNode.class);
+		// Learn the parameters and structure
 		bn.learn(dataset);
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, false, true }, { false, false, true },
 				{ false, false, false } };

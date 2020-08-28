@@ -1,10 +1,7 @@
 package com.cig.mctbnc.models;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
-
-import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.BNLearningAlgorithms;
+import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.BN.EmptyBN;
 import com.cig.mctbnc.learning.structure.constraints.CTBNC.NaiveBayes;
@@ -16,26 +13,24 @@ import com.cig.mctbnc.nodes.Node;
  * subgraph (fully naive multi-dimensional classifier).
  * 
  * @author Carlos Villa Blanco
+ * @param <NodeTypeBN>
+ * @param <NodeTypeCTBN>
  *
  */
 public class MCTNBC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends MCTBNC<NodeTypeBN, NodeTypeCTBN> {
 
 	/**
-	 * @param dataset
-	 * @param ctbnParameterLearningAlgorithm
-	 * @param ctbnStructureLearningAlgorithm
-	 * @param bnParameterLearningAlgorithm
-	 * @param bnStructureLearningAlgorithm
+	 * Construct a multidimensional continuous time naive Bayes classifier given the
+	 * learning algorithms for BNs and CTBNs.
+	 * 
+	 * @param bnLearningAlgs
+	 * @param ctbnLearningAlgs
 	 * @param bnNodeClass
 	 * @param ctbnNodeClass
 	 */
-	public MCTNBC(ParameterLearningAlgorithm ctbnParameterLearningAlgorithm,
-			StructureLearningAlgorithm ctbnStructureLearningAlgorithm,
-			ParameterLearningAlgorithm bnParameterLearningAlgorithm,
-			StructureLearningAlgorithm bnStructureLearningAlgorithm, Class<NodeTypeBN> bnNodeClass,
-			Class<NodeTypeCTBN> ctbnNodeClass) {
-		super(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm,
-				bnStructureLearningAlgorithm, bnNodeClass, ctbnNodeClass);
+	public MCTNBC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnLearningAlgs,
+			Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
+		super(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
 	}
 
 	@Override
@@ -49,11 +44,8 @@ public class MCTNBC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	@Override
-	public void display() {
-		Graph graph = new SingleGraph("MCTNBC");
-		addNodes(graph, nodes);
-		addEdges(graph, nodes);
-		graph.display();
+	public String getType() {
+		return "Multidimensional continuous time naive Bayes classifier";
 	}
 
 }

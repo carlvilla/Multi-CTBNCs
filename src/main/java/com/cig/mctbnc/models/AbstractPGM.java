@@ -221,6 +221,11 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		return nodes.size();
 	}
 
+	/**
+	 * Return the dataset used to learn the PGM.
+	 * 
+	 * @return dataset
+	 */
 	public Dataset getDataset() {
 		return dataset;
 	}

@@ -41,7 +41,7 @@ public class HoldOut {
 		// Train the model
 		model.learn(this.trainingDataset);
 		// Make predictions with the model
-		Prediction[] predictions = model.predict(this.testingDataset, true);
+		Prediction[] predictions = model.predict(this.testingDataset, false);
 		// Evaluate the performance of the model
 		Map<String, Double> results = Metrics.evaluate(predictions, this.testingDataset);
 		// Display results

@@ -12,7 +12,7 @@ import com.cig.mctbnc.nodes.CIMNode;
  * @author Carlos Villa Blanco
  *
  */
-public class CTBNBayesianEstimation extends CTBNParameterEstimation {
+public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 
 	private double NxyPrior;
 	private double NxPrior;

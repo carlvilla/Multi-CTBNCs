@@ -16,7 +16,7 @@ import com.cig.mctbnc.nodes.CPTNode;
  * @author Carlos Villa Blanco
  *
  */
-public class BNMaximumLikelihoodEstimation extends BNParameterEstimation {
+public class BNMaximumLikelihoodEstimation extends BNParameterLearningAlgorithm {
 	static Logger logger = LogManager.getLogger(BNMaximumLikelihoodEstimation.class);
 
 	/**

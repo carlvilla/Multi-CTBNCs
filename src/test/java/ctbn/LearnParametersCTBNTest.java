@@ -16,7 +16,7 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterEstimation;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
 import com.cig.mctbnc.nodes.CIMNode;
 
 /**
@@ -332,7 +332,7 @@ public class LearnParametersCTBNTest {
 	@Order(1)
 	public void testMLE() {
 		// Learn sufficient statistics and parameters given the nodes and the dataset
-		CTBNParameterEstimation ctbnParameterLearning = new CTBNMaximumLikelihoodEstimation();
+		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNMaximumLikelihoodEstimation();
 		ctbnParameterLearning.learn(nodes, dataset);
 		testMLEParameterQxCTBN();
 		testMLEParameterOxxCTBN();
@@ -531,7 +531,7 @@ public class LearnParametersCTBNTest {
 		double NxyPrior = 0.0;
 		double NxPrior = 0.0;
 		double TxPrior = 0.0;
-		CTBNParameterEstimation ctbnParameterLearning = new CTBNBayesianEstimation(NxyPrior, NxPrior, TxPrior);
+		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(NxyPrior, NxPrior, TxPrior);
 		ctbnParameterLearning.learn(nodes, dataset);
 		testMLEParameterQxCTBN();
 		testMLEParameterOxxCTBN();
@@ -548,7 +548,7 @@ public class LearnParametersCTBNTest {
 		double NxyPrior = 1.0;
 		double NxPrior = 1.0;
 		double TxPrior = 2.0;
-		CTBNParameterEstimation ctbnParameterLearning = new CTBNBayesianEstimation(NxyPrior, NxPrior, TxPrior);
+		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(NxyPrior, NxPrior, TxPrior);
 		ctbnParameterLearning.learn(nodes, dataset);
 		testBEParameterQxCTBN();
 		testBEParameterOxxCTBN();

@@ -11,12 +11,16 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.BNLearningAlgorithms;
+import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
+import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.structure.HillClimbingBN;
-import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
-import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.optimization.hillclimbing.BNHillClimbing;
+import com.cig.mctbnc.learning.structure.optimization.hillclimbing.CTBNHillClimbing;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
@@ -30,10 +34,8 @@ import com.cig.mctbnc.nodes.CPTNode;
  */
 public class LearnMCTBNCTest {
 	static Dataset dataset;
-	static ParameterLearningAlgorithm bnParameterLearningAlgorithm;
-	static StructureLearningAlgorithm bnStructureLearningAlgorithm;
-	static ParameterLearningAlgorithm ctbnParameterLearningAlgorithm;
-	static StructureLearningAlgorithm ctbnStructureLearningAlgorithm;
+	static BNLearningAlgorithms bnLearningAlgs;
+	static CTBNLearningAlgorithms ctbnLearningAlgs;
 
 	/**
 	 * 
@@ -192,10 +194,14 @@ public class LearnMCTBNCTest {
 
 		dataset.addSequence(dataSequence6);
 
-		bnParameterLearningAlgorithm = new BNMaximumLikelihoodEstimation();
-		bnStructureLearningAlgorithm = new HillClimbingBN();
-		ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
-		ctbnStructureLearningAlgorithm = new HillClimbingCTBN();
+		// Algorithms to learn BN (class subgraph of MCTBNC)
+		BNParameterLearningAlgorithm bnParameterLearningAlgorithm = new BNMaximumLikelihoodEstimation();
+		BNStructureLearningAlgorithm bnStructureLearningAlgorithm = new BNHillClimbing();
+		bnLearningAlgs = new BNLearningAlgorithms(bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
+		// Algorithms to learn CTBN (feature and bridge subgraph of MCTBNC)
+		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
+		CTBNStructureLearningAlgorithm ctbnStructureLearningAlgorithm = new CTBNHillClimbing();
+		ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm);
 	}
 
 	/**
@@ -203,9 +209,8 @@ public class LearnMCTBNCTest {
 	 */
 	@Test
 	public void learnModel() {
-		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(ctbnParameterLearningAlgorithm,
-				ctbnStructureLearningAlgorithm, bnParameterLearningAlgorithm, bnStructureLearningAlgorithm,
-				CPTNode.class, CIMNode.class);
+		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(bnLearningAlgs, ctbnLearningAlgs, CPTNode.class,
+				CIMNode.class);
 
 		mctbnc.setPenalizationFunction("BIC");
 

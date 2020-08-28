@@ -12,51 +12,62 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-
-<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <top>
-      <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
-        <tabs>
-            <Tab text="Dataset" />
-            <Tab text="Model">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <ComboBox layoutX="150.0" layoutY="35.0" prefWidth="150.0" promptText="MCTBNC" />
-                        <Label layoutX="31.0" layoutY="40.0" text="Classification model:" />
-                        <Label layoutX="31.0" layoutY="175.0" text="Penalization:" />
-                        <Label layoutX="31.0" layoutY="134.0" text="Structure learning algorithm:" />
-                        <Label layoutX="31.0" layoutY="96.0" text="Parameter learning algorithm:" />
-                     </children>
-                  </AnchorPane>
-              </content>
-            </Tab>
-            <Tab text="Evaluation method">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <RadioButton layoutX="41.0" layoutY="28.0" mnemonicParsing="false" selected="true" text="Hold-out validation">
-                           <toggleGroup>
-                              <ToggleGroup fx:id="ValidationMethod" />
-                           </toggleGroup>
-                        </RadioButton>
-                        <RadioButton layoutX="41.0" layoutY="63.0" mnemonicParsing="false" text="Cross-validation" toggleGroup="$ValidationMethod" />
-                        <Label layoutX="41.0" layoutY="136.0" text="Training size (percentage):" />
-                        <TextField layoutX="194.0" layoutY="131.0" prefHeight="16.0" prefWidth="60.0" />
-                        <TextField layoutX="136.0" layoutY="209.0" prefHeight="27.0" prefWidth="58.0" />
-                        <Label layoutX="41.0" layoutY="214.0" prefHeight="17.0" prefWidth="122.0" text="Number of folds:" />
-                     </children>
-                  </AnchorPane>
-              </content>
-            </Tab>
-        </tabs>
-      </TabPane>
-   </top>
-   <bottom>
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <buttons>
-          <Button mnemonicParsing="false" text="Evaluate" />
-        </buttons>
-      </ButtonBar>
-   </bottom>
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cig.mctbnc.gui.controllers.Controller">
+	<top>
+		<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+			<tabs>
+				<Tab text="Dataset">
+					<content>
+						<AnchorPane prefHeight="200.0" prefWidth="200.0">
+							<children>
+								<Button fx:id="btnFolder" layoutX="31.0" layoutY="44.0" mnemonicParsing="false" onAction="#setFolderDataset" prefHeight="27.0" prefWidth="150.0" text="Select folder dataset" />
+								<Label fx:id="lblFolderPath" layoutX="31.0" layoutY="97.0" prefHeight="17.0" prefWidth="535.0" />
+							</children>
+						</AnchorPane>
+					</content>
+				</Tab>
+				<Tab text="Model">
+					<content>
+						<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+							<children>
+								<ComboBox fx:id="cmbModel" layoutX="150.0" layoutY="35.0" prefWidth="150.0" />
+								<Label layoutX="31.0" layoutY="40.0" text="Classification model:" />
+								<Label layoutX="30.0" layoutY="162.0" text="Penalization:" />
+								<Label layoutX="27.0" layoutY="119.0" text="Structure learning algorithm:" />
+								<Label layoutX="27.0" layoutY="81.0" text="Parameter learning algorithm:" />
+								<ComboBox layoutX="187.0" layoutY="114.0" prefWidth="150.0" />
+								<ComboBox layoutX="193.0" layoutY="76.0" prefWidth="150.0" />
+								<ComboBox layoutX="109.0" layoutY="157.0" prefWidth="150.0" />
+							</children>
+						</AnchorPane>
+					</content>
+				</Tab>
+				<Tab text="Evaluation method">
+					<content>
+						<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+							<children>
+								<RadioButton layoutX="41.0" layoutY="28.0" mnemonicParsing="false" selected="true" text="Hold-out validation">
+									<toggleGroup>
+										<ToggleGroup fx:id="ValidationMethod" />
+									</toggleGroup>
+								</RadioButton>
+								<RadioButton layoutX="41.0" layoutY="63.0" mnemonicParsing="false" text="Cross-validation" toggleGroup="$ValidationMethod" />
+								<Label layoutX="41.0" layoutY="136.0" text="Training size (percentage):" />
+								<TextField layoutX="194.0" layoutY="131.0" prefHeight="16.0" prefWidth="60.0" />
+								<TextField layoutX="136.0" layoutY="209.0" prefHeight="27.0" prefWidth="58.0" />
+								<Label layoutX="41.0" layoutY="214.0" prefHeight="17.0" prefWidth="122.0" text="Number of folds:" />
+							</children>
+						</AnchorPane>
+					</content>
+				</Tab>
+			</tabs>
+		</TabPane>
+	</top>
+	<bottom>
+		<ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+			<buttons>
+				<Button mnemonicParsing="false" text="Evaluate" />
+			</buttons>
+		</ButtonBar>
+	</bottom>
 </BorderPane>

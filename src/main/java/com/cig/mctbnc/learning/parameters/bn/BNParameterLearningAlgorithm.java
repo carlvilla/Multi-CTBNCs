@@ -9,7 +9,13 @@ import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
 
-public abstract class BNParameterEstimation implements ParameterLearningAlgorithm {
+/**
+ * Define common methods for parameter learning algorithms of Bayesian networks.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
+public abstract class BNParameterLearningAlgorithm implements ParameterLearningAlgorithm {
 
 	@Override
 	public void learn(List<? extends Node> nodes, Dataset dataset) {
@@ -32,6 +38,12 @@ public abstract class BNParameterEstimation implements ParameterLearningAlgorith
 		}
 	}
 
+	/**
+	 * Given a set of nodes whose sufficient statistics where estimated, compute
+	 * their conditional probability tables (CPT).
+	 * 
+	 * @param nodes
+	 */
 	public void setCPTs(List<? extends Node> nodes) {
 		// For each node it is created a new type of node that contains the CPTs.
 		for (int i = 0; i < nodes.size(); i++) {
@@ -43,7 +55,7 @@ public abstract class BNParameterEstimation implements ParameterLearningAlgorith
 			node.setCPT(CPT);
 		}
 	}
-	
+
 	protected abstract Map<State, Double> estimateCPT(CPTNode node, Map<State, Integer> ss);
 
 }

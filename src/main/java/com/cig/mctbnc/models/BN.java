@@ -6,8 +6,7 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.nodes.Node;
 
@@ -38,21 +37,19 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * 
 	 * @param nameVariables
 	 * @param dataset
-	 * @param parameterLearningAlg
-	 * @param structureLearningAlg
+	 * @param bnLearningAlgs
 	 * @param structureConstraints
 	 * @param nodeClass
 	 */
-	public BN(List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
-			StructureLearningAlgorithm structureLearningAlg, StructureConstraints structureConstraints,
-			Class<NodeType> nodeClass) {
+	public BN(List<String> nameVariables, BNLearningAlgorithms bnLearningAlgs,
+			StructureConstraints structureConstraints, Class<NodeType> nodeClass) {
 		// Set variables to use
 		this.nameVariables = nameVariables;
 		// Set node type
 		this.nodeClass = nodeClass;
 		// Set necessary algorithms to learn the model
-		setParameterLearningAlgorithm(parameterLearningAlg);
-		setStructureLearningAlgorithm(structureLearningAlg);
+		setParameterLearningAlgorithm(bnLearningAlgs.getParameterLearningAlgorithm());
+		setStructureLearningAlgorithm(bnLearningAlgs.getStructureLearningAlgorithm());
 		setStructureConstraints(structureConstraints);
 	}
 

@@ -12,7 +12,7 @@ import com.cig.mctbnc.nodes.CIMNode;
  * @author Carlos Villa Blanco
  *
  */
-public class CTBNMaximumLikelihoodEstimation extends CTBNParameterEstimation {
+public class CTBNMaximumLikelihoodEstimation extends CTBNParameterLearningAlgorithm {
 
 	/**
 	 * Estimate the parameters for "node" from its computed sufficient statistics.

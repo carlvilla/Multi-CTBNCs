@@ -1,4 +1,4 @@
-package com.cig.mctbnc.learning.structure;
+package com.cig.mctbnc.learning.structure.optimization;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +43,7 @@ public class StructureScoreFunctions {
 	 * @param bn Bayesian network
 	 * @return penalize log-likelihood score
 	 */
-	static double logLikelihoodScore(BN<CPTNode> bn, String penalizationFunction) {
+	public static double logLikelihoodScore(BN<CPTNode> bn, String penalizationFunction) {
 		// Obtain nodes of the Bayesian networks with the CPTs
 		List<CPTNode> nodes = bn.getLearnedNodes();
 		double llScore = 0.0;
@@ -100,7 +100,7 @@ public class StructureScoreFunctions {
 	 * @param penalize  boolean that determines if the log-likelihood is penalized
 	 * @return penalized log-likelihood score
 	 */
-	static double logLikelihoodScore(CTBN<CIMNode> ctbn, int nodeIndex, String penalizationFunction) {
+	public static double logLikelihoodScore(CTBN<CIMNode> ctbn, int nodeIndex, String penalizationFunction) {
 		// Obtain node to evaluate
 		CIMNode node = ctbn.getNodes().get(nodeIndex);
 		double llScore = 0.0;

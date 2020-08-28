@@ -10,9 +10,9 @@ import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.Node;
 
-public abstract class CTBNParameterEstimation implements ParameterLearningAlgorithm {
+public abstract class CTBNParameterLearningAlgorithm implements ParameterLearningAlgorithm {
 
-	static Logger logger = LogManager.getLogger(CTBNParameterEstimation.class);
+	static Logger logger = LogManager.getLogger(CTBNParameterLearningAlgorithm.class);
 	List<CIMNode> cimNodes;
 
 	@Override

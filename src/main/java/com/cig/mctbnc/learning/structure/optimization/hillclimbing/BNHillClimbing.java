@@ -1,5 +1,7 @@
-package com.cig.mctbnc.learning.structure;
+package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
+import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.optimization.StructureScoreFunctions;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.util.Util;
 
@@ -9,7 +11,7 @@ import com.cig.mctbnc.util.Util;
  * @author Carlos Villa Blanco
  *
  */
-public class HillClimbingBN extends HillClimbing {
+public class BNHillClimbing extends HillClimbing implements BNStructureLearningAlgorithm {
 
 	@Override
 	public boolean[][] findStructure() {

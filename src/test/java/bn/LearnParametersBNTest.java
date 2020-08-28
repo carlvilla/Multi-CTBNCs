@@ -15,7 +15,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.parameters.bn.BNParameterEstimation;
+import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
 import com.cig.mctbnc.nodes.CPTNode;
 
 /**
@@ -108,7 +108,7 @@ public class LearnParametersBNTest {
 	@Order(1)
 	public void testMLE() {
 		// Learn sufficient statistics and parameters given the nodes and the dataset
-		BNParameterEstimation bnParameterLearning = new BNMaximumLikelihoodEstimation();
+		BNParameterLearningAlgorithm bnParameterLearning = new BNMaximumLikelihoodEstimation();
 		bnParameterLearning.learn(nodes, dataset);
 		
 		// Parameters C1

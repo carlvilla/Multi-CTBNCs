@@ -8,12 +8,14 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.structure.HillClimbingCTBN;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
+import com.cig.mctbnc.learning.structure.optimization.hillclimbing.CTBNHillClimbing;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 
@@ -72,15 +74,16 @@ public class LearnStructureCTBNTest {
 		dataset.addSequence(dataSequence2);
 		dataset.addSequence(dataSequence3);
 
-		ParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
-		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = new HillClimbingCTBN();
+		CTBNParameterLearningAlgorithm parameterLearningAlg = new CTBNMaximumLikelihoodEstimation();
+		CTBNStructureLearningAlgorithm structureLearningAlg = new CTBNHillClimbing();
+		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(parameterLearningAlg,
+				structureLearningAlg);
 		StructureConstraints structureConstraints = new CTBNC();
 
-		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(nameFeatures, ctbnParameterLearningAlgorithm,
-				ctbnStructureLearningAlgorithm, structureConstraints, CIMNode.class);
+		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(nameFeatures, ctbnLearningAlgs, structureConstraints, CIMNode.class);
 		ctbn.setPenalizationFunction("BIC");
 		ctbn.learn(dataset);
-		
+
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, true, false, false },
 				{ false, false, true, false }, { false, false, false, true }, { true, false, false, false } };
 		assertArrayEquals(expectedAdjacencyMatrix, ctbn.getAdjacencyMatrix());

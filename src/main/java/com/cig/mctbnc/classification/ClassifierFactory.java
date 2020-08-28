@@ -3,9 +3,9 @@ package com.cig.mctbnc.classification;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.BNLearningAlgorithms;
+import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
+import com.cig.mctbnc.models.KMCTBNC;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.models.MCTNBC;
 import com.cig.mctbnc.nodes.Node;
@@ -20,35 +20,34 @@ public class ClassifierFactory {
 	static Logger logger = LogManager.getLogger(ClassifierFactory.class);
 
 	/**
+	 * 
 	 * @param <NodeTypeBN>
 	 * @param <NodeTypeCTBN>
 	 * @param nameClassifier
-	 * @param dataset
-	 * @param ctbnParameterLearningAlgorithm
-	 * @param ctbnStructureLearningAlgorithm
-	 * @param bnParameterLearningAlgorithm
-	 * @param bnStructureLearningAlgorithm
+	 * @param bnLearningAlgs
+	 * @param ctbnLearningAlgs
+	 * @param args             special arguments for each type of classifier
 	 * @param bnNodeClass
 	 * @param ctbnNodeClass
-	 * @return classifier
+	 * @return
 	 */
 	public static <NodeTypeBN extends Node, NodeTypeCTBN extends Node> MCTBNC getMCTBNC(String nameClassifier,
-			ParameterLearningAlgorithm ctbnParameterLearningAlgorithm,
-			StructureLearningAlgorithm ctbnStructureLearningAlgorithm,
-			ParameterLearningAlgorithm bnParameterLearningAlgorithm,
-			StructureLearningAlgorithm bnStructureLearningAlgorithm, Class<NodeTypeBN> bnNodeClass,
-			Class<NodeTypeCTBN> ctbnNodeClass) {
-		if (nameClassifier.equals("MCTNBC")) {
+			BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnLearningAlgs, String[] args,
+			Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
+		switch (nameClassifier) {
+		case "MCTNBC":
 			logger.info("Creating a multi-dimensional continuous naive Bayes classifier");
-			return new MCTNBC<NodeTypeBN, NodeTypeCTBN>(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm,
-					bnParameterLearningAlgorithm, bnStructureLearningAlgorithm, bnNodeClass, ctbnNodeClass);
-		} else {
+			return new MCTNBC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
+		case "KMCTNBC":
+			logger.info("Creating a DAG-k multi-dimensional continuous Bayesian network classifier");
+			int maxK = Integer.valueOf(args[0]);
+			return new KMCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
+					ctbnNodeClass);
+		default:
 			// If the specified classifier is not found, a MCTBNC is created
 			logger.info("Creating a multi-dimensional continuous time Bayesian network classifier");
-			return new MCTBNC<NodeTypeBN, NodeTypeCTBN>(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm,
-					bnParameterLearningAlgorithm, bnStructureLearningAlgorithm, bnNodeClass, ctbnNodeClass);
+			return new MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
 		}
-
 	}
 
 }

@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 
+import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
@@ -30,22 +31,19 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * This constructor was thought to be used by the MCTBNC.
 	 * 
 	 * @param nameVariables
-	 * @param dataset
-	 * @param parameterLearningAlg
-	 * @param structureLearningAlg
+	 * @param ctbnLearningAlgs
 	 * @param structureConstraints
 	 * @param nodeClass            type of the CTBN nodes
 	 */
-	public CTBN(List<String> nameVariables, ParameterLearningAlgorithm parameterLearningAlg,
-			StructureLearningAlgorithm structureLearningAlg, StructureConstraints structureConstraints,
-			Class<NodeType> nodeClass) {
+	public CTBN(List<String> nameVariables, CTBNLearningAlgorithms ctbnLearningAlgs,
+			StructureConstraints structureConstraints, Class<NodeType> nodeClass) {
 		// Set variables to use
 		this.nameVariables = nameVariables;
 		// Set node type
 		this.nodeClass = nodeClass;
 		// Set necessary algorithms to learn the model
-		setParameterLearningAlgorithm(parameterLearningAlg);
-		setStructureLearningAlgorithm(structureLearningAlg);
+		setParameterLearningAlgorithm(ctbnLearningAlgs.getParameterLearningAlgorithm());
+		setStructureLearningAlgorithm(ctbnLearningAlgs.getStructureLearningAlgorithm());
 		setStructureConstraints(structureConstraints);
 	}
 
