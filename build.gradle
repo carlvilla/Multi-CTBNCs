@@ -46,6 +46,9 @@ dependencies {
   	
   	//OpenCSV
   	compile group: 'com.opencsv', name: 'opencsv', version: '3.7'
+  	
+  	// Extract controls for JavaFX
+  	compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.2'
 }
 
 javafx{

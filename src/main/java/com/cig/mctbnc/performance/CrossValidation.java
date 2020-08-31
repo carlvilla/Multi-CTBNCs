@@ -22,7 +22,7 @@ import com.cig.mctbnc.util.Util;
  * @author Carlos Villa Blanco
  *
  */
-public class CrossValidation {
+public class CrossValidation implements ValidationMethod {
 	Dataset dataset;
 	int folds;
 	boolean shuffle;
@@ -31,7 +31,7 @@ public class CrossValidation {
 	public CrossValidation(DatasetReader datasetReader, int folds, boolean shuffle) {
 		logger.info("Preparing {}-cross validation / Shuffle: {}", folds, shuffle);
 		// Obtain dataset and the number of sequence it contains
-		dataset = datasetReader.readDataset();
+		dataset = datasetReader.readDataset();		
 		logger.info("Time variable: {}", dataset.getNameTimeVariable());
 		logger.info("Features: {}", dataset.getNameFeatures());
 		logger.info("Class variables: {}", (dataset.getNameClassVariables()));

@@ -1,5 +1,7 @@
 package com.cig.mctbnc.classification;
 
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,15 +34,15 @@ public class ClassifierFactory {
 	 * @return
 	 */
 	public static <NodeTypeBN extends Node, NodeTypeCTBN extends Node> MCTBNC getMCTBNC(String nameClassifier,
-			BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnLearningAlgs, String[] args,
-			Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
+			BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnLearningAlgs,
+			Map<String, String> parameters, Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
 		switch (nameClassifier) {
 		case "MCTNBC":
 			logger.info("Creating a multi-dimensional continuous naive Bayes classifier");
 			return new MCTNBC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
-		case "KMCTNBC":
+		case "KMCTBNC":
 			logger.info("Creating a DAG-k multi-dimensional continuous Bayesian network classifier");
-			int maxK = Integer.valueOf(args[0]);
+			int maxK = Integer.valueOf(parameters.get("maxK"));
 			return new KMCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);
 		default:

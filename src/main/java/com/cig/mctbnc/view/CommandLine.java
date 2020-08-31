@@ -78,8 +78,10 @@ public class CommandLine {
 
 		// ---------------- Definition datasets reader ----------------
 		// Define dataset reader
-		DatasetReader datasetReader = new SeparateCSVReader(folder, nameTimeVariable, nameClassVariables,
-				excludeVariables);
+		// DatasetReader datasetReader = new SeparateCSVReader(folder, nameTimeVariable,
+		// nameClassVariables,
+		// excludeVariables);
+		DatasetReader datasetReader = new SeparateCSVReader(folder);
 
 		// -------------------------- LEARNING ALGORITHMS --------------------------
 		// Define learning algorithms for the class subgraph
@@ -98,14 +100,14 @@ public class CommandLine {
 
 		// Define the type of multi-dimensional continuous time Bayesian network
 		// classifier to use
-		String classMCTBNC = "KMCTNBC";
-		String[] args = { "4" };
+		String classMCTBNC = "KMCTBNC";
+		Map<String, String> args = null;
 		MCTBNC<CPTNode, CIMNode> mctbnc = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(classMCTBNC, bnLearningAlgs,
 				ctbnLearningAlgs, args, CPTNode.class, CIMNode.class);
 
 		// Determine the penalization function (for complexity of the BN and CTBN
 		// structure)
-		String penalizationFunction = "NO";
+		String penalizationFunction = "No";
 		mctbnc.setPenalizationFunction(penalizationFunction);
 
 		// Initial structure
@@ -140,11 +142,11 @@ public class CommandLine {
 		} else {
 			logger.info("Training model with all available data");
 			// Obtain whole dataset
-			Dataset dataset = datasetReader.readDataset();
+			// Dataset dataset = datasetReader.readDataset();
 			// Learn model
-			mctbnc.learn(dataset);
+			// mctbnc.learn(dataset);
 			// Display model
-			mctbnc.display();
+			// mctbnc.display();
 		}
 	}
 

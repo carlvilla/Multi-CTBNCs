@@ -128,8 +128,12 @@ public class ProbabilityUtil {
 					}
 					// Obtain instantaneous probability of the feature leaving its current state
 					// while its parents are in a certain state. NOTE: new feature states, which
-					// were not considered during model training, could be found in the test dataset
+					// were not considered during model training, could be found in the test
+					// dataset. In that case 'qx' would be null.
 					Double qx = nodeCTBN.getQx().get(fromState);
+					if (qx == null)
+						qx = 0.0;
+
 					// Probability of the feature staying in a certain state (while its parent have
 					// a particular state) for an amount of time 'deltaTime' is exponentially
 					// distributed with parameter 'qx'

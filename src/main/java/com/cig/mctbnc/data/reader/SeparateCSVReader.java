@@ -1,6 +1,8 @@
 package com.cig.mctbnc.data.reader;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -9,10 +11,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.exceptions.VariableNotFoundException;
 import com.opencsv.CSVReader;
 
@@ -33,10 +33,10 @@ public class SeparateCSVReader extends AbstractDatasetReader {
 	 * @param nameTimeVariable
 	 * @param nameClassVariables
 	 * @param excludeVariables
+	 * @throws FileNotFoundException
 	 */
-	public SeparateCSVReader(String datasetFolder, String nameTimeVariable, List<String> nameClassVariables,
-			List<String> excludeVariables) {
-		super(datasetFolder, nameTimeVariable, nameClassVariables, excludeVariables);
+	public SeparateCSVReader(String datasetFolder) throws FileNotFoundException {
+		super(datasetFolder);
 		logger.info("Generating CSV reader for multiples csv files in {}", datasetFolder);
 		// Read all csv files from the specified folder
 		File folder = new File(datasetFolder);
@@ -48,6 +48,8 @@ public class SeparateCSVReader extends AbstractDatasetReader {
 		});
 		// Order the files by name
 		Arrays.sort(files);
+		// Extract variables names from first CSV file
+		extractVariableNames(files[0]);
 	}
 
 	@Override
@@ -56,7 +58,7 @@ public class SeparateCSVReader extends AbstractDatasetReader {
 		nameAcceptedFiles = new ArrayList<String>();
 		for (File file : files) {
 			try {
-				List<String[]> dataSequence = readCSV(file.getAbsolutePath());
+				List<String[]> dataSequence = readCSV(file.getAbsolutePath(), excludeVariables);
 				dataset.addSequence(dataSequence);
 				nameAcceptedFiles.add(file.getName());
 			} catch (VariableNotFoundException e) {
@@ -75,7 +77,7 @@ public class SeparateCSVReader extends AbstractDatasetReader {
 	 * @return list with the rows (lists of strings) of the CSV
 	 * @throws VariableNotFoundException
 	 */
-	public List<String[]> readCSV(String pathFile) throws VariableNotFoundException {
+	public List<String[]> readCSV(String pathFile, List<String> excludeVariables) throws VariableNotFoundException {
 		List<String[]> list = new ArrayList<String[]>();
 		try {
 			FileReader reader = new FileReader(pathFile);
@@ -122,4 +124,27 @@ public class SeparateCSVReader extends AbstractDatasetReader {
 		}
 		return list;
 	}
+
+	/**
+	 * Extract the names of the variables from a CSV file. It is assumed that the
+	 * names are in the first row.
+	 * 
+	 * @param csvFile
+	 * @throws FileNotFoundException
+	 */
+	private void extractVariableNames(File csvFile) throws FileNotFoundException {
+		if (csvFile.isFile()) {
+			BufferedReader br = new BufferedReader(new FileReader(csvFile));
+			try {
+				String head = br.readLine();
+				nameVariables = Arrays.asList(head.split(","));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		} else {
+			throw new FileNotFoundException("Impossible to read CSV file");
+		}
+	}
+
 }

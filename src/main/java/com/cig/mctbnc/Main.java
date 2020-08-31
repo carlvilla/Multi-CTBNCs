@@ -32,7 +32,7 @@ public class Main extends Application {
 		primaryStage.show();
 
 		Controller controller = (Controller) loader.getController();
-		controller.setStage(primaryStage); // or what you want to do
+		controller.setStage(primaryStage);
 
 //		String datasetFolder = "src/main/resources/datasets/rehabilitation/Exercise1";
 //

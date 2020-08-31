@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.effect.Blend?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import org.controlsfx.control.CheckComboBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cig.mctbnc.gui.controllers.Controller">
+<BorderPane prefHeight="470.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cig.mctbnc.gui.controllers.Controller">
 	<top>
 		<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
 			<tabs>
@@ -21,7 +29,10 @@
 						<AnchorPane prefHeight="200.0" prefWidth="200.0">
 							<children>
 								<Button fx:id="btnFolder" layoutX="31.0" layoutY="44.0" mnemonicParsing="false" onAction="#setFolderDataset" prefHeight="27.0" prefWidth="150.0" text="Select folder dataset" />
-								<Label fx:id="lblFolderPath" layoutX="31.0" layoutY="97.0" prefHeight="17.0" prefWidth="535.0" />
+                        <TextField fx:id="fldPath" editable="false" layoutX="197.0" layoutY="44.0" prefHeight="27.0" prefWidth="373.0" />
+                        <CheckComboBox fx:id="ckcmbClassVariables" layoutX="418.0" layoutY="124.0" prefHeight="27.0" prefWidth="152.0" title="Class variables" />
+                        <CheckComboBox fx:id="ckcmbVariables" layoutX="30.0" layoutY="124.0" prefHeight="27.0" prefWidth="152.0" title="Variables" />
+                        <ComboBox fx:id="cmbTimeVariable" layoutX="225.0" layoutY="124.0" prefWidth="150.0" promptText="Time variable" />
 							</children>
 						</AnchorPane>
 					</content>
@@ -30,14 +41,26 @@
 					<content>
 						<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
 							<children>
-								<ComboBox fx:id="cmbModel" layoutX="150.0" layoutY="35.0" prefWidth="150.0" />
-								<Label layoutX="31.0" layoutY="40.0" text="Classification model:" />
-								<Label layoutX="30.0" layoutY="162.0" text="Penalization:" />
-								<Label layoutX="27.0" layoutY="119.0" text="Structure learning algorithm:" />
-								<Label layoutX="27.0" layoutY="81.0" text="Parameter learning algorithm:" />
-								<ComboBox layoutX="187.0" layoutY="114.0" prefWidth="150.0" />
-								<ComboBox layoutX="193.0" layoutY="76.0" prefWidth="150.0" />
-								<ComboBox layoutX="109.0" layoutY="157.0" prefWidth="150.0" />
+								<ComboBox fx:id="cmbModel" layoutX="226.0" layoutY="35.0" prefHeight="27.0" prefWidth="205.0" />
+								<Label layoutX="20.0" layoutY="40.0" text="Classification model:" />
+								<Label layoutX="16.0" layoutY="312.0" text="Penalization:" />
+								<Label layoutX="23.0" layoutY="271.0" text="Structure learning algorithm:" />
+								<Label layoutX="20.0" layoutY="185.0" text="Parameter learning algorithm CTBN:" />
+								<ComboBox fx:id="cmbStructure" layoutX="226.0" layoutY="266.0" prefHeight="27.0" prefWidth="203.0" />
+								<ComboBox fx:id="cmbParameterCTBN" layoutX="225.0" layoutY="180.0" prefHeight="27.0" prefWidth="204.0" />
+								<ComboBox fx:id="cmbPenalization" layoutX="227.0" layoutY="307.0" prefHeight="27.0" prefWidth="201.0" />
+                        <TextField fx:id="fldNxy" layoutX="78.0" layoutY="220.0" prefHeight="27.0" prefWidth="50.0" />
+                        <TextField fx:id="fldNx" layoutX="193.0" layoutY="220.0" prefHeight="27.0" prefWidth="50.0" />
+                        <TextField fx:id="fldTx" layoutX="314.0" layoutY="220.0" prefHeight="27.0" prefWidth="50.0" />
+                        <TextField fx:id="fldKParents" layoutX="194.0" layoutY="71.0" prefHeight="27.0" prefWidth="55.0" />
+                        <Label layoutX="20.0" layoutY="76.0" text="Max. K parents:" />
+                        <Label layoutX="22.0" layoutY="225.0" prefHeight="17.0" prefWidth="58.0" text="Nxy prior:" />
+                        <Label layoutX="135.0" layoutY="225.0" prefHeight="17.0" prefWidth="58.0" text="Nx prior:" />
+                        <Label layoutX="262.0" layoutY="225.0" prefHeight="17.0" prefWidth="58.0" text="Tx prior:" />
+                        <Label layoutX="17.0" layoutY="111.0" text="Parameter learning algorithm BN:" />
+                        <ComboBox fx:id="cmbParameterBN" layoutX="222.0" layoutY="106.0" prefHeight="27.0" prefWidth="204.0" />
+                        <TextField fx:id="fldMxBN" layoutX="75.0" layoutY="146.0" prefHeight="27.0" prefWidth="50.0" />
+                        <Label layoutX="19.0" layoutY="151.0" prefHeight="17.0" prefWidth="58.0" text="Mx prior:" />
 							</children>
 						</AnchorPane>
 					</content>
@@ -47,15 +70,19 @@
 						<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
 							<children>
 								<RadioButton layoutX="41.0" layoutY="28.0" mnemonicParsing="false" selected="true" text="Hold-out validation">
-									<toggleGroup>
-										<ToggleGroup fx:id="ValidationMethod" />
-									</toggleGroup>
+                           <toggleGroup>
+                              <ToggleGroup fx:id="validationMethod" />
+                           </toggleGroup>
 								</RadioButton>
-								<RadioButton layoutX="41.0" layoutY="63.0" mnemonicParsing="false" text="Cross-validation" toggleGroup="$ValidationMethod" />
-								<Label layoutX="41.0" layoutY="136.0" text="Training size (percentage):" />
-								<TextField layoutX="194.0" layoutY="131.0" prefHeight="16.0" prefWidth="60.0" />
-								<TextField layoutX="136.0" layoutY="209.0" prefHeight="27.0" prefWidth="58.0" />
-								<Label layoutX="41.0" layoutY="214.0" prefHeight="17.0" prefWidth="122.0" text="Number of folds:" />
+								<RadioButton layoutX="41.0" layoutY="63.0" mnemonicParsing="false" text="Cross-validation">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="ValidationMethod" />
+                           </toggleGroup></RadioButton>
+								<Label layoutX="41.0" layoutY="195.0" text="Training size (%):" />
+								<TextField fx:id="fldNumFolds" layoutX="155.0" layoutY="244.0" prefHeight="27.0" prefWidth="58.0" />
+								<Label layoutX="41.0" layoutY="249.0" prefHeight="17.0" prefWidth="122.0" text="Number of folds:" />
+                        <CheckBox fx:id="cbShuffle" layoutX="40.0" layoutY="146.0" mnemonicParsing="false" text="Shuffle sequences" />
+                        <Slider fx:id="sldTrainingSize" layoutX="143.0" layoutY="193.0" max="1.0" showTickLabels="true" showTickMarks="true" />
 							</children>
 						</AnchorPane>
 					</content>
@@ -64,10 +91,25 @@
 		</TabPane>
 	</top>
 	<bottom>
-		<ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-			<buttons>
-				<Button mnemonicParsing="false" text="Evaluate" />
-			</buttons>
-		</ButtonBar>
+      <GridPane prefHeight="33.0" prefWidth="570.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+      				<Button disable="#checkOptions" mnemonicParsing="false" onAction="#evaluate" text="Evaluate" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+            <ProgressIndicator fx:id="progressIndicator" minHeight="0.0" prefHeight="33.0" prefWidth="9.0" visible="false">
+               <effect>
+                  <Blend />
+               </effect>
+            </ProgressIndicator>
+         </children>
+         <BorderPane.margin>
+            <Insets bottom="10.0" left="15.0" right="15.0" />
+         </BorderPane.margin>
+      </GridPane>
 	</bottom>
 </BorderPane>

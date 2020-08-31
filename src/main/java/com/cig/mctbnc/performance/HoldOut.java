@@ -19,7 +19,7 @@ import com.cig.mctbnc.util.Util;
  * @author Carlos Villa Blanco
  *
  */
-public class HoldOut {
+public class HoldOut implements ValidationMethod {
 	Dataset trainingDataset;
 	Dataset testingDataset;
 	Logger logger = LogManager.getLogger(HoldOut.class);
@@ -28,6 +28,9 @@ public class HoldOut {
 		logger.info("Generating training ({}%) and testing ({}%) datasets (Hold-out validation)", trainingSize * 100,
 				(1 - trainingSize) * 100);
 		generateTrainAndTest(datasetReader, trainingSize, shuffle);
+		logger.info("Time variable: {}", trainingDataset.getNameTimeVariable());
+		logger.info("Features: {}", trainingDataset.getNameFeatures());
+		logger.info("Class variables: {}", (trainingDataset.getNameClassVariables()));
 		logger.info("Sequences for training {}", trainingDataset.getNumDataPoints());
 		logger.info("Sequences for testing {}", testingDataset.getNumDataPoints());
 	}
@@ -41,7 +44,7 @@ public class HoldOut {
 		// Train the model
 		model.learn(this.trainingDataset);
 		// Make predictions with the model
-		Prediction[] predictions = model.predict(this.testingDataset, false);
+		Prediction[] predictions = model.predict(this.testingDataset, true);
 		// Evaluate the performance of the model
 		Map<String, Double> results = Metrics.evaluate(predictions, this.testingDataset);
 		// Display results

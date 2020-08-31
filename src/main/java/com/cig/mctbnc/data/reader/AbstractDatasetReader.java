@@ -15,17 +15,19 @@ import com.cig.mctbnc.data.representation.Dataset;
  */
 public abstract class AbstractDatasetReader implements DatasetReader {
 	String datasetFolder;
-	List<String> nameAcceptedFiles;
+	List<String> nameVariables;
 	String nameTimeVariable;
 	List<String> nameClassVariables;
 	List<String> excludeVariables;
-	Dataset trainingDataset;
-	Dataset testingDataset;
+	List<String> nameAcceptedFiles;
 	static Logger logger = LogManager.getLogger(AbstractDatasetReader.class);
 
-	public AbstractDatasetReader(String datasetFolder, String nameTimeVariable, List<String> nameClassVariables,
-			List<String> excludeVariables) {
+	public AbstractDatasetReader(String datasetFolder) {
 		this.datasetFolder = datasetFolder;
+	}
+
+	@Override
+	public void setVariables(String nameTimeVariable, List<String> nameClassVariables, List<String> excludeVariables) {
 		this.nameTimeVariable = nameTimeVariable;
 		this.nameClassVariables = nameClassVariables;
 		this.excludeVariables = excludeVariables;
@@ -34,6 +36,11 @@ public abstract class AbstractDatasetReader implements DatasetReader {
 	@Override
 	public List<String> getAcceptedFiles() {
 		return this.nameAcceptedFiles;
+	}
+
+	@Override
+	public List<String> getAllVariablesDataset() {
+		return this.nameVariables;
 	}
 
 }
