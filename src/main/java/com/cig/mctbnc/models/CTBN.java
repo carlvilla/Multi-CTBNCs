@@ -73,12 +73,4 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		return "Continuous time Bayesian network";
 	}
 
-	@Override
-	public void display() {
-		Graph graph = new SingleGraph("CTBN");
-		addNodes(graph, nodes);
-		addEdges(graph, nodes);
-		graph.display();
-	}
-
 }

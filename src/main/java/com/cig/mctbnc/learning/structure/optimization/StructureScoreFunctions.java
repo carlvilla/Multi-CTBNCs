@@ -16,7 +16,6 @@ import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.DiscreteNode;
-import com.cig.mctbnc.nodes.Node;
 
 /**
  * Contains evaluation function to measures the fitness of the structures of
@@ -38,10 +37,13 @@ public class StructureScoreFunctions {
 	};
 
 	/**
-	 * Compute the penalized log-likelihood score for a discrete Bayesian network
+	 * Compute the (penalized) log-likelihood score for a discrete Bayesian network.
+	 * This is done by computing the marginal log-likelihood of the graph, i.e., the
+	 * prior distribution over the graphs is assumed to be uniform.
 	 * 
-	 * @param bn Bayesian network
-	 * @return penalize log-likelihood score
+	 * @param bn                   Bayesian network
+	 * @param penalizationFunction penalization function
+	 * @return penalized log-likelihood score
 	 */
 	public static double logLikelihoodScore(BN<CPTNode> bn, String penalizationFunction) {
 		// Obtain nodes of the Bayesian networks with the CPTs
@@ -75,15 +77,12 @@ public class StructureScoreFunctions {
 
 				// Number of possible states of the currently studied variable
 				int numPossibleStatesStudiedVariable = possibleValuesStudiedVariable.length;
-
 				// Compute network complexity
 				double networkComplexity = numPossibleStatesParents * (numPossibleStatesStudiedVariable - 1);
-
 				// Compute non-negative penalization (For now it is performing a BIC
 				// penalization)
 				int sampleSize = bn.getDataset().getNumDataPoints();
 				double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
-
 				// Obtain number of states of the parents of the currently studied variable
 				llScore -= networkComplexity * penalization;
 			}
@@ -92,12 +91,12 @@ public class StructureScoreFunctions {
 	}
 
 	/**
-	 * Compute the log-likelihood score at a given node of a discrete continuous
-	 * time Bayesian network.
+	 * Compute the (penalized) log-likelihood score at a given node of a discrete
+	 * continuous time Bayesian network.
 	 * 
-	 * @param ctbn      continuous time Bayesian network
-	 * @param nodeIndex index of the node
-	 * @param penalize  boolean that determines if the log-likelihood is penalized
+	 * @param ctbn                 continuous time Bayesian network
+	 * @param nodeIndex            index of the node
+	 * @param penalizationFunction penalization function
 	 * @return penalized log-likelihood score
 	 */
 	public static double logLikelihoodScore(CTBN<CIMNode> ctbn, int nodeIndex, String penalizationFunction) {
@@ -126,7 +125,7 @@ public class StructureScoreFunctions {
 	}
 
 	/**
-	 * Compute the marginal log likelihood for a certain node.
+	 * Compute the marginal log-likelihood for a certain node.
 	 * 
 	 * @param node
 	 * @return marginal log likelihood
@@ -162,15 +161,4 @@ public class StructureScoreFunctions {
 		}
 		return mll;
 	}
-
-	/**
-	 * Check if a node has at least one class variable as parent.
-	 * 
-	 * @param node node to evaluate
-	 * @return
-	 */
-	private static boolean classVariablesAsParent(Node node) {
-		return node.getParents().stream().anyMatch(nodoP -> nodoP.isClassVariable());
-	}
-
 }

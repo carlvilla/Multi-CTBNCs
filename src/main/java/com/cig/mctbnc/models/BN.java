@@ -64,14 +64,6 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	}
 
 	@Override
-	public void display() {
-		Graph graph = new SingleGraph("BN");
-		addNodes(graph, nodes);
-		addEdges(graph, nodes);
-		graph.display();
-	}
-
-	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("--Structure Bayesian network--\n");

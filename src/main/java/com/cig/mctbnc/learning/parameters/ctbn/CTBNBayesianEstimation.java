@@ -13,7 +13,7 @@ import com.cig.mctbnc.nodes.CIMNode;
  *
  */
 public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
-
+	// Imaginary counts of the hyperparameters
 	private double NxyPrior;
 	private double NxPrior;
 	private double TxPrior;

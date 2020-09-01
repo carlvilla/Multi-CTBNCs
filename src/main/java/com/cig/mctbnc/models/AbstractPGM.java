@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.view.Viewer;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
@@ -246,9 +248,11 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * @param graph
 	 */
 	public void display() {
-		// addNodes(graph, nodes);
-		// addEdges(graph, nodes);
-		// graph.display();
+		Graph graph = new SingleGraph("PGM");
+		addNodes(graph, nodes);
+		addEdges(graph, nodes);
+		Viewer viewer = graph.display();
+		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
 	}
 
 }

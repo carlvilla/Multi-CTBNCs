@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.view.Viewer;
 
 import com.cig.mctbnc.classification.Classifier;
 import com.cig.mctbnc.classification.Prediction;
@@ -173,7 +174,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 * @param penalizationFunction name of the penalization function
 	 */
 	public void setPenalizationFunction(String penalizationFunction) {
-		logger.info("Penalizing model structure with {} penalization function", penalizationFunction);
+		logger.info("Penalization function for model structure: {}", penalizationFunction);
 		this.penalizationFunction = penalizationFunction;
 	}
 
@@ -284,13 +285,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	@Override
 	public String getType() {
 		return "Multidimensional continuous time Bayesian network classifier";
-	}
-
-	public void display() {
-		Graph graph = new SingleGraph("MCTBNC");
-		addNodes(graph, nodes);
-		addEdges(graph, nodes);
-		graph.display();
 	}
 
 	private List<NodeTypeBN> getNodesBN() {

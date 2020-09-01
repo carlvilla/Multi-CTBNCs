@@ -134,10 +134,10 @@ public class SeparateCSVReader extends AbstractDatasetReader {
 	 */
 	private void extractVariableNames(File csvFile) throws FileNotFoundException {
 		if (csvFile.isFile()) {
-			BufferedReader br = new BufferedReader(new FileReader(csvFile));
+			FileReader reader = new FileReader(csvFile);
+			CSVReader csvReader = new CSVReader(reader);			
 			try {
-				String head = br.readLine();
-				nameVariables = Arrays.asList(head.split(","));
+				nameVariables = Arrays.asList(csvReader.readNext());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
