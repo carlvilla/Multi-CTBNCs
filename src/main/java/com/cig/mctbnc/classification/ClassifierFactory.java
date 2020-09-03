@@ -1,5 +1,6 @@
 package com.cig.mctbnc.classification;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -50,6 +51,10 @@ public class ClassifierFactory {
 			logger.info("Creating a multi-dimensional continuous time Bayesian network classifier");
 			return new MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
 		}
+	}
+
+	public static List<String> getAvailableModels() {
+		return List.of("MCTBNC", "MCTNBC", "KMCTBNC");
 	}
 
 }

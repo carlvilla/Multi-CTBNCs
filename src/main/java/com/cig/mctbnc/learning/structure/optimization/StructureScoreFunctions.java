@@ -38,8 +38,8 @@ public class StructureScoreFunctions {
 
 	/**
 	 * Compute the (penalized) log-likelihood score for a discrete Bayesian network.
-	 * This is done by computing the marginal log-likelihood of the graph, i.e., the
-	 * prior distribution over the graphs is assumed to be uniform.
+	 * This is done by computing the marginal log-likelihood of the graph. It is
+	 * assumed a uniform prior structure.
 	 * 
 	 * @param bn                   Bayesian network
 	 * @param penalizationFunction penalization function

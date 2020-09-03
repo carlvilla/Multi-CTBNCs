@@ -52,14 +52,25 @@ public class ProbabilityUtil {
 	 */
 	public static <NodeTypeBN, NodeTypeCTBN> double logMarginalLikelihoodSequence(Sequence sequence,
 			List<NodeTypeBN> nodesBN, List<NodeTypeCTBN> nodesCTBN, List<State> statesClassVariables) {
-		double ppSequence = 0.0;
+		double mlSequence = 0.0;
 		for (int i = 0; i < statesClassVariables.size(); i++) {
-			State stateClassVariable = statesClassVariables.get(i);
-			double lppClass = priorProbabilityClassVariables(nodesBN, stateClassVariable);
-			double llSequence = likelihoodSequence(sequence, nodesCTBN, stateClassVariable);
-			ppSequence += lppClass * llSequence;
+			State stateClassVariables = statesClassVariables.get(i);
+			double lSequence = likelihoodSequence(sequence, nodesCTBN, stateClassVariables);
+			mlSequence += lSequence;
 		}
-		return Math.log(ppSequence);
+		return Math.log(mlSequence);
+	}
+	
+	public static <NodeTypeBN, NodeTypeCTBN> double marginalLikelihoodSequence(Sequence sequence,
+			List<NodeTypeBN> nodesBN, List<NodeTypeCTBN> nodesCTBN, List<State> statesClassVariables) {
+		double mlSequence = 0.0;
+		for (int i = 0; i < statesClassVariables.size(); i++) {
+			State stateClassVariables = statesClassVariables.get(i);
+			//double lppClass = priorProbabilityClassVariables(nodesBN, stateClassVariable);
+			double lSequence = likelihoodSequence(sequence, nodesCTBN, stateClassVariables);
+			mlSequence += lSequence; // * lppClass
+		}
+		return mlSequence;
 	}
 
 	public static <NodeTypeBN> double priorProbabilityClassVariables(List<NodeTypeBN> nodesBN,
@@ -93,7 +104,7 @@ public class ProbabilityUtil {
 		// Get observations of the sequence
 		List<Observation> observations = sequence.getObservations();
 		// Initialize likelihood
-		double ll = 1;
+		double l = 1;
 		// Iterate over all the observations of the sequence
 		for (int j = 1; j < observations.size(); j++) {
 			// Get observations 'j-1' (current) and 'j' (next) of the sequence
@@ -137,7 +148,7 @@ public class ProbabilityUtil {
 					// Probability of the feature staying in a certain state (while its parent have
 					// a particular state) for an amount of time 'deltaTime' is exponentially
 					// distributed with parameter 'qx'
-					ll *= Math.exp(-qx * deltaTime);
+					l *= Math.exp(-qx * deltaTime);
 
 					// Get value of the node for the following observation
 					String nextValue = nextObservation.getValueVariable(nodeCTBN.getName());
@@ -153,20 +164,17 @@ public class ProbabilityUtil {
 						Map<State, Double> Oxx = nodeCTBN.getOxx().get(fromState);
 						if (Oxx != null) {
 							Double oxy = Oxx.get(toState);
-							double qxy = 0;
+							double qxy = 1;
 							if (oxy != null)
 								// Instantaneous probability of feature moving from "fromState" to "toState"
 								qxy = oxy * qx;
-							// Small positive number (Stella and Amer 2012)
-							// double e = 0.000001;
-							// ll += qxy > 0 ? Math.log(1 - Math.exp(-(qxy) * e)) : 0;
-							ll *= qxy;
+							l *= qxy;
 						}
 					}
 				}
 			}
 		}
-		return ll;
+		return l;
 	}
 
 	/**
@@ -228,7 +236,6 @@ public class ProbabilityUtil {
 					// a particular state) for an amount of time 'deltaTime' is exponentially
 					// distributed with parameter 'qx'
 					ll += -qx * deltaTime;
-
 					// Get value of the node for the following observation
 					String nextValue = nextObservation.getValueVariable(nodeCTBN.getName());
 					// If the feature transitions to another state, get the probability that this
@@ -247,9 +254,6 @@ public class ProbabilityUtil {
 							if (oxy != null)
 								// Instantaneous probability of feature moving from "fromState" to "toState"
 								qxy = oxy * qx;
-							// Small positive number (Stella and Amer 2012)
-							// double e = 0.000001;
-							// ll += qxy > 0 ? Math.log(1 - Math.exp(-(qxy) * e)) : 0;
 							ll += qxy > 0 ? Math.log(qxy) : 0;
 						}
 					}

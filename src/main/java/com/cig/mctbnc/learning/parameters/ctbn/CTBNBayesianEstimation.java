@@ -32,28 +32,6 @@ public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 		this.TxPrior = TxPrior;
 	}
 
-	/**
-	 * Constructor Bayesian parameter estimator for CTBNs with default values
-	 * (Codecasa D. and Stella F. (2014)) for the priors.
-	 */
-	public CTBNBayesianEstimation() {
-		this.NxyPrior = 1.0;
-		this.NxPrior = 1.0;
-		this.TxPrior = 0.005;
-	}
-
-	public void setNxyPrior(double nxyPrior) {
-		NxyPrior = nxyPrior;
-	}
-
-	public void setNxPrior(double nxPrior) {
-		NxPrior = nxPrior;
-	}
-
-	public void setTxPrior(double txPrior) {
-		TxPrior = txPrior;
-	}
-
 	@Override
 	protected void estimateParameters(CIMNode node) {
 		logger.trace(

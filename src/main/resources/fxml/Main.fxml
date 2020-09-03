@@ -23,7 +23,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.CheckComboBox?>
 
-<BorderPane prefHeight="470.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cig.mctbnc.gui.controllers.Controller">
+<BorderPane prefHeight="491.0" prefWidth="655.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cig.mctbnc.gui.controllers.Controller">
 	<top>
       <AnchorPane BorderPane.alignment="CENTER">
          <children>
@@ -35,6 +35,16 @@
                   							<children>
                               <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="369.0" prefWidth="632.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                                  <children>
+                                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                       <children>
+                                          <Label text="Data format:" />
+                                          <ComboBox fx:id="cmbDataFormat" onAction="#changeDatasetReader" prefWidth="140.0" />
+                                          <Label text="Strategy:" />
+                                          <ComboBox fx:id="cmbStrategy" onAction="#changeDatasetReaderStrategy" prefWidth="140.0" />
+                                          <Label text="Size sequences:" />
+                                          <TextField fx:id="fldSizeSequences" prefHeight="27.0" prefWidth="60.0" />
+                                       </children>
+                                    </HBox>
                                     <HBox alignment="CENTER_LEFT" prefHeight="106.0" prefWidth="592.0" spacing="20.0">
                                        <children>
                   								<Button fx:id="btnFolder" mnemonicParsing="false" onAction="#setFolderDataset" prefHeight="27.0" text="Select folder dataset" />
@@ -143,7 +153,7 @@
                                     <ComboBox fx:id="cmbParameterBN" maxWidth="1.7976931348623157E308" onAction="#changeParameterLearningAlgBN" prefHeight="27.0" prefWidth="204.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                     <HBox alignment="CENTER" prefHeight="36.0" prefWidth="200.0" spacing="5.0" style="-fx-background-color: #e6e6e6#e6e6e6 #e6e6e6#e6e6e6;" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                                        <children>
-                                          <Label text="Even prior:" />
+                                          <Label text="α prior:" />
                                           <TextField fx:id="fldMxBN" prefHeight="27.0" prefWidth="60.0" />
                                        </children>
                                     </HBox>
@@ -203,7 +213,7 @@
                                                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.rowIndex="1">
                                                    <children>
                               								<Label text="Training size (%):" />
-                                                      <Slider fx:id="sldTrainingSize" max="1.0" min="0.1" prefHeight="6.0" prefWidth="140.0" />
+                                                      <Slider fx:id="sldTrainingSize" max="0.9" min="0.1" prefHeight="6.0" prefWidth="140.0" />
                                                       <TextField disable="true" prefHeight="27.0" prefWidth="53.0" text="${sldTrainingSize.value}" />
                                                    </children>
                                                 </HBox>

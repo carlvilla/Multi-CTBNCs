@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +15,7 @@ import org.graphstream.ui.view.Viewer;
 import com.cig.mctbnc.classification.Classifier;
 import com.cig.mctbnc.classification.Prediction;
 import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.data.representation.Observation;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
@@ -21,6 +23,7 @@ import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
 import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
+import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.ProbabilityUtil;
 import com.cig.mctbnc.util.Util;
@@ -199,7 +202,11 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		for (int i = 0; i < numSequences; i++) {
 			logger.trace("Performing prediction over sequence {}/{}", i, dataset.getNumDataPoints());
 			Sequence evidenceSequence = dataset.getSequences().get(i);
-			predictions[i] = predict(evidenceSequence, estimateProbabilities);
+			if (estimateProbabilities)
+				predictions[i] = predictProb(evidenceSequence, estimateProbabilities);
+			else
+				predictions[i] = predict(evidenceSequence, estimateProbabilities);
+
 		}
 		return predictions;
 	}
@@ -245,22 +252,150 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		State predictedClasses = statesClassVariables.get(indexBestStateClassVariables);
 		// Save the predicted classes
 		prediction.setPredictedClasses(predictedClasses);
-		// If requested, compute and save the a posteriori probabilities of the classes
-		if (estimateProbabilities) {
-			// Estimate the log-marginal likelihood (normalizing constant)
-			double lm = ProbabilityUtil.logMarginalLikelihoodSequence(sequence, nodesBN, nodesCTBN,
-					statesClassVariables);
-			// Normalize log-a-posteriori probabilities
-			for (int i = 0; i < statesClassVariables.size(); i++) {
-				// Normalize log-a-posteriori
-				laps[i] = laps[i] - lm;
-				// Save a posteriori probability
-				prediction.setProbability(statesClassVariables.get(i), Math.exp(laps[i]));
-			}
-			// Save a posteriori probability of prediction
-			double ap = Math.exp(laps[indexBestStateClassVariables]);
-			prediction.setProbabilityPrediction(ap);
+		return prediction;
+	}
+
+	public Prediction predictProb(Sequence sequence, boolean estimateProbabilities) {
+		// Obtain the name of the class variables
+		List<String> nameClassVariables = dataset.getNameClassVariables();
+		// Obtation all possible states of the class variables
+		List<State> statesClassVariables = dataset.getStatesVariables(nameClassVariables);
+		// Obtain nodes of the Bayesian network and continuous time Bayesian network
+		List<NodeTypeBN> nodesBN = getNodesBN();
+		List<NodeTypeCTBN> nodesCTBN = getNodesCTBN();
+		// Estimate the log-a-posteriori probabilities of each combination of classes
+		double[] laps = new double[statesClassVariables.size()];
+
+		// Obtain log-prior probabilities of each possible class configuration
+		for (int i = 0; i < statesClassVariables.size(); i++) {
+			// Get class configuration 'i'
+			State stateClassVariables = statesClassVariables.get(i);
+			// Estimate the log-prior probability of the classes 'i'
+			laps[i] += ProbabilityUtil.logPriorProbabilityClassVariables(nodesBN, stateClassVariables);
 		}
+
+		// Define Prediction object to store the prediction over the sequence
+		Prediction prediction = new Prediction();
+
+		// Get observations of the sequence
+		List<Observation> observations = sequence.getObservations();
+
+		// Iterate over all the observations of the sequence
+		for (int j = 1; j < observations.size(); j++) {
+
+			// Estimate the log-likelihood of the observation given each class configuration
+			double[] llObservation = new double[statesClassVariables.size()];
+
+			for (int i = 0; i < statesClassVariables.size(); i++) {
+				// Get class configuration 'i'
+				State stateClassVariables = statesClassVariables.get(i);
+				// Get observations 'j-1' (current) and 'j' (next) of the sequence
+				Observation currentObservation = observations.get(j - 1);
+				Observation nextObservation = observations.get(j);
+				// Time difference between 'j' and 'j-1' observations
+				double currentTimePoint = currentObservation.getTimeValue();
+				double nextTimePoint = nextObservation.getTimeValue();
+				double deltaTime = nextTimePoint - currentTimePoint;
+				// Estimate log-likelihood at each node given class configuration 'i'
+				for (NodeTypeCTBN node : nodesCTBN) {
+					// Obtain node of CTBN
+					CIMNode nodeCTBN = (CIMNode) node;
+					// Check that the node is from a feature
+					if (!nodeCTBN.isClassVariable()) {
+						// Define State object for the node and parents (if any) having certain state
+						State fromState = new State();
+						// Obtain current value of the feature node
+						String currentValue = currentObservation.getValueVariable(nodeCTBN.getName());
+						// Add value of the feature to the State object
+						fromState.addEvent(nodeCTBN.getName(), currentValue);
+						// Obtain parents of the feature node (if any)
+						List<Node> parentNodes = nodeCTBN.getParents();
+						// Add values of the parents (if any) to the State object
+						for (Node parentNode : parentNodes) {
+							String nameParent = parentNode.getName();
+							// Check if the parent is a class variable or a feature to retrieve its state
+							if (nameClassVariables.contains(nameParent))
+								fromState.addEvent(nameParent, stateClassVariables.getValueVariable(nameParent));
+							else
+								fromState.addEvent(nameParent, currentObservation.getValueVariable(nameParent));
+						}
+						// Obtain instantaneous probability of the feature leaving its current state
+						// while its parents are in a certain state. NOTE: new feature states, which
+						// were not considered during model training, could be found in the test dataset
+						Double qx = nodeCTBN.getQx().get(fromState);
+						qx = qx != null ? qx : 0;
+						// Probability of the feature staying in a certain state (while its parent have
+						// a particular state) for an amount of time 'deltaTime' is exponentially
+						// distributed with parameter 'qx'
+						double term1 = -qx * deltaTime;
+						llObservation[i] += term1;
+						laps[i] += term1;
+
+						// Get value of the node for the following observation
+						String nextValue = nextObservation.getValueVariable(nodeCTBN.getName());
+						// If the feature transitions to another state, get the probability that this
+						// occurs given the state of the parents
+						if (!currentValue.equals(nextValue)) {
+							// Define State object with next feature value to get the correct parameter
+							State toState = new State();
+							toState.addEvent(nodeCTBN.getName(), nextValue);
+							// Probability that the feature transitions from one state to another while its
+							// parents have a certain state. NOTE: the probability would be zero if either
+							// the departure or arrival state was not considered during model training
+							Map<State, Double> Oxx = nodeCTBN.getOxx().get(fromState);
+							if (Oxx != null) {
+								Double oxy = Oxx.get(toState);
+								double qxy = 0;
+								if (oxy != null)
+									// Instantaneous probability of feature moving from "fromState" to "toState"
+									qxy = oxy * qx;
+
+								llObservation[i] += qxy > 0 ? Math.log(qxy) : 0;
+								laps[i] += qxy > 0 ? Math.log(qxy) : 0;
+
+							}
+						}
+					}
+				}
+			}
+			// Transform log-likelihoods into probabilities
+			double[] prob = new double[statesClassVariables.size()];
+			double sum = 0.0;
+			for (int k = 0; k < statesClassVariables.size(); k++) {
+				prob[k] = Math.exp(llObservation[k]);
+				sum += prob[k];
+			}
+
+			// Update probabilities of the sequence belonging to each class configuration
+			double sum2 = 0.0;
+			for (int k = 0; k < statesClassVariables.size(); k++) {
+				if (prediction.getProbabilities() != null
+						&& prediction.getProbabilities().get(statesClassVariables.get(k)) != null) {
+					prob[k] = (prob[k] / sum) * prediction.getProbabilities().get(statesClassVariables.get(k));
+					sum2 += prob[k];
+				} else
+					prob[k] = (prob[k] / sum);
+			}
+			if (sum2 != 0.0)
+				for (int k = 0; k < statesClassVariables.size(); k++)
+					prob[k] /= sum2;
+
+			// Save probabilities of each class configuration
+			for (int k = 0; k < statesClassVariables.size(); k++)
+				prediction.setProbability(statesClassVariables.get(k), prob[k]);
+
+		}
+		// Retrieve class configuration which obtain largest posterior probability
+		int indexBestStateClassVariables = Util.getIndexLargestValue(laps);
+		State predictedClasses = statesClassVariables.get(indexBestStateClassVariables);
+
+		if (prediction.getProbabilities().get(predictedClasses) == 0.0) {
+			System.out.println(prediction.getProbabilities().get(predictedClasses));
+		}
+
+		// Save the predicted classes
+		prediction.setPredictedClasses(predictedClasses);
+		prediction.setProbabilityPrediction(prediction.getProbabilities().get(predictedClasses));
 		return prediction;
 	}
 

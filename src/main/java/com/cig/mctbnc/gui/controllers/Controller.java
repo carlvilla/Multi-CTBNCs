@@ -14,22 +14,19 @@ import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.reader.DatasetReaderFactory;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
-import com.cig.mctbnc.learning.parameters.bn.BNBayesianEstimation;
-import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
+import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithmFactory;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithmFactory;
+import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorihtmFactory;
 import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorihtmFactory;
 import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.optimization.hillclimbing.BNHillClimbing;
-import com.cig.mctbnc.learning.structure.optimization.hillclimbing.CTBNHillClimbing;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
-import com.cig.mctbnc.performance.CrossValidation;
-import com.cig.mctbnc.performance.HoldOut;
 import com.cig.mctbnc.performance.ValidationMethod;
+import com.cig.mctbnc.performance.ValidationMethodFactory;
 import com.cig.mctbnc.util.ControllerUtil;
 
 import javafx.fxml.FXML;
@@ -52,6 +49,12 @@ public class Controller {
 	private Stage stage;
 
 	// Dataset
+	@FXML
+	private ComboBox<String> cmbDataFormat;
+	@FXML
+	private ComboBox<String> cmbStrategy;
+	@FXML
+	private TextField fldSizeSequences;
 	@FXML
 	private TextField fldPath;
 	@FXML
@@ -99,44 +102,22 @@ public class Controller {
 	@FXML
 	private ProgressIndicator progressIndicator;
 
-	// ----------------------- AVAILABLE Models -----------------------
-	List<String> models = List.of("MCTBNC", "MCTNBC", "KMCTBNC");
+	// -------------------- AVAILABLE MODELS --------------------
+	List<String> models = ClassifierFactory.getAvailableModels();
+	// ----------------------- AVAILABLE ALGORITHMS -----------------------
 	List<String> parameterLearningAlgs = List.of("Maximum likelihood estimation", "Bayesian estimation");
 	List<String> structureLearningAlgs = List.of("Hill climbing");
 	List<String> penalizations = List.of("No", "BIC", "AIC");
-
-	// ----------------------- AVAILABLE ALGORITHMS -----------------------
-	Map<String, BNParameterLearningAlgorithm> parameterLearningBN = new HashMap<String, BNParameterLearningAlgorithm>() {
-		{
-			put("Maximum likelihood estimation", new BNMaximumLikelihoodEstimation());
-			put("Bayesian estimation", new BNBayesianEstimation());
-		}
-	};
-
-	Map<String, CTBNParameterLearningAlgorithm> parameterLearningCTBN = new HashMap<String, CTBNParameterLearningAlgorithm>() {
-		{
-			put("Maximum likelihood estimation", new CTBNMaximumLikelihoodEstimation());
-			put("Bayesian estimation", new CTBNBayesianEstimation());
-		}
-	};
-
-	Map<String, BNStructureLearningAlgorithm> structureLearningBN = new HashMap<String, BNStructureLearningAlgorithm>() {
-		{
-			put("Hill climbing", new BNHillClimbing());
-		}
-	};
-
-	Map<String, CTBNStructureLearningAlgorithm> structureLearningCTBN = new HashMap<String, CTBNStructureLearningAlgorithm>() {
-		{
-			put("Hill climbing", new CTBNHillClimbing());
-		}
-	};
+	// -------------------- AVAILABLE DATASET READERS --------------------
+	List<String> datasetReaders = DatasetReaderFactory.getAvailableDatasetReaders();
+	List<String> datasetReaderStrategies = DatasetReaderFactory.getAvailableStrategies();
 
 	/**
 	 * Initialize the controller.
 	 */
 	@FXML
 	public void initialize() {
+		initializeDatasetPane();
 		initializeModelPane();
 		initializeEvaluationPane();
 	}
@@ -153,7 +134,7 @@ public class Controller {
 		String pathFolder = selectedDirectory.getAbsolutePath();
 		fldPath.setText(pathFolder);
 		// Define dataset reader
-		datasetReader = DatasetReaderFactory.getDatasetReader(pathFolder);
+		initializeDatasetReader(pathFolder);
 		// Read the variables
 		readVariablesDataset(pathFolder);
 	}
@@ -188,6 +169,23 @@ public class Controller {
 
 //		progressIndicator.setVisible(false);
 //		progressIndicator.setManaged(false);
+	}
+
+	/**
+	 * Initialize the controllers of the model pane.
+	 */
+	private void initializeDatasetPane() {
+		// Initialize options of comboBoxes
+		cmbDataFormat.getItems().addAll(datasetReaders);
+		cmbStrategy.getItems().addAll(datasetReaderStrategies);
+		// Select first option as default in comboBoxes
+		cmbDataFormat.getSelectionModel().selectFirst();
+		cmbStrategy.getSelectionModel().selectFirst();
+		cmbStrategy.setDisable(true);
+		// Initialize text fields with default values
+		fldSizeSequences.setText("30");
+		fldSizeSequences.setDisable(true);
+		ControllerUtil.onlyPositiveInteger(fldSizeSequences);
 	}
 
 	/**
@@ -235,6 +233,18 @@ public class Controller {
 	}
 
 	/**
+	 * Initialize the dataset reader given the paht of the dataset folder.
+	 * 
+	 * @param pathFolder
+	 * @throws FileNotFoundException
+	 */
+	private void initializeDatasetReader(String pathFolder) throws FileNotFoundException {
+		String nameDatasetReader = cmbDataFormat.getValue();
+		int sizeSequence = Integer.valueOf(fldSizeSequences.getText());
+		datasetReader = DatasetReaderFactory.getDatasetReader(nameDatasetReader, pathFolder, sizeSequence);
+	}
+
+	/**
 	 * Obtain the variables of the selected dataset to added to the comboBoxes.
 	 * 
 	 * @param pathFolder
@@ -278,25 +288,31 @@ public class Controller {
 
 	private BNLearningAlgorithms defineAlgorithmsBN() {
 		// Get names learning algorithms
-		String parameterLearningAlgBN = cmbParameterBN.getValue();
-		String structureLearningAlg = cmbStructure.getValue();
+		String nameBnPLA = cmbParameterBN.getValue();
+		String nameBnSLA = cmbStructure.getValue();
+		// Get hyperparameters
+		double alpha = Double.valueOf(fldMxBN.getText());
 		// Define learning algorithms for the class subgraph (Bayesian network)
-		BNParameterLearningAlgorithm bnParameterLearningAlg = parameterLearningBN.get(parameterLearningAlgBN);
-		BNStructureLearningAlgorithm bnStructureLearningAlg = structureLearningBN.get(structureLearningAlg);
-		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnParameterLearningAlg, bnStructureLearningAlg);
+		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, alpha);
+		BNStructureLearningAlgorithm bnSLA = BNStructureLearningAlgorihtmFactory.getAlgorithm(nameBnSLA);
+		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
 		return bnLearningAlgs;
 	}
 
 	private CTBNLearningAlgorithms defineAlgorithmsCTBN() {
 		// Get names learning algorithms
-		String parameterLearningAlgCTBN = cmbParameterCTBN.getValue();
-		String structureLearningAlg = cmbStructure.getValue();
+		String nameCtbnPLA = cmbParameterCTBN.getValue();
+		String nameCtbnSLA = cmbStructure.getValue();
+		// Get hyperparameters
+		double nxy = Double.valueOf(fldNxy.getText());
+		double nx = Double.valueOf(fldNx.getText());
+		double tx = Double.valueOf(fldTx.getText());
 		// Define learning algorithms for the feature and class subgraph (Continuous
 		// time Bayesian network)
-		CTBNParameterLearningAlgorithm ctbnParameterLearningAlg = parameterLearningCTBN.get(parameterLearningAlgCTBN);
-		CTBNStructureLearningAlgorithm ctbnStructureLearningAlg = structureLearningCTBN.get(structureLearningAlg);
-		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnParameterLearningAlg,
-				ctbnStructureLearningAlg);
+		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, nxy,
+				nx, tx);
+		CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory.getAlgorithm(nameCtbnSLA);
+		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 		return ctbnLearningAlgs;
 	}
 
@@ -312,18 +328,12 @@ public class Controller {
 		String selectedValidationMethod = rbValidationMethod.getText();
 		// Define if sequences are shuffled before applying validation method
 		boolean shuffleSequences = cbShuffle.isSelected();
+		// Retrieve parameters of the validation methods
+		double trainingSize = sldTrainingSize.getValue();
+		int folds = Integer.valueOf(fldNumFolds.getText());
 		// Retrieve algorithm of the validation method
-		ValidationMethod validationMethod;
-		switch (selectedValidationMethod) {
-		case "Cross-validation":
-			int folds = Integer.valueOf(fldNumFolds.getText());
-			validationMethod = new CrossValidation(datasetReader, folds, shuffleSequences);
-			break;
-		default:
-			// Hold-out validation
-			double trainingSize = sldTrainingSize.getValue();
-			validationMethod = new HoldOut(datasetReader, trainingSize, shuffleSequences);
-		}
+		ValidationMethod validationMethod = ValidationMethodFactory.getValidationMethod(selectedValidationMethod,
+				datasetReader, shuffleSequences, trainingSize, folds);
 		return validationMethod;
 	}
 
@@ -339,6 +349,33 @@ public class Controller {
 	}
 
 	// ---------- onAction methods ----------
+	// TODO Improve the strategy to show and hide options of each algorithm
+
+	/**
+	 * A dataset reader was selected in the comboBox. Show its correspondent
+	 * options.
+	 */
+	public void changeDatasetReader() {
+		if (cmbDataFormat.getValue().equals("Unique CSV")) {
+			cmbStrategy.setDisable(false);
+			if (cmbStrategy.getValue().equals("Fixed size"))
+				fldSizeSequences.setDisable(false);
+		} else {
+			cmbStrategy.setDisable(true);
+			fldSizeSequences.setDisable(true);
+		}
+	}
+
+	/**
+	 * An strategy for the extraction of sequences was selected. Show its
+	 * correspondent options.
+	 */
+	public void changeDatasetReaderStrategy() {
+		if (cmbStrategy.getValue().equals("Fixed size"))
+			fldSizeSequences.setDisable(false);
+		else
+			fldSizeSequences.setDisable(true);
+	}
 
 	/**
 	 * A model was selected in the comboBox. Show its correspondent parameters.
