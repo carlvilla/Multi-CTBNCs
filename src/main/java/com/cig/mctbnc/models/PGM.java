@@ -33,23 +33,6 @@ public interface PGM<NodeType extends Node> {
 	public void addNodes(List<NodeType> nodes);
 
 	/**
-	 * Add nodes to a Graph object. This graph will be used to display the PGM.
-	 * 
-	 * @param graph
-	 * @param nodes
-	 */
-	public void addNodes(Graph graph, List<NodeType> nodes);
-
-	/**
-	 * Add to a Graph object the nodes passed as an argument and edges with their
-	 * children. This graph will be used to display the PGM.
-	 * 
-	 * @param graph
-	 * @param nodes
-	 */
-	public void addEdges(Graph graph, List<NodeType> nodes);
-
-	/**
 	 * Remove all the nodes from the PGM.
 	 */
 	public void removeAllNodes();

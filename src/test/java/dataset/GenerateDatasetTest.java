@@ -64,9 +64,9 @@ public class GenerateDatasetTest {
 
 	@Test
 	public void testStatesVariables() {
-		assertEquals(8, dataset.getStatesVariable("V1").size());
-		assertEquals(2, dataset.getStatesVariable("V2").size());
-		assertEquals(1, dataset.getStatesVariable("V3").size());
+		assertEquals(8, dataset.getPossibleStatesVariable("V1").size());
+		assertEquals(2, dataset.getPossibleStatesVariable("V2").size());
+		assertEquals(1, dataset.getPossibleStatesVariable("V3").size());
 	}
 
 	@Test

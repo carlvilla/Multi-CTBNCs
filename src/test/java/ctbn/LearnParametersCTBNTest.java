@@ -99,7 +99,7 @@ public class LearnParametersCTBNTest {
 		// not is irrelevant.
 		nodes = new ArrayList<CIMNode>();
 		for (String nameFeature : dataset.getNameVariables()) {
-			nodes.add(new CIMNode(nameFeature, dataset.getStatesVariable(nameFeature)));
+			nodes.add(new CIMNode(nameFeature, dataset.getPossibleStatesVariable(nameFeature)));
 		}
 
 		// V2 and V3 are parents of V1 and V3 is parent of V2

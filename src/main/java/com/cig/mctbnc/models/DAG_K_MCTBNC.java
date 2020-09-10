@@ -11,12 +11,14 @@ import com.cig.mctbnc.nodes.Node;
  * Implements a KDependenceMCTBNC
  * 
  * @author Carlos Villa Blanco
+ * @param <NodeTypeBN> 
+ * @param <NodeTypeCTBN> 
  *
  */
-public class KMCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends MCTBNC {
+public class DAG_K_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends MCTBNC<NodeTypeBN, NodeTypeCTBN>  {
 	int maxK;
 
-	public KMCTBNC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnlearningAlgs, int maxK,
+	public DAG_K_MCTBNC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnlearningAlgs, int maxK,
 			Class bnNodeClass, Class ctbnNodeClass) {
 		super(bnLearningAlgs, ctbnlearningAlgs, bnNodeClass, ctbnNodeClass);
 		this.maxK = maxK;

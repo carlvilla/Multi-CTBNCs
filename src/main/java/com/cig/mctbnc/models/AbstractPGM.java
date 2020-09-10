@@ -6,6 +6,11 @@ import java.util.stream.Collectors;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.fx_viewer.FxDefaultView;
+import org.graphstream.ui.fx_viewer.FxViewPanel;
+import org.graphstream.ui.fx_viewer.FxViewer;
+import org.graphstream.ui.javafx.FxGraphRenderer;
+import org.graphstream.ui.view.GraphRenderer;
 import org.graphstream.ui.view.Viewer;
 
 import com.cig.mctbnc.data.representation.Dataset;
@@ -15,6 +20,9 @@ import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeFactory;
 import com.cig.mctbnc.nodes.NodeIndexer;
+
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 /**
  * Contains common attributes and methods for PGM.
@@ -56,25 +64,6 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		}
 		this.nodes.addAll(nodes);
 		nodeIndexer = new NodeIndexer<NodeType>(this.nodes);
-	}
-
-	@Override
-	public void addNodes(Graph graph, List<NodeType> nodes) {
-		for (Node node : nodes) {
-			String nameNode = node.getName();
-			graph.addNode(nameNode).addAttribute("ui.label", nameNode);
-		}
-	}
-
-	@Override
-	public void addEdges(Graph graph, List<NodeType> nodes) {
-		for (Node node : nodes) {
-			String nameNode = node.getName();
-			for (Node child : node.getChildren()) {
-				String nameChild = child.getName();
-				graph.addEdge(nameNode + nameChild, nameNode, nameChild, true);
-			}
-		}
 	}
 
 	@Override
@@ -248,11 +237,57 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * @param graph
 	 */
 	public void display() {
+		// Create GraphStram graph
 		Graph graph = new SingleGraph("PGM");
 		addNodes(graph, nodes);
 		addEdges(graph, nodes);
-		Viewer viewer = graph.display();
-		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
+		// Define style of the graph
+		graph.setAttribute("ui.stylesheet", "url(src/main/resources/css/graph-style.css);");
+		// Define viewer
+		FxViewer viewer = new FxViewer(graph, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+		// viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
+		viewer.enableAutoLayout();
+		FxViewPanel panel = (FxViewPanel) viewer.addDefaultView(false, new FxGraphRenderer());
+
+		// Create stage and scene to visualize the graph
+		Stage stage = new Stage();
+		Scene scene = new Scene(panel);
+		stage.setScene(scene);
+		stage.show();
+
+		// Viewer viewer = graph.display();
+
+		// graph.display();
+
+	}
+
+	/**
+	 * Add nodes to a graphstream graph.
+	 * 
+	 * @param graph
+	 * @param nodes
+	 */
+	public void addNodes(Graph graph, List<NodeType> nodes) {
+		for (Node node : nodes) {
+			String nameNode = node.getName();
+			graph.addNode(nameNode).setAttribute("ui.label", nameNode);
+		}
+	}
+
+	/**
+	 * Add edges to a graphstream graph.
+	 * 
+	 * @param graph
+	 * @param nodes
+	 */
+	public void addEdges(Graph graph, List<NodeType> nodes) {
+		for (Node node : nodes) {
+			String nameNode = node.getName();
+			for (Node child : node.getChildren()) {
+				String nameChild = child.getName();
+				graph.addEdge(nameNode + nameChild, nameNode, nameChild, true);
+			}
+		}
 	}
 
 }

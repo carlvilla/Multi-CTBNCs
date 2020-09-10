@@ -111,7 +111,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 		if (node.hasParents()) {
 			List<Node> parents = node.getParents();
 			List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
-			List<State> statesParents = dataset.getStatesVariables(nameParents);
+			List<State> statesParents = dataset.getPossibleStatesVariables(nameParents);
 			for (State stateParents : statesParents) {
 				for (State fromState : statesVariable) {
 					State fromStateWithParents = new State(fromState.getEvents());

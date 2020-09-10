@@ -23,7 +23,7 @@ import com.opencsv.CSVReader;
  * @author Carlos Villa Blanco
  *
  */
-public class SeparateCSVReader extends AbstractCSVReader {
+public class MultipleCSVReader extends AbstractCSVReader {
 	File[] files;
 
 	/**
@@ -32,7 +32,7 @@ public class SeparateCSVReader extends AbstractCSVReader {
 	 * @param datasetFolder folder path where the csv files are stored
 	 * @throws FileNotFoundException
 	 */
-	public SeparateCSVReader(String datasetFolder) throws FileNotFoundException {
+	public MultipleCSVReader(String datasetFolder) throws FileNotFoundException {
 		super(datasetFolder);
 		logger.info("Generating CSV reader for multiples csv files in {}", datasetFolder);
 		// Read all csv files from the specified folder

@@ -23,7 +23,7 @@ public abstract class DatasetReaderFactory {
 		// TODO new dataset readers and define how to determine which one to generate
 		switch (datasetReader) {
 		case ("Multiple CSV"):
-			return new SeparateCSVReader(pathDataset);
+			return new MultipleCSVReader(pathDataset);
 		default:
 			// Unique CSV
 			return new SingleCSVReader(pathDataset, sizeSequence);
@@ -36,7 +36,7 @@ public abstract class DatasetReaderFactory {
 	 * @return
 	 */
 	public static List<String> getAvailableDatasetReaders() {
-		return List.of("Multiple CSV", "Unique CSV");
+		return List.of("Multiple CSV", "Single CSV");
 	}
 
 	/**

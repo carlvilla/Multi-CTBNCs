@@ -18,7 +18,7 @@ import com.cig.mctbnc.nodes.NodeIndexer;
  */
 public class MaxKCTBNC extends AbstractStructureConstraints {
 	int maxK;
-	static Logger logger = LogManager.getLogger(MCTBNC.class);
+	static Logger logger = LogManager.getLogger(MaxKCTBNC.class);
 
 	/**
 	 * Receives the maximum number of parents the nodes can have. If a positive
@@ -31,7 +31,7 @@ public class MaxKCTBNC extends AbstractStructureConstraints {
 			logger.warn("Illegal max. number of parents - The maximum number of parents must be 1 or more");
 			maxK = 1;
 		}
-		logger.warn("Number of parents: {}", maxK);
+		logger.warn("Max. number of parents: {}", maxK);
 		this.maxK = maxK;
 	}
 

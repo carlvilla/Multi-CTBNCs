@@ -8,7 +8,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
-import com.cig.mctbnc.models.KMCTBNC;
+import com.cig.mctbnc.models.DAG_K_MCTBNC;
+import com.cig.mctbnc.models.EMPTY_DAG_MCTBNC;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.models.MCTNBC;
 import com.cig.mctbnc.nodes.Node;
@@ -23,38 +24,49 @@ public class ClassifierFactory {
 	static Logger logger = LogManager.getLogger(ClassifierFactory.class);
 
 	/**
+	 * Build the specified classifier with the provided parameters.
 	 * 
 	 * @param <NodeTypeBN>
 	 * @param <NodeTypeCTBN>
 	 * @param nameClassifier
 	 * @param bnLearningAlgs
 	 * @param ctbnLearningAlgs
-	 * @param args             special arguments for each type of classifier
+	 * @param parameters       special parameters for each type of classifier
 	 * @param bnNodeClass
 	 * @param ctbnNodeClass
-	 * @return
+	 * @return classifier
 	 */
-	public static <NodeTypeBN extends Node, NodeTypeCTBN extends Node> MCTBNC getMCTBNC(String nameClassifier,
-			BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnLearningAlgs,
+	public static <NodeTypeBN extends Node, NodeTypeCTBN extends Node> MCTBNC<NodeTypeBN, NodeTypeCTBN> getMCTBNC(
+			String nameClassifier, BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnLearningAlgs,
 			Map<String, String> parameters, Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
 		switch (nameClassifier) {
 		case "MCTNBC":
 			logger.info("Creating a multi-dimensional continuous naive Bayes classifier");
 			return new MCTNBC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
-		case "KMCTBNC":
+		case "DAG-k MCTBNC":
 			logger.info("Creating a DAG-k multi-dimensional continuous Bayesian network classifier");
 			int maxK = Integer.valueOf(parameters.get("maxK"));
-			return new KMCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
+			return new DAG_K_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
+					ctbnNodeClass);
+		case "Empty-DAG MCTBNC":
+			logger.info("Creating a Empty-DAG multi-dimensional continuous Bayesian network classifier");
+			return new EMPTY_DAG_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass,
 					ctbnNodeClass);
 		default:
 			// If the specified classifier is not found, a MCTBNC is created
 			logger.info("Creating a multi-dimensional continuous time Bayesian network classifier");
 			return new MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
 		}
+
 	}
 
+	/**
+	 * Return a list with the currently available classifiers.
+	 * 
+	 * @return list of available classifiers
+	 */
 	public static List<String> getAvailableModels() {
-		return List.of("MCTBNC", "MCTNBC", "KMCTBNC");
+		return List.of("MCTBNC", "MCTNBC", "DAG-k MCTBNC", "Empty-DAG MCTBNC");
 	}
 
 }

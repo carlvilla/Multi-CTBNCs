@@ -30,6 +30,7 @@ public class Metrics {
 	 * 
 	 * @param predicted
 	 * @param actualDataset dataset with actual classes
+	 * @return Map with the name of the evaluation metrics and their values
 	 */
 	public static Map<String, Double> evaluate(Prediction[] predicted, Dataset actualDataset) {
 		if (predicted.length != actualDataset.getNumDataPoints()) {
@@ -37,15 +38,29 @@ public class Metrics {
 			return null;
 		}
 		showPredictions(predicted, actualDataset);
+		// Save results metrics in a map
+		Map<String, Double> results = new LinkedHashMap<String, Double>();
 		double globalAccuracy = globalAccuracy(predicted, actualDataset);
 		double meanAccuracy = meanAccuracy(predicted, actualDataset);
-		double globalBrierScore = globalBrierScore(predicted, actualDataset);
-
-		// Save results in a map
-		Map<String, Double> results = new LinkedHashMap<String, Double>();
+		double macroPrecision = macroAverage(predicted, actualDataset, Metrics::precision);
+		double macroRecall = macroAverage(predicted, actualDataset, Metrics::recall);
+		double macroF1Score = macroAverage(predicted, actualDataset, Metrics::f1score);
+		double microPrecision = microAverage(predicted, actualDataset, Metrics::precision);
+		double microRecall = microAverage(predicted, actualDataset, Metrics::recall);
+		double microF1Score = microAverage(predicted, actualDataset, Metrics::f1score);
 		results.put("Global accuracy", globalAccuracy);
 		results.put("Mean accuracy", meanAccuracy);
-		results.put("Global Brier score", globalBrierScore);
+		results.put("Macro-average precision", macroPrecision);
+		results.put("Macro-average recall", macroRecall);
+		results.put("Macro-average f1 score", macroF1Score);
+		results.put("Micro-average precision", microPrecision);
+		results.put("Micro-average recall", microRecall);
+		results.put("Micro-average f1 score", microF1Score);
+		// If the probabilities of the class configurations are available
+		if (predicted[0].getProbabilities() != null) {
+			double globalBrierScore = globalBrierScore(predicted, actualDataset);
+			results.put("Global Brier score", globalBrierScore);
+		}
 		return results;
 	}
 
@@ -82,7 +97,7 @@ public class Metrics {
 	 * Compute the global accuracy, which is the ratio between the number of
 	 * instances that were correctly classified for all the class variables and the
 	 * total number of instances. A partially correct classification will be
-	 * considered as an error (Bielza et al. 2011).
+	 * considered as an error (Bielza et al., 2011).
 	 * 
 	 * @param predicted     array of Prediction objects with predicted classes
 	 * @param actualDataset dataset with actual classes
@@ -91,19 +106,19 @@ public class Metrics {
 	public static double globalAccuracy(Prediction[] predicted, Dataset actualDataset) {
 		State[] actualValues = actualDataset.getStatesClassVariables();
 		int numInstances = actualValues.length;
-		double subsetAccuracy = 0;
+		double globalAccuracy = 0;
 		for (int i = 0; i < numInstances; i++)
 			if (predicted[i].getPredictedClasses().equals(actualValues[i]))
-				subsetAccuracy += (double) 1 / numInstances;
-		return subsetAccuracy;
+				globalAccuracy += 1;
+		return (double) globalAccuracy / numInstances;
 	}
 
 	/**
-	 * Compute the mean of the accuracies for each class variable (Bielza et al.
+	 * Compute the mean of the accuracies for each class variable (Bielza et al.,
 	 * 2011).
 	 * 
-	 * @param predicted
-	 * @param actualDataset
+	 * @param predicted     array of Prediction objects with predicted classes
+	 * @param actualDataset dataset with actual classes
 	 * @return mean accuracy
 	 */
 	public static double meanAccuracy(Prediction[] predicted, Dataset actualDataset) {
@@ -116,17 +131,16 @@ public class Metrics {
 		// Iterate over every class variable
 		List<String> nameCVs = predicted[0].getPredictedClasses().getNameVariables();
 		for (String nameCV : nameCVs) {
-			int numCorrectInstances = 0;
 			// Iterate over every instance
 			for (int j = 0; j < numInstances; j++) {
 				String predictedClass = predicted[j].getPredictedClasses().getValueVariable(nameCV);
 				String actualClass = actualCCs[j].getValueVariable(nameCV);
 				if (predictedClass.equals(actualClass))
-					meanAccuracy += (double) 1 / numInstances;
+					meanAccuracy += 1;
 			}
 		}
-		int numCVs = nameCVs.size();
-		meanAccuracy /= numCVs;
+		meanAccuracy /= (double) numInstances;
+		meanAccuracy /= nameCVs.size();
 		return meanAccuracy;
 	}
 
@@ -135,10 +149,10 @@ public class Metrics {
 	 * that assign a higher probability to correct predictions will have a lower
 	 * brier score (0 is the best). This method implements a generalized version for
 	 * multi-dimensional problems, which rewards only the probability of the class
-	 * configuration where all classes are correct (Fernandes et al. 2013).
+	 * configuration where all classes are correct (Fernandes et al., 2013).
 	 * 
-	 * @param predicted
-	 * @param actualDataset
+	 * @param predicted     array of Prediction objects with predicted classes
+	 * @param actualDataset dataset with actual classes
 	 * @return global brier score
 	 */
 	public static double globalBrierScore(Prediction[] predicted, Dataset actualDataset) {
@@ -171,7 +185,7 @@ public class Metrics {
 	}
 
 	/**
-	 * (Fernandes et al. 2013).
+	 * (Fernandes et al., 2013).
 	 * 
 	 * @param predicted
 	 * @param actualDataset
@@ -182,7 +196,7 @@ public class Metrics {
 	}
 
 	/**
-	 * (Fernandes et al. 2013).
+	 * (Fernandes et al., 2013).
 	 * 
 	 * @param predicted
 	 * @param actualDataset
@@ -193,14 +207,178 @@ public class Metrics {
 	}
 
 	/**
-	 * Determine if two arrays are equal.
+	 * Compute the precision evaluation metric from a Map containing a confusion
+	 * matrix. The Map should contain, at least, the keys "tp" (true positive) and
+	 * "fp" (false positive).
 	 * 
-	 * @param a
-	 * @param b
+	 * @param cm Map representing a confusion matrix
+	 * @return precision
+	 */
+	public static double precision(Map<String, Integer> cm) {
+		double precision = (double) cm.get("tp") / (cm.get("tp") + cm.get("fp"));
+		return Double.isNaN(precision) ? 0 : precision;
+	}
+
+	/**
+	 * Compute the recall evaluation metric from a Map containing a confusion
+	 * matrix. The Map should contain, at least, the keys "tp" (true positive) and
+	 * "fn" (false negative).
+	 * 
+	 * @param cm Map representing a confusion matrix
+	 * @return recall
+	 */
+	public static double recall(Map<String, Integer> cm) {
+		return (double) cm.get("tp") / (cm.get("tp") + cm.get("fn"));
+	}
+
+	/**
+	 * Compute the f1 score from a Map containing a confusion matrix. The Map should
+	 * contain, at least, the keys "tp" (true positive), "fp" (false positive) and
+	 * "fn" (false negative).
+	 * 
+	 * @param cm Map representing a confusion matrix
+	 * @return f1 score
+	 */
+	public static double f1score(Map<String, Integer> cm) {
+		return (double) 2 * cm.get("tp") / (2 * cm.get("tp") + cm.get("fn") + cm.get("fp"));
+	}
+
+	/**
+	 * Compute the value of a given evaluation metric for a multi-dimensional
+	 * classification problem using a macro-average approach. (Gil‑Begue et al.,
+	 * 2020).
+	 * 
+	 * @param predicted     array of Prediction objects with predicted classes
+	 * @param actualDataset dataset with actual classes
+	 * @param metric        evaluation metric
+	 * @return result of the evaluation metric
+	 */
+	public static double macroAverage(Prediction[] predicted, Dataset actualDataset, Metric metric) {
+		// Names of the class variables
+		List<String> nameCVs = actualDataset.getNameClassVariables();
+		// Number of class variables
+		int numCVs = nameCVs.size();
+		// Predictions (State objects) for each sequence and class variable
+		State[] predictedClasses = Arrays.stream(predicted).map(sequence -> sequence.getPredictedClasses())
+				.toArray(State[]::new);
+		State[] actualClasses = actualDataset.getStatesClassVariables();
+		double metricResult = 0.0;
+		for (String nameCV : nameCVs) {
+			// Predicted classes of each class variables
+			String[] predictedClassesCV = Arrays.stream(predictedClasses).map(state -> state.getValueVariable(nameCV))
+					.toArray(String[]::new);
+			// Actual classes of the class variables from the State objects
+			String[] actualClassesCV = Arrays.stream(actualClasses).map(state -> state.getValueVariable(nameCV))
+					.toArray(String[]::new);
+			// Obtain possible classes of the class variable
+			String[] possibleClassesCV = Util.getUnique(actualClassesCV);
+			// Apply the metric to the class variable
+			double metricResultCV = 0.0;
+			if (possibleClassesCV.length > 2) {
+				for (String classCV : possibleClassesCV) {
+					// Obtain confusion matrix for each class
+					Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, classCV);
+					// Result of the metric for each class
+					metricResultCV += metric.compute(cm);
+				}
+				metricResultCV /= possibleClassesCV.length;
+			} else {
+				// The first class is used as positive class
+				String positiveClass = possibleClassesCV[0];
+				logger.info("Computing precision for variable '{}' using positive class '{}'", nameCV, positiveClass);
+				Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, positiveClass);
+				metricResultCV = metric.compute(cm);
+			}
+			metricResult += metricResultCV;
+		}
+		metricResult /= numCVs;
+		return metricResult;
+	}
+
+	/**
+	 * Compute the value of a given evaluation metric for a multi-dimensional
+	 * classification problem using a micro-average approach.
+	 * 
+	 * @param predicted     array of Prediction objects with predicted classes
+	 * @param actualDataset dataset with actual classes
+	 * @param metric        evaluation metric
+	 * @return result of the evaluation metric
+	 */
+	public static double microAverage(Prediction[] predicted, Dataset actualDataset, Metric metric) {
+		// Names of the class variables
+		List<String> nameCVs = actualDataset.getNameClassVariables();
+		// Predictions (State objects) for each sequence and class variable
+		State[] predictedClasses = Arrays.stream(predicted).map(sequence -> sequence.getPredictedClasses())
+				.toArray(State[]::new);
+		State[] actualClasses = actualDataset.getStatesClassVariables();
+		// Confusion matrix to keep the combined results of each class variable
+		int tp = 0, fp = 0, tn = 0, fn = 0;
+		for (String nameCV : nameCVs) {
+			// Predicted classes of each class variables
+			String[] predictedClassesCV = Arrays.stream(predictedClasses).map(state -> state.getValueVariable(nameCV))
+					.toArray(String[]::new);
+			// Actual classes of the class variables from the State objects
+			String[] actualClassesCV = Arrays.stream(actualClasses).map(state -> state.getValueVariable(nameCV))
+					.toArray(String[]::new);
+			// Obtain possible classes of the class variable
+			String[] possibleClassesCV = Util.getUnique(actualClassesCV);
+			if (possibleClassesCV.length > 2)
+				for (String classCV : possibleClassesCV) {
+					// Obtain confusion matrix for each class
+					Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, classCV);
+					// Update confusion matrix with results of each class variable and positive
+					// class
+					tp += cm.get("tp");
+					fp += cm.get("fp");
+					tn += cm.get("tn");
+					fn += cm.get("fn");
+				}
+			else {
+				// The first class is used as positive class
+				String positiveClass = possibleClassesCV[0];
+				logger.info("Computing precision for variable '{}' using '{}' as positive class", nameCV, positiveClass);
+				Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, positiveClass);
+				tp += cm.get("tp");
+				fp += cm.get("fp");
+				tn += cm.get("tn");
+				fn += cm.get("fn");
+			}
+
+		}
+		// Apply the metric to the aggregated confusion matrix
+		Map<String, Integer> cm = Map.of("tp", tp, "fp", fp, "tn", tn, "fn", fn);
+		return metric.compute(cm);
+
+	}
+
+	public static double weightedMacroAverage(Prediction[] predicted, Dataset actualDataset, Metric metric) {
+		return 0.0;
+	}
+
+	/**
+	 * Obtain a confusion matrix given a list of predicted values and their actual
+	 * values. It also needs to be specified which one is the positive class.
+	 * 
+	 * @param predicted
+	 * @param actual
+	 * @param positiveClass
 	 * @return
 	 */
-	private static boolean compareArrays(String[] a, String[] b) {
-		return Arrays.equals(a, b);
+	private static Map<String, Integer> getConfusionMatrix(String[] predicted, String[] actual, String positiveClass) {
+		// Compute true positives, false positives, true negatives and false negatives
+		int tp = 0, fp = 0, tn = 0, fn = 0;
+		for (int i = 0; i < predicted.length; i++)
+			if (predicted[i].equals(positiveClass) && predicted[i].equals(actual[i]))
+				tp++;
+			else if (predicted[i].equals(positiveClass) && !predicted[i].equals(actual[i]))
+				fp++;
+			else if (actual[i].equals(positiveClass))
+				fn++;
+			else
+				tn++;
+		// Save the four possible outcomes in a Map object
+		Map<String, Integer> confusionMatrix = Map.of("tp", tp, "fp", fp, "tn", tn, "fn", fn);
+		return confusionMatrix;
 	}
 
 }

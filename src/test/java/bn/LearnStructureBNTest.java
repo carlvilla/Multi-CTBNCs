@@ -34,18 +34,22 @@ public class LearnStructureBNTest {
 		List<String[]> dataSequence1 = new ArrayList<String[]>();
 		dataSequence1.add(new String[] { "Time", "V1", "V2", "V3" });
 		dataSequence1.add(new String[] { "0.0", "a", "b", "b" });
+		dataSequence1.add(new String[] { "0.1", "a", "b", "b" });
 
 		List<String[]> dataSequence2 = new ArrayList<String[]>();
 		dataSequence2.add(new String[] { "Time", "V1", "V2", "V3" });
 		dataSequence2.add(new String[] { "0.0", "b", "a", "b" });
+		dataSequence2.add(new String[] { "0.1", "b", "a", "b" });
 
 		List<String[]> dataSequence3 = new ArrayList<String[]>();
 		dataSequence3.add(new String[] { "Time", "V1", "V2", "V3" });
 		dataSequence3.add(new String[] { "0.0", "a", "a", "a" });
+		dataSequence3.add(new String[] { "0.1", "a", "a", "a" });
 
 		List<String[]> dataSequence4 = new ArrayList<String[]>();
 		dataSequence4.add(new String[] { "Time", "V1", "V2", "V3" });
 		dataSequence4.add(new String[] { "0.0", "b", "b", "b" });
+		dataSequence4.add(new String[] { "0.1", "b", "b", "b" });
 
 		Dataset dataset = new Dataset(nameTimeVariable, nameClassVariables);
 		dataset.addSequence(dataSequence1);

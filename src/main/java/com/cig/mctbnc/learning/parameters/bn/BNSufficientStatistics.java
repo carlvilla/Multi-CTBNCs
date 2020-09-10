@@ -36,7 +36,7 @@ public class BNSufficientStatistics implements SufficientStatistics {
 		if (node.hasParents()) {
 			List<Node> parents = node.getParents();
 			List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
-			List<State> statesParents = dataset.getStatesVariables(nameParents);
+			List<State> statesParents = dataset.getPossibleStatesVariables(nameParents);
 
 			for (int j = 0; j < statesParents.size(); j++)
 				for (int k = 0; k < statesVariable.size(); k++) {

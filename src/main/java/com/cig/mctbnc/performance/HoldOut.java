@@ -1,5 +1,6 @@
 package com.cig.mctbnc.performance;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +49,9 @@ public class HoldOut implements ValidationMethod {
 		// Evaluate the performance of the model
 		Map<String, Double> results = Metrics.evaluate(predictions, this.testingDataset);
 		// Display results
+		System.out.println("--------------------Results hold-out validation--------------------");
 		displayResults(results);
+		System.out.println("-------------------------------------------------------------------");
 		// Display learned model
 		model.display();
 	}
@@ -83,8 +86,16 @@ public class HoldOut implements ValidationMethod {
 		this.trainingDataset = new Dataset(trainingSequences);
 		this.testingDataset = new Dataset(testingSequences);
 		// Set in the datasets the names of the files from which the data was extracted
-		this.trainingDataset.setNameFiles(files.subList(0, lastIndexTraining));
-		this.testingDataset.setNameFiles(files.subList(lastIndexTraining, sequences.size()));
+		if (files.size() == sequences.size()) {
+			// If there is as many files as sequences
+			this.trainingDataset.setNameFiles(files.subList(0, lastIndexTraining));
+			this.testingDataset.setNameFiles(files.subList(lastIndexTraining, sequences.size()));
+		} else {
+			// The sequences must have been extracted from only one file
+			this.trainingDataset.setNameFiles(files.subList(0, 0));
+			this.testingDataset.setNameFiles(files.subList(0, 0));
+		}
+		
 	}
 
 	/**

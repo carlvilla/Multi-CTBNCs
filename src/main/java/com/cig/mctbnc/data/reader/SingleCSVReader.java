@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.cig.mctbnc.data.representation.Dataset;
@@ -24,7 +25,7 @@ public class SingleCSVReader extends AbstractCSVReader {
 	 * Constructor. Extract CSV file from the specified folder.
 	 * 
 	 * @param datasetFolder folder path where the CSV file is stored
-	 * @param sizeSequence 
+	 * @param sizeSequence
 	 * @throws FileNotFoundException
 	 */
 	public SingleCSVReader(String datasetFolder, int sizeSequence) throws FileNotFoundException {
@@ -48,6 +49,7 @@ public class SingleCSVReader extends AbstractCSVReader {
 		Dataset dataset = new Dataset(nameTimeVariable, nameClassVariables);
 		nameAcceptedFiles = new ArrayList<String>();
 		try {
+			// Read the entire CSV
 			List<String[]> dataCSV = readCSV(file.getAbsolutePath(), excludeVariables);
 			// Save name of the file
 			nameAcceptedFiles.add(file.getName());
@@ -64,28 +66,93 @@ public class SingleCSVReader extends AbstractCSVReader {
 	/**
 	 * Extract sequences that have the same length, which is specified by the user,
 	 * and add it to the specified dataset. As there cannot be different class
-	 * configurations in one sequence, the most common class configuration will be
-	 * assigned to the sequence. It is assumed that the names of the variables are
-	 * in the first array of "dataCSV".
+	 * configurations in one sequence, sequences could contain less observation if a
+	 * transition of a class variable occurs before reaching the limit. It is
+	 * assumed that the names of the variables are in the first array of "dataCSV".
+	 * As there cannot be different class configurations in one sequence, sequences
+	 * could contain less observation.
 	 * 
-	 * @return
+	 * @return dataset
 	 */
 	public Dataset extractFixedSequences(Dataset dataset, List<String[]> dataCSV) {
 		int numInstances = dataCSV.size();
-
-		// Get variables' names
 		String[] namesVariables = dataCSV.get(0);
 
-		for (int i = 1; i < numInstances / sizeSequence; i = i + sizeSequence) {
-			List<String[]> dataSequence = new ArrayList<String[]>();
-			dataSequence.add(namesVariables);
-			System.out.println(i);
-			System.out.println(i + sizeSequence - 1);
-			dataSequence.addAll(dataCSV.subList(i, i + sizeSequence - 1));
-			dataset.addSequence(dataSequence);
+		// Obtain the indexes of the class variables in the CSV
+		int[] indexClassVariables = nameClassVariables.stream()
+				.mapToInt(nameClassVariable -> List.of(namesVariables).indexOf(nameClassVariable)).toArray();
+
+		// Store the class configuration of the first sequence.
+		String[] currentClassConfiguration = extractClassConfigurationObservation(indexClassVariables, dataCSV.get(1));
+		// Store the transitions for a sequence
+		List<String[]> dataSequence = new ArrayList<String[]>();
+		// Iterate over all the observations
+		for (int i = 1; i < numInstances; i++) {
+			// Add observations to the sequence until the size limit is reached or the class
+			// variables transition
+
+			// Extract observation
+			String[] observation = dataCSV.get(i);
+
+			if (dataSequence.size() == 0) {
+				// Add names of the variables
+				dataSequence.add(namesVariables);
+			}
+
+			// Check if any of the class variables transitioned to another state
+			boolean sameClassConfiguration = sameClassConfiguration(indexClassVariables, observation,
+					currentClassConfiguration);
+
+			if (dataSequence.size() < sizeSequence && sameClassConfiguration) {
+				// Add transition
+				dataSequence.add(observation);
+			} else {
+				// Add sequence to dataset
+				dataset.addSequence(dataSequence);				
+				if(!sameClassConfiguration)
+					// The class configuration changed
+					currentClassConfiguration = extractClassConfigurationObservation(indexClassVariables, observation);
+				// Create new sequence
+				dataSequence = new ArrayList<String[]>();
+				// Add names of the variables
+				dataSequence.add(namesVariables);
+				// The observation is added to the new sequence
+				dataSequence.add(observation);
+			}
 		}
 
 		return dataset;
+	}
+
+	/**
+	 * CHeck if the class configuration of an observation is equal to another that
+	 * is given.
+	 * 
+	 * @param indexClassVariables
+	 * @param observation
+	 * @param classConfiguration
+	 * @return
+	 */
+	private boolean sameClassConfiguration(int[] indexClassVariables, String[] observation,
+			String[] classConfiguration) {
+		// Extract class configuration from the observation
+		String[] classConfigurationObservation = extractClassConfigurationObservation(indexClassVariables, observation);
+		// Compare class configuration of the observation and the given one.
+		return Arrays.equals(classConfiguration, classConfigurationObservation);
+	}
+
+	/**
+	 * Extract class configuration from the given observation.
+	 * 
+	 * @param indexClassVariables
+	 * @param observation
+	 * @return
+	 */
+	private String[] extractClassConfigurationObservation(int[] indexClassVariables, String[] observation) {
+		String[] classConfigurationObservation = new String[indexClassVariables.length];
+		for (int i = 0; i < indexClassVariables.length; i++)
+			classConfigurationObservation[i] = observation[indexClassVariables[i]];
+		return classConfigurationObservation;
 	}
 
 }

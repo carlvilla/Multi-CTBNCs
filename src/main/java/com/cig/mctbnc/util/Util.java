@@ -6,10 +6,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.data.representation.State;
 
-public class Util {
+/**
+ * Utility class.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
+public final class Util {
+
+	private Util() {
+	}
 
 	/**
 	 * Return the elements of a list "a" except those in "b".
@@ -35,6 +43,16 @@ public class Util {
 		List<T> listA = new ArrayList<T>(a);
 		listA.remove(b);
 		return listA;
+	}
+
+	/**
+	 * Return the unique values of an array with Strings.
+	 * 
+	 * @param array
+	 * @return array with unique values
+	 */
+	public static String[] getUnique(String[] array) {
+		return Arrays.stream(array).distinct().toArray(String[]::new);
 	}
 
 	/**

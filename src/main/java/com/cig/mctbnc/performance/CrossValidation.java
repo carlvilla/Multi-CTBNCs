@@ -1,5 +1,6 @@
 package com.cig.mctbnc.performance;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -31,7 +32,7 @@ public class CrossValidation implements ValidationMethod {
 	public CrossValidation(DatasetReader datasetReader, int folds, boolean shuffle) {
 		logger.info("Preparing {}-cross validation / Shuffle: {}", folds, shuffle);
 		// Obtain dataset and the number of sequence it contains
-		dataset = datasetReader.readDataset();		
+		dataset = datasetReader.readDataset();
 		logger.info("Time variable: {}", dataset.getNameTimeVariable());
 		logger.info("Features: {}", dataset.getNameFeatures());
 		logger.info("Class variables: {}", (dataset.getNameClassVariables()));
@@ -45,7 +46,7 @@ public class CrossValidation implements ValidationMethod {
 	}
 
 	/**
-	 * Evaluate the performance of the specified model using hold-out validation.
+	 * Evaluate the performance of the specified model using cross-validation.
 	 * 
 	 * @param model model to evaluate
 	 */
@@ -71,7 +72,7 @@ public class CrossValidation implements ValidationMethod {
 		int fromIndex = 0;
 		// TODO PARALELLIZE
 		for (int i = 0; i < folds; i++) {
-			logger.info("Fold {}", i);
+			logger.info("Testing on fold {}", i);
 			// Prepare testing dataset for current fold
 			int toIndex = fromIndex + sizeFolds[i];
 			List<Sequence> testingSequences = sequences.subList(fromIndex, toIndex);
@@ -89,15 +90,17 @@ public class CrossValidation implements ValidationMethod {
 			// Update the final results of the metrics after seeing all the folds
 			resultsFold.forEach((metric, value) -> resultsCV.merge(metric, value, (a, b) -> a + b));
 			// Display results fold
-			logger.info("Results fold {}", i);
+			System.out.println(MessageFormat.format("--------------------Results fold {0}--------------------", i));
 			displayResults(resultsFold);
+			System.out.println("------------------------------------------------------");
 			fromIndex += sizeFolds[i];
 		}
 		// The average of each metric is computed
 		resultsCV.forEach((metric, value) -> resultsCV.put(metric, value / folds));
 		// Display results
-		logger.info("Results cross-validation");
+		System.out.println("--------------------Results cross-validation--------------------");
 		displayResults(resultsCV);
+		System.out.println("----------------------------------------------------------------");
 	}
 
 	/**
@@ -106,7 +109,7 @@ public class CrossValidation implements ValidationMethod {
 	 * @param results
 	 */
 	private void displayResults(Map<String, Double> results) {
-		results.forEach((metric, value) -> logger.info("{}: {}", metric, value));
+		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
 	}
 
 }

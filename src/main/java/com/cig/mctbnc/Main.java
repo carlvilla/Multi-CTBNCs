@@ -11,6 +11,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * JavaFX application to interact with the MCTBNCs software.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 public class Main extends Application {
 	static Logger logger = LogManager.getLogger(Main.class);
 
@@ -25,29 +31,20 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		logger.debug("Initializing MCTBNCs application");
+		System.setProperty("org.graphstream.ui", "javafx");
+		// Extract main scene from fxml file
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
-		Parent root = (Parent)loader.load();
+		Parent root = (Parent) loader.load();
 		Scene scene = new Scene(root);
 		primaryStage.setScene(scene);
 		primaryStage.show();
-
+		// Obtain controller of the scene
 		Controller controller = (Controller) loader.getController();
+		// Pass the stage to the controller. This is necessary to show dialogs.
 		controller.setStage(primaryStage);
-
-//		String datasetFolder = "src/main/resources/datasets/rehabilitation/Exercise1";
-//
-//		try {
-//			logger.debug("Initializing MCTBNCs from Main");
-//			new CommandLine(datasetFolder);
-//		} catch (Exception e) {
-//			System.err.println("Error: " + e);
-//			System.err.println("StackTrace:\n");
-//			e.printStackTrace(System.err);
-//			System.exit(1);
-//		}
-
 	}
-	
+
 	@Override
 	public void stop() {
 		logger.info("Closing application");

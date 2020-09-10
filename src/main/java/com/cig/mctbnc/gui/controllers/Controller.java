@@ -41,6 +41,13 @@ import javafx.scene.control.ToggleGroup;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
+/**
+ * Controller used to initialize the elements of the GUI and allow the
+ * interaction between the logic of the application and the GUI.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 public class Controller {
 	// Objects MCTBNC
 	DatasetReader datasetReader;
@@ -85,6 +92,8 @@ public class Controller {
 	private TextField fldNx;
 	@FXML
 	private TextField fldTx;
+	@FXML
+	private CheckBox chkProbabilities;
 
 	// Evaluation
 	@FXML
@@ -122,21 +131,33 @@ public class Controller {
 		initializeEvaluationPane();
 	}
 
+	/**
+	 * Establish the stage used by the application to show dialogs.
+	 * 
+	 * @param stage
+	 */
 	public void setStage(Stage stage) {
 		this.stage = stage;
 	}
 
+	/**
+	 * Open a dialog to select the folder where the dataset is located.
+	 * 
+	 * @throws FileNotFoundException
+	 */
 	public void setFolderDataset() throws FileNotFoundException {
 		// Open window to select the folder with the dataset
 		DirectoryChooser directoryChooser = new DirectoryChooser();
 		File selectedDirectory = directoryChooser.showDialog(stage);
 		// Show the selected path
 		String pathFolder = selectedDirectory.getAbsolutePath();
-		fldPath.setText(pathFolder);
-		// Define dataset reader
-		initializeDatasetReader(pathFolder);
-		// Read the variables
-		readVariablesDataset(pathFolder);
+		if (pathFolder != null) {
+			fldPath.setText(pathFolder);
+			// Define dataset reader
+			initializeDatasetReader(pathFolder);
+			// Read the variables
+			readVariablesDataset(pathFolder);
+		}
 	}
 
 	/**
@@ -356,7 +377,7 @@ public class Controller {
 	 * options.
 	 */
 	public void changeDatasetReader() {
-		if (cmbDataFormat.getValue().equals("Unique CSV")) {
+		if (cmbDataFormat.getValue().equals("Single CSV")) {
 			cmbStrategy.setDisable(false);
 			if (cmbStrategy.getValue().equals("Fixed size"))
 				fldSizeSequences.setDisable(false);
@@ -381,7 +402,7 @@ public class Controller {
 	 * A model was selected in the comboBox. Show its correspondent parameters.
 	 */
 	public void changeModel() {
-		if (cmbModel.getValue().equals("KMCTBNC"))
+		if (cmbModel.getValue().equals("DAG-k MCTBNC"))
 			fldKParents.setDisable(false);
 		else
 			fldKParents.setDisable(true);

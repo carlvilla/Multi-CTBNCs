@@ -80,6 +80,7 @@ public class LearnParametersBNTest {
 		List<String[]> dataSequence7 = new ArrayList<String[]>();
 		dataSequence7.add(new String[] { "Time", "C1", "C2", "C3" });
 		dataSequence7.add(new String[] { "0.5", "c", "b", "b" });
+		dataSequence7.add(new String[] { "0.6", "c", "b", "b" });
 
 		dataset = new Dataset(nameTimeVariable, nameClassVariables);
 		dataset.addSequence(dataSequence1);
@@ -95,7 +96,7 @@ public class LearnParametersBNTest {
 		// not is irrelevant.
 		nodes = new ArrayList<CPTNode>();
 		for (String nameClassVariable : dataset.getNameVariables()) {
-			nodes.add(new CPTNode(nameClassVariable, dataset.getStatesVariable(nameClassVariable)));
+			nodes.add(new CPTNode(nameClassVariable, dataset.getPossibleStatesVariable(nameClassVariable)));
 		}
 
 		// V2 and V3 are parents of V1 and V3 is parent of V2

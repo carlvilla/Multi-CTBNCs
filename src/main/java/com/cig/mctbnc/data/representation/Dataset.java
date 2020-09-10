@@ -81,7 +81,7 @@ public class Dataset {
 		// Use temporal list to avoid a concurrent modification exception
 		List<String> tempList = new ArrayList<String>(nameFeatures);
 		for (String nameFeature : tempList) {
-			if (getStatesVariable(nameFeature).size() == 1) {
+			if (getPossibleStatesVariable(nameFeature).size() == 1) {
 				logger.warn("Features {} is removed since its variance is zero.", nameFeature);
 				removeFeature(nameFeature);
 			}
@@ -209,7 +209,7 @@ public class Dataset {
 	 * @param nameVariable
 	 * @return states of the variable
 	 */
-	public List<State> getStatesVariable(String nameVariable) {
+	public List<State> getPossibleStatesVariable(String nameVariable) {
 		Set<State> states = new HashSet<State>();
 		for (Sequence sequence : getSequences()) {
 			String[] statesSequence = sequence.getStates(nameVariable);
@@ -232,14 +232,14 @@ public class Dataset {
 	 * @return a list of as many objects State as possible combinations between the
 	 *         specified variables
 	 */
-	public List<State> getStatesVariables(List<String> nameVariables) {
+	public List<State> getPossibleStatesVariables(List<String> nameVariables) {
 		if (nameVariables.size() == 1) {
-			return getStatesVariable(nameVariables.get(0));
+			return getPossibleStatesVariable(nameVariables.get(0));
 		}
 		// Get all possible states for each variable
 		List<List<State>> listStatesEachVariable = new ArrayList<List<State>>();
 		for (String nameVariable : nameVariables) {
-			List<State> statesVariable = getStatesVariable(nameVariable);
+			List<State> statesVariable = getPossibleStatesVariable(nameVariable);
 			listStatesEachVariable.add(statesVariable);
 		}
 		List<State> states = Util.cartesianProduct(listStatesEachVariable);
@@ -403,8 +403,8 @@ public class Dataset {
 	private void checkIntegrityData(List<String[]> data) throws ErroneousSequenceException {
 		// Check content data. There should be at least two arrays, one for the names of
 		// the variables and another for an observation
-		if (data.size() < 2) {
-			String message = "The sequence is empty";
+		if (data.size() < 3) {
+			String message = "Sequences must contain, at least, two observations";
 			throw new ErroneousSequenceException(message);
 		}
 		// Check names of variables

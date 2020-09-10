@@ -25,7 +25,7 @@
 
 <BorderPane prefHeight="491.0" prefWidth="655.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cig.mctbnc.gui.controllers.Controller">
 	<top>
-      <AnchorPane BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="429.0" prefWidth="655.0" BorderPane.alignment="CENTER">
          <children>
       		<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="632.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="1.0">
       			<tabs>
@@ -94,13 +94,14 @@
                                     <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                  </rowConstraints>
                                  <children>
                                     <HBox alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT" prefHeight="43.0" prefWidth="399.0" style="-fx-background-color: #e6e6e6#e6e6e6;" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                        <children>
                                           <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
                                              <children>
-                                                <Label alignment="CENTER" text="Nxy prior:" />
+                                                <Label alignment="CENTER" text="Nxy hyper.:" />
                                                 <TextField fx:id="fldNxy" prefHeight="27.0" prefWidth="60.0">
                                                    <HBox.margin>
                                                       <Insets />
@@ -113,7 +114,7 @@
                                           </HBox>
                                           <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
                                              <children>
-                                                <Label alignment="CENTER" text="Nx prior:" />
+                                                <Label alignment="CENTER" text="Nx hyper.:" />
                                                 <TextField fx:id="fldNx" prefHeight="27.0" prefWidth="60.0">
                                                    <HBox.margin>
                                                       <Insets />
@@ -126,7 +127,7 @@
                                           </HBox>
                                           <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
                                              <children>
-                                                <Label alignment="CENTER" text="Tx prior:" />
+                                                <Label alignment="CENTER" text="Tx hyper.:" />
                                                 <TextField fx:id="fldTx" prefHeight="27.0" prefWidth="60.0">
                                                    <HBox.margin>
                                                       <Insets />
@@ -153,10 +154,12 @@
                                     <ComboBox fx:id="cmbParameterBN" maxWidth="1.7976931348623157E308" onAction="#changeParameterLearningAlgBN" prefHeight="27.0" prefWidth="204.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                     <HBox alignment="CENTER" prefHeight="36.0" prefWidth="200.0" spacing="5.0" style="-fx-background-color: #e6e6e6#e6e6e6 #e6e6e6#e6e6e6;" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                                        <children>
-                                          <Label text="α prior:" />
+                                          <Label text="α hyper." />
                                           <TextField fx:id="fldMxBN" prefHeight="27.0" prefWidth="60.0" />
                                        </children>
                                     </HBox>
+                                    <Label text="Compute probabilities" GridPane.rowIndex="8" />
+                                    <CheckBox fx:id="chkProbabilities" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="8" />
                                  </children>
                               </GridPane>
                               <Accordion layoutX="150.0" layoutY="-26.0" />
