@@ -259,70 +259,70 @@ public class LearnParametersCTBNTest {
 		state.addEvent("V1", "a");
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "a");
-		assertEquals(0.5, ssV1.get(state), 0.001);
+		assertEquals(0.5, ssV1.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V1", "c");
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "c"); // Last observation of a sequence. It never changes, so the
 									// duration is unknown.
-		assertEquals(0, ssV1.get(state), 0.001);
+		assertEquals(0, ssV1.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V1", "a");
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "b");
-		assertEquals(1.0, ssV1.get(state), 0.001);
+		assertEquals(1.0, ssV1.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V1", "a");
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "c"); // State that never occurs
-		assertEquals(0, ssV1.get(state), 0.001);
+		assertEquals(0, ssV1.get(state), 0.01);
 
 		// Sufficient statistics V2
 		state = new State();
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "a");
-		assertEquals(0.5, ssV2.get(state), 0.001);
+		assertEquals(0.5, ssV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "b");
-		assertEquals(0.4, ssV2.get(state), 0.001);
+		assertEquals(0.4, ssV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "c");
-		assertEquals(0, ssV2.get(state), 0.001);
+		assertEquals(0, ssV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "a");
-		assertEquals(0, ssV2.get(state), 0.001);
+		assertEquals(0, ssV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "b");
-		assertEquals(1.7, ssV2.get(state), 0.001);
+		assertEquals(1.7, ssV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "c");
-		assertEquals(0, ssV2.get(state), 0.001);
+		assertEquals(0, ssV2.get(state), 0.01);
 
 		// Sufficient statistics V3
 		state = new State();
 		state.addEvent("V3", "a");
-		assertEquals(0.5, ssV3.get(state), 0.001);
+		assertEquals(0.5, ssV3.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V3", "b");
-		assertEquals(2.1, ssV3.get(state), 0.001);
+		assertEquals(2.1, ssV3.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V3", "c");
-		assertEquals(0, ssV3.get(state), 0.001);
+		assertEquals(0, ssV3.get(state), 0.01);
 	}
 
 	/**
@@ -355,69 +355,69 @@ public class LearnParametersCTBNTest {
 		state.addEvent("V1", "a");
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "a");
-		assertEquals(2, qxV1.get(state), 0.001);
+		assertEquals(2, qxV1.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V1", "a");
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "b");
-		assertEquals(3, qxV1.get(state), 0.001);
+		assertEquals(3, qxV1.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V1", "b");
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "a");
-		assertEquals(0, qxV1.get(state), 0.001);
+		assertEquals(0, qxV1.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V1", "c");
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "c");
-		assertEquals(0, qxV1.get(state), 0.001);
+		assertEquals(0, qxV1.get(state), 0.01);
 
 		// Parameters V2
 		state = new State();
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "a");
-		assertEquals(0, qxV2.get(state), 0.001);
+		assertEquals(0, qxV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "b");
-		assertEquals(2.5, qxV2.get(state), 0.001);
+		assertEquals(2.5, qxV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "c");
-		assertEquals(0, qxV2.get(state), 0.001);
+		assertEquals(0, qxV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "a");
-		assertEquals(0, qxV2.get(state), 0.001);
+		assertEquals(0, qxV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "b");
-		assertEquals(0.588, qxV2.get(state), 0.001);
+		assertEquals(0.58, qxV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "c");
-		assertEquals(0, qxV2.get(state), 0.001);
+		assertEquals(0, qxV2.get(state), 0.01);
 
 		// Sufficient statistics V3
 		state = new State();
 		state.addEvent("V3", "a");
-		assertEquals(2, qxV3.get(state), 0.001);
+		assertEquals(2, qxV3.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V3", "b");
-		assertEquals(1.428, qxV3.get(state), 0.001);
+		assertEquals(1.42, qxV3.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V3", "c");
-		assertEquals(0, qxV3.get(state), 0.001);
+		assertEquals(0, qxV3.get(state), 0.01);
 	}
 
 	/**
@@ -434,11 +434,11 @@ public class LearnParametersCTBNTest {
 
 		State toState = new State();
 		toState.addEvent("V1", "b");
-		assertEquals(0, OxV1.get(toState), 0.001);
+		assertEquals(0, OxV1.get(toState), 0.01);
 
 		toState = new State();
 		toState.addEvent("V1", "c");
-		assertEquals(1, OxV1.get(toState), 0.001);
+		assertEquals(1, OxV1.get(toState), 0.01);
 
 		fromState = new State();
 		fromState.addEvent("V1", "a");
@@ -448,11 +448,11 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V1", "b");
-		assertEquals(0.666, OxV1.get(toState), 0.001);
+		assertEquals(0.66, OxV1.get(toState), 0.01);
 
 		toState = new State();
 		toState.addEvent("V1", "c");
-		assertEquals(0.333, OxV1.get(toState), 0.001);
+		assertEquals(0.33, OxV1.get(toState), 0.01);
 
 		// Parameters V2
 		fromState = new State();
@@ -462,7 +462,7 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V2", "b");
-		assertEquals(0, OxV2.get(toState), 0.001);
+		assertEquals(0, OxV2.get(toState), 0.01);
 
 		fromState = new State();
 		fromState.addEvent("V2", "b");
@@ -471,7 +471,7 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V2", "a");
-		assertEquals(1, OxV2.get(toState), 0.001);
+		assertEquals(1, OxV2.get(toState), 0.01);
 
 		fromState = new State();
 		fromState.addEvent("V2", "b");
@@ -480,7 +480,7 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V2", "a");
-		assertEquals(0, OxV2.get(toState), 0.001);
+		assertEquals(0, OxV2.get(toState), 0.01);
 
 		// Parameters V3
 		fromState = new State();
@@ -489,11 +489,11 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V3", "b");
-		assertEquals(0, OxV3.get(toState), 0.001);
+		assertEquals(0, OxV3.get(toState), 0.01);
 
 		toState = new State();
 		toState.addEvent("V3", "c");
-		assertEquals(1, OxV3.get(toState), 0.001);
+		assertEquals(1, OxV3.get(toState), 0.01);
 
 		fromState = new State();
 		fromState.addEvent("V3", "b");
@@ -501,11 +501,11 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V3", "a");
-		assertEquals(1, OxV3.get(toState), 0.001);
+		assertEquals(1, OxV3.get(toState), 0.01);
 
 		toState = new State();
 		toState.addEvent("V3", "c");
-		assertEquals(0, OxV3.get(toState), 0.001);
+		assertEquals(0, OxV3.get(toState), 0.01);
 
 		fromState = new State();
 		fromState.addEvent("V3", "c");
@@ -513,11 +513,11 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V3", "a");
-		assertEquals(0, OxV3.get(toState), 0.001);
+		assertEquals(0, OxV3.get(toState), 0.01);
 
 		toState = new State();
 		toState.addEvent("V3", "b");
-		assertEquals(0, OxV3.get(toState), 0.001);
+		assertEquals(0, OxV3.get(toState), 0.01);
 	}
 
 	/**
@@ -529,9 +529,8 @@ public class LearnParametersCTBNTest {
 	public void testBE_ImaginaryCountsOff() {
 		// Establish imaginary counts
 		double NxyPrior = 0.0;
-		double NxPrior = 0.0;
 		double TxPrior = 0.0;
-		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(NxyPrior, NxPrior, TxPrior);
+		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(NxyPrior, TxPrior);
 		ctbnParameterLearning.learn(nodes, dataset);
 		testMLEParameterQxCTBN();
 		testMLEParameterOxxCTBN();
@@ -546,9 +545,8 @@ public class LearnParametersCTBNTest {
 	public void testBE_ImaginaryCountsOn() {
 		// Establish imaginary counts
 		double NxyPrior = 1.0;
-		double NxPrior = 1.0;
 		double TxPrior = 2.0;
-		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(NxyPrior, NxPrior, TxPrior);
+		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(NxyPrior, TxPrior);
 		ctbnParameterLearning.learn(nodes, dataset);
 		testBEParameterQxCTBN();
 		testBEParameterOxxCTBN();
@@ -571,69 +569,69 @@ public class LearnParametersCTBNTest {
 		state.addEvent("V1", "a");
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "a");
-		assertEquals(0.8, qxV1.get(state), 0.001);
+		assertEquals(0.8, qxV1.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V1", "a");
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "b");
-		assertEquals(1.333, qxV1.get(state), 0.001);
+		assertEquals(1.33, qxV1.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V1", "b");
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "a");
-		assertEquals(0.5, qxV1.get(state), 0.001);
+		assertEquals(0.5, qxV1.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V1", "c");
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "c");
-		assertEquals(0.5, qxV1.get(state), 0.001);
+		assertEquals(0.5, qxV1.get(state), 0.01);
 
 		// Parameters V2
 		state = new State();
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "a");
-		assertEquals(0.4, qxV2.get(state), 0.001);
+		assertEquals(0.4, qxV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "b");
-		assertEquals(0.833, qxV2.get(state), 0.001);
+		assertEquals(0.83, qxV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "c");
-		assertEquals(0.5, qxV2.get(state), 0.001);
+		assertEquals(0.5, qxV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "a");
-		assertEquals(0.5, qxV2.get(state), 0.001);
+		assertEquals(0.5, qxV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "b");
-		assertEquals(0.540, qxV2.get(state), 0.001);
+		assertEquals(0.54, qxV2.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "c");
-		assertEquals(0.5, qxV2.get(state), 0.001);
+		assertEquals(0.5, qxV2.get(state), 0.01);
 
 		// Sufficient statistics V3
 		state = new State();
 		state.addEvent("V3", "a");
-		assertEquals(0.8, qxV3.get(state), 0.001);
+		assertEquals(0.8, qxV3.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V3", "b");
-		assertEquals(0.975, qxV3.get(state), 0.001);
+		assertEquals(0.97, qxV3.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V3", "c");
-		assertEquals(0.5, qxV3.get(state), 0.001);
+		assertEquals(0.5, qxV3.get(state), 0.01);
 	}
 
 	/**
@@ -650,11 +648,11 @@ public class LearnParametersCTBNTest {
 
 		State toState = new State();
 		toState.addEvent("V1", "b");
-		assertEquals(0.5, OxV1.get(toState), 0.001);
+		assertEquals(0.33, OxV1.get(toState), 0.01);
 
 		toState = new State();
 		toState.addEvent("V1", "c");
-		assertEquals(1, OxV1.get(toState), 0.001);
+		assertEquals(0.66, OxV1.get(toState), 0.01);
 
 		fromState = new State();
 		fromState.addEvent("V1", "a");
@@ -664,11 +662,11 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V1", "b");
-		assertEquals(0.75, OxV1.get(toState), 0.001);
+		assertEquals(0.6, OxV1.get(toState), 0.01);
 
 		toState = new State();
 		toState.addEvent("V1", "c");
-		assertEquals(0.5, OxV1.get(toState), 0.001);
+		assertEquals(0.4, OxV1.get(toState), 0.01);
 
 		// Parameters V2
 		fromState = new State();
@@ -678,7 +676,7 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V2", "b");
-		assertEquals(1, OxV2.get(toState), 0.001);
+		assertEquals(1, OxV2.get(toState), 0.01);
 
 		fromState = new State();
 		fromState.addEvent("V2", "b");
@@ -687,7 +685,7 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V2", "a");
-		assertEquals(1, OxV2.get(toState), 0.001);
+		assertEquals(1, OxV2.get(toState), 0.01);
 
 		fromState = new State();
 		fromState.addEvent("V2", "b");
@@ -696,7 +694,7 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V2", "a");
-		assertEquals(1, OxV2.get(toState), 0.001);
+		assertEquals(1, OxV2.get(toState), 0.01);
 
 		// Parameters V3
 		fromState = new State();
@@ -705,11 +703,11 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V3", "b");
-		assertEquals(0.5, OxV3.get(toState), 0.001);
+		assertEquals(0.33, OxV3.get(toState), 0.01);
 
 		toState = new State();
 		toState.addEvent("V3", "c");
-		assertEquals(1, OxV3.get(toState), 0.001);
+		assertEquals(0.66, OxV3.get(toState), 0.01);
 
 		fromState = new State();
 		fromState.addEvent("V3", "b");
@@ -717,11 +715,11 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V3", "a");
-		assertEquals(1, OxV3.get(toState), 0.001);
+		assertEquals(0.8, OxV3.get(toState), 0.01);
 
 		toState = new State();
 		toState.addEvent("V3", "c");
-		assertEquals(0.25, OxV3.get(toState), 0.001);
+		assertEquals(0.2, OxV3.get(toState), 0.01);
 
 		fromState = new State();
 		fromState.addEvent("V3", "c");
@@ -729,11 +727,11 @@ public class LearnParametersCTBNTest {
 
 		toState = new State();
 		toState.addEvent("V3", "a");
-		assertEquals(1, OxV3.get(toState), 0.001);
+		assertEquals(0.5, OxV3.get(toState), 0.01);
 
 		toState = new State();
 		toState.addEvent("V3", "b");
-		assertEquals(1, OxV3.get(toState), 0.001);
+		assertEquals(0.5, OxV3.get(toState), 0.01);
 	}
 
 }

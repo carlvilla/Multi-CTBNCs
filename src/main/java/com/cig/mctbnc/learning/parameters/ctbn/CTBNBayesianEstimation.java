@@ -15,28 +15,24 @@ import com.cig.mctbnc.nodes.CIMNode;
 public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 	// Imaginary counts of the hyperparameters
 	private double NxyPrior;
-	private double NxPrior;
 	private double TxPrior;
 
 	/**
 	 * Constructor Bayesian parameter estimator for CTBNs.
 	 * 
 	 * @param NxyPrior
-	 * @param NxPrior
 	 * @param TxPrior
 	 */
-	public CTBNBayesianEstimation(double NxyPrior, double NxPrior, double TxPrior) {
+	public CTBNBayesianEstimation(double NxyPrior, double TxPrior) {
 		// Definition of imaginary counts of the hyperparameters
 		this.NxyPrior = NxyPrior;
-		this.NxPrior = NxPrior;
 		this.TxPrior = TxPrior;
 	}
 
 	@Override
 	protected void estimateParameters(CIMNode node) {
-		logger.trace(
-				"Learning parameters of CTBN node {} with Bayesian estimation using priors Nxx={}, Nx={} and Tx={}",
-				node.getName(), this.NxyPrior, this.NxPrior, this.TxPrior);
+		logger.trace("Learning parameters of CTBN node {} with Bayesian estimation using priors Nxx={} and Tx={}",
+				node.getName(), this.NxyPrior, this.TxPrior);
 		// Initialize structures to store the parameters
 		Map<State, Double> Qx = new HashMap<State, Double>();
 		Map<State, Map<State, Double>> Oxx = new HashMap<State, Map<State, Double>>();
@@ -44,6 +40,9 @@ public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 		Map<State, Map<State, Integer>> Nxy = node.getSufficientStatistics().getNxy();
 		Map<State, Integer> Nx = node.getSufficientStatistics().getNx();
 		Map<State, Double> Tx = node.getSufficientStatistics().getTx();
+		// Hyperparameter NxPrior (number of transitions originating from certain state)
+		int numStatesNode = node.getStates().size();
+		double NxPrior = this.NxyPrior * (numStatesNode - 1);
 		// Parameter with probabilities of leaving a certain state
 		for (State fromState : Nx.keySet()) {
 			// Number of transitions from this state
@@ -64,7 +63,7 @@ public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 				for (State toState : mapNxyFromState.keySet()) {
 					if (!Oxx.containsKey(fromState))
 						Oxx.put(fromState, new HashMap<State, Double>());
-					double oxx = (this.NxyPrior + mapNxyFromState.get(toState)) / (this.NxPrior + NxFromState);
+					double oxx = (this.NxyPrior + mapNxyFromState.get(toState)) / (NxPrior + NxFromState);
 					// The previous operation can be undefined if the priors are 0
 					if (Double.isNaN(oxx))
 						oxx = 0;

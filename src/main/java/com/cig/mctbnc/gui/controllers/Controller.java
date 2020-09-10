@@ -33,7 +33,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
@@ -89,8 +89,6 @@ public class Controller {
 	@FXML
 	private TextField fldNxy;
 	@FXML
-	private TextField fldNx;
-	@FXML
 	private TextField fldTx;
 	@FXML
 	private CheckBox chkProbabilities;
@@ -109,7 +107,7 @@ public class Controller {
 	@FXML
 	private Button btnEvaluate;
 	@FXML
-	private ProgressIndicator progressIndicator;
+	private Label status;
 
 	// -------------------- AVAILABLE MODELS --------------------
 	List<String> models = ClassifierFactory.getAvailableModels();
@@ -149,9 +147,9 @@ public class Controller {
 		// Open window to select the folder with the dataset
 		DirectoryChooser directoryChooser = new DirectoryChooser();
 		File selectedDirectory = directoryChooser.showDialog(stage);
-		// Show the selected path
-		String pathFolder = selectedDirectory.getAbsolutePath();
-		if (pathFolder != null) {
+		if (selectedDirectory != null) {
+			// Show the selected directory
+			String pathFolder = selectedDirectory.getAbsolutePath();
 			fldPath.setText(pathFolder);
 			// Define dataset reader
 			initializeDatasetReader(pathFolder);
@@ -166,10 +164,6 @@ public class Controller {
 	public void evaluate() {
 		// CHECK THAT IT IS POSSIBLE TO LEARN A MODEL WITH THE GIVEN INFORMATION
 		checkValidOptions();
-
-//		progressIndicator.setVisible(true);
-//		progressIndicator.setManaged(true);
-
 		// Get selected variables
 		String nameTimeVariable = cmbTimeVariable.getValue();
 		List<String> nameClassVariables = ckcmbClassVariables.getCheckModel().getCheckedItems();
@@ -186,10 +180,9 @@ public class Controller {
 		// Define the validation method
 		ValidationMethod validationMethod = defineValidationMethod();
 		// Evaluate the performance of the model
+		status.setText("Evaluating model...");
 		validationMethod.evaluate(model);
-
-//		progressIndicator.setVisible(false);
-//		progressIndicator.setManaged(false);
+		status.setText("Idle");
 	}
 
 	/**
@@ -229,12 +222,10 @@ public class Controller {
 		fldKParents.setText("2");
 		fldMxBN.setText("1");
 		fldNxy.setText("1");
-		fldNx.setText("1");
 		fldTx.setText("0.001");
 		fldKParents.setDisable(true);
 		fldMxBN.setDisable(true);
 		fldNxy.setDisable(true);
-		fldNx.setDisable(true);
 		fldTx.setDisable(true);
 		// Text values are restricted to certain values
 		ControllerUtil.onlyPositiveInteger(fldKParents);
@@ -326,12 +317,11 @@ public class Controller {
 		String nameCtbnSLA = cmbStructure.getValue();
 		// Get hyperparameters
 		double nxy = Double.valueOf(fldNxy.getText());
-		double nx = Double.valueOf(fldNx.getText());
 		double tx = Double.valueOf(fldTx.getText());
 		// Define learning algorithms for the feature and class subgraph (Continuous
 		// time Bayesian network)
 		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, nxy,
-				nx, tx);
+				tx);
 		CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory.getAlgorithm(nameCtbnSLA);
 		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 		return ctbnLearningAlgs;
@@ -426,11 +416,9 @@ public class Controller {
 	public void changeParameterLearningAlgCTBN() {
 		if (cmbParameterCTBN.getValue().equals("Bayesian estimation")) {
 			fldNxy.setDisable(false);
-			fldNx.setDisable(false);
 			fldTx.setDisable(false);
 		} else {
 			fldNxy.setDisable(true);
-			fldNx.setDisable(true);
 			fldTx.setDisable(true);
 		}
 	}

@@ -275,6 +275,7 @@ public class Metrics {
 			// Apply the metric to the class variable
 			double metricResultCV = 0.0;
 			if (possibleClassesCV.length > 2) {
+				// Categorical variable
 				for (String classCV : possibleClassesCV) {
 					// Obtain confusion matrix for each class
 					Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, classCV);
@@ -283,9 +284,9 @@ public class Metrics {
 				}
 				metricResultCV /= possibleClassesCV.length;
 			} else {
-				// The first class is used as positive class
-				String positiveClass = possibleClassesCV[0];
-				logger.info("Computing precision for variable '{}' using positive class '{}'", nameCV, positiveClass);
+				// Binary variable
+				String positiveClass = getPositiveClass(possibleClassesCV);
+				logger.info("Using {} as positive class of '{}'", positiveClass, nameCV);
 				Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, positiveClass);
 				metricResultCV = metric.compute(cm);
 			}
@@ -323,6 +324,7 @@ public class Metrics {
 			// Obtain possible classes of the class variable
 			String[] possibleClassesCV = Util.getUnique(actualClassesCV);
 			if (possibleClassesCV.length > 2)
+				// Categorical variable
 				for (String classCV : possibleClassesCV) {
 					// Obtain confusion matrix for each class
 					Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, classCV);
@@ -334,25 +336,43 @@ public class Metrics {
 					fn += cm.get("fn");
 				}
 			else {
-				// The first class is used as positive class
-				String positiveClass = possibleClassesCV[0];
-				logger.info("Computing precision for variable '{}' using '{}' as positive class", nameCV, positiveClass);
+				// Binary variable
+				String positiveClass = getPositiveClass(possibleClassesCV);
+				logger.info("Using {} as positive class of '{}'", positiveClass, nameCV);
 				Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, positiveClass);
 				tp += cm.get("tp");
 				fp += cm.get("fp");
 				tn += cm.get("tn");
 				fn += cm.get("fn");
 			}
-
 		}
 		// Apply the metric to the aggregated confusion matrix
 		Map<String, Integer> cm = Map.of("tp", tp, "fp", fp, "tn", tn, "fn", fn);
 		return metric.compute(cm);
-
 	}
 
 	public static double weightedMacroAverage(Prediction[] predicted, Dataset actualDataset, Metric metric) {
 		return 0.0;
+	}
+
+	/**
+	 * Return the positive class of a binary class variable. It is assumed that the
+	 * class would be either 'True', 'Positive' or '1'. If it is not possible to
+	 * determine the positive class, the first one will be returned.
+	 * 
+	 * 
+	 * @param possibleClasses
+	 * @return
+	 */
+	private static String getPositiveClass(String[] possibleClasses) {
+		for (int i = 0; i < possibleClasses.length; i++) {
+			String classI = possibleClasses[i];
+			if (classI.equalsIgnoreCase("True") || classI.equalsIgnoreCase("Positive") || classI.equals("1")) {
+				return classI;
+			}
+		}
+
+		return possibleClasses[0];
 	}
 
 	/**
