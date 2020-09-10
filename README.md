@@ -16,7 +16,7 @@ This software provides the following algorithms for the learning of a MCTBNC.
 * Greedy hill climbing 
 
 #### Score functions
-* Marginal log-likelihood score
+* Marginal log-likelihood score (Bayesian score with uniform graph prior)
   * BIC penalization
   * AIC penalization
 
