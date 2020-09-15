@@ -71,9 +71,7 @@ public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 					Oxx.get(fromState).put(toState, oxx);
 				}
 			}
-
 		}
-
 		// Set parameters in the CIMNode object
 		node.setParameters(Qx, Oxx);
 	}

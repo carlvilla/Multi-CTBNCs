@@ -38,6 +38,42 @@ public class Metrics {
 			return null;
 		}
 		showPredictions(predicted, actualDataset);
+		if (actualDataset.getNumClassVariables() == 1) {
+			// There is only one class variable
+			return evaluateUniDimensionalClassification(predicted, actualDataset);
+		}
+		// There are more than one class variable
+		return evaluateMultiDimensionalClassification(predicted, actualDataset);
+	}
+
+	private static Map<String, Double> evaluateUniDimensionalClassification(Prediction[] predicted,
+			Dataset actualDataset) {
+		// Save results metrics in a map
+		Map<String, Double> results = new LinkedHashMap<String, Double>();
+		double accuracy = globalAccuracy(predicted, actualDataset);
+		double macroPrecision = macroAverage(predicted, actualDataset, Metrics::precision);
+		double macroRecall = macroAverage(predicted, actualDataset, Metrics::recall);
+		double macroF1Score = macroAverage(predicted, actualDataset, Metrics::f1score);
+		double microPrecision = microAverage(predicted, actualDataset, Metrics::precision);
+		double microRecall = microAverage(predicted, actualDataset, Metrics::recall);
+		double microF1Score = microAverage(predicted, actualDataset, Metrics::f1score);
+		results.put("Accuracy", accuracy);		
+		results.put("Macro-average precision", macroPrecision);
+		results.put("Macro-average recall", macroRecall);
+		results.put("Macro-average f1 score", macroF1Score);
+		results.put("Micro-average precision", microPrecision);
+		results.put("Micro-average recall", microRecall);
+		results.put("Micro-average f1 score", microF1Score);
+		// If the probabilities of the classes are available
+		if (predicted[0].getProbabilities() != null) {
+			double globalBrierScore = globalBrierScore(predicted, actualDataset);
+			results.put("Brier score", globalBrierScore);
+		}
+		return results;
+	}
+
+	private static Map<String, Double> evaluateMultiDimensionalClassification(Prediction[] predicted,
+			Dataset actualDataset) {
 		// Save results metrics in a map
 		Map<String, Double> results = new LinkedHashMap<String, Double>();
 		double globalAccuracy = globalAccuracy(predicted, actualDataset);

@@ -15,10 +15,10 @@ import com.cig.mctbnc.nodes.Node;
  * @param <NodeTypeCTBN> 
  *
  */
-public class DAG_K_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends MCTBNC<NodeTypeBN, NodeTypeCTBN>  {
+public class DAG_kDB_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends MCTBNC<NodeTypeBN, NodeTypeCTBN>  {
 	int maxK;
 
-	public DAG_K_MCTBNC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnlearningAlgs, int maxK,
+	public DAG_kDB_MCTBNC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnlearningAlgs, int maxK,
 			Class bnNodeClass, Class ctbnNodeClass) {
 		super(bnLearningAlgs, ctbnlearningAlgs, bnNodeClass, ctbnNodeClass);
 		this.maxK = maxK;

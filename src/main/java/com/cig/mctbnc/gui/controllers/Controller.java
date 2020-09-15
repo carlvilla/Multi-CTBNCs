@@ -392,7 +392,7 @@ public class Controller {
 	 * A model was selected in the comboBox. Show its correspondent parameters.
 	 */
 	public void changeModel() {
-		if (cmbModel.getValue().equals("DAG-k MCTBNC"))
+		if (cmbModel.getValue().equals("DAG-kDB MCTBNC"))
 			fldKParents.setDisable(false);
 		else
 			fldKParents.setDisable(true);

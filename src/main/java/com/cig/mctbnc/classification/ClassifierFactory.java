@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
-import com.cig.mctbnc.models.DAG_K_MCTBNC;
+import com.cig.mctbnc.models.DAG_kDB_MCTBNC;
 import com.cig.mctbnc.models.EMPTY_DAG_MCTBNC;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.models.MCTNBC;
@@ -43,10 +43,10 @@ public class ClassifierFactory {
 		case "MCTNBC":
 			logger.info("Creating a multi-dimensional continuous naive Bayes classifier");
 			return new MCTNBC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
-		case "DAG-k MCTBNC":
-			logger.info("Creating a DAG-k multi-dimensional continuous Bayesian network classifier");
+		case "DAG-kDB MCTBNC":
+			logger.info("Creating a DAG-kDB multi-dimensional continuous Bayesian network classifier");
 			int maxK = Integer.valueOf(parameters.get("maxK"));
-			return new DAG_K_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
+			return new DAG_kDB_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);
 		case "Empty-DAG MCTBNC":
 			logger.info("Creating a Empty-DAG multi-dimensional continuous Bayesian network classifier");
@@ -66,7 +66,7 @@ public class ClassifierFactory {
 	 * @return list of available classifiers
 	 */
 	public static List<String> getAvailableModels() {
-		return List.of("MCTBNC", "MCTNBC", "DAG-k MCTBNC", "Empty-DAG MCTBNC");
+		return List.of("MCTBNC", "MCTNBC", "DAG-kDB MCTBNC", "Empty-DAG MCTBNC");
 	}
 
 }

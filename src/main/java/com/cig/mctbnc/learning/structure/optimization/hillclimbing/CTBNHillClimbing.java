@@ -30,7 +30,7 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 			if (!node.isClassVariable()) {
 				logger.info("Finding best parent set for node {}", node.getName());
 				// Set as initial best score the one obtained with the initial structure
-				double bestScore = setStructure(indexNode, initialAdjacencyMatrix); // Double.NEGATIVE_INFINITY;
+				double bestScore = setStructure(indexNode, initialAdjacencyMatrix);
 				// Try to improve the current structure
 				boolean improvement = false;
 				do {

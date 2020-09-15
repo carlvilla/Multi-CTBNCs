@@ -14,8 +14,9 @@ public abstract class DatasetReaderFactory {
 	/**
 	 * Generates the correct dataset reader for the given dataset path.
 	 * 
-	 * @param path
-	 * @return dataset reader
+	 * @param datasetReader
+	 * @param pathDataset
+	 * @param sizeSequence
 	 * @throws FileNotFoundException
 	 */
 	public static DatasetReader getDatasetReader(String datasetReader, String pathDataset, int sizeSequence)
