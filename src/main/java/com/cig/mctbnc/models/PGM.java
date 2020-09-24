@@ -19,10 +19,23 @@ public interface PGM<NodeType extends Node> {
 	/**
 	 * Learn the structure and parameters of the model.
 	 * 
-	 * @param dataset dataset used to learn the model
+	 */
+	public void learn();
+
+	/**
+	 * Learn the structure and parameters of the model from a given dataset.
 	 * 
+	 * @param dataset dataset used to learn the model
 	 */
 	public void learn(Dataset dataset);
+
+	/**
+	 * Set the training dataset that will be used to estimate the structure and
+	 * parameters of the model.
+	 * 
+	 * @param dataset dataset used to learn the model
+	 */
+	void setTrainingDataset(Dataset dataset);
 
 	/**
 	 * Add the nodes to list of the PGM. It is necessary to include a NodeIndexer
@@ -83,9 +96,17 @@ public interface PGM<NodeType extends Node> {
 	 * Return the node whose variable name is given.
 	 * 
 	 * @param nameVariable name of the variable
-	 * @return node requested node
+	 * @return requested node
 	 */
 	public NodeType getNodeByName(String nameVariable);
+
+	/**
+	 * Return the nodes whose variable names are given.
+	 * 
+	 * @param nameVariables names of the variables
+	 * @return requested nodes
+	 */
+	List<NodeType> getNodesByNames(List<String> nameVariables);
 
 	/**
 	 * Return the list of nodes for the class variables.

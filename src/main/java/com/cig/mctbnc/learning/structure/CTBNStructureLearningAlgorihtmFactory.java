@@ -16,11 +16,11 @@ public class CTBNStructureLearningAlgorihtmFactory {
 	 * @param algorithm
 	 * @return structure learning algorithm
 	 */
-	public static CTBNStructureLearningAlgorithm getAlgorithm(String algorithm) {
+	public static CTBNStructureLearningAlgorithm getAlgorithm(String algorithm, String scoreFunction) {
 		switch (algorithm) {
 		default:
 			// Hill Climbing
-			return new CTBNHillClimbing();
+			return new CTBNHillClimbing(scoreFunction);
 		}
 	}
 

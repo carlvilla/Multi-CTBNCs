@@ -74,15 +74,14 @@ public class LearnStructureCTBNTest {
 		dataset.addSequence(dataSequence2);
 		dataset.addSequence(dataSequence3);
 
-		CTBNParameterLearningAlgorithm parameterLearningAlg = new CTBNMaximumLikelihoodEstimation();
-		CTBNStructureLearningAlgorithm structureLearningAlg = new CTBNHillClimbing();
-		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(parameterLearningAlg,
-				structureLearningAlg);
-		StructureConstraints structureConstraints = new CTBNC();
+		CTBNParameterLearningAlgorithm plAlg = new CTBNMaximumLikelihoodEstimation();
+		CTBNStructureLearningAlgorithm slAlg = new CTBNHillClimbing("Log-likelihood");
+		CTBNLearningAlgorithms learningAlgs = new CTBNLearningAlgorithms(plAlg, slAlg);
+		StructureConstraints strucConst = new CTBNC();
 
-		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(nameFeatures, ctbnLearningAlgs, structureConstraints, CIMNode.class);
+		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(dataset, nameFeatures, learningAlgs, strucConst, CIMNode.class);
 		ctbn.setPenalizationFunction("BIC");
-		ctbn.learn(dataset);
+		ctbn.learn();
 
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, true, false, false },
 				{ false, false, true, false }, { false, false, false, true }, { true, false, false, false } };

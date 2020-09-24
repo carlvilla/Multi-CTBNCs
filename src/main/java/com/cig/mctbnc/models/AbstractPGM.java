@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.fx_viewer.FxDefaultView;
 import org.graphstream.ui.fx_viewer.FxViewPanel;
 import org.graphstream.ui.fx_viewer.FxViewer;
 import org.graphstream.ui.javafx.FxGraphRenderer;
-import org.graphstream.ui.view.GraphRenderer;
-import org.graphstream.ui.view.Viewer;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
@@ -41,6 +40,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	ParameterLearningAlgorithm parameterLearningAlg;
 	StructureLearningAlgorithm structureLearningAlg;
 	StructureConstraints structureConstraints;
+	static Logger logger = LogManager.getLogger(AbstractPGM.class);
 
 	/**
 	 * Common initialization for PGM.
@@ -131,7 +131,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	@Override
-	public void learn(Dataset dataset) {
+	public void setTrainingDataset(Dataset dataset) {
 		// Save dataset used to learn the model
 		this.dataset = dataset;
 		// Use node factory to create nodes of the specified type
@@ -143,15 +143,29 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 			nodes.add(node);
 		}
 		addNodes(nodes);
-		// Depending on the class of model to learn, there could be a unique structure
-		// (naive Bayes or empty graph) or the initial one has to be optimized
-		if (structureConstraints.uniqueStructure()) {
-			// One possible structure. It is set in the PGM and the parameters learned
-			structureConstraints.initializeStructure(this);
-			learnParameters();
-		} else
-			// Learn structure and parameters with the specified algorithms
-			structureLearningAlg.learn(this, dataset, parameterLearningAlg, structureConstraints);
+	}
+
+	@Override
+	public void learn() {
+		if (dataset != null) {
+			// Depending on the class of model to learn, there could be a unique structure
+			// (naive Bayes or empty graph) or the initial one has to be optimized
+			if (structureConstraints.uniqueStructure()) {
+				// One possible structure. It is set in the PGM and the parameters learned
+				structureConstraints.initializeStructure(this);
+				learnParameters();
+			} else
+				// Learn structure and parameters with the specified algorithms
+				structureLearningAlg.learn(this, dataset, parameterLearningAlg, structureConstraints);
+		} else {
+			logger.warn("Training dataset was not established");
+		}
+	}
+
+	@Override
+	public void learn(Dataset dataset) {
+		setTrainingDataset(dataset);
+		learn();
 	}
 
 	/**
@@ -186,6 +200,11 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	@Override
 	public NodeType getNodeByName(String nameVariable) {
 		return nodes.stream().filter(node -> node.getName().equals(nameVariable)).findFirst().orElse(null);
+	}
+
+	@Override
+	public List<NodeType> getNodesByNames(List<String> nameVariables) {
+		return nodes.stream().filter(node -> nameVariables.contains(node.getName())).collect(Collectors.toList());
 	}
 
 	/**

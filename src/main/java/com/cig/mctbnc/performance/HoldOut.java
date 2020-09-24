@@ -1,6 +1,5 @@
 package com.cig.mctbnc.performance;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -67,15 +66,15 @@ public class HoldOut implements ValidationMethod {
 	public void generateTrainAndTest(DatasetReader datasetReader, double trainingSize, boolean shuffle) {
 		// Obtain entire dataset
 		Dataset dataset = datasetReader.readDataset();
-		// Obtain files from which the dataset was read
-		List<String> files = datasetReader.getAcceptedFiles();
+		// Obtain files names from which the dataset was read
+		List<String> fileNames = dataset.getNameFiles();
 		// Obtain sequences of the dataset
 		List<Sequence> sequences = dataset.getSequences();
 		if (shuffle) {
 			// Sequences and their files are shuffled before splitting into train and test
 			int seed = 10;
 			Util.shuffle(sequences, seed);
-			Util.shuffle(files, seed);
+			Util.shuffle(fileNames, seed);
 			logger.info("Sequences shuffled");
 		}
 		// Define training and testing sequences
@@ -86,16 +85,8 @@ public class HoldOut implements ValidationMethod {
 		this.trainingDataset = new Dataset(trainingSequences);
 		this.testingDataset = new Dataset(testingSequences);
 		// Set in the datasets the names of the files from which the data was extracted
-		if (files.size() == sequences.size()) {
-			// If there is as many files as sequences
-			this.trainingDataset.setNameFiles(files.subList(0, lastIndexTraining));
-			this.testingDataset.setNameFiles(files.subList(lastIndexTraining, sequences.size()));
-		} else {
-			// The sequences must have been extracted from only one file
-			this.trainingDataset.setNameFiles(files.subList(0, 0));
-			this.testingDataset.setNameFiles(files.subList(0, 0));
-		}
-		
+		this.trainingDataset.setNameFiles(fileNames.subList(0, lastIndexTraining));
+		this.testingDataset.setNameFiles(fileNames.subList(lastIndexTraining, sequences.size()));
 	}
 
 	/**

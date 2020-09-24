@@ -19,6 +19,7 @@ import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
 import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
 import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.nodes.NodeIndexer;
 import com.cig.mctbnc.util.ProbabilityUtil;
 import com.cig.mctbnc.util.Util;
 
@@ -48,6 +49,8 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	CTBNLearningAlgorithms ctbnLearningAlgs;
 	// Penalization function (None by default)
 	String penalizationFunction = "No";
+	// Initial structure (Empty by default)
+	String initialStructure = "Empty";
 	static Logger logger = LogManager.getLogger(MCTBNC.class);
 
 	/**
@@ -70,7 +73,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 
 	@Override
 	public void learn(Dataset dataset) {
-		logger.info("Learning model");
+		logger.info("Learning model with {} training samples", dataset.getNumDataPoints());
 		// Remove previous instantiation of the model (if any)
 		removeAllNodes();
 		// Save dataset used for training
@@ -80,10 +83,10 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// ------------------ Class subgraph ------------------
 		// Learn structure and parameters of class subgraph (Bayesian network)
 		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
-		bn = new BN<NodeTypeBN>(dataset.getNameClassVariables(), bnLearningAlgs, getStructureConstraintsBN(),
-				bnNodeClass);
+		List<String> nameClassVariables = dataset.getNameClassVariables();
+		bn = new BN<NodeTypeBN>(dataset, nameClassVariables, bnLearningAlgs, getStructureConstraintsBN(), bnNodeClass);
 		bn.setPenalizationFunction(penalizationFunction);
-		bn.learn(dataset);
+		bn.learn();
 		logger.info("Class subgraph established!");
 		// ----------- Feature and bridge subgraphs -----------
 		// Learn structure and parameters of feature and bridge subgraph. These are
@@ -92,10 +95,12 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// features is extended to more class variables
 		logger.info("Defining structure and parameters of the feature and bridge subgraphs (Continuous time "
 				+ "Bayesian network)");
-		ctbn = new CTBN<NodeTypeCTBN>(dataset.getNameVariables(), ctbnLearningAlgs, getStructureConstraintsCTBN(),
+		List<String> nameVariables = dataset.getNameVariables();
+		ctbn = new CTBN<NodeTypeCTBN>(dataset, nameVariables, ctbnLearningAlgs, getStructureConstraintsCTBN(), bn,
 				ctbnNodeClass);
 		ctbn.setPenalizationFunction(penalizationFunction);
-		ctbn.learn(dataset);
+		setInitialStructure(ctbn);
+		ctbn.learn();
 		logger.info("Feature and bridge subgraphs established!");
 		// ------------------ Join subgraphs ------------------
 		// Join class subgraph with feature and bridge subgraphs
@@ -138,21 +143,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		addNodes(nodes);
 	}
 
-	@Override
-	public void setStructure(boolean[][] adjacencyMatrix) {
-		for (int i = 0; i < adjacencyMatrix.length; i++) {
-			for (int j = 0; j < adjacencyMatrix.length; j++) {
-				if (adjacencyMatrix[i][j]) {
-					// Add arc from node i to j
-					Node nodeParent = getNodeByIndex(i);
-					Node nodeChildren = getNodeByIndex(j);
-					nodeParent.setChild(nodeChildren);
-					nodeChildren.setParent(nodeParent);
-				}
-			}
-		}
-	}
-
 	/**
 	 * Return the structure constraints for the BN.
 	 * 
@@ -179,8 +169,34 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 */
 	@Override
 	public void setPenalizationFunction(String penalizationFunction) {
-		logger.info("Penalization function for model structure: {}", penalizationFunction);
 		this.penalizationFunction = penalizationFunction;
+	}
+
+	/**
+	 * Establish the approach that will be used to define the initial structure of
+	 * the MCTBNC. For now it is possible to define an empty structure or a naive
+	 * Bayes.
+	 * 
+	 * @param initialStructure initial structure that will be used (Empty (default)
+	 *                         or naive Bayes)
+	 */
+	public void setIntialStructure(String initialStructure) {
+		this.initialStructure = initialStructure;
+	}
+
+	@Override
+	public void setStructure(boolean[][] adjacencyMatrix) {
+		for (int i = 0; i < adjacencyMatrix.length; i++) {
+			for (int j = 0; j < adjacencyMatrix.length; j++) {
+				if (adjacencyMatrix[i][j]) {
+					// Add arc from node i to j
+					Node nodeParent = getNodeByIndex(i);
+					Node nodeChildren = getNodeByIndex(j);
+					nodeParent.setChild(nodeChildren);
+					nodeChildren.setParent(nodeParent);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -266,6 +282,35 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 			prediction.setProbabilityPrediction(prediction.getProbabilities().get(predictedCC));
 		}
 		return prediction;
+	}
+
+	/**
+	 * Establish the initial structure of a CTBN depending on the global variable
+	 * "initialStructure".
+	 * 
+	 * @param ctbn
+	 */
+	private void setInitialStructure(CTBN<NodeTypeCTBN> ctbn) {
+		logger.info("Initial structure: {}", initialStructure);
+		boolean[][] initialAdjMatrix = new boolean[ctbn.getNumNodes()][ctbn.getNumNodes()];
+		if (initialStructure.equals("Naive Bayes")) {
+			// Obtain names class variables
+			List<String> nameCVs = this.dataset.getNameClassVariables();
+			// Obtain names features
+			List<String> nameFs = this.dataset.getNameFeatures();
+			// Get the node indexer of the CTBN
+			NodeIndexer<NodeTypeCTBN> nodeIndexer = ctbn.getNodeIndexer();
+			// Get the indexes of the class variables and features in the ctbn
+			int[] idxCVs = nameCVs.stream().mapToInt(nameCV -> nodeIndexer.getIndexNodeByName(nameCV)).toArray();
+			int[] idxFs = nameFs.stream().mapToInt(nameF -> nodeIndexer.getIndexNodeByName(nameF)).toArray();
+			// Each class variables is defined as parent of all features
+			for (int idxCV : idxCVs)
+				for (int idxF : idxFs)
+					initialAdjMatrix[idxCV][idxF] = true;
+		} else
+			// An empty structure will be used
+			return;
+		ctbn.setStructure(initialAdjMatrix);
 	}
 
 	private List<NodeTypeBN> getNodesBN() {

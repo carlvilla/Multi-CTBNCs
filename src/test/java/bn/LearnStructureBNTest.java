@@ -59,18 +59,17 @@ public class LearnStructureBNTest {
 
 		// Class subgraph is defined with a Bayesian network
 		// Algorithm to learn parameters
-		BNParameterLearningAlgorithm parameterLearningAlgorithm = new BNMaximumLikelihoodEstimation();
+		BNParameterLearningAlgorithm plAlg = new BNMaximumLikelihoodEstimation();
 		// Algorithm to learn structure
-		BNStructureLearningAlgorithm structureLearningAlgorithm = new BNHillClimbing();
+		BNStructureLearningAlgorithm slAlg = new BNHillClimbing("Log-likelihood");
 		// Define object containing the learning algorithms
-		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(parameterLearningAlgorithm,
-				structureLearningAlgorithm);
+		BNLearningAlgorithms learningAlgs = new BNLearningAlgorithms(plAlg, slAlg);
 		// Structure constraints
-		StructureConstraints structureConstraintsBN = new DAG();
+		StructureConstraints strucConst = new DAG();
 		// Create the Bayesian network
-		BN<CPTNode> bn = new BN<CPTNode>(nameClassVariables, bnLearningAlgs, structureConstraintsBN, CPTNode.class);
+		BN<CPTNode> bn = new BN<CPTNode>(dataset, nameClassVariables, learningAlgs, strucConst, CPTNode.class);
 		// Learn the parameters and structure
-		bn.learn(dataset);
+		bn.learn();
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, false, true }, { false, false, true },
 				{ false, false, false } };
 		assertArrayEquals(expectedAdjacencyMatrix, bn.getAdjacencyMatrix());

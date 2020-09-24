@@ -94,7 +94,17 @@ public class Dataset {
 	 * @param list
 	 */
 	public void setNameFiles(List<String> list) {
-		this.nameFiles = list;
+		if (list.size() == 1) {
+			// If the list size is one, all the sequences were extracted from a unique file
+			nameFiles = new ArrayList<String>();
+			String nameFile = list.get(0);
+			for (int i = 0; i < sequences.size(); i++) {
+				nameFiles.add(nameFile);
+			}
+		} else {
+			// Every sequence was extracted from a different file
+			this.nameFiles = list;
+		}
 	}
 
 	/**
@@ -132,7 +142,8 @@ public class Dataset {
 	}
 
 	/**
-	 * Return the name of all the variables except the time variable.
+	 * Return the name of all the variables except the time variable. The returned
+	 * list contains first the features and then the class variables.
 	 * 
 	 * @return name of all the variables except the time variable
 	 */
@@ -154,10 +165,20 @@ public class Dataset {
 		return nameVariables;
 	}
 
+	/**
+	 * Return the number of features.
+	 * 
+	 * @return number of features
+	 */
 	public int getNumFeatures() {
 		return nameFeatures.size();
 	}
 
+	/**
+	 * Return the number of class variables.
+	 * 
+	 * @return number of class variables.
+	 */
 	public int getNumClassVariables() {
 		return nameClassVariables.size();
 	}

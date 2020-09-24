@@ -1,20 +1,14 @@
 package com.cig.mctbnc.data.reader;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.exceptions.VariableNotFoundException;
-import com.opencsv.CSVReader;
 
 /**
  * Provides the logic to read separate CSV files. It is possible to find time
@@ -52,7 +46,9 @@ public class MultipleCSVReader extends AbstractCSVReader {
 	@Override
 	public Dataset readDataset() {
 		Dataset dataset = new Dataset(nameTimeVariable, nameClassVariables);
-		nameAcceptedFiles = new ArrayList<String>();
+		// Names of the files from which the dataset was read. Some files could be
+		// rejected due to problems in its content.
+		List<String> nameAcceptedFiles = new ArrayList<String>();
 		for (File file : files) {
 			try {
 				List<String[]> dataSequence = readCSV(file.getAbsolutePath(), excludeVariables);
@@ -62,7 +58,10 @@ public class MultipleCSVReader extends AbstractCSVReader {
 				logger.warn(e.getMessage());
 			}
 		}
+		// Remove variables with zero variance
 		dataset.removeZeroVarianceFeatures();
+		// Save in the dataset the files used to extract its sequences
+		dataset.setNameFiles(nameAcceptedFiles);
 		return dataset;
 	}
 }

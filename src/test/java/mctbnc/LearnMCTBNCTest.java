@@ -196,11 +196,11 @@ public class LearnMCTBNCTest {
 
 		// Algorithms to learn BN (class subgraph of MCTBNC)
 		BNParameterLearningAlgorithm bnParameterLearningAlgorithm = new BNMaximumLikelihoodEstimation();
-		BNStructureLearningAlgorithm bnStructureLearningAlgorithm = new BNHillClimbing();
+		BNStructureLearningAlgorithm bnStructureLearningAlgorithm = new BNHillClimbing("Log-likelihood");
 		bnLearningAlgs = new BNLearningAlgorithms(bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
 		// Algorithms to learn CTBN (feature and bridge subgraph of MCTBNC)
 		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
-		CTBNStructureLearningAlgorithm ctbnStructureLearningAlgorithm = new CTBNHillClimbing();
+		CTBNStructureLearningAlgorithm ctbnStructureLearningAlgorithm = new CTBNHillClimbing("Log-likelihood");
 		ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm);
 	}
 

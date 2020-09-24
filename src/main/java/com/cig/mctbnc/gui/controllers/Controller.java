@@ -2,7 +2,6 @@ package com.cig.mctbnc.gui.controllers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,11 +64,11 @@ public class Controller {
 	@FXML
 	private TextField fldPath;
 	@FXML
-	private CheckComboBox<String> ckcmbVariables;
+	private ComboBox<String> cmbTimeVariable;
 	@FXML
 	private CheckComboBox<String> ckcmbClassVariables;
 	@FXML
-	private ComboBox<String> cmbTimeVariable;
+	private CheckComboBox<String> ckcmbFeatures;
 
 	// Model
 	@FXML
@@ -80,6 +79,10 @@ public class Controller {
 	private ComboBox<String> cmbParameterCTBN;
 	@FXML
 	private ComboBox<String> cmbStructure;
+	@FXML
+	private ComboBox<String> cmbInitialStructure;
+	@FXML
+	private ComboBox<String> cmbScoreFunction;
 	@FXML
 	private ComboBox<String> cmbPenalization;
 	@FXML
@@ -114,6 +117,8 @@ public class Controller {
 	// ----------------------- AVAILABLE ALGORITHMS -----------------------
 	List<String> parameterLearningAlgs = List.of("Maximum likelihood estimation", "Bayesian estimation");
 	List<String> structureLearningAlgs = List.of("Hill climbing");
+	List<String> initialStructures = List.of("Empty", "Naive Bayes");
+	List<String> scores = List.of("Log-likelihood", "Conditional log-likelihood");
 	List<String> penalizations = List.of("No", "BIC", "AIC");
 	// -------------------- AVAILABLE DATASET READERS --------------------
 	List<String> datasetReaders = DatasetReaderFactory.getAvailableDatasetReaders();
@@ -162,19 +167,14 @@ public class Controller {
 	 * Evaluate the selected model.
 	 */
 	public void evaluate() {
-		// CHECK THAT IT IS POSSIBLE TO LEARN A MODEL WITH THE GIVEN INFORMATION
+		// TODO CHECK THAT IT IS POSSIBLE TO LEARN A MODEL WITH THE GIVEN INFORMATION
 		checkValidOptions();
 		// Get selected variables
 		String nameTimeVariable = cmbTimeVariable.getValue();
 		List<String> nameClassVariables = ckcmbClassVariables.getCheckModel().getCheckedItems();
-		List<String> nameSelectedVariables = ckcmbVariables.getCheckModel().getCheckedItems();
-		// Obtain variables that should be ignored
-		List<String> nameExcludesVariables = new ArrayList<String>(datasetReader.getAllVariablesDataset());
-		nameExcludesVariables.remove(nameTimeVariable);
-		nameExcludesVariables.removeAll(nameClassVariables);
-		nameExcludesVariables.removeAll(nameSelectedVariables);
+		List<String> nameSelectedFeatures = ckcmbFeatures.getCheckModel().getCheckedItems();
 		// Set the variables that will be used
-		datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameExcludesVariables);
+		datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
 		// Define model
 		MCTBNC<CPTNode, CIMNode> model = defineModel();
 		// Define the validation method
@@ -212,12 +212,16 @@ public class Controller {
 		cmbParameterCTBN.getItems().addAll(parameterLearningAlgs);
 		cmbStructure.getItems().addAll(structureLearningAlgs);
 		cmbPenalization.getItems().addAll(penalizations);
+		cmbInitialStructure.getItems().addAll(initialStructures);
+		cmbScoreFunction.getItems().addAll(scores);
 		// Select first option as default in comboBoxes
 		cmbModel.getSelectionModel().selectFirst();
 		cmbParameterBN.getSelectionModel().selectFirst();
 		cmbParameterCTBN.getSelectionModel().selectFirst();
 		cmbStructure.getSelectionModel().selectFirst();
 		cmbPenalization.getSelectionModel().selectFirst();
+		cmbInitialStructure.getSelectionModel().selectFirst();
+		cmbScoreFunction.getSelectionModel().selectFirst();
 		// Initialize text fields with default values
 		fldKParents.setText("2");
 		fldMxBN.setText("1");
@@ -268,7 +272,7 @@ public class Controller {
 		// If another dataset was used before, comboBoxes are reseted
 		resetCheckComboBoxes();
 		// Variables' names are added to the comboBoxes
-		ckcmbVariables.getItems().addAll(nameVariables);
+		ckcmbFeatures.getItems().addAll(nameVariables);
 		cmbTimeVariable.getItems().addAll(nameVariables);
 		ckcmbClassVariables.getItems().addAll(nameVariables);
 	}
@@ -295,6 +299,8 @@ public class Controller {
 		// Define penalization function (if any)
 		String penalizationFunction = cmbPenalization.getValue();
 		model.setPenalizationFunction(penalizationFunction);
+		// Define initial structure
+		model.setIntialStructure(cmbInitialStructure.getValue());
 		return model;
 	}
 
@@ -318,11 +324,13 @@ public class Controller {
 		// Get hyperparameters
 		double nxy = Double.valueOf(fldNxy.getText());
 		double tx = Double.valueOf(fldTx.getText());
+		// Get score function
+		String scoreFunction = cmbScoreFunction.getValue();
 		// Define learning algorithms for the feature and class subgraph (Continuous
 		// time Bayesian network)
 		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, nxy,
 				tx);
-		CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory.getAlgorithm(nameCtbnSLA);
+		CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory.getAlgorithm(nameCtbnSLA, scoreFunction);
 		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 		return ctbnLearningAlgs;
 	}
@@ -352,9 +360,9 @@ public class Controller {
 	 * Reset the comboBoxes.
 	 */
 	private void resetCheckComboBoxes() {
-		ckcmbVariables.getCheckModel().clearChecks();
+		ckcmbFeatures.getCheckModel().clearChecks();
 		ckcmbClassVariables.getCheckModel().clearChecks();
-		ckcmbVariables.getItems().clear();
+		ckcmbFeatures.getItems().clear();
 		cmbTimeVariable.getItems().clear();
 		ckcmbClassVariables.getItems().clear();
 	}
@@ -396,6 +404,18 @@ public class Controller {
 			fldKParents.setDisable(false);
 		else
 			fldKParents.setDisable(true);
+
+		if (cmbModel.getValue().equals("MCTNBC")) {
+			cmbStructure.setDisable(true);
+			cmbInitialStructure.setDisable(true);
+			cmbScoreFunction.setDisable(true);
+			cmbPenalization.setDisable(true);
+		} else {
+			cmbStructure.setDisable(false);
+			cmbInitialStructure.setDisable(false);
+			cmbScoreFunction.setDisable(false);
+			cmbPenalization.setDisable(false);
+		}
 	}
 
 	/**

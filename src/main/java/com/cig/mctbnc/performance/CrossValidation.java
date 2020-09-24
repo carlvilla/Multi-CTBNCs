@@ -15,6 +15,7 @@ import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.models.MCTBNC;
+import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
 
 /**
@@ -54,10 +55,13 @@ public class CrossValidation implements ValidationMethod {
 		// Get sequences from the dataset
 		List<Sequence> sequences = dataset.getSequences();
 		int numSequences = sequences.size();
+		// Obtain files from which the dataset was read
+		List<String> fileNames = new ArrayList<String>(dataset.getNameFiles());
 		if (shuffle) {
 			// Shuffle the sequences before performing cross-validation
 			Integer seed = 10;
 			Util.shuffle(sequences, seed);
+			Util.shuffle(fileNames, seed);
 			logger.info("Sequences shuffled");
 		}
 		// Obtain size of each fold
@@ -73,14 +77,12 @@ public class CrossValidation implements ValidationMethod {
 		// TODO PARALELLIZE
 		for (int i = 0; i < folds; i++) {
 			logger.info("Testing on fold {}", i);
-			// Prepare testing dataset for current fold
+			// Prepare training and testing datasets for current fold
 			int toIndex = fromIndex + sizeFolds[i];
-			List<Sequence> testingSequences = sequences.subList(fromIndex, toIndex);
-			Dataset testingDataset = new Dataset(testingSequences);
 			// Prepare training dataset for current fold
-			List<Sequence> trainingSequences = new ArrayList<Sequence>(sequences);
-			trainingSequences.subList(fromIndex, toIndex).clear();
-			Dataset trainingDataset = new Dataset(trainingSequences);
+			Dataset trainingDataset = extractTrainingDataset(sequences, fileNames, fromIndex, toIndex);
+			// Prepare testing dataset for current fold
+			Dataset testingDataset = extractTestingDataset(sequences, fileNames, fromIndex, toIndex);
 			// Train the model
 			model.learn(trainingDataset);
 			// Make predictions over the current fold
@@ -101,6 +103,52 @@ public class CrossValidation implements ValidationMethod {
 		System.out.println("--------------------Results cross-validation--------------------");
 		displayResults(resultsCV);
 		System.out.println("----------------------------------------------------------------");
+	}
+
+	/**
+	 * Given all the sequences of a dataset and the names of the files from where
+	 * they were extracted, create a training dataset that include all the sequences
+	 * but those between some specified indexes.
+	 * 
+	 * @param sequences
+	 * @param fileNames
+	 * @param fromIndex index of the first sequence to ignore
+	 * @param toIndex   index of the last sequence to ignore
+	 * @return
+	 */
+	private Dataset extractTrainingDataset(List<Sequence> sequences, List<String> fileNames, int fromIndex,
+			int toIndex) {
+		List<Sequence> trainingSequences = new ArrayList<Sequence>(sequences);
+		// Remove instances that will be used for testing
+		trainingSequences.subList(fromIndex, toIndex).clear();
+		Dataset trainingDataset = new Dataset(trainingSequences);
+		// Get name of the files from which the training sequences were extracted
+		// A new list is created to avoid concurrent modification exceptions
+		List<String> fileNamesAux = new ArrayList<String>(fileNames);
+		// Remove filenames of sequences that will be used for testing
+		fileNamesAux.subList(fromIndex, toIndex).clear();
+		trainingDataset.setNameFiles(fileNamesAux);
+		return trainingDataset;
+	}
+
+	/**
+	 * Given all the sequences of a dataset and the names of the files from where
+	 * they were extracted, create a testing dataset using the sequences between
+	 * some specified indexes.
+	 * 
+	 * @param sequences
+	 * @param fileNames
+	 * @param fromIndex index of the first sequence of the extracted dataset
+	 * @param toIndex   index of the last sequence of the extracted dataset
+	 * @return
+	 */
+	private Dataset extractTestingDataset(List<Sequence> sequences, List<String> fileNames, int fromIndex,
+			int toIndex) {
+		List<Sequence> testingSequences = sequences.subList(fromIndex, toIndex);
+		Dataset testingDataset = new Dataset(testingSequences);
+		// Get name of the files from which the testing sequences were extracted
+		testingDataset.setNameFiles(fileNames.subList(fromIndex, toIndex));
+		return testingDataset;
 	}
 
 	/**

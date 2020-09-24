@@ -48,7 +48,7 @@ public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 			// Number of transitions from this state
 			int NxFromState = Nx.get(fromState);
 			// Instantaneous probability
-			double qx = (this.NxyPrior + Nx.get(fromState)) / (this.TxPrior + Tx.get(fromState));
+			double qx = (this.NxyPrior + NxFromState) / (this.TxPrior + Tx.get(fromState));
 			// The previous operation can be undefined if the priors are 0
 			if (Double.isNaN(qx))
 				qx = 0;

@@ -13,6 +13,10 @@ import com.cig.mctbnc.util.Util;
  */
 public class BNHillClimbing extends HillClimbing implements BNStructureLearningAlgorithm {
 
+	public BNHillClimbing(String scoreFunction) {
+		super(scoreFunction);
+	}
+
 	@Override
 	public boolean[][] findStructure() {
 
@@ -110,10 +114,10 @@ public class BNHillClimbing extends HillClimbing implements BNStructureLearningA
 						logger.trace("Studying new {} structure: {}", pgm.getType(), tempAdjacencyMatrix);
 						// Define PGM with the modified adjacency matrix
 						pgm.setStructure(tempAdjacencyMatrix);
-						double obtainedScore = StructureScoreFunctions.logLikelihoodScore((BN) pgm,
+						double score = StructureScoreFunctions.logLikelihoodScore((BN) pgm,
 								structureConstraints.getPenalizationFunction());
-						if (scores[idxOperation] < obtainedScore) {
-							scores[idxOperation] = obtainedScore;
+						if (scores[idxOperation] < score) {
+							scores[idxOperation] = score;
 							adjacencyMatrices[idxOperation] = tempAdjacencyMatrix;
 						}
 					}

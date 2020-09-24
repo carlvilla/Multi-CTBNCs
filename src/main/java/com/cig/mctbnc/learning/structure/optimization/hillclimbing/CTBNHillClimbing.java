@@ -17,6 +17,10 @@ import com.cig.mctbnc.nodes.Node;
 public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearningAlgorithm {
 	static Logger logger = LogManager.getLogger(CTBNHillClimbing.class);
 
+	public CTBNHillClimbing(String scoreFunction) {
+		super(scoreFunction);
+	}
+
 	public boolean[][] findStructure() {
 		// Store adjacency matrix of the best structure found
 		boolean[][] bestAdjacencyMatrix = initialAdjacencyMatrix.clone();
@@ -69,8 +73,9 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 				boolean[][] tempAdjacencyMatrix = new boolean[numNodes][numNodes];
 				for (int r = 0; r < numNodes; r++)
 					tempAdjacencyMatrix[r] = adjacencyMatrix[r].clone();
-				// Set the node 'parentIndex' as parent of the node 'indexNode'
-				tempAdjacencyMatrix[parentIndex][indexNode] = true;
+				// Set node 'parentIndex' as parent of node 'indexNode' (or remove arc if
+				// initial structure is supplied)
+				tempAdjacencyMatrix[parentIndex][indexNode] = !tempAdjacencyMatrix[parentIndex][indexNode];
 				// Check if the structure is legal
 				if (pgm.isStructureLegal(tempAdjacencyMatrix)) {
 					// Set structure and obtain the local log-likelihood at the node 'indexNode'
@@ -99,8 +104,14 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 		// Establish the parent set of the node
 		((CTBN) pgm).setStructure(indexNode, adjacencyMatrix);
 		// Obtain the local log-likelihood at the node
-		double score = StructureScoreFunctions.logLikelihoodScore(((CTBN) pgm), indexNode,
-				structureConstraints.getPenalizationFunction());
+		double score;
+		if (scoreFunction.equals("Log-likelihood")) {
+			score = StructureScoreFunctions.logLikelihoodScore(((CTBN) pgm), indexNode,
+					structureConstraints.getPenalizationFunction());
+		} else {
+			score = StructureScoreFunctions.conditionalLogLikelihoodScore(((CTBN) pgm), indexNode,
+					structureConstraints.getPenalizationFunction());
+		}
 		return score;
 	}
 

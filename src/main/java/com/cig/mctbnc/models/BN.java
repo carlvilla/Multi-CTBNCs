@@ -35,13 +35,14 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * use and the algorithms for parameter and structure learning. This constructor
 	 * was thought to be used by the MCTBNC.
 	 * 
+	 * @param trainingDataset
 	 * @param nameVariables
 	 * @param dataset
 	 * @param bnLearningAlgs
 	 * @param structureConstraints
 	 * @param nodeClass
 	 */
-	public BN(List<String> nameVariables, BNLearningAlgorithms bnLearningAlgs,
+	public BN(Dataset trainingDataset, List<String> nameVariables, BNLearningAlgorithms bnLearningAlgs,
 			StructureConstraints structureConstraints, Class<NodeType> nodeClass) {
 		// Set variables to use
 		this.nameVariables = nameVariables;
@@ -51,6 +52,8 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		setParameterLearningAlgorithm(bnLearningAlgs.getParameterLearningAlgorithm());
 		setStructureLearningAlgorithm(bnLearningAlgs.getStructureLearningAlgorithm());
 		setStructureConstraints(structureConstraints);
+		// Set the training dataset
+		setTrainingDataset(trainingDataset);
 	}
 
 	/**

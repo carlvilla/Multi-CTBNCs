@@ -20,7 +20,7 @@ public class BNStructureLearningAlgorihtmFactory {
 		switch (algorithm) {
 		default:
 			// Hill Climbing
-			return new BNHillClimbing();
+			return new BNHillClimbing("Log-likelihood");
 		}
 	}
 }

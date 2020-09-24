@@ -41,20 +41,20 @@ public class ClassifierFactory {
 			Map<String, String> parameters, Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
 		switch (nameClassifier) {
 		case "MCTNBC":
-			logger.info("Creating a multi-dimensional continuous naive Bayes classifier");
+			logger.info("Creating a multi-dimensional continuous naive Bayes classifier (MCTBNC)");
 			return new MCTNBC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
 		case "DAG-kDB MCTBNC":
-			logger.info("Creating a DAG-kDB multi-dimensional continuous Bayesian network classifier");
+			logger.info("Creating a DAG-kDB multi-dimensional continuous Bayesian network classifier (DAG-kDB MCTBNC)");
 			int maxK = Integer.valueOf(parameters.get("maxK"));
 			return new DAG_kDB_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);
 		case "Empty-DAG MCTBNC":
-			logger.info("Creating a Empty-DAG multi-dimensional continuous Bayesian network classifier");
+			logger.info("Creating a Empty-DAG multi-dimensional continuous Bayesian network classifier (Empty-DAG MCTBNC)");
 			return new EMPTY_DAG_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass,
 					ctbnNodeClass);
 		default:
 			// If the specified classifier is not found, a MCTBNC is created
-			logger.info("Creating a multi-dimensional continuous time Bayesian network classifier");
+			logger.info("Creating a multi-dimensional continuous time Bayesian network classifier (MCTBNC)");
 			return new MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
 		}
 

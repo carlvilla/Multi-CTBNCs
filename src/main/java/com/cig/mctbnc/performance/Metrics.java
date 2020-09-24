@@ -57,7 +57,7 @@ public class Metrics {
 		double microPrecision = microAverage(predicted, actualDataset, Metrics::precision);
 		double microRecall = microAverage(predicted, actualDataset, Metrics::recall);
 		double microF1Score = microAverage(predicted, actualDataset, Metrics::f1score);
-		results.put("Accuracy", accuracy);		
+		results.put("Accuracy", accuracy);
 		results.put("Macro-average precision", macroPrecision);
 		results.put("Macro-average recall", macroRecall);
 		results.put("Macro-average f1 score", macroF1Score);
@@ -109,8 +109,6 @@ public class Metrics {
 	public static void showPredictions(Prediction[] predicted, Dataset actualDataset) {
 		// Obtain actual class configurations
 		State[] actualCCs = actualDataset.getStatesClassVariables();
-		// Obtain the files used to generate the dataset
-		List<String> nameFiles = actualDataset.getNameFiles();
 		// Iterate over each instance
 		int numInstances = actualCCs.length;
 		for (int i = 0; i < numInstances; i++) {
@@ -118,14 +116,9 @@ public class Metrics {
 			String[] actualCC = actualCCs[i].getValues();
 			// Get the estimated probability of our prediction
 			double probability = predicted[i].getProbabilityPrediction();
-			// If there are as many files as instances, show the predicted and actual
-			// classes along with the name of the file
-			if (nameFiles != null && nameFiles.size() == numInstances) {
-				logger.info("File {} / Real classes: {} / Predicted classes {} / Prob. {}",
-						actualDataset.getNameFiles().get(i), actualCC, predictedCC, probability);
-			} else {
-				logger.info("Real classes: {} / Predicted classes {} / Prob. {}", actualCC, predictedCC, probability);
-			}
+			// Show predicted and actual classes along with the name of the sequence file
+			logger.info("File {} / Real classes: {} / Predicted classes {} / Prob. {}",
+					actualDataset.getNameFiles().get(i), actualCC, predictedCC, probability);
 		}
 	}
 

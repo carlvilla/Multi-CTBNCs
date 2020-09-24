@@ -21,7 +21,6 @@ import com.cig.mctbnc.util.Util;
  *
  */
 public class Sequence {
-
 	private List<Observation> observations;
 	private Map<String, String> classVariablesValues;
 	private String nameTimeVariable;

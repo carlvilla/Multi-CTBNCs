@@ -13,13 +13,13 @@ import com.cig.mctbnc.data.representation.Dataset;
 public interface DatasetReader {
 
 	/**
-	 * Define the time variable, the class variables and the variables to ignore.
+	 * Define the time variable, the class variables and the features.
 	 * 
 	 * @param nameTimeVariable
 	 * @param nameClassVariables
-	 * @param excludeVariables
+	 * @param nameFeatures
 	 */
-	public void setVariables(String nameTimeVariable, List<String> nameClassVariables, List<String> excludeVariables);
+	public void setVariables(String nameTimeVariable, List<String> nameClassVariables, List<String> nameFeatures);
 
 	/**
 	 * Return a dataset.
@@ -27,14 +27,6 @@ public interface DatasetReader {
 	 * @return dataset
 	 */
 	public Dataset readDataset();
-
-	/**
-	 * Return the names of the files from which the dataset was read. Some files
-	 * could be rejected due to problems in its content.
-	 * 
-	 * @return names accepted files
-	 */
-	List<String> getAcceptedFiles();
 
 	/**
 	 * Return the names of all the variables of the dataset, included those are are

@@ -32,7 +32,7 @@ public final class ProbabilityUtil {
 	 */
 	public static <NodeTypeBN extends Node> double logPriorProbabilityClassVariables(List<NodeTypeBN> nodesBN,
 			State stateClassVariables) {
-		double priorProbability = 0.0;
+		double lpriorProbability = 0.0;
 		for (NodeTypeBN node : nodesBN) {
 			// Obtain class variable node from the BN
 			CPTNode nodeBN = (CPTNode) node;
@@ -49,9 +49,9 @@ public final class ProbabilityUtil {
 			}
 			// Probability of the class variable and its parents having a certain state
 			Double Ox = nodeBN.getCPT().get(query);
-			priorProbability += Ox != null && Ox > 0 ? Math.log(Ox) : 0;
+			lpriorProbability += Ox != null && Ox > 0 ? Math.log(Ox) : 0;
 		}
-		return priorProbability;
+		return lpriorProbability;
 	}
 
 	/**

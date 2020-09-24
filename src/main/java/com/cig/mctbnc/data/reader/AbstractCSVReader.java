@@ -29,7 +29,6 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	String nameTimeVariable;
 	List<String> nameClassVariables;
 	List<String> excludeVariables;
-	List<String> nameAcceptedFiles;
 	static Logger logger = LogManager.getLogger(AbstractCSVReader.class);
 
 	public AbstractCSVReader(String datasetFolder) {
@@ -37,15 +36,14 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	}
 
 	@Override
-	public void setVariables(String nameTimeVariable, List<String> nameClassVariables, List<String> excludeVariables) {
+	public void setVariables(String nameTimeVariable, List<String> nameClassVariables, List<String> nameFeatures) {
 		this.nameTimeVariable = nameTimeVariable;
 		this.nameClassVariables = nameClassVariables;
-		this.excludeVariables = excludeVariables;
-	}
-
-	@Override
-	public List<String> getAcceptedFiles() {
-		return this.nameAcceptedFiles;
+		// Variables that should be ignored
+		excludeVariables = new ArrayList<String>(getAllVariablesDataset());
+		excludeVariables.remove(nameTimeVariable);
+		excludeVariables.removeAll(nameClassVariables);
+		excludeVariables.removeAll(nameFeatures);
 	}
 
 	@Override
