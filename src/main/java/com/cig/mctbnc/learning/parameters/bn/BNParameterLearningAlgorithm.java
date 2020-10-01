@@ -10,7 +10,7 @@ import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
 
 /**
- * Define common methods for parameter learning algorithms of Bayesian networks.
+ * Define methods for parameter learning algorithms of Bayesian networks.
  * 
  * @author Carlos Villa Blanco
  *

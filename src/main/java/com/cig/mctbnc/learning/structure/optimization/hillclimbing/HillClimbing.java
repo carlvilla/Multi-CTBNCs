@@ -67,4 +67,5 @@ public abstract class HillClimbing implements StructureLearningAlgorithm {
 	 * @return found adjacency matrix
 	 */
 	public abstract boolean[][] findStructure();
+
 }

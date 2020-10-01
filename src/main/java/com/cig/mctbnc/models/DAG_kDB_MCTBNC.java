@@ -8,14 +8,18 @@ import com.cig.mctbnc.learning.structure.constraints.CTBNC.MaxKCTBNC;
 import com.cig.mctbnc.nodes.Node;
 
 /**
- * Implements a KDependenceMCTBNC
+ * Implements a MCTBNC where the class subgraph is formed by a Bayesian network,
+ * while the feature subgraph is a K-dependence continuous time Bayesian
+ * network. In other words, the feature nodes are limited to have K parents
+ * (apart of the class variables).
  * 
  * @author Carlos Villa Blanco
- * @param <NodeTypeBN> 
- * @param <NodeTypeCTBN> 
+ * @param <NodeTypeBN>
+ * @param <NodeTypeCTBN>
  *
  */
-public class DAG_kDB_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends MCTBNC<NodeTypeBN, NodeTypeCTBN>  {
+public class DAG_kDB_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node>
+		extends MCTBNC<NodeTypeBN, NodeTypeCTBN> {
 	int maxK;
 
 	public DAG_kDB_MCTBNC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnlearningAlgs, int maxK,

@@ -1,5 +1,9 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
+import java.util.Arrays;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -7,6 +11,8 @@ import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.optimization.StructureScoreFunctions;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.util.Util;
+import com.google.common.cache.Cache;
 
 /**
  * Implements hill climbing algorithm for CTBNs.
@@ -29,6 +35,8 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 		// individually
 		for (int indexNode = 0; indexNode < numNodes; indexNode++) {
 			Node node = pgm.getNodeByIndex(indexNode);
+			// A cache is used to avoid recomputing the scores of structures
+			Cache<Integer, Double> cache = Util.createCache(50);
 			// As this code is used to build a MCTBNC, there can be class variables. These
 			// cannot have parents
 			if (!node.isClassVariable()) {
@@ -40,7 +48,7 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 				do {
 					// Store adjacency matrix of the current iteration
 					boolean[][] iterationAdjacencyMatrix = bestAdjacencyMatrix.clone();
-					HillClimbingSolution bestNeighbor = findBestNeighbor(indexNode, iterationAdjacencyMatrix);
+					HillClimbingSolution bestNeighbor = findBestNeighbor(indexNode, iterationAdjacencyMatrix, cache);
 					improvement = bestNeighbor.getScore() > bestScore;
 					if (improvement) {
 						bestScore = bestNeighbor.getScore();
@@ -63,12 +71,13 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 	 * @param adjacencyMatrix
 	 * @return
 	 */
-	private HillClimbingSolution findBestNeighbor(int indexNode, boolean[][] adjacencyMatrix) {
+	private HillClimbingSolution findBestNeighbor(int indexNode, boolean[][] adjacencyMatrix,
+			Cache<Integer, Double> cache) {
 		HillClimbingSolution solution = new HillClimbingSolution();
 		int numNodes = adjacencyMatrix.length;
 		// Find the best neighbor structure at node 'indexNode'
-		for (int parentIndex = 0; parentIndex < numNodes; parentIndex++) {
-			if (indexNode != parentIndex && !adjacencyMatrix[parentIndex][indexNode]) {
+		for (int parentIndex = 0; parentIndex < numNodes; parentIndex++)
+			if (indexNode != parentIndex) {// && !adjacencyMatrix[parentIndex][indexNode]) {
 				// Define a temporal adjacency matrix to try a new structure
 				boolean[][] tempAdjacencyMatrix = new boolean[numNodes][numNodes];
 				for (int r = 0; r < numNodes; r++)
@@ -78,8 +87,8 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 				tempAdjacencyMatrix[parentIndex][indexNode] = !tempAdjacencyMatrix[parentIndex][indexNode];
 				// Check if the structure is legal
 				if (pgm.isStructureLegal(tempAdjacencyMatrix)) {
-					// Set structure and obtain the local log-likelihood at the node 'indexNode'
-					double obtainedScore = setStructure(indexNode, tempAdjacencyMatrix);
+					// Obtain score at the node 'indexNode'
+					double obtainedScore = computeScore(indexNode, tempAdjacencyMatrix, cache);
 					if (obtainedScore > solution.getScore()) {
 						// Set the obtained score and adjacency matrix as the best ones so far
 						solution.setAdjacencyMatrix(tempAdjacencyMatrix);
@@ -87,8 +96,35 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 					}
 				}
 			}
-		}
 		return solution;
+	}
+
+	/**
+	 * Compute the score at a certain node given an adjacency matrix. A cache is
+	 * used to avoid recomputing a score.
+	 * 
+	 * @param indexNode
+	 * @param adjacencyMatrix
+	 * @param cache
+	 * @return
+	 */
+	private double computeScore(int indexNode, boolean[][] adjacencyMatrix, Cache<Integer, Double> cache) {
+		double obtainedScore = 0;
+		try {
+			// If the structure was already evaluated, its score is obtained from the cache.
+			// Otherwise, the score is saved. the adjacency matrix hashcode is used as key.
+			int hashCodeAdjacencyMatrix = Arrays.deepHashCode(adjacencyMatrix);
+			obtainedScore = cache.get(hashCodeAdjacencyMatrix, new Callable<Double>() {
+				@Override
+				public Double call() {
+					// Set structure and obtain local score at the node 'indexNode'
+					return setStructure(indexNode, adjacencyMatrix);
+				}
+			});
+		} catch (ExecutionException e) {
+			logger.error("An error occured using the cache");
+		}
+		return obtainedScore;
 	}
 
 	/**
@@ -105,13 +141,12 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 		((CTBN) pgm).setStructure(indexNode, adjacencyMatrix);
 		// Obtain the local log-likelihood at the node
 		double score;
-		if (scoreFunction.equals("Log-likelihood")) {
+		if (scoreFunction.equals("Log-likelihood"))
 			score = StructureScoreFunctions.logLikelihoodScore(((CTBN) pgm), indexNode,
 					structureConstraints.getPenalizationFunction());
-		} else {
+		else
 			score = StructureScoreFunctions.conditionalLogLikelihoodScore(((CTBN) pgm), indexNode,
 					structureConstraints.getPenalizationFunction());
-		}
 		return score;
 	}
 

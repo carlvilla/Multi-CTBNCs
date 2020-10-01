@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.DoubleFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,6 +43,8 @@ public class StructureScoreFunctions {
 			put("AIC", N -> 1.0);
 		}
 	};
+
+	// ---------- BAYESIAN NETWORKS ----------
 
 	/**
 	 * Compute the (penalized) log-likelihood score for a discrete Bayesian network.
@@ -107,6 +110,8 @@ public class StructureScoreFunctions {
 		return classProbability;
 	}
 
+	// ---------- CONTINUOUS TIME BAYESIAN NETWORKS ----------
+
 	/**
 	 * Compute the (penalized) log-likelihood score at a given node of a discrete
 	 * continuous time Bayesian network.
@@ -119,6 +124,11 @@ public class StructureScoreFunctions {
 	public static double logLikelihoodScore(CTBN<CIMNode> ctbn, int nodeIndex, String penalizationFunction) {
 		// Obtain node to evaluate
 		CIMNode node = ctbn.getNodes().get(nodeIndex);
+
+//		System.out.println("-----------");
+//		System.out.println("Nodo: " + node.getName());
+//		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
+
 		double llScore = 0.0;
 		llScore += logLikelihoodScore(node);
 		// Apply the specified penalization function (if available)
@@ -137,6 +147,9 @@ public class StructureScoreFunctions {
 			double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
 			llScore -= (double) networkComplexity * penalization;
 		}
+
+//		System.out.println("Total: " + llScore);
+
 		return llScore;
 	}
 
@@ -159,7 +172,7 @@ public class StructureScoreFunctions {
 		double mll = 0.0;
 		for (State state : Qx.keySet()) {
 			double qx = Qx.get(state);
-			int nx = ss.getNx().get(state);
+			double nx = ss.getNx().get(state);
 			double tx = ss.getTx().get(state);
 			// Probability density function of the exponential distribution. If it is 0,
 			// there are no transitions from this state
@@ -169,7 +182,7 @@ public class StructureScoreFunctions {
 					// Probability of transitioning from "state" to "toState"
 					double oxx = Oxx.get(state).get(toState);
 					// Number of times the variable transitions from "state" to "toState"
-					int nxx = ss.getNxy().get(state).get(toState);
+					double nxx = ss.getNxy().get(state).get(toState);
 					if (oxx != 0)
 						mll += nxx * Math.log(oxx);
 				}
@@ -202,7 +215,8 @@ public class StructureScoreFunctions {
 
 		// The contribution of a node is 0 if it has no class variables as parents
 		if (!hasClassVariablesAsParent(node))
-			return 0.0;
+			return Double.NEGATIVE_INFINITY; // return 0;
+
 		// Obtain possible states of the class variables that are parents of the node
 		List<String> nameCVs = nameClassVariablesParents(node);
 		List<State> statesCVs = ctbn.getDataset().getPossibleStatesVariables(nameCVs);
@@ -220,6 +234,9 @@ public class StructureScoreFunctions {
 			// Add the class probability and posterior probability
 			cllScore += uPs[i];
 		}
+
+//		System.out.println("Without denominator: "+cllScore);
+
 		// Prior probability of the sequences (Denominator term)
 		// The log-sum-exp trick is used to avoid underflows
 		int idxLargestUP = Util.getIndexLargestValue(uPs);
@@ -246,7 +263,9 @@ public class StructureScoreFunctions {
 			double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
 			cllScore -= (double) networkComplexity * penalization;
 		}
+
 //		System.out.println(cllScore);
+
 		return cllScore;
 	}
 
@@ -301,17 +320,15 @@ public class StructureScoreFunctions {
 					state.addEvents(query.getEvents());
 					double nx = node.getSufficientStatistics().get(state);
 					double ox = node.getCPT().get(state);
-					if (ox > 0) {
+					if (ox > 0)
 						lp += nx * Math.log(ox);
-					}
 				}
 			} else {
 				// All the parents of the class variables are observed
 				double nx = node.getSufficientStatistics().get(query);
 				double ox = node.getCPT().get(query);
-				if (ox > 0) {
+				if (ox > 0)
 					lp += nx * Math.log(ox);
-				}
 			}
 		}
 		return lp;
@@ -345,14 +362,14 @@ public class StructureScoreFunctions {
 					.allMatch(nameCV -> fromState.getValueVariable(nameCV).equals(stateCVs.getValueVariable(nameCV)));
 			if (containsCC) {
 				double qx = node.getQx().get(fromState);
-				double nx = node.getSufficientStatistics().getNx().get(fromState);
-				double tx = node.getSufficientStatistics().getTx().get(fromState);
+				double nx = ss.getNx().get(fromState);
+				double tx = ss.getTx().get(fromState);
 				if (qx > 0)
 					lpp += nx * Math.log(qx) - qx * tx;
 				// Maps with probabilities (ox_) and number of occurrences (nx_) of transitions
 				// from "fromState" to any other possible state of the feature node
 				Map<State, Double> ox_ = node.getOxx().get(fromState);
-				Map<State, Integer> nx_ = node.getSufficientStatistics().getNxy().get(fromState);
+				Map<State, Double> nx_ = node.getSufficientStatistics().getNxy().get(fromState);
 				// Iterate over all states of the feature node (except its state in "fromState")
 				for (State toState : ox_.keySet()) {
 					double oxx = ox_.get(toState);

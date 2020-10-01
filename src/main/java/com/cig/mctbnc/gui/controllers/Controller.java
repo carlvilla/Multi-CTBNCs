@@ -330,7 +330,8 @@ public class Controller {
 		// time Bayesian network)
 		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, nxy,
 				tx);
-		CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory.getAlgorithm(nameCtbnSLA, scoreFunction);
+		CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory.getAlgorithm(nameCtbnSLA,
+				scoreFunction);
 		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 		return ctbnLearningAlgs;
 	}
@@ -400,12 +401,14 @@ public class Controller {
 	 * A model was selected in the comboBox. Show its correspondent parameters.
 	 */
 	public void changeModel() {
-		if (cmbModel.getValue().equals("DAG-kDB MCTBNC"))
+		String model = cmbModel.getValue();
+		if (model.equals("DAG-kDB MCTBNC") || model.equals("Empty-kDB MCTBNC"))
+			// Enable selecting the number of maximum parents
 			fldKParents.setDisable(false);
 		else
 			fldKParents.setDisable(true);
-
-		if (cmbModel.getValue().equals("MCTNBC")) {
+		if (model.equals("MCTNBC")) {
+			// Disable of learning structure options if learning a naive Bayes classifier
 			cmbStructure.setDisable(true);
 			cmbInitialStructure.setDisable(true);
 			cmbScoreFunction.setDisable(true);

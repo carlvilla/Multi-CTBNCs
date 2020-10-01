@@ -26,7 +26,14 @@ public class BNBayesianEstimation extends BNParameterLearningAlgorithm {
 	private double alpha;
 	static Logger logger = LogManager.getLogger(BNBayesianEstimation.class);
 
+	/**
+	 * Receive the hyperparameter of the Dirichlet prior distribution over the
+	 * parameters (i.e. imaginary counts).
+	 * 
+	 * @param alpha
+	 */
 	public BNBayesianEstimation(double alpha) {
+		logger.info("Learning parameters of BN with Bayesian estimation (hyperparameter={})", alpha);
 		this.alpha = alpha;
 	}
 

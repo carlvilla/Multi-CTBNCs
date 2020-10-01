@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.learning.structure.constraints.AbstractStructureConstraints;
-import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 
@@ -37,12 +36,12 @@ public class MaxKCTBNC extends AbstractStructureConstraints {
 
 	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix, NodeIndexer<? extends Node> nodeIndexer) {
-		// Nodes can only have k parents.
+		// Nodes can only have k parents (excluding class variables).
 		int numNodes = adjacencyMatrix.length;
 		for (int j = 0; j < numNodes; j++) {
 			int numParentsJ = 0;
 			for (int i = 0; i < numNodes; i++) {
-				if (i != j) {
+				if (i != j && !nodeIndexer.getNodeByIndex(i).isClassVariable()) {
 					numParentsJ += adjacencyMatrix[i][j] ? 1 : 0;
 					if (numParentsJ > maxK)
 						return false;

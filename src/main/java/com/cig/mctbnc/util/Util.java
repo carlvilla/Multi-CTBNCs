@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Random;
 
 import com.cig.mctbnc.data.representation.State;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 /**
  * Utility class.
@@ -141,5 +143,18 @@ public final class Util {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Build a cache of a certain size with the specified key and value types.
+	 * 
+	 * @param maxSize maximum size of the cache
+	 * @param <Key>   key type
+	 * @param <Value> value type
+	 * @return cache
+	 */
+	public static <Key, Value> Cache<Key, Value> createCache(int maxSize) {
+		Cache<Key, Value> cache = CacheBuilder.newBuilder().maximumSize(maxSize).build();
+		return cache;
 	}
 }

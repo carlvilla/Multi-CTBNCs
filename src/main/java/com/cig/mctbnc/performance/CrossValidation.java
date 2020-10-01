@@ -85,6 +85,7 @@ public class CrossValidation implements ValidationMethod {
 			Dataset testingDataset = extractTestingDataset(sequences, fileNames, fromIndex, toIndex);
 			// Train the model
 			model.learn(trainingDataset);
+			model.display();
 			// Make predictions over the current fold
 			Prediction[] predictions = model.predict(testingDataset, true);
 			// Result of performance metrics when evaluating the model with the current fold

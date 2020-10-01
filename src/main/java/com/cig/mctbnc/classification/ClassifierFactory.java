@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.models.DAG_kDB_MCTBNC;
-import com.cig.mctbnc.models.EMPTY_DAG_MCTBNC;
+import com.cig.mctbnc.models.EMPTY_kDB_MCTBNC;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.models.MCTNBC;
 import com.cig.mctbnc.nodes.Node;
@@ -44,13 +44,14 @@ public class ClassifierFactory {
 			logger.info("Creating a multi-dimensional continuous naive Bayes classifier (MCTBNC)");
 			return new MCTNBC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
 		case "DAG-kDB MCTBNC":
-			logger.info("Creating a DAG-kDB multi-dimensional continuous Bayesian network classifier (DAG-kDB MCTBNC)");
 			int maxK = Integer.valueOf(parameters.get("maxK"));
+			logger.info("Creating a DAG-{}DB multi-dimensional continuous Bayesian network classifier", maxK);
 			return new DAG_kDB_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);
-		case "Empty-DAG MCTBNC":
-			logger.info("Creating a Empty-DAG multi-dimensional continuous Bayesian network classifier (Empty-DAG MCTBNC)");
-			return new EMPTY_DAG_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass,
+		case "Empty-kDB MCTBNC":
+			maxK = Integer.valueOf(parameters.get("maxK"));
+			logger.info("Creating a Empty-{}DB multi-dimensional continuous Bayesian network classifier", maxK);
+			return new EMPTY_kDB_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);
 		default:
 			// If the specified classifier is not found, a MCTBNC is created
@@ -66,7 +67,7 @@ public class ClassifierFactory {
 	 * @return list of available classifiers
 	 */
 	public static List<String> getAvailableModels() {
-		return List.of("MCTBNC", "MCTNBC", "DAG-kDB MCTBNC", "Empty-DAG MCTBNC");
+		return List.of("MCTBNC", "MCTNBC", "DAG-kDB MCTBNC", "Empty-kDB MCTBNC");
 	}
 
 }

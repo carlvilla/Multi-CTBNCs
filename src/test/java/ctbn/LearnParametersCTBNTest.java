@@ -21,8 +21,6 @@ import com.cig.mctbnc.nodes.CIMNode;
 
 /**
  * Test the estimation of sufficient statistics and parameters of a CTBN.
- * Maximum likelihood estimation test is executed first so the sufficient
- * statistics are computed before their tests start.
  * 
  * @author Carlos Villa Blanco
  *
@@ -98,9 +96,8 @@ public class LearnParametersCTBNTest {
 		// As it is tested the learned parameters, that a node is a class variable or
 		// not is irrelevant.
 		nodes = new ArrayList<CIMNode>();
-		for (String nameFeature : dataset.getNameVariables()) {
+		for (String nameFeature : dataset.getNameVariables())
 			nodes.add(new CIMNode(nameFeature, dataset.getPossibleStatesVariable(nameFeature)));
-		}
 
 		// V2 and V3 are parents of V1 and V3 is parent of V2
 		nodes.get(0).setParent(nodes.get(1));
@@ -109,17 +106,33 @@ public class LearnParametersCTBNTest {
 	}
 
 	/**
-	 * Check the computation of the sufficient statistic Nxx for a certain CTBN and
-	 * dataset.
+	 * Check the parameters of a CTBN obtained by maximum likelihood estimation.
 	 */
 	@Test
-	public void testSufficientStatisticNxxCTBN() {
+	public void testMLE() {
+		// Learn sufficient statistics and parameters given the nodes and the dataset
+		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNMaximumLikelihoodEstimation();
+		ctbnParameterLearning.learn(nodes, dataset);
+		// Sufficient statistics
+		testMLESufficientStatisticNxxCTBN();
+		testMLESufficientStatisticNxCTBN();
+		testMLESufficientStatisticTxCTBN();
+		// Parameters
+		testMLEParameterQxCTBN();
+		testMLEParameterOxxCTBN();
+	}
+
+	/**
+	 * Check the computation of the sufficient statistic Nxx for a certain CTBN and
+	 * dataset when using maximum likelihood estimation.
+	 */
+	public void testMLESufficientStatisticNxxCTBN() {
 		// Sufficient statistics V1
-		Map<State, Map<State, Integer>> ssV1 = nodes.get(0).getSufficientStatistics().getNxy();
+		Map<State, Map<State, Double>> ssV1 = nodes.get(0).getSufficientStatistics().getNxy();
 		// Sufficient statistics V2
-		Map<State, Map<State, Integer>> ssV2 = nodes.get(1).getSufficientStatistics().getNxy();
+		Map<State, Map<State, Double>> ssV2 = nodes.get(1).getSufficientStatistics().getNxy();
 		// Sufficient statistics V3
-		Map<State, Map<State, Integer>> ssV3 = nodes.get(2).getSufficientStatistics().getNxy();
+		Map<State, Map<State, Double>> ssV3 = nodes.get(2).getSufficientStatistics().getNxy();
 
 		// Sufficient statistics V1
 		State fromState = new State();
@@ -128,10 +141,10 @@ public class LearnParametersCTBNTest {
 		fromState.addEvent("V3", "b");
 		State toState = new State();
 		toState.addEvent("V1", "b");
-		assertEquals(2, (int) ssV1.get(fromState).get(toState));
+		assertEquals(2, ssV1.get(fromState).get(toState));
 		toState = new State();
 		toState.addEvent("V1", "c");
-		assertEquals(1, (int) ssV1.get(fromState).get(toState));
+		assertEquals(1, ssV1.get(fromState).get(toState));
 
 		fromState = new State();
 		fromState.addEvent("V1", "a");
@@ -139,10 +152,10 @@ public class LearnParametersCTBNTest {
 		fromState.addEvent("V3", "a");
 		toState = new State();
 		toState.addEvent("V1", "b");
-		assertEquals(0, (int) ssV1.get(fromState).get(toState));
+		assertEquals(0, ssV1.get(fromState).get(toState));
 		toState = new State();
 		toState.addEvent("V1", "c");
-		assertEquals(1, (int) ssV1.get(fromState).get(toState));
+		assertEquals(1, ssV1.get(fromState).get(toState));
 
 		// Sufficient statistics V2
 		fromState = new State();
@@ -150,102 +163,101 @@ public class LearnParametersCTBNTest {
 		fromState.addEvent("V3", "a");
 		toState = new State();
 		toState.addEvent("V2", "b");
-		assertEquals(0, (int) ssV2.get(fromState).get(toState));
+		assertEquals(0, ssV2.get(fromState).get(toState));
 
 		fromState = new State();
 		fromState.addEvent("V2", "b");
 		fromState.addEvent("V3", "b");
 		toState = new State();
 		toState.addEvent("V2", "a");
-		assertEquals(1, (int) ssV2.get(fromState).get(toState));
+		assertEquals(1, ssV2.get(fromState).get(toState));
 
 		// Sufficient statistics V3
 		fromState = new State();
 		fromState.addEvent("V3", "a");
 		toState = new State();
 		toState.addEvent("V3", "b");
-		assertEquals(0, (int) ssV3.get(fromState).get(toState));
+		assertEquals(0, ssV3.get(fromState).get(toState));
 		toState = new State();
 		toState.addEvent("V3", "c");
-		assertEquals(1, (int) ssV3.get(fromState).get(toState));
+		assertEquals(1, ssV3.get(fromState).get(toState));
 
 		fromState = new State();
 		fromState.addEvent("V3", "b");
 		toState = new State();
 		toState.addEvent("V3", "a");
-		assertEquals(3, (int) ssV3.get(fromState).get(toState));
+		assertEquals(3, ssV3.get(fromState).get(toState));
 		toState = new State();
 		toState.addEvent("V3", "c");
-		assertEquals(0, (int) ssV3.get(fromState).get(toState));
+		assertEquals(0, ssV3.get(fromState).get(toState));
 	}
 
 	/**
 	 * Check the computation of the sufficient statistic Nx for a certain CTBN and
-	 * dataset.
+	 * dataset when using maximum likelihood estimation.
 	 */
-	@Test
-	public void testSufficientStatisticNxCTBN() {
+	public void testMLESufficientStatisticNxCTBN() {
 		// Sufficient statistics V1
-		Map<State, Integer> ssV1 = nodes.get(0).getSufficientStatistics().getNx();
+		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getNx();
 		// Sufficient statistics V2
-		Map<State, Integer> ssV2 = nodes.get(1).getSufficientStatistics().getNx();
+		Map<State, Double> ssV2 = nodes.get(1).getSufficientStatistics().getNx();
 		// Sufficient statistics V3
-		Map<State, Integer> ssV3 = nodes.get(2).getSufficientStatistics().getNx();
+		Map<State, Double> ssV3 = nodes.get(2).getSufficientStatistics().getNx();
 
 		// Sufficient statistics V1
 		State fromState = new State();
 		fromState.addEvent("V1", "a");
 		fromState.addEvent("V2", "b");
 		fromState.addEvent("V3", "b");
-		assertEquals(3, (int) ssV1.get(fromState));
+		assertEquals(3, ssV1.get(fromState));
 
 		fromState = new State();
 		fromState.addEvent("V1", "a");
 		fromState.addEvent("V2", "a");
 		fromState.addEvent("V3", "a");
-		assertEquals(1, (int) ssV1.get(fromState));
+		assertEquals(1, ssV1.get(fromState));
 
 		// Sufficient statistics V2
 		fromState = new State();
 		fromState.addEvent("V2", "a");
 		fromState.addEvent("V3", "a");
-		assertEquals(0, (int) ssV2.get(fromState));
+		assertEquals(0, ssV2.get(fromState));
 
 		fromState = new State();
 		fromState.addEvent("V2", "a");
 		fromState.addEvent("V3", "b");
-		assertEquals(1, (int) ssV2.get(fromState));
+		assertEquals(1, ssV2.get(fromState));
 
 		fromState = new State();
 		fromState.addEvent("V2", "b");
 		fromState.addEvent("V3", "a");
-		assertEquals(0, (int) ssV2.get(fromState));
+		assertEquals(0, ssV2.get(fromState));
 
 		fromState = new State();
 		fromState.addEvent("V2", "b");
 		fromState.addEvent("V3", "b");
-		assertEquals(1, (int) ssV2.get(fromState));
+		assertEquals(1, ssV2.get(fromState));
 
 		// Sufficient statistics V3
 		fromState = new State();
 		fromState.addEvent("V3", "a");
-		assertEquals(1, (int) ssV3.get(fromState));
+		assertEquals(1, ssV3.get(fromState));
 
 		fromState = new State();
 		fromState.addEvent("V3", "b");
-		assertEquals(3, (int) ssV3.get(fromState));
+		assertEquals(3, ssV3.get(fromState));
 
 		fromState = new State();
 		fromState.addEvent("V3", "c");
-		assertEquals(0, (int) ssV3.get(fromState));
+		assertEquals(0, ssV3.get(fromState));
 	}
 
 	/**
 	 * Check the sufficient statistic Tx, for a certain CTBN and dataset, related to
-	 * the time that a variable stay in a certain state.
+	 * the time that a variable stay in a certain state, when using maximum
+	 * likelihood estimation.
 	 */
-	@Test
-	public void testSufficientStatisticTxCTBN() {
+	public void testMLESufficientStatisticTxCTBN() {
 		// Test the sufficient parameters for certain combinations of states
 		// Sufficient statistics V1
 		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getTx();
@@ -323,19 +335,6 @@ public class LearnParametersCTBNTest {
 		state = new State();
 		state.addEvent("V3", "c");
 		assertEquals(0, ssV3.get(state), 0.01);
-	}
-
-	/**
-	 * Check the parameters of a CTBN obtained by maximum likelihood estimation.
-	 */
-	@Test
-	@Order(1)
-	public void testMLE() {
-		// Learn sufficient statistics and parameters given the nodes and the dataset
-		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNMaximumLikelihoodEstimation();
-		ctbnParameterLearning.learn(nodes, dataset);
-		testMLEParameterQxCTBN();
-		testMLEParameterOxxCTBN();
 	}
 
 	/**
@@ -532,6 +531,11 @@ public class LearnParametersCTBNTest {
 		double TxPrior = 0.0;
 		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(NxyPrior, TxPrior);
 		ctbnParameterLearning.learn(nodes, dataset);
+		// Sufficient statistics
+		testMLESufficientStatisticNxxCTBN();
+		testMLESufficientStatisticNxCTBN();
+		testMLESufficientStatisticTxCTBN();
+		// Parameters
 		testMLEParameterQxCTBN();
 		testMLEParameterOxxCTBN();
 	}
@@ -548,8 +552,228 @@ public class LearnParametersCTBNTest {
 		double TxPrior = 2.0;
 		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(NxyPrior, TxPrior);
 		ctbnParameterLearning.learn(nodes, dataset);
+		// Sufficient statistics
+		testBESufficientStatisticNxxCTBN();
+		testBESufficientStatisticNxCTBN();
+		testBESufficientStatisticTxCTBN();
+		// Parameters
 		testBEParameterQxCTBN();
 		testBEParameterOxxCTBN();
+	}
+
+	/**
+	 * Check the computation of the sufficient statistic Nxx for a certain CTBN and
+	 * dataset when using Bayesian estimation.
+	 */
+	public void testBESufficientStatisticNxxCTBN() {
+		// Sufficient statistics V1
+		Map<State, Map<State, Double>> ssV1 = nodes.get(0).getSufficientStatistics().getNxy();
+		// Sufficient statistics V2
+		Map<State, Map<State, Double>> ssV2 = nodes.get(1).getSufficientStatistics().getNxy();
+		// Sufficient statistics V3
+		Map<State, Map<State, Double>> ssV3 = nodes.get(2).getSufficientStatistics().getNxy();
+
+		// Sufficient statistics V1
+		State fromState = new State();
+		fromState.addEvent("V1", "a");
+		fromState.addEvent("V2", "b");
+		fromState.addEvent("V3", "b");
+		State toState = new State();
+		toState.addEvent("V1", "b");
+		assertEquals(3, ssV1.get(fromState).get(toState));
+		toState = new State();
+		toState.addEvent("V1", "c");
+		assertEquals(2, ssV1.get(fromState).get(toState));
+
+		fromState = new State();
+		fromState.addEvent("V1", "a");
+		fromState.addEvent("V2", "a");
+		fromState.addEvent("V3", "a");
+		toState = new State();
+		toState.addEvent("V1", "b");
+		assertEquals(1, ssV1.get(fromState).get(toState));
+		toState = new State();
+		toState.addEvent("V1", "c");
+		assertEquals(2, ssV1.get(fromState).get(toState));
+
+		// Sufficient statistics V2
+		fromState = new State();
+		fromState.addEvent("V2", "a");
+		fromState.addEvent("V3", "a");
+		toState = new State();
+		toState.addEvent("V2", "b");
+		assertEquals(1, ssV2.get(fromState).get(toState));
+
+		fromState = new State();
+		fromState.addEvent("V2", "b");
+		fromState.addEvent("V3", "b");
+		toState = new State();
+		toState.addEvent("V2", "a");
+		assertEquals(2, ssV2.get(fromState).get(toState));
+
+		// Sufficient statistics V3
+		fromState = new State();
+		fromState.addEvent("V3", "a");
+		toState = new State();
+		toState.addEvent("V3", "b");
+		assertEquals(1, ssV3.get(fromState).get(toState));
+		toState = new State();
+		toState.addEvent("V3", "c");
+		assertEquals(2, ssV3.get(fromState).get(toState));
+
+		fromState = new State();
+		fromState.addEvent("V3", "b");
+		toState = new State();
+		toState.addEvent("V3", "a");
+		assertEquals(4, ssV3.get(fromState).get(toState));
+		toState = new State();
+		toState.addEvent("V3", "c");
+		assertEquals(1, ssV3.get(fromState).get(toState));
+	}
+
+	/**
+	 * Check the computation of the sufficient statistic Nx for a certain CTBN and
+	 * dataset when using Bayesian estimation.
+	 */
+	public void testBESufficientStatisticNxCTBN() {
+		// Sufficient statistics V1
+		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getNx();
+		// Sufficient statistics V2
+		Map<State, Double> ssV2 = nodes.get(1).getSufficientStatistics().getNx();
+		// Sufficient statistics V3
+		Map<State, Double> ssV3 = nodes.get(2).getSufficientStatistics().getNx();
+
+		// Sufficient statistics V1
+		State fromState = new State();
+		fromState.addEvent("V1", "a");
+		fromState.addEvent("V2", "b");
+		fromState.addEvent("V3", "b");
+		assertEquals(5, ssV1.get(fromState));
+
+		fromState = new State();
+		fromState.addEvent("V1", "a");
+		fromState.addEvent("V2", "a");
+		fromState.addEvent("V3", "a");
+		assertEquals(3, ssV1.get(fromState));
+
+		// Sufficient statistics V2
+		fromState = new State();
+		fromState.addEvent("V2", "a");
+		fromState.addEvent("V3", "a");
+		assertEquals(1, ssV2.get(fromState));
+
+		fromState = new State();
+		fromState.addEvent("V2", "a");
+		fromState.addEvent("V3", "b");
+		assertEquals(2, ssV2.get(fromState));
+
+		fromState = new State();
+		fromState.addEvent("V2", "b");
+		fromState.addEvent("V3", "a");
+		assertEquals(1, ssV2.get(fromState));
+
+		fromState = new State();
+		fromState.addEvent("V2", "b");
+		fromState.addEvent("V3", "b");
+		assertEquals(2, ssV2.get(fromState));
+
+		// Sufficient statistics V3
+		fromState = new State();
+		fromState.addEvent("V3", "a");
+		assertEquals(3, ssV3.get(fromState));
+
+		fromState = new State();
+		fromState.addEvent("V3", "b");
+		assertEquals(5, ssV3.get(fromState));
+
+		fromState = new State();
+		fromState.addEvent("V3", "c");
+		assertEquals(2, ssV3.get(fromState));
+	}
+
+	/**
+	 * Check the sufficient statistic Tx, for a certain CTBN and dataset, related to
+	 * the time that a variable stay in a certain state, when using Bayesian
+	 * estimation.
+	 */
+	public void testBESufficientStatisticTxCTBN() {
+		// Test the sufficient parameters for certain combinations of states
+		// Sufficient statistics V1
+		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getTx();
+		// Sufficient statistics V2
+		Map<State, Double> ssV2 = nodes.get(1).getSufficientStatistics().getTx();
+		// Sufficient statistics V3
+		Map<State, Double> ssV3 = nodes.get(2).getSufficientStatistics().getTx();
+
+		// Sufficient statistics V1
+		State state = new State();
+		state.addEvent("V1", "a");
+		state.addEvent("V2", "a");
+		state.addEvent("V3", "a");
+		assertEquals(2.5, ssV1.get(state), 0.01);
+
+		state = new State();
+		state.addEvent("V1", "c");
+		state.addEvent("V2", "a");
+		state.addEvent("V3", "c"); // Last observation of a sequence. It never changes, so the
+									// duration is unknown.
+		assertEquals(2, ssV1.get(state), 0.01);
+
+		state = new State();
+		state.addEvent("V1", "a");
+		state.addEvent("V2", "b");
+		state.addEvent("V3", "b");
+		assertEquals(3.0, ssV1.get(state), 0.01);
+
+		state = new State();
+		state.addEvent("V1", "a");
+		state.addEvent("V2", "b");
+		state.addEvent("V3", "c"); // State that never occurs
+		assertEquals(2, ssV1.get(state), 0.01);
+
+		// Sufficient statistics V2
+		state = new State();
+		state.addEvent("V2", "a");
+		state.addEvent("V3", "a");
+		assertEquals(2.5, ssV2.get(state), 0.01);
+
+		state = new State();
+		state.addEvent("V2", "a");
+		state.addEvent("V3", "b");
+		assertEquals(2.4, ssV2.get(state), 0.01);
+
+		state = new State();
+		state.addEvent("V2", "a");
+		state.addEvent("V3", "c");
+		assertEquals(2, ssV2.get(state), 0.01);
+
+		state = new State();
+		state.addEvent("V2", "b");
+		state.addEvent("V3", "a");
+		assertEquals(2, ssV2.get(state), 0.01);
+
+		state = new State();
+		state.addEvent("V2", "b");
+		state.addEvent("V3", "b");
+		assertEquals(3.7, ssV2.get(state), 0.01);
+
+		state = new State();
+		state.addEvent("V2", "b");
+		state.addEvent("V3", "c");
+		assertEquals(2, ssV2.get(state), 0.01);
+
+		// Sufficient statistics V3
+		state = new State();
+		state.addEvent("V3", "a");
+		assertEquals(2.5, ssV3.get(state), 0.01);
+
+		state = new State();
+		state.addEvent("V3", "b");
+		assertEquals(4.1, ssV3.get(state), 0.01);
+
+		state = new State();
+		state.addEvent("V3", "c");
+		assertEquals(2, ssV3.get(state), 0.01);
 	}
 
 	/**
@@ -569,25 +793,25 @@ public class LearnParametersCTBNTest {
 		state.addEvent("V1", "a");
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "a");
-		assertEquals(0.8, qxV1.get(state), 0.01);
+		assertEquals(1.2, qxV1.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V1", "a");
 		state.addEvent("V2", "b");
 		state.addEvent("V3", "b");
-		assertEquals(1.33, qxV1.get(state), 0.01);
+		assertEquals(1.66, qxV1.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V1", "b");
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "a");
-		assertEquals(0.5, qxV1.get(state), 0.01);
+		assertEquals(1, qxV1.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V1", "c");
 		state.addEvent("V2", "a");
 		state.addEvent("V3", "c");
-		assertEquals(0.5, qxV1.get(state), 0.01);
+		assertEquals(1, qxV1.get(state), 0.01);
 
 		// Parameters V2
 		state = new State();
@@ -623,15 +847,15 @@ public class LearnParametersCTBNTest {
 		// Sufficient statistics V3
 		state = new State();
 		state.addEvent("V3", "a");
-		assertEquals(0.8, qxV3.get(state), 0.01);
+		assertEquals(1.2, qxV3.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V3", "b");
-		assertEquals(0.97, qxV3.get(state), 0.01);
+		assertEquals(1.21, qxV3.get(state), 0.01);
 
 		state = new State();
 		state.addEvent("V3", "c");
-		assertEquals(0.5, qxV3.get(state), 0.01);
+		assertEquals(1, qxV3.get(state), 0.01);
 	}
 
 	/**

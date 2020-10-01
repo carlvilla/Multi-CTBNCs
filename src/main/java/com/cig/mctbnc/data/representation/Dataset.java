@@ -49,8 +49,10 @@ public class Dataset {
 	 * 
 	 * @param data list of Strings (a sequence) where the first array contains the
 	 *             name of the variables
+	 * @return <code>true</code> if the sequence was successfully added to the
+	 *         dataset; <code>false</code> otherwise.
 	 */
-	public void addSequence(List<String[]> data) {
+	public boolean addSequence(List<String[]> data) {
 		try {
 			// Check if it is possible to add the sequence
 			checkIntegrityData(data);
@@ -69,8 +71,10 @@ public class Dataset {
 			// Create and add sequence to the dataset
 			Sequence sequence = new Sequence(nameVariablesSequence, nameTimeVariable, nameClassVariables, data);
 			sequences.add(sequence);
+			return true;
 		} catch (ErroneousSequenceException e) {
 			logger.warn(e.getMessage());
+			return false;
 		}
 	}
 

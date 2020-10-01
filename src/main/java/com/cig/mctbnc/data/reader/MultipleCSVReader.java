@@ -52,8 +52,9 @@ public class MultipleCSVReader extends AbstractCSVReader {
 		for (File file : files) {
 			try {
 				List<String[]> dataSequence = readCSV(file.getAbsolutePath(), excludeVariables);
-				dataset.addSequence(dataSequence);
-				nameAcceptedFiles.add(file.getName());
+				boolean sequenceAdded = dataset.addSequence(dataSequence);
+				if (sequenceAdded)
+					nameAcceptedFiles.add(file.getName());
 			} catch (VariableNotFoundException e) {
 				logger.warn(e.getMessage());
 			}
