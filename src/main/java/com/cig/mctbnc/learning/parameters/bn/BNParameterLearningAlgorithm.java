@@ -23,6 +23,10 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 		setCPTs(nodes);
 	}
 
+	@Override
+	public void learn(Node node, Dataset dataset) {
+	}
+
 	/**
 	 * Obtain for each variable i, the number of times its parents are in the state
 	 * j and the variable is in the state k.

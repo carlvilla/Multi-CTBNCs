@@ -71,18 +71,20 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 		initializeSufficientStatistics(node, dataset);
 		// Iterate over all the sequences and their observations to calculate the
 		// sufficient statistics
-		for (Sequence sequence : dataset.getSequences()) {
+		for (Sequence sequence : dataset.getSequences())
 			for (int i = 1; i < sequence.getNumObservations(); i++) {
 				// State of the variables before the transition
 				Observation fromObservation = sequence.getObservations().get(i - 1);
 				State fromState = new State();
-				fromState.addEvent(nameVariable, fromObservation.getValueVariable(nameVariable));
+				String fromValue = fromObservation.getValueVariable(nameVariable);
+				fromState.addEvent(nameVariable, fromValue);
 				// State of the variables after the transition
 				Observation toObservation = sequence.getObservations().get(i);
 				State toState = new State();
-				toState.addEvent(nameVariable, toObservation.getValueVariable(nameVariable));
+				String toValue = toObservation.getValueVariable(nameVariable);
+				toState.addEvent(nameVariable, toValue);
 				// Check if the node is transitioning to a different state
-				boolean nodeIsTransitioning = !fromState.equals(toState);
+				boolean nodeIsTransitioning = !fromValue.equals(toValue);
 				// If the node has parents, their states are added to "fromState"
 				for (String nameParent : nameParents)
 					fromState.addEvent(nameParent, fromObservation.getValueVariable(nameParent));
@@ -96,7 +98,6 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 				double transitionTime = toObservation.getTimeValue() - fromObservation.getTimeValue();
 				updateOccurrencesTx(fromState, transitionTime);
 			}
-		}
 	}
 
 	/**
@@ -108,6 +109,11 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 		// Retrieve state the variable can take
 		// TODO Instead of passing a node, the class should only accept DiscreteNode.
 		// Improve architecture
+		
+		
+		// Define all states of the node and its parents. Have an index 
+		
+		
 		List<State> statesVariable = ((DiscreteNode) node).getStates();
 		// Hyperparameter NxPrior (number of transitions originating from certain state)
 		double NxPrior = NxyPrior * (statesVariable.size() - 1);
@@ -115,7 +121,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 			List<Node> parents = node.getParents();
 			List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
 			List<State> statesParents = dataset.getPossibleStatesVariables(nameParents);
-			for (State stateParents : statesParents) {
+			for (State stateParents : statesParents)
 				for (State fromState : statesVariable) {
 					State fromStateWithParents = new State(fromState.getEvents());
 					fromStateWithParents.addEvents(stateParents.getEvents());
@@ -124,11 +130,11 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 					// Initialize Tx
 					Tx.put(fromStateWithParents, TxPrior);
 					for (State toState : statesVariable)
-						if (!fromState.equals(toState))
+						//if (!fromState.equals(toState))
+						if (!fromState.getValues()[0].equals(toState.getValues()[0]))
 							// Initialize Nxy
 							updateOccurrencesNxy(fromStateWithParents, toState, NxyPrior);
 				}
-			}
 		} else {
 			for (State fromState : statesVariable) {
 				// Initialize Nx
@@ -136,7 +142,8 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 				// Initialize Tx
 				Tx.put(fromState, TxPrior);
 				for (State toState : statesVariable)
-					if (!fromState.equals(toState))
+					//if (!fromState.equals(toState))
+					if (!fromState.getValues()[0].equals(toState.getValues()[0]))
 						// Initialize Nxy
 						updateOccurrencesNxy(fromState, toState, NxyPrior);
 			}
@@ -152,18 +159,20 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @param numOccurrences number of occurrences
 	 */
 	private void updateOccurrencesNxy(State fromState, State toState, double numOccurrences) {
-		// If the state 'fromState' was never seen before, it is created a map to
-		// contain all the occurrences of it transitioning to other states
 		Map<State, Double> mapFromState = Nxy.get(fromState);
 		if (mapFromState == null) {
+			// If the state 'fromState' was never seen before, it is created a map to
+			// contain all the occurrences of its transitions to other states
 			mapFromState = new HashMap<State, Double>();
+			mapFromState.put(toState, numOccurrences);
 			Nxy.put(fromState, mapFromState);
+		} else {
+			// Current value of Nxy for 'fromState' and 'toState'
+			Double currentNxy = mapFromState.get(toState);
+			if (currentNxy == null)
+				currentNxy = 0.0;
+			mapFromState.put(toState, currentNxy + numOccurrences);
 		}
-		// Current value of Nxy for 'fromState' and 'toState'
-		Double currentNxy = mapFromState.get(toState);
-		if (currentNxy == null)
-			currentNxy = 0.0;
-		mapFromState.put(toState, currentNxy + numOccurrences);
 	}
 
 	/**
@@ -205,7 +214,6 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 */
 	public Map<State, Map<State, Double>> getNxy() {
 		// It is possible that Nxy is empty if the variable do not have any transition
-		// TODO remove variables with zero variance during preprocessing
 		if (Nxy.isEmpty() && !Nx.isEmpty() && !Tx.isEmpty())
 			logger.warn("Sufficient statistic Nxy was not computed");
 		return Nxy;

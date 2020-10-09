@@ -55,7 +55,6 @@ public class BNBayesianEstimation extends BNParameterLearningAlgorithm {
 			double Nij = 0;
 			for (String k : possibleStatesVariable) {
 				State query = new State(state.getEvents());
-				query.modifyEventValue(node.getName(), k);
 				Nij += N.get(query);
 			}
 			// Probability that the studied variable has a state k given that

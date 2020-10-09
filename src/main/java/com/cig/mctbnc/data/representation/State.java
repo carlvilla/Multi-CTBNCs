@@ -15,8 +15,9 @@ import java.util.Map;
  *
  */
 public class State {
-
 	private Map<String, String> events;
+	// Save the hashcode in order to avoid recomputing it
+	private Integer hashcode;
 
 	/**
 	 * Default constructor.
@@ -31,8 +32,7 @@ public class State {
 	 * @param events events to include to the State
 	 */
 	public State(Map<String, String> events) {
-		this.events = new HashMap<String, String>();
-		addEvents(events);
+		this.events = new HashMap<String, String>(events);
 	}
 
 	/**
@@ -43,7 +43,7 @@ public class State {
 	 */
 	public void addEvent(String nameVariable, String valueVariable) {
 		this.events.put(nameVariable, valueVariable);
-
+		initializeHashcode();
 	}
 
 	/**
@@ -52,9 +52,9 @@ public class State {
 	 * @param events events to add
 	 */
 	public void addEvents(Map<String, String> events) {
-		for (Map.Entry<String, String> event : events.entrySet()) {
+		for (Map.Entry<String, String> event : events.entrySet())
 			addEvent(event.getKey(), event.getValue());
-		}
+		initializeHashcode();
 	}
 
 	/**
@@ -65,6 +65,7 @@ public class State {
 	 */
 	public void modifyEventValue(String nameVariable, String newValue) {
 		events.replace(nameVariable, newValue);
+		initializeHashcode();
 	}
 
 	/**
@@ -133,26 +134,27 @@ public class State {
 		// The object is of State type
 		State otherState = (State) object;
 		// Extract the events of the other State object
-		Map<String, String> eventsOther = otherState.getEvents();
+		// Map<String, String> eventsOther = otherState.getEvents();
 		// If there is a different number of events, the states cannot be equal
-		if (events.size() != eventsOther.size())
+		if (events.size() != otherState.getEvents().size())
 			return false;
-		// Check if both maps has the same variables and values
-		for (Map.Entry<String, String> entry : events.entrySet()) {
-			String valueOther = eventsOther.get(entry.getKey());
-			if (valueOther == null || !entry.getValue().equals(valueOther))
-				return false;
-		}
-		return true;
+//		// Check if both maps has the same variables and values
+//		for (Map.Entry<String, String> entry : events.entrySet()) {
+//			String valueOther = eventsOther.get(entry.getKey());
+//			if (valueOther == null || !entry.getValue().equals(valueOther))
+//				return false;
+//		}
+
+		return events.equals(otherState.getEvents());
+
+		// return true;
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int hashcode = 1;
-		for (Map.Entry<String, String> entry : events.entrySet()) {
-			hashcode *= (prime + entry.getKey().hashCode() + entry.getValue().hashCode());
-		}
+		if (hashcode == null)
+			// The hashcode was not computed before
+			hashcode = events.hashCode();
 		return hashcode;
 	}
 
@@ -164,6 +166,14 @@ public class State {
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Initialize the hashcode field. This method is used when the object is
+	 * modified, so the hashcode needs to be recomputed.
+	 */
+	private void initializeHashcode() {
+		hashcode = null;
 	}
 
 }

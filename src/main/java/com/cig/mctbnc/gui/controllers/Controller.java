@@ -2,9 +2,9 @@ package com.cig.mctbnc.gui.controllers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.controlsfx.control.CheckComboBox;
 
@@ -290,7 +290,7 @@ public class Controller {
 		BNLearningAlgorithms bnLearningAlgs = defineAlgorithmsBN();
 		CTBNLearningAlgorithms ctbnLearningAlgs = defineAlgorithmsCTBN();
 		// Parameters that could be necessary for the generation of the model
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new WeakHashMap<String, String>();
 		parameters.put("maxK", fldKParents.getText());
 		// Generate selected model
 		String selectedModel = cmbModel.getValue();

@@ -215,7 +215,7 @@ public class StructureScoreFunctions {
 
 		// The contribution of a node is 0 if it has no class variables as parents
 		if (!hasClassVariablesAsParent(node))
-			return Double.NEGATIVE_INFINITY; // return 0;
+			return 0;// Double.NEGATIVE_INFINITY;
 
 		// Obtain possible states of the class variables that are parents of the node
 		List<String> nameCVs = nameClassVariablesParents(node);
@@ -314,7 +314,7 @@ public class StructureScoreFunctions {
 						.collect(Collectors.toList());
 				// Extract all class configurations from unobserved class variables
 				List<State> states = dataset.getPossibleStatesVariables(nameParentsUnobserved);
-				for (State state : states) {
+				for (final State state : states) {
 					// Add to class configuration of unobserved class variables the state of
 					// observed class variables
 					state.addEvents(query.getEvents());
@@ -324,7 +324,7 @@ public class StructureScoreFunctions {
 						lp += nx * Math.log(ox);
 				}
 			} else {
-				// All the parents of the class variables are observed
+				// All parents of the class variables are observed
 				double nx = node.getSufficientStatistics().get(query);
 				double ox = node.getCPT().get(query);
 				if (ox > 0)

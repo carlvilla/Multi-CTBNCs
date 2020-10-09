@@ -32,15 +32,15 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 		boolean[][] bestAdjacencyMatrix = initialAdjacencyMatrix.clone();
 		int numNodes = bestAdjacencyMatrix.length;
 		// As a CTBN can have cycles, the parent set of each node is optimized
-		// individually
+		// individually. //PARALLELIZE
 		for (int indexNode = 0; indexNode < numNodes; indexNode++) {
 			Node node = pgm.getNodeByIndex(indexNode);
-			// A cache is used to avoid recomputing the scores of structures
-			Cache<Integer, Double> cache = Util.createCache(50);
 			// As this code is used to build a MCTBNC, there can be class variables. These
 			// cannot have parents
 			if (!node.isClassVariable()) {
 				logger.info("Finding best parent set for node {}", node.getName());
+				// A cache is used to avoid recomputing the scores of structures
+				Cache<Integer, Double> cache = Util.createCache(50);
 				// Set as initial best score the one obtained with the initial structure
 				double bestScore = setStructure(indexNode, initialAdjacencyMatrix);
 				// Try to improve the current structure

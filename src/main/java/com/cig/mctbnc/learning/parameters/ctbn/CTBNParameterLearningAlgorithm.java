@@ -30,6 +30,12 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 		setCIMs(nodes);
 	}
 
+	@Override
+	public void learn(Node node, Dataset dataset) {
+		sufficientStatistics(node, dataset);
+		setCIMs(node);
+	}
+
 	/**
 	 * Obtain the sufficient statistics of each node of a CTBN.
 	 * 
@@ -38,12 +44,19 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 	 */
 	private void sufficientStatistics(List<? extends Node> nodes, Dataset dataset) {
 		int numNodes = nodes.size();
+		// TODO PARALELLIZE
 		for (int i = 0; i < numNodes; i++) {
 			CTBNSufficientStatistics ssNode = getSufficientStatisticsNode(nodes.get(i), dataset);
 			nodes.get(i).setSufficientStatistics(ssNode);
 		}
+
 	}
 
+	/**
+	 * Set the conditional intensity matrices of the nodes of a CTBN.
+	 * 
+	 * @param nodes
+	 */
 	private void setCIMs(List<? extends Node> nodes) {
 		// For each node is estimated its CIMs
 		for (int i = 0; i < nodes.size(); i++) {
@@ -53,6 +66,28 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 			// The parameters are stored in the CIMNode object
 			estimateParameters(node);
 		}
+	}
+
+	/**
+	 * Obtain the sufficient statistics of a CTBN node.
+	 * 
+	 * @param nodes
+	 * @param dataset
+	 */
+	private void sufficientStatistics(Node node, Dataset dataset) {
+		CTBNSufficientStatistics ssNode = getSufficientStatisticsNode(node, dataset);
+		node.setSufficientStatistics(ssNode);
+	}
+
+	/**
+	 * Set the conditional intensity matrices of a CTBN node.
+	 * 
+	 * @param nodes
+	 * @param dataset
+	 */
+	private void setCIMs(Node node) {
+		CIMNode cimNode = (CIMNode) node;
+		estimateParameters(cimNode);
 	}
 
 	/**

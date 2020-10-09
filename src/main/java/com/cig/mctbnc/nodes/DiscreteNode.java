@@ -5,7 +5,6 @@ import java.util.List;
 import com.cig.mctbnc.data.representation.State;
 
 public abstract class DiscreteNode extends AbstractNode {
-
 	private List<State> states;
 	private int numStatesParents = 1;
 
@@ -42,7 +41,7 @@ public abstract class DiscreteNode extends AbstractNode {
 			// It is increased the number of states that the parents of the node can take
 			numStatesParents *= ((DiscreteNode) nodeParent).getStates().size();
 	}
-	
+
 	@Override
 	public void removeParent(Node nodeParent) {
 		super.removeParent(nodeParent);

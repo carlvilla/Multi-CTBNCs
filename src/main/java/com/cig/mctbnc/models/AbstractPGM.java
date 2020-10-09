@@ -273,11 +273,6 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		Scene scene = new Scene(panel);
 		stage.setScene(scene);
 		stage.show();
-
-		// Viewer viewer = graph.display();
-
-		// graph.display();
-
 	}
 
 	/**

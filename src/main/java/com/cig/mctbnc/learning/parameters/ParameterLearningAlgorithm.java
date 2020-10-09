@@ -15,4 +15,12 @@ public interface ParameterLearningAlgorithm {
 	 */
 	public void learn(List<? extends Node> nodes, Dataset dataset);
 
+	/**
+	 * Learn the parameters of a certain node of a PGM.
+	 * 
+	 * @param node
+	 * @param dataset
+	 */
+	public void learn(Node node, Dataset dataset);
+
 }

@@ -98,7 +98,7 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 				Node parentNode = nodeIndexer.getNodeByIndex(i);
 				node.setParent(parentNode);
 			}
-		parameterLearningAlg.learn(nodes, dataset);
+		parameterLearningAlg.learn(node, dataset);
 	}
 
 	/**

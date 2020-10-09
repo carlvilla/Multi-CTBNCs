@@ -2,6 +2,8 @@ package com.cig.mctbnc.data.representation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +29,17 @@ public class Dataset {
 	private List<String> nameFeatures;
 	private List<String> nameClassVariables;
 	private List<String> nameFiles;
+	// Store the possible states of a variable to avoid recomputations
+	private Map<String, List<State>> statesVariables;
+	// Store combinations of states of different variables to avoid recomputations
+	private Map<List<String>, List<State>> statesCombinationVariables;
 	static Logger logger = LogManager.getLogger(Dataset.class);
 
 	public Dataset(String nameTimeVariable, List<String> nameClassVariables) {
 		sequences = new ArrayList<Sequence>();
 		this.nameTimeVariable = nameTimeVariable;
 		this.nameClassVariables = nameClassVariables;
+		initialiazeStructures();
 	}
 
 	public Dataset(List<Sequence> sequences) {
@@ -40,6 +47,12 @@ public class Dataset {
 		nameFeatures = sequences.get(0).getFeatureNames();
 		nameClassVariables = sequences.get(0).getClassVariablesNames();
 		nameTimeVariable = sequences.get(0).getTimeVariableName();
+		initialiazeStructures();
+	}
+
+	private void initialiazeStructures() {
+		statesVariables = new HashMap<String, List<State>>();
+		statesCombinationVariables = new HashMap<List<String>, List<State>>();
 	}
 
 	/**
@@ -229,28 +242,42 @@ public class Dataset {
 	}
 
 	/**
-	 * Return the possible states of the specified variable.
+	 * Return the possible states of the specified variable. The states of the
+	 * variable are extracted once and stored in a map to avoid recomputations. In
+	 * order to not return always a reference to the same State list, the State
+	 * objects from the map are copied.
 	 * 
 	 * @param nameVariable
 	 * @return states of the variable
 	 */
 	public List<State> getPossibleStatesVariable(String nameVariable) {
-		Set<State> states = new HashSet<State>();
-		for (Sequence sequence : getSequences()) {
-			String[] statesSequence = sequence.getStates(nameVariable);
-			for (int i = 0; i < statesSequence.length; i++) {
-				// For every possible value of the variable it is created a State.
-				State state = new State();
-				state.addEvent(nameVariable, statesSequence[i]);
-				states.add(state);
+		// Extract states from the Map (if previously obtained)
+		List<State> states = statesVariables.get(nameVariable);
+		if (states == null) {
+			// Use a HashSet to save each state just once
+			Set<State> statesSet = new HashSet<State>();
+			for (Sequence sequence : getSequences()) {
+				String[] statesSequence = sequence.getStates(nameVariable);
+				for (int i = 0; i < statesSequence.length; i++) {
+					// For every possible value of the variable it is created a State.
+					State state = new State();
+					state.addEvent(nameVariable, statesSequence[i]);
+					statesSet.add(state);
+				}
 			}
+			states = new ArrayList<State>(statesSet);
+			statesVariables.put(nameVariable, states);
 		}
-		return new ArrayList<State>(states);
+		// Create a copy of the states
+		return copyStateList(states);
 	}
 
 	/**
 	 * Get all the possible states of the specified variables together. It is
-	 * obtained all the combinations between the states of the variables.
+	 * obtained all the combinations between the states of the variables. The
+	 * combination of states are obtained once and stored in a map to avoid
+	 * recomputations. In order to not return always a reference to the same State
+	 * list, the State objects from the map are copied.
 	 * 
 	 * @param nameVariables name of the variables whose possible combinations of
 	 *                      states we want to know
@@ -258,17 +285,36 @@ public class Dataset {
 	 *         specified variables
 	 */
 	public List<State> getPossibleStatesVariables(List<String> nameVariables) {
-		if (nameVariables.size() == 1) {
+		if (nameVariables.size() == 1)
 			return getPossibleStatesVariable(nameVariables.get(0));
-		}
 		// Get all possible states for each variable
-		List<List<State>> listStatesEachVariable = new ArrayList<List<State>>();
-		for (String nameVariable : nameVariables) {
-			List<State> statesVariable = getPossibleStatesVariable(nameVariable);
-			listStatesEachVariable.add(statesVariable);
+		List<State> states = statesCombinationVariables.get(nameVariables);
+		if (states == null) {
+			List<List<State>> listStatesEachVariable = new ArrayList<List<State>>();
+			for (String nameVariable : nameVariables) {
+				List<State> statesVariable = getPossibleStatesVariable(nameVariable);
+				listStatesEachVariable.add(statesVariable);
+			}
+			states = Util.cartesianProduct(listStatesEachVariable);
+			statesCombinationVariables.put(nameVariables, states);
 		}
-		List<State> states = Util.cartesianProduct(listStatesEachVariable);
-		return states;
+		// Create a copy of the states
+		return copyStateList(states);
+	}
+
+	/**
+	 * Create a deep copy of the given list of states.
+	 * 
+	 * @param states
+	 * @return copy of the State list
+	 */
+	private List<State> copyStateList(List<State> states) {
+		List<State> copiedStates = new ArrayList<State>();
+		for (State state : states) {
+			State copiedState = new State(state.getEvents());
+			copiedStates.add(copiedState);
+		}
+		return copiedStates;
 	}
 
 	/**
@@ -318,28 +364,24 @@ public class Dataset {
 	public int getNumOccurrencesTransition(State fromState, State toState) {
 		String nameVariable = toState.getNameVariables().get(0);
 		List<String> nameParents = null;
-		if (fromState.getNumEvents() > 1) {
+		if (fromState.getNumEvents() > 1)
 			// The variable has parents
 			nameParents = fromState.getNameVariables().stream().filter(name -> !name.equals(nameVariable))
 					.collect(Collectors.toList());
-		}
 		int numOccurrences = 0;
-		for (Sequence sequence : getSequences()) {
+		for (Sequence sequence : getSequences())
 			for (int i = 1; i < sequence.getNumObservations(); i++) {
 				// It is obtained one observation representing the states of the variables
 				// before and after the transition
 				Observation observationBefore = sequence.getObservations().get(i - 1);
 				Observation observationAfter = sequence.getObservations().get(i);
-
 				// Check if the variable starts from the expected value
 				boolean expectedValueBefore = observationBefore.getValueVariable(nameVariable)
 						.equals(fromState.getValueVariable(nameVariable));
-
 				if (expectedValueBefore) {
 					// Check if the studied variable transitions to the expected value
 					boolean expectedValueAfter = observationAfter.getValueVariable(nameVariable)
 							.equals(toState.getValueVariable(nameVariable));
-
 					// It is only necessary to check the states of the parents if the variable
 					// transitions from and to the expected values
 					if (expectedValueAfter && nameParents != null) {
@@ -351,13 +393,10 @@ public class Dataset {
 								continue;
 						}
 						numOccurrences++;
-					} else {
-						if (expectedValueAfter)
-							numOccurrences++;
-					}
+					} else if (expectedValueAfter)
+						numOccurrences++;
 				}
 			}
-		}
 		return numOccurrences;
 	}
 
@@ -369,14 +408,14 @@ public class Dataset {
 	 */
 	public double getTimeState(State state) {
 		double time = 0;
-		for (Sequence sequence : getSequences()) {
+		for (Sequence sequence : getSequences())
 			for (int i = 0; i < sequence.getNumObservations(); i++) {
 				// A pivot observation is created to check if it has the studied state and, in
 				// that case, how many subsequent observations have the same state too
 				Observation pivotObservation = sequence.getObservations().get(i);
 				// Check that every variable has the expected value in the pivot observation
 				boolean isInStudiedState = observationInState(pivotObservation, state);
-				if (isInStudiedState) {
+				if (isInStudiedState)
 					for (int j = i + 1; j < sequence.getNumObservations(); j++) {
 						// Check which subsequent observations have the studied state
 						Observation subsequentObservation = sequence.getObservations().get(j);
@@ -403,9 +442,7 @@ public class Dataset {
 							break;
 						}
 					}
-				}
 			}
-		}
 		return time;
 	}
 

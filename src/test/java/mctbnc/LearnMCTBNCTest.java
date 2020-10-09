@@ -191,9 +191,16 @@ public class LearnMCTBNCTest {
 		dataset.addSequence(dataSequence3);
 		dataset.addSequence(dataSequence4);
 		dataset.addSequence(dataSequence5);
-
 		dataset.addSequence(dataSequence6);
+	}
 
+	/**
+	 * Learn a multidimensional continuous time Bayesian network using hill climbing
+	 * and log-likelihood as score.
+	 */
+	@Test
+	public void learnModelLogLikelihood() {
+		// Set algorithms to learn model
 		// Algorithms to learn BN (class subgraph of MCTBNC)
 		BNParameterLearningAlgorithm bnParameterLearningAlgorithm = new BNMaximumLikelihoodEstimation();
 		BNStructureLearningAlgorithm bnStructureLearningAlgorithm = new BNHillClimbing("Log-likelihood");
@@ -202,18 +209,13 @@ public class LearnMCTBNCTest {
 		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
 		CTBNStructureLearningAlgorithm ctbnStructureLearningAlgorithm = new CTBNHillClimbing("Log-likelihood");
 		ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm);
-	}
 
-	/**
-	 * Learn a multidimensional continuous time Bayesian network.
-	 */
-	@Test
-	public void learnModel() {
+		// Define model
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(bnLearningAlgs, ctbnLearningAlgs, CPTNode.class,
 				CIMNode.class);
-
 		mctbnc.setPenalizationFunction("BIC");
 
+		// Learn model
 		mctbnc.learn(dataset);
 
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, false, true, false, false },
@@ -221,9 +223,31 @@ public class LearnMCTBNCTest {
 				{ true, false, false, false, true }, { false, true, false, false, false } };
 
 		assertArrayEquals(expectedAdjacencyMatrix, mctbnc.getAdjacencyMatrix());
+	}
 
-		// Show results
-		// mctbnc.display();
-		// System.out.println(); // (don't forget breakpoint)
+	/**
+	 * Learn a multidimensional continuous time Bayesian network using hill climbing
+	 * and conditional log-likelihood as score.
+	 */
+	@Test
+	public void learnModelConditionalLogLikelihood() {
+		// Set algorithms to learn model
+		// Algorithms to learn BN (class subgraph of MCTBNC)
+		BNParameterLearningAlgorithm bnParameterLearningAlgorithm = new BNMaximumLikelihoodEstimation();
+		BNStructureLearningAlgorithm bnStructureLearningAlgorithm = new BNHillClimbing("Conditional log-likelihood");
+		bnLearningAlgs = new BNLearningAlgorithms(bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
+		// Algorithms to learn CTBN (feature and bridge subgraph of MCTBNC)
+		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
+		CTBNStructureLearningAlgorithm ctbnStructureLearningAlgorithm = new CTBNHillClimbing(
+				"Conditional log-likelihood");
+		ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm);
+
+		// Define model
+		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(bnLearningAlgs, ctbnLearningAlgs, CPTNode.class,
+				CIMNode.class);
+		mctbnc.setPenalizationFunction("BIC");
+
+		// Learn model
+		mctbnc.learn(dataset);
 	}
 }

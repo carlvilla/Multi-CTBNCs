@@ -1,8 +1,8 @@
 package com.cig.mctbnc.nodes;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,8 +25,8 @@ public class NodeIndexer<NodeType extends Node> {
 
 	public NodeIndexer(List<NodeType> nodes) {
 		// Set to each node an index number
-		nodeToIndex = new HashMap<String, Integer>();
-		indexToNode = new HashMap<Integer, NodeType>();
+		nodeToIndex = new WeakHashMap<String, Integer>();
+		indexToNode = new WeakHashMap<Integer, NodeType>();
 		for (int i = 0; i < nodes.size(); i++) {
 			nodeToIndex.put(nodes.get(i).getName(), i);
 			indexToNode.put(i, nodes.get(i));
