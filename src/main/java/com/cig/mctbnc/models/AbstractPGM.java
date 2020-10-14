@@ -121,15 +121,6 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		this.structureConstraints = structureConstraints;
 	}
 
-	/**
-	 * Establish the penalization function.
-	 * 
-	 * @param penalizationFunction name of the penalization function
-	 */
-	public void setPenalizationFunction(String penalizationFunction) {
-		this.structureConstraints.setPenalizationFunction(penalizationFunction);
-	}
-
 	@Override
 	public void setTrainingDataset(Dataset dataset) {
 		// Save dataset used to learn the model

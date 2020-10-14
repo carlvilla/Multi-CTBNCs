@@ -46,11 +46,14 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.3'
   	compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.3'
   	
-  	//OpenCSV
+  	// OpenCSV
   	compile group: 'com.opencsv', name: 'opencsv', version: '3.7'
   	
   	// Extract controls for JavaFX
   	compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.2'
+  	
+  	// The Apache Commons Math project 
+  	compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
 }
 
 javafx{

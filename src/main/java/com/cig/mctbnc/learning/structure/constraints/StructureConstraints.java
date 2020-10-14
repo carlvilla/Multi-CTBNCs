@@ -38,18 +38,4 @@ public interface StructureConstraints {
 	 */
 	public boolean uniqueStructure();
 
-	/**
-	 * Establishes the penalization function to apply over the structure complexity.
-	 * 
-	 * @param penalizationFunction String with the name of the penalization function
-	 */
-	public void setPenalizationFunction(String penalizationFunction);
-
-	/**
-	 * Return the name of the penalization function that is applied.
-	 * 
-	 * @return penalizationFunction name of the penalization function
-	 */
-	public String getPenalizationFunction();
-
 }

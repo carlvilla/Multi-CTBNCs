@@ -15,9 +15,13 @@ import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithmFactory;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithmFactory;
+import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorihtmFactory;
 import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorihtmFactory;
 import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.optimization.hillclimbing.BNHillClimbing;
 import com.cig.mctbnc.learning.structure.optimization.hillclimbing.CTBNHillClimbing;
@@ -201,19 +205,24 @@ public class LearnMCTBNCTest {
 	@Test
 	public void learnModelLogLikelihood() {
 		// Set algorithms to learn model
+
 		// Algorithms to learn BN (class subgraph of MCTBNC)
-		BNParameterLearningAlgorithm bnParameterLearningAlgorithm = new BNMaximumLikelihoodEstimation();
-		BNStructureLearningAlgorithm bnStructureLearningAlgorithm = new BNHillClimbing("Log-likelihood");
+		BNParameterLearningAlgorithm bnParameterLearningAlgorithm = BNParameterLearningAlgorithmFactory
+				.getAlgorithm("Maximum likelihood estimation", 0.0);
+		BNStructureLearningAlgorithm bnStructureLearningAlgorithm = BNStructureLearningAlgorihtmFactory
+				.getAlgorithm("Hill climbing", "Log-likelihood", "BIC");
 		bnLearningAlgs = new BNLearningAlgorithms(bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
+
 		// Algorithms to learn CTBN (feature and bridge subgraph of MCTBNC)
-		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
-		CTBNStructureLearningAlgorithm ctbnStructureLearningAlgorithm = new CTBNHillClimbing("Log-likelihood");
+		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = CTBNParameterLearningAlgorithmFactory
+				.getAlgorithm("Maximum likelihood estimation", 0.0, 0.0);
+		CTBNStructureLearningAlgorithm ctbnStructureLearningAlgorithm = CTBNStructureLearningAlgorihtmFactory
+				.getAlgorithm("Hill climbing", "Log-likelihood", "BIC");
 		ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm);
 
 		// Define model
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(bnLearningAlgs, ctbnLearningAlgs, CPTNode.class,
 				CIMNode.class);
-		mctbnc.setPenalizationFunction("BIC");
 
 		// Learn model
 		mctbnc.learn(dataset);
@@ -232,20 +241,24 @@ public class LearnMCTBNCTest {
 	@Test
 	public void learnModelConditionalLogLikelihood() {
 		// Set algorithms to learn model
+
 		// Algorithms to learn BN (class subgraph of MCTBNC)
-		BNParameterLearningAlgorithm bnParameterLearningAlgorithm = new BNMaximumLikelihoodEstimation();
-		BNStructureLearningAlgorithm bnStructureLearningAlgorithm = new BNHillClimbing("Conditional log-likelihood");
+		BNParameterLearningAlgorithm bnParameterLearningAlgorithm = BNParameterLearningAlgorithmFactory
+				.getAlgorithm("Maximum likelihood estimation", 0.0);
+		BNStructureLearningAlgorithm bnStructureLearningAlgorithm = BNStructureLearningAlgorihtmFactory
+				.getAlgorithm("Hill climbing", "Conditional log-likelihood", "BIC");
 		bnLearningAlgs = new BNLearningAlgorithms(bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
+
 		// Algorithms to learn CTBN (feature and bridge subgraph of MCTBNC)
-		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = new CTBNMaximumLikelihoodEstimation();
-		CTBNStructureLearningAlgorithm ctbnStructureLearningAlgorithm = new CTBNHillClimbing(
-				"Conditional log-likelihood");
+		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = CTBNParameterLearningAlgorithmFactory
+				.getAlgorithm("Maximum likelihood estimation", 0.0, 0.0);
+		CTBNStructureLearningAlgorithm ctbnStructureLearningAlgorithm = CTBNStructureLearningAlgorihtmFactory
+				.getAlgorithm("Hill climbing", "Conditional log-likelihood", "BIC");
 		ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm);
 
 		// Define model
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(bnLearningAlgs, ctbnLearningAlgs, CPTNode.class,
 				CIMNode.class);
-		mctbnc.setPenalizationFunction("BIC");
 
 		// Learn model
 		mctbnc.learn(dataset);

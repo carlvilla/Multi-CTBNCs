@@ -72,7 +72,7 @@ public class HoldOut implements ValidationMethod {
 		List<Sequence> sequences = dataset.getSequences();
 		if (shuffle) {
 			// Sequences and their files are shuffled before splitting into train and test
-			int seed = 10;
+			Integer seed = 10;
 			Util.shuffle(sequences, seed);
 			Util.shuffle(fileNames, seed);
 			logger.info("Sequences shuffled");

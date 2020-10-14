@@ -11,17 +11,6 @@ import com.cig.mctbnc.nodes.Node;
  *
  */
 public abstract class AbstractStructureConstraints implements StructureConstraints {
-	private String penalizationFunction;
-
-	@Override
-	public void setPenalizationFunction(String penalizationFunction) {
-		this.penalizationFunction = penalizationFunction;
-	}
-
-	@Override
-	public String getPenalizationFunction() {
-		return penalizationFunction;
-	}
 
 	@Override
 	public boolean uniqueStructure() {
@@ -29,8 +18,9 @@ public abstract class AbstractStructureConstraints implements StructureConstrain
 		// one, such as naive Bayes, have to override this method.
 		return false;
 	}
-	
+
 	@Override
-	public void initializeStructure(PGM<? extends Node> pgm) {}
+	public void initializeStructure(PGM<? extends Node> pgm) {
+	}
 
 }

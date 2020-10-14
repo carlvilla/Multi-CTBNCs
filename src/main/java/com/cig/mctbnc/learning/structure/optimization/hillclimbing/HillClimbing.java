@@ -9,6 +9,7 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
+import com.cig.mctbnc.learning.structure.optimization.CTBNScoreFunction;
 import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.Node;
 
@@ -24,25 +25,13 @@ public abstract class HillClimbing implements StructureLearningAlgorithm {
 	Dataset trainingDataset;
 	ParameterLearningAlgorithm parameterLearning;
 	StructureConstraints structureConstraints;
-	String scoreFunction;
 	boolean[][] initialAdjacencyMatrix;
 	static Logger logger = LogManager.getLogger(HillClimbing.class);
-
-	/**
-	 * Constructor that receives the score function to optimize.
-	 * 
-	 * @param scoreFunction
-	 */
-	public HillClimbing(String scoreFunction) {
-		this.scoreFunction = scoreFunction;
-	}
 
 	@Override
 	public void learn(PGM<? extends Node> pgm, Dataset trainingDataset, ParameterLearningAlgorithm bnParameterLearning,
 			StructureConstraints structureConstraints) {
 		logger.info("Learning {} using Hill Climbing", pgm.getType());
-		logger.info("Score function: {}", scoreFunction);
-		logger.info("Penalization function: {}", structureConstraints.getPenalizationFunction());
 		// Define model
 		this.pgm = pgm;
 		// Define nodes of the PGM

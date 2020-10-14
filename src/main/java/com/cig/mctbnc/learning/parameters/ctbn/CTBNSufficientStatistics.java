@@ -38,20 +38,24 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	private Map<State, Double> Nx;
 	private Map<State, Double> Tx;
 	static Logger logger = LogManager.getLogger(CTBNSufficientStatistics.class);
-	// Imaginary counts (zero if MLE is used)
-	private double NxyPrior;
-	private double TxPrior;
+	// Hyperparameters of the Dirichlet prior distribution (zero if MLE is used)
+	private double NxyHP;
+	private double NxHP; // defined with NxyHP and the number of states of the variable
+	private double TxHP;
 
 	/**
 	 * Receives the hyperparameters of the Dirichlet prior distribution over the
 	 * parameters that are necessary for Bayesian estimation.
+	 * 
+	 * @param NxyHP
+	 * @param TxHP
 	 */
-	public CTBNSufficientStatistics(double NxyPrior, double TxPrior) {
+	public CTBNSufficientStatistics(double NxyHP, double TxHP) {
 		Nxy = new HashMap<State, Map<State, Double>>();
 		Nx = new HashMap<State, Double>();
 		Tx = new HashMap<State, Double>();
-		this.NxyPrior = NxyPrior;
-		this.TxPrior = TxPrior;
+		this.NxyHP = NxyHP;
+		this.TxHP = TxHP;
 	}
 
 	/**
@@ -109,14 +113,12 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 		// Retrieve state the variable can take
 		// TODO Instead of passing a node, the class should only accept DiscreteNode.
 		// Improve architecture
-		
-		
-		// Define all states of the node and its parents. Have an index 
-		
-		
+
+		// Define all states of the node and its parents. Have an index
+
 		List<State> statesVariable = ((DiscreteNode) node).getStates();
 		// Hyperparameter NxPrior (number of transitions originating from certain state)
-		double NxPrior = NxyPrior * (statesVariable.size() - 1);
+		NxHP = NxyHP * (statesVariable.size() - 1);
 		if (node.hasParents()) {
 			List<Node> parents = node.getParents();
 			List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
@@ -126,26 +128,26 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 					State fromStateWithParents = new State(fromState.getEvents());
 					fromStateWithParents.addEvents(stateParents.getEvents());
 					// Initialize Nx
-					Nx.put(fromStateWithParents, NxPrior);
+					Nx.put(fromStateWithParents, NxHP);
 					// Initialize Tx
-					Tx.put(fromStateWithParents, TxPrior);
+					Tx.put(fromStateWithParents, TxHP);
 					for (State toState : statesVariable)
-						//if (!fromState.equals(toState))
+						// if (!fromState.equals(toState))
 						if (!fromState.getValues()[0].equals(toState.getValues()[0]))
 							// Initialize Nxy
-							updateOccurrencesNxy(fromStateWithParents, toState, NxyPrior);
+							updateOccurrencesNxy(fromStateWithParents, toState, NxyHP);
 				}
 		} else {
 			for (State fromState : statesVariable) {
 				// Initialize Nx
-				Nx.put(fromState, NxPrior);
+				Nx.put(fromState, NxHP);
 				// Initialize Tx
-				Tx.put(fromState, TxPrior);
+				Tx.put(fromState, TxHP);
 				for (State toState : statesVariable)
-					//if (!fromState.equals(toState))
+					// if (!fromState.equals(toState))
 					if (!fromState.getValues()[0].equals(toState.getValues()[0]))
 						// Initialize Nxy
-						updateOccurrencesNxy(fromState, toState, NxyPrior);
+						updateOccurrencesNxy(fromState, toState, NxyHP);
 			}
 		}
 	}
@@ -241,6 +243,18 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 		if (Tx.isEmpty())
 			logger.warn("Sufficient statistic Tx was not computed");
 		return Tx;
+	}
+
+	public double getNxyHyperparameter() {
+		return NxyHP;
+	}
+
+	public double getNxHyperparameter() {
+		return NxHP;
+	}
+
+	public double getTxHyperparameter() {
+		return TxHP;
 	}
 
 }

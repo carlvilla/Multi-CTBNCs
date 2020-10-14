@@ -11,6 +11,8 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithmFactory;
+import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorihtmFactory;
 import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
@@ -59,9 +61,12 @@ public class LearnStructureBNTest {
 
 		// Class subgraph is defined with a Bayesian network
 		// Algorithm to learn parameters
-		BNParameterLearningAlgorithm plAlg = new BNMaximumLikelihoodEstimation();
+		BNParameterLearningAlgorithm plAlg = BNParameterLearningAlgorithmFactory
+				.getAlgorithm("Maximum likelihood estimation", 0.0);
 		// Algorithm to learn structure
-		BNStructureLearningAlgorithm slAlg = new BNHillClimbing("Log-likelihood");
+		BNStructureLearningAlgorithm slAlg = BNStructureLearningAlgorihtmFactory.getAlgorithm("Hill climbing",
+				"Log-likelihood", "No");
+
 		// Define object containing the learning algorithms
 		BNLearningAlgorithms learningAlgs = new BNLearningAlgorithms(plAlg, slAlg);
 		// Structure constraints

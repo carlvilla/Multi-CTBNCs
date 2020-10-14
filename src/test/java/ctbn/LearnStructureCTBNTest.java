@@ -11,6 +11,8 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithmFactory;
+import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorihtmFactory;
 import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
@@ -74,13 +76,16 @@ public class LearnStructureCTBNTest {
 		dataset.addSequence(dataSequence2);
 		dataset.addSequence(dataSequence3);
 
-		CTBNParameterLearningAlgorithm plAlg = new CTBNMaximumLikelihoodEstimation();
-		CTBNStructureLearningAlgorithm slAlg = new CTBNHillClimbing("Log-likelihood");
-		CTBNLearningAlgorithms learningAlgs = new CTBNLearningAlgorithms(plAlg, slAlg);
+		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = CTBNParameterLearningAlgorithmFactory
+				.getAlgorithm("Maximum likelihood estimation", 0.0, 0.0);
+		CTBNStructureLearningAlgorithm ctbnStructureLearningAlgorithm = CTBNStructureLearningAlgorihtmFactory
+				.getAlgorithm("Hill climbing", "Log-likelihood", "BIC");
+
+		CTBNLearningAlgorithms learningAlgs = new CTBNLearningAlgorithms(ctbnParameterLearningAlgorithm,
+				ctbnStructureLearningAlgorithm);
 		StructureConstraints strucConst = new CTBNC();
 
 		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(dataset, nameFeatures, learningAlgs, strucConst, CIMNode.class);
-		ctbn.setPenalizationFunction("BIC");
 		ctbn.learn();
 
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, true, false, false },

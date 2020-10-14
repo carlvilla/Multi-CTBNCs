@@ -1,6 +1,8 @@
 package com.cig.mctbnc.learning.structure;
 
+import com.cig.mctbnc.learning.structure.optimization.BNScoreFunction;
 import com.cig.mctbnc.learning.structure.optimization.hillclimbing.BNHillClimbing;
+import com.cig.mctbnc.learning.structure.optimization.scores.bn.BNLogLikelihood;
 
 /**
  * Builds the specified structure learning algorithm for a BN.
@@ -16,11 +18,20 @@ public class BNStructureLearningAlgorihtmFactory {
 	 * @param algorithm
 	 * @return structure learning algorithm
 	 */
-	public static BNStructureLearningAlgorithm getAlgorithm(String algorithm) {
+	public static BNStructureLearningAlgorithm getAlgorithm(String algorithm, String scoreFunction,
+			String penalizationFunction) {
 		switch (algorithm) {
 		default:
 			// Hill Climbing
-			return new BNHillClimbing("Log-likelihood");
+			BNScoreFunction score = getScoreFunction(scoreFunction, penalizationFunction);
+			return new BNHillClimbing(score);
+		}
+	}
+
+	private static BNScoreFunction getScoreFunction(String scoreFunction, String penalizationFunction) {
+		switch (scoreFunction) {
+		default:
+			return new BNLogLikelihood(penalizationFunction);
 		}
 	}
 }

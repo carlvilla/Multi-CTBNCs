@@ -47,8 +47,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	BNLearningAlgorithms bnLearningAlgs;
 	// Algorithms used to learn the feature and bridge subgraphs (CTBN)
 	CTBNLearningAlgorithms ctbnLearningAlgs;
-	// Penalization function (None by default)
-	String penalizationFunction = "No";
 	// Initial structure (Empty by default)
 	String initialStructure = "Empty";
 	static Logger logger = LogManager.getLogger(MCTBNC.class);
@@ -85,7 +83,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
 		List<String> nameClassVariables = dataset.getNameClassVariables();
 		bn = new BN<NodeTypeBN>(dataset, nameClassVariables, bnLearningAlgs, getStructureConstraintsBN(), bnNodeClass);
-		bn.setPenalizationFunction(penalizationFunction);
 		bn.learn();
 		logger.info("Class subgraph established!");
 		// ----------- Feature and bridge subgraphs -----------
@@ -98,7 +95,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		List<String> nameVariables = dataset.getNameVariables();
 		ctbn = new CTBN<NodeTypeCTBN>(dataset, nameVariables, ctbnLearningAlgs, getStructureConstraintsCTBN(), bn,
 				ctbnNodeClass);
-		ctbn.setPenalizationFunction(penalizationFunction);
 		setInitialStructure(ctbn);
 		ctbn.learn();
 		logger.info("Feature and bridge subgraphs established!");
@@ -159,17 +155,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 */
 	public StructureConstraints getStructureConstraintsCTBN() {
 		return new CTBNC();
-	}
-
-	/**
-	 * Establish the penalization function used for the structure complexity of the
-	 * BNs and CTBNs. By default it is not applied any penalization.
-	 * 
-	 * @param penalizationFunction name of the penalization function
-	 */
-	@Override
-	public void setPenalizationFunction(String penalizationFunction) {
-		this.penalizationFunction = penalizationFunction;
 	}
 
 	/**

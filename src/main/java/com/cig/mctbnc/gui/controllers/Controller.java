@@ -118,7 +118,7 @@ public class Controller {
 	List<String> parameterLearningAlgs = List.of("Maximum likelihood estimation", "Bayesian estimation");
 	List<String> structureLearningAlgs = List.of("Hill climbing");
 	List<String> initialStructures = List.of("Empty", "Naive Bayes");
-	List<String> scores = List.of("Log-likelihood", "Conditional log-likelihood");
+	List<String> scores = List.of("Log-likelihood", "Conditional log-likelihood", "Bayesian score");
 	List<String> penalizations = List.of("No", "BIC", "AIC");
 	// -------------------- AVAILABLE DATASET READERS --------------------
 	List<String> datasetReaders = DatasetReaderFactory.getAvailableDatasetReaders();
@@ -296,9 +296,6 @@ public class Controller {
 		String selectedModel = cmbModel.getValue();
 		MCTBNC<CPTNode, CIMNode> model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(selectedModel, bnLearningAlgs,
 				ctbnLearningAlgs, parameters, CPTNode.class, CIMNode.class);
-		// Define penalization function (if any)
-		String penalizationFunction = cmbPenalization.getValue();
-		model.setPenalizationFunction(penalizationFunction);
 		// Define initial structure
 		model.setIntialStructure(cmbInitialStructure.getValue());
 		return model;
@@ -310,9 +307,14 @@ public class Controller {
 		String nameBnSLA = cmbStructure.getValue();
 		// Get hyperparameters
 		double alpha = Double.valueOf(fldMxBN.getText());
+		// Get score function
+		String scoreFunction = cmbScoreFunction.getValue();
+		// Define penalization function (if any)
+		String penalizationFunction = cmbPenalization.getValue();
 		// Define learning algorithms for the class subgraph (Bayesian network)
 		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, alpha);
-		BNStructureLearningAlgorithm bnSLA = BNStructureLearningAlgorihtmFactory.getAlgorithm(nameBnSLA);
+		BNStructureLearningAlgorithm bnSLA = BNStructureLearningAlgorihtmFactory.getAlgorithm(nameBnSLA, scoreFunction,
+				penalizationFunction);
 		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
 		return bnLearningAlgs;
 	}
@@ -326,12 +328,14 @@ public class Controller {
 		double tx = Double.valueOf(fldTx.getText());
 		// Get score function
 		String scoreFunction = cmbScoreFunction.getValue();
+		// Define penalization function (if any)
+		String penalizationFunction = cmbPenalization.getValue();
 		// Define learning algorithms for the feature and class subgraph (Continuous
 		// time Bayesian network)
 		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, nxy,
 				tx);
 		CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory.getAlgorithm(nameCtbnSLA,
-				scoreFunction);
+				scoreFunction, penalizationFunction);
 		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 		return ctbnLearningAlgs;
 	}

@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.optimization.StructureScoreFunctions;
+import com.cig.mctbnc.learning.structure.optimization.CTBNScoreFunction;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
@@ -21,10 +21,14 @@ import com.google.common.cache.Cache;
  *
  */
 public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearningAlgorithm {
+	CTBNScoreFunction scoreFunction;
 	static Logger logger = LogManager.getLogger(CTBNHillClimbing.class);
 
-	public CTBNHillClimbing(String scoreFunction) {
-		super(scoreFunction);
+	/**
+	 * @param scoreFunction
+	 */
+	public CTBNHillClimbing(CTBNScoreFunction scoreFunction) {
+		this.scoreFunction = scoreFunction;
 	}
 
 	public boolean[][] findStructure() {
@@ -137,17 +141,10 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private double setStructure(int indexNode, boolean[][] adjacencyMatrix) {
-		// Establish the parent set of the node
+		// Establish the parent set of the node 'indexNode'
 		((CTBN) pgm).setStructure(indexNode, adjacencyMatrix);
-		// Obtain the local log-likelihood at the node
-		double score;
-		if (scoreFunction.equals("Log-likelihood"))
-			score = StructureScoreFunctions.logLikelihoodScore(((CTBN) pgm), indexNode,
-					structureConstraints.getPenalizationFunction());
-		else
-			score = StructureScoreFunctions.conditionalLogLikelihoodScore(((CTBN) pgm), indexNode,
-					structureConstraints.getPenalizationFunction());
-		return score;
+		// Obtain local score at the node 'indexNode'
+		return scoreFunction.compute(((CTBN) pgm), indexNode);
 	}
 
 }

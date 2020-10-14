@@ -1,4 +1,4 @@
-package com.cig.mctbnc.learning.structure.optimization;
+package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,189 +6,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.DoubleFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
+import com.cig.mctbnc.learning.structure.optimization.CTBNScoreFunction;
+import com.cig.mctbnc.learning.structure.optimization.scores.AbstractLogLikelihood;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
-import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
 
-/**
- * Contains evaluation function to measures the fitness of the structures of
- * different PGM.
- * 
- * @author Carlos Villa Blanco
- *
- */
-public class StructureScoreFunctions {
-
-	static Logger logger = LogManager.getLogger(StructureScoreFunctions.class);
-
-	static Map<String, DoubleUnaryOperator> penalizationFunctionMap = new HashMap<>() {
-		private static final long serialVersionUID = 1L;
-		{
-			put("BIC", N -> Math.log(N) / 2);
-			put("AIC", N -> 1.0);
-		}
-	};
-
-	// ---------- BAYESIAN NETWORKS ----------
-
+public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implements CTBNScoreFunction {
 	/**
-	 * Compute the (penalized) log-likelihood score for a discrete Bayesian network.
-	 * This is done by computing the marginal log-likelihood of the graph. It is
-	 * assumed a uniform prior structure.
+	 * Receives the name of the penalization function used for the structure
+	 * complexity.
 	 * 
-	 * @param bn                   Bayesian network
-	 * @param penalizationFunction penalization function
-	 * @return penalized log-likelihood score
+	 * @param penalizationFunction
 	 */
-	public static double logLikelihoodScore(BN<CPTNode> bn, String penalizationFunction) {
-		// Obtain nodes of the Bayesian networks with the CPTs
-		List<CPTNode> nodes = bn.getLearnedNodes();
-		double llScore = 0.0;
-		for (CPTNode node : nodes) {
-			// Obtain an array with the values that the studied variable can take
-			String[] possibleValuesStudiedVariable = node.getStates().stream()
-					.map(stateAux -> stateAux.getValueVariable(node.getName())).toArray(String[]::new);
-			// All the possible states between the studied variable and its parents
-			Set<State> states = node.getSufficientStatistics().keySet();
-			for (State state : states)
-				for (String k : possibleValuesStudiedVariable) {
-					State query = new State(state.getEvents());
-					query.modifyEventValue(node.getName(), k);
-					llScore += classProbability(node, state);
-				}
-			// If the specified penalization function is available, it is applied
-			if (penalizationFunctionMap.containsKey(penalizationFunction)) {
-				// Overfitting is avoid by penalizing the complexity of the network
-				// Number of possible states of the parents of the currently studied variable
-				int numPossibleStatesParents = node.getParents().stream().map(parent -> (DiscreteNode) parent)
-						.map(parent -> parent.getStates()).map(listStates -> listStates.size())
-						.reduce(1, (a, b) -> a * b);
-
-				// Number of possible states of the currently studied variable
-				int numPossibleStatesStudiedVariable = possibleValuesStudiedVariable.length;
-				// Compute network complexity
-				double networkComplexity = numPossibleStatesParents * (numPossibleStatesStudiedVariable - 1);
-				// Compute non-negative penalization (For now it is performing a BIC
-				// penalization)
-				int sampleSize = bn.getDataset().getNumDataPoints();
-				double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
-				// Obtain number of states of the parents of the currently studied variable
-				llScore -= networkComplexity * penalization;
-			}
-		}
-		return llScore;
-	}
-
-	/**
-	 * Estimate the probability of a class variable taking a certain value.
-	 * 
-	 * @param node  class variable node
-	 * @param state state of the class variable node and its parents
-	 * @return
-	 */
-	private static double classProbability(CPTNode node, State state) {
-		// Number of times the studied variable and its parents take a certain value
-		int Nijk = node.getSufficientStatistics().get(state);
-		double classProbability = 0.0;
-		if (Nijk != 0)
-			classProbability = Nijk * Math.log(node.getCPT().get(state));
-		return classProbability;
-	}
-
-	// ---------- CONTINUOUS TIME BAYESIAN NETWORKS ----------
-
-	/**
-	 * Compute the (penalized) log-likelihood score at a given node of a discrete
-	 * continuous time Bayesian network.
-	 * 
-	 * @param ctbn                 continuous time Bayesian network
-	 * @param nodeIndex            index of the node
-	 * @param penalizationFunction penalization function
-	 * @return penalized log-likelihood score
-	 */
-	public static double logLikelihoodScore(CTBN<CIMNode> ctbn, int nodeIndex, String penalizationFunction) {
-		// Obtain node to evaluate
-		CIMNode node = ctbn.getNodes().get(nodeIndex);
-
-//		System.out.println("-----------");
-//		System.out.println("Nodo: " + node.getName());
-//		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
-
-		double llScore = 0.0;
-		llScore += logLikelihoodScore(node);
-		// Apply the specified penalization function (if available)
-		if (penalizationFunctionMap.containsKey(penalizationFunction)) {
-			// Overfitting is avoid by penalizing the complexity of the network
-			// Number of possible transitions
-			int numStates = node.getStates().size();
-			int numTransitions = (numStates - 1) * numStates;
-			// Number of states of the parents
-			int numStatesParents = node.getNumStateParents();
-			// Complexity of the network
-			int networkComplexity = numTransitions * numStatesParents;
-			// Sample size (number of sequences)
-			int sampleSize = ctbn.getDataset().getNumDataPoints();
-			// Non-negative penalization
-			double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
-			llScore -= (double) networkComplexity * penalization;
-		}
-
-//		System.out.println("Total: " + llScore);
-
-		return llScore;
-	}
-
-	/**
-	 * Compute the marginal log-likelihood for a certain CIM node.
-	 * 
-	 * @param node
-	 * @return marginal log likelihood
-	 */
-	private static double logLikelihoodScore(CIMNode node) {
-		// Retrieve sufficient statistics of the node
-		CTBNSufficientStatistics ss = node.getSufficientStatistics();
-		// Obtain parameters and sufficient statistics of the node
-		// Contains the probabilities of transitioning from one state to another
-		Map<State, Map<State, Double>> Oxx = node.getOxx();
-		// CIMs. Given the state of a variable and its parents is obtained the
-		// instantaneous probability
-		Map<State, Double> Qx = node.getQx();
-		// Store marginal log likelihood
-		double mll = 0.0;
-		for (State state : Qx.keySet()) {
-			double qx = Qx.get(state);
-			double nx = ss.getNx().get(state);
-			double tx = ss.getTx().get(state);
-			// Probability density function of the exponential distribution. If it is 0,
-			// there are no transitions from this state
-			if (qx != 0) {
-				mll += nx * Math.log(qx) - qx * tx;
-				for (State toState : Oxx.get(state).keySet()) {
-					// Probability of transitioning from "state" to "toState"
-					double oxx = Oxx.get(state).get(toState);
-					// Number of times the variable transitions from "state" to "toState"
-					double nxx = ss.getNxy().get(state).get(toState);
-					if (oxx != 0)
-						mll += nxx * Math.log(oxx);
-				}
-			}
-		}
-		return mll;
+	public CTBNConditionalLogLikelihood(String penalizationFunction) {
+		super(penalizationFunction);
 	}
 
 	/**
@@ -203,9 +45,9 @@ public class StructureScoreFunctions {
 	 * @param penalizationFunction penalization function
 	 * @return (penalized) conditional log-likelihood score
 	 */
-	public static double conditionalLogLikelihoodScore(CTBN<CIMNode> ctbn, int nodeIndex, String penalizationFunction) {
+	public double compute(CTBN<? extends Node> ctbn, int nodeIndex) {
 		// Obtain node to evaluate
-		CIMNode node = ctbn.getNodes().get(nodeIndex);
+		CIMNode node = (CIMNode) ctbn.getNodes().get(nodeIndex);
 		// Store the conditional log-likelihood score
 		double cllScore = 0.0;
 
@@ -281,7 +123,7 @@ public class StructureScoreFunctions {
 	 * @param dataset
 	 * @return
 	 */
-	private static double logPriorProbabilityClass(List<CPTNode> nodesCVs, State stateCVs, Dataset dataset) {
+	private double logPriorProbabilityClass(List<CPTNode> nodesCVs, State stateCVs, Dataset dataset) {
 		double lp = 0.0;
 		// Iterate over class variables nodes
 		for (CPTNode node : nodesCVs) {
@@ -345,7 +187,7 @@ public class StructureScoreFunctions {
 	 *                 parents of "node"
 	 * @return
 	 */
-	private static double logPosteriorProbabilitySequence(CIMNode node, State stateCVs) {
+	private double logPosteriorProbabilitySequence(CIMNode node, State stateCVs) {
 		// Sufficient statistics of the node
 		CTBNSufficientStatistics ss = node.getSufficientStatistics();
 		// Names of the class variables that are parents of the feature node
@@ -389,7 +231,7 @@ public class StructureScoreFunctions {
 	 * @param node
 	 * @return
 	 */
-	private static boolean hasClassVariablesAsParent(Node node) {
+	private boolean hasClassVariablesAsParent(Node node) {
 		return node.getParents().stream().anyMatch(parent -> parent.isClassVariable());
 	}
 
@@ -399,7 +241,7 @@ public class StructureScoreFunctions {
 	 * @param node
 	 * @return
 	 */
-	private static List<String> nameClassVariablesParents(Node node) {
+	private List<String> nameClassVariablesParents(Node node) {
 		Stream<Node> CVParents = node.getParents().stream().filter(parent -> parent.isClassVariable());
 		return CVParents.map(CVParent -> CVParent.getName()).collect(Collectors.toCollection(ArrayList::new));
 	}
