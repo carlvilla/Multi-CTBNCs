@@ -13,9 +13,8 @@ public final class ControllerUtil {
 		textField.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (!newValue.matches("\\d*")) {
+				if (!newValue.matches("\\d*"))
 					textField.setText(newValue.replaceAll("[^\\d]", ""));
-				}
 			}
 		});
 	}
@@ -23,14 +22,11 @@ public final class ControllerUtil {
 	public static void onlyPositiveIntegerGreaterThan(TextField textField, int minValue) {
 		textField.textProperty().addListener(new ChangeListener<String>() {
 			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (!newValue.matches("\\d*")) {
-					textField.setText(newValue.replaceAll("[^\\d]", ""));
-				}
-
-				if (newValue.matches("\\d*") && Integer.valueOf(newValue) < minValue) {
-					textField.setText(newValue.replaceAll("[^\\d]", ""));
-				}
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {				
+				if (!newValue.matches("\\d+"))
+					textField.setText(newValue.replaceAll("[^\\d+]", ""));
+				if (newValue.matches("\\d+") && Integer.valueOf(newValue) < minValue)
+					textField.setText(newValue.replaceAll("[^\\d+]", ""));
 			}
 		});
 	}

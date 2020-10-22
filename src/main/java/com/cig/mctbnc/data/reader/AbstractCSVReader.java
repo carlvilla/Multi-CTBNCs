@@ -29,26 +29,21 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	String nameTimeVariable;
 	List<String> nameClassVariables;
 	List<String> excludeVariables;
+	// Stores a copy of the loaded dataset to avoid reloading it if not necessary
+	Dataset dataset;
+	// Flag variable to know if the dataset needs to be reloaded
+	boolean outdatedDataset;
 	static Logger logger = LogManager.getLogger(AbstractCSVReader.class);
 
+	/**
+	 * Receives the path to the folder of the dataset and initialize the reader as
+	 * out-of-date. In that way, the dataset will be loaded when it is requested.
+	 * 
+	 * @param datasetFolder
+	 */
 	public AbstractCSVReader(String datasetFolder) {
 		this.datasetFolder = datasetFolder;
-	}
-
-	@Override
-	public void setVariables(String nameTimeVariable, List<String> nameClassVariables, List<String> nameFeatures) {
-		this.nameTimeVariable = nameTimeVariable;
-		this.nameClassVariables = nameClassVariables;
-		// Variables that should be ignored
-		excludeVariables = new ArrayList<String>(getAllVariablesDataset());
-		excludeVariables.remove(nameTimeVariable);
-		excludeVariables.removeAll(nameClassVariables);
-		excludeVariables.removeAll(nameFeatures);
-	}
-
-	@Override
-	public List<String> getAllVariablesDataset() {
-		return this.nameVariables;
+		outdatedDataset = true;
 	}
 
 	/**
@@ -127,6 +122,32 @@ public abstract class AbstractCSVReader implements DatasetReader {
 			logger.warn("Impossible to read file {}", pathFile);
 		}
 		return list;
+	}
+
+	@Override
+	public void setVariables(String nameTimeVariable, List<String> nameClassVariables, List<String> nameFeatures) {
+		this.nameTimeVariable = nameTimeVariable;
+		this.nameClassVariables = nameClassVariables;
+		// Variables that should be ignored
+		excludeVariables = new ArrayList<String>(getAllVariablesDataset());
+		excludeVariables.remove(nameTimeVariable);
+		excludeVariables.removeAll(nameClassVariables);
+		excludeVariables.removeAll(nameFeatures);
+	}
+
+	@Override
+	public List<String> getAllVariablesDataset() {
+		return nameVariables;
+	}
+
+	@Override
+	public void setDatasetAsOutdated(boolean outdated) {
+		outdatedDataset = outdated;
+	}
+
+	@Override
+	public boolean isDatasetOutdated() {
+		return outdatedDataset;
 	}
 
 }

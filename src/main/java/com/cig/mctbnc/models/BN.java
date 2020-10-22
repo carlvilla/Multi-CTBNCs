@@ -2,9 +2,6 @@ package com.cig.mctbnc.models;
 
 import java.util.List;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
-
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
@@ -18,6 +15,15 @@ import com.cig.mctbnc.nodes.Node;
  *                   conditional probability table (CPTNode)
  */
 public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
+	/**
+	 * Initialize a Bayesian network by receiving a list of nodes.
+	 * 
+	 * @param nodes
+	 */
+	public BN(List<NodeType> nodes) {
+		super(nodes);
+	}
+
 	/**
 	 * Initialize a Bayesian network by receiving a list of nodes and a dataset.
 	 * This constructor was thought to be used by the MCTBNC.

@@ -45,24 +45,28 @@ public class MultipleCSVReader extends AbstractCSVReader {
 
 	@Override
 	public Dataset readDataset() {
-		Dataset dataset = new Dataset(nameTimeVariable, nameClassVariables);
-		// Names of the files from which the dataset was read. Some files could be
-		// rejected due to problems in its content.
-		List<String> nameAcceptedFiles = new ArrayList<String>();
-		for (File file : files) {
-			try {
-				List<String[]> dataSequence = readCSV(file.getAbsolutePath(), excludeVariables);
-				boolean sequenceAdded = dataset.addSequence(dataSequence);
-				if (sequenceAdded)
-					nameAcceptedFiles.add(file.getName());
-			} catch (VariableNotFoundException e) {
-				logger.warn(e.getMessage());
+		if (isDatasetOutdated()) {
+			dataset = new Dataset(nameTimeVariable, nameClassVariables);
+			// Names of the files from which the dataset was read. Some files could be
+			// rejected due to problems in its content.
+			List<String> nameAcceptedFiles = new ArrayList<String>();
+			for (File file : files) {
+				try {
+					List<String[]> dataSequence = readCSV(file.getAbsolutePath(), excludeVariables);
+					boolean sequenceAdded = dataset.addSequence(dataSequence);
+					if (sequenceAdded)
+						nameAcceptedFiles.add(file.getName());
+				} catch (VariableNotFoundException e) {
+					logger.warn(e.getMessage());
+				}
 			}
+			// Remove variables with zero variance
+			dataset.removeZeroVarianceFeatures();
+			// Save in the dataset the files used to extract its sequences
+			dataset.setNameFiles(nameAcceptedFiles);
+			// Set the dataset as not out-of-date
+			setDatasetAsOutdated(false);
 		}
-		// Remove variables with zero variance
-		dataset.removeZeroVarianceFeatures();
-		// Save in the dataset the files used to extract its sequences
-		dataset.setNameFiles(nameAcceptedFiles);
 		return dataset;
 	}
 }

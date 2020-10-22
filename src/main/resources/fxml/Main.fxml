@@ -41,7 +41,7 @@
                                           <Label text="Strategy:" />
                                           <ComboBox fx:id="cmbStrategy" onAction="#changeDatasetReaderStrategy" prefWidth="140.0" />
                                           <Label text="Size sequences:" />
-                                          <TextField fx:id="fldSizeSequences" prefHeight="27.0" prefWidth="60.0" />
+                                          <TextField fx:id="fldSizeSequences" onKeyTyped="#datasetModified" prefHeight="27.0" prefWidth="60.0" />
                                        </children>
                                     </HBox>
                                     <HBox alignment="CENTER_LEFT" prefHeight="106.0" prefWidth="592.0" spacing="20.0">
@@ -62,9 +62,9 @@
                                        </rowConstraints>
                                        <children>
                                           <Label text="Select time variable:" />
-                                          <ComboBox fx:id="cmbTimeVariable" prefWidth="150.0" promptText="Time variable" GridPane.columnIndex="1" />
+                                          <ComboBox fx:id="cmbTimeVariable" onAction="#datasetModified" prefWidth="150.0" promptText="Time variable" GridPane.columnIndex="1" />
                                           <Label text="Select class variables:" GridPane.rowIndex="1" />
-                                          <CheckComboBox fx:id="ckcmbClassVariables" prefWidth="150.0" title="Class variables" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <CheckComboBox fx:id="ckcmbClassVariables" onMouseClicked="#datasetModified" prefWidth="150.0" title="Class variables" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <Label text="Select features:" GridPane.rowIndex="2" />
                                           <CheckComboBox fx:id="ckcmbFeatures" prefWidth="150.0" title="Features" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                        </children>

@@ -28,6 +28,7 @@ import com.cig.mctbnc.performance.ValidationMethod;
 import com.cig.mctbnc.performance.ValidationMethodFactory;
 import com.cig.mctbnc.util.ControllerUtil;
 
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -198,7 +199,21 @@ public class Controller {
 		cmbStrategy.setDisable(true);
 		// Initialize text fields with default values
 		fldSizeSequences.setText("30");
-		fldSizeSequences.setDisable(true);
+		fldSizeSequences.setDisable(true);	
+		// Add listeners to checkcomboboxes
+		ckcmbClassVariables.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
+			@Override
+			public void onChanged(Change<? extends String> c) {
+				datasetModified();
+			}
+		});
+		ckcmbFeatures.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
+			@Override
+			public void onChanged(Change<? extends String> c) {
+				datasetModified();
+			}
+		});
+		// Text fields are restricted to certain values
 		ControllerUtil.onlyPositiveInteger(fldSizeSequences);
 	}
 
@@ -231,7 +246,7 @@ public class Controller {
 		fldMxBN.setDisable(true);
 		fldNxy.setDisable(true);
 		fldTx.setDisable(true);
-		// Text values are restricted to certain values
+		// Text fields are restricted to certain values
 		ControllerUtil.onlyPositiveInteger(fldKParents);
 	}
 
@@ -373,6 +388,16 @@ public class Controller {
 	}
 
 	// ---------- onAction methods ----------
+
+	/**
+	 * The information of the dataset to load was modified, so the DatasetReader is
+	 * warned. This is useful to avoid the reloading of the same dataset.
+	 */
+	public void datasetModified() {
+		if (datasetReader != null)
+			datasetReader.setDatasetAsOutdated(true);
+	}
+
 	// TODO Improve the strategy to show and hide options of each algorithm
 
 	/**
@@ -380,6 +405,9 @@ public class Controller {
 	 * options.
 	 */
 	public void changeDatasetReader() {
+		// Define dataset as modified
+		datasetModified();
+		// Show or hide options
 		if (cmbDataFormat.getValue().equals("Single CSV")) {
 			cmbStrategy.setDisable(false);
 			if (cmbStrategy.getValue().equals("Fixed size"))
@@ -395,6 +423,9 @@ public class Controller {
 	 * correspondent options.
 	 */
 	public void changeDatasetReaderStrategy() {
+		// Define dataset as modified
+		datasetModified();
+		// Show or hide options
 		if (cmbStrategy.getValue().equals("Fixed size"))
 			fldSizeSequences.setDisable(false);
 		else

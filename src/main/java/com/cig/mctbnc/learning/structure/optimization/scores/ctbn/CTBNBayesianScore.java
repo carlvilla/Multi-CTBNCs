@@ -1,5 +1,6 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.commons.math3.special.Gamma;
@@ -21,6 +22,13 @@ public class CTBNBayesianScore implements CTBNScoreFunction {
 		CIMNode node = (CIMNode) ctbn.getNodes().get(nodeIndex);
 		// Retrieve sufficient statistics of the node
 		CTBNSufficientStatistics ss = node.getSufficientStatistics();
+		
+		
+		System.out.println("-----------");
+		System.out.println("Nodo: " + node.getName());
+		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
+		
+		
 		// Hyperparameters of the hyperprior distribution
 		double nxyHP = ss.getNxyHyperparameter();
 		double nxHP = ss.getNxHyperparameter();
@@ -47,6 +55,10 @@ public class CTBNBayesianScore implements CTBNScoreFunction {
 				ll -= Gamma.logGamma(nxx);
 			}
 		}
+		
+		System.out.println("Total: " + ll);
+
+		
 		return ll;
 	}
 

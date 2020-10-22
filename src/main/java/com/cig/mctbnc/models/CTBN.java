@@ -24,6 +24,18 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	static Logger logger = LogManager.getLogger(CTBN.class);
 
 	/**
+	 * Initialize a continuous time Bayesian network by receiving a list of nodes
+	 * and a Bayesian network representing the class subgraph of a MCTBNC.
+	 * 
+	 * @param nodes
+	 * @param bnClassSubgraph
+	 */
+	public CTBN(List<NodeType> nodes, BN<? extends Node> bnClassSubgraph) {
+		super(nodes);
+		this.bnClassSubgraph = bnClassSubgraph;
+	}
+
+	/**
 	 * Initialize a continuous Time Bayesian network given dataset, the list of
 	 * variables to use and the algorithms for parameter and structure learning.
 	 * This constructor was thought to be used by the MCTBNC.

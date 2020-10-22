@@ -242,6 +242,27 @@ public class Dataset {
 	}
 
 	/**
+	 * Set states of all variables. This method is used when a training and testing
+	 * dataset is defined and the training dataset needs to know all possible
+	 * states.
+	 * 
+	 * @param statesVariables
+	 * 
+	 */
+	public void setStatesVariables(Map<String, List<State>> statesVariables) {
+		this.statesVariables = statesVariables;
+	}
+
+	/**
+	 * Get the possible states of all variables.
+	 * 
+	 * @return array of State objects
+	 */
+	public Map<String, List<State>> getStatesVariables() {
+		return statesVariables;
+	}
+
+	/**
 	 * Return the possible states of the specified variable. The states of the
 	 * variable are extracted once and stored in a map to avoid recomputations. In
 	 * order to not return always a reference to the same State list, the State

@@ -57,7 +57,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 
 		// The contribution of a node is 0 if it has no class variables as parents
 		if (!hasClassVariablesAsParent(node))
-			return 0;// Double.NEGATIVE_INFINITY;
+			return 0; //Double.NEGATIVE_INFINITY;
 
 		// Obtain possible states of the class variables that are parents of the node
 		List<String> nameCVs = nameClassVariablesParents(node);

@@ -1,9 +1,6 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.function.DoubleUnaryOperator;
 
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
@@ -38,12 +35,12 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 		// Obtain node to evaluate
 		CIMNode node = (CIMNode) ctbn.getNodes().get(nodeIndex);
 
-		System.out.println("-----------");
-		System.out.println("Nodo: " + node.getName());
-		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
+//		System.out.println("-----------");
+//		System.out.println("Nodo: " + node.getName());
+//		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
 
-		double llScore = 0.0;
-		llScore += logLikelihoodScore(node);
+		double ll = 0.0;
+		ll += logLikelihoodScore(node);
 		// Apply the specified penalization function (if available)
 		if (penalizationFunctionMap.containsKey(penalizationFunction)) {
 			// Overfitting is avoid by penalizing the complexity of the network
@@ -58,12 +55,12 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 			int sampleSize = ctbn.getDataset().getNumDataPoints();
 			// Non-negative penalization
 			double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
-			llScore -= (double) networkComplexity * penalization;
+			ll -= (double) networkComplexity * penalization;
 		}
 
-		System.out.println("Total: " + llScore);
+//		System.out.println("Total: " + llScore);
 
-		return llScore;
+		return ll;
 	}
 
 	/**

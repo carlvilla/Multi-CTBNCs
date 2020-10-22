@@ -113,9 +113,6 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 		// Retrieve state the variable can take
 		// TODO Instead of passing a node, the class should only accept DiscreteNode.
 		// Improve architecture
-
-		// Define all states of the node and its parents. Have an index
-
 		List<State> statesVariable = ((DiscreteNode) node).getStates();
 		// Hyperparameter NxPrior (number of transitions originating from certain state)
 		NxHP = NxyHP * (statesVariable.size() - 1);
@@ -186,9 +183,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 */
 	private void updateOccurrencesNx(State fromState, double numOccurrences) {
 		// Current value of Nx for 'fromState'
-		Double currentNx = Nx.get(fromState);
-		if (currentNx == null)
-			currentNx = 0.0;
+		double currentNx = Nx.getOrDefault(fromState, 0.0);
 		Nx.put(fromState, currentNx + numOccurrences);
 	}
 
@@ -201,9 +196,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 */
 	private void updateOccurrencesTx(State state, double time) {
 		// Current time computed for the state
-		Double currentTime = Tx.get(state);
-		if (currentTime == null)
-			currentTime = 0.0;
+		double currentTime = Tx.getOrDefault(state, 0.0);
 		Tx.put(state, currentTime + time);
 	}
 

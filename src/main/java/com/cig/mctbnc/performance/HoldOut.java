@@ -1,5 +1,6 @@
 package com.cig.mctbnc.performance;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -67,9 +68,9 @@ public class HoldOut implements ValidationMethod {
 		// Obtain entire dataset
 		Dataset dataset = datasetReader.readDataset();
 		// Obtain files names from which the dataset was read
-		List<String> fileNames = dataset.getNameFiles();
+		List<String> fileNames = new ArrayList<String>(dataset.getNameFiles());
 		// Obtain sequences of the dataset
-		List<Sequence> sequences = dataset.getSequences();
+		List<Sequence> sequences = new ArrayList<Sequence>(dataset.getSequences());
 		if (shuffle) {
 			// Sequences and their files are shuffled before splitting into train and test
 			Integer seed = 10;
@@ -87,6 +88,10 @@ public class HoldOut implements ValidationMethod {
 		// Set in the datasets the names of the files from which the data was extracted
 		this.trainingDataset.setNameFiles(fileNames.subList(0, lastIndexTraining));
 		this.testingDataset.setNameFiles(fileNames.subList(lastIndexTraining, sequences.size()));
+
+		// TODO This is only for categorical variables...
+		// Warn the training set about the possible states the variables can take
+		this.trainingDataset.setStatesVariables(dataset.getStatesVariables());
 	}
 
 	/**

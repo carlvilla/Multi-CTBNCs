@@ -2,6 +2,7 @@ package com.cig.mctbnc.performance;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,10 +39,12 @@ public class Metrics {
 			return null;
 		}
 		showPredictions(predicted, actualDataset);
-		if (actualDataset.getNumClassVariables() == 1) {
+
+		plotConfusionMatrices(predicted, actualDataset);
+
+		if (actualDataset.getNumClassVariables() == 1)
 			// There is only one class variable
 			return evaluateUniDimensionalClassification(predicted, actualDataset);
-		}
 		// There are more than one class variable
 		return evaluateMultiDimensionalClassification(predicted, actualDataset);
 	}
@@ -117,6 +120,9 @@ public class Metrics {
 			// Get the estimated probability of our prediction
 			double probability = predicted[i].getProbabilityPrediction();
 			// Show predicted and actual classes along with the name of the sequence file
+
+			// TODO The order of the class variables can change from that in the dataset due
+			// to the HashMap in State
 			logger.info("File {} / Real classes: {} / Predicted classes {} / Prob. {}",
 					actualDataset.getNameFiles().get(i), actualCC, predictedCC, probability);
 		}
@@ -428,6 +434,59 @@ public class Metrics {
 		// Save the four possible outcomes in a Map object
 		Map<String, Integer> confusionMatrix = Map.of("tp", tp, "fp", fp, "tn", tn, "fn", fn);
 		return confusionMatrix;
+	}
+
+	private static int[][] getMultiClassConfusionMatrix(String[] predicted, String[] actual, String[] possibleClasses) {
+		int numClasses = possibleClasses.length;
+		int[][] cm = new int[numClasses][numClasses];
+
+		// Save index classes
+		Map<String, Integer> indexClasses = new HashMap<String, Integer>();
+		for (int i = 0; i < possibleClasses.length; i++)
+			indexClasses.put(possibleClasses[i], i);
+
+		for (int i = 0; i < predicted.length; i++) {
+			int idxPredicted = indexClasses.get(predicted[i]);
+			if (predicted[i].equals(actual[i]))
+				cm[idxPredicted][idxPredicted] += 1;
+			else {
+				int idxActual = indexClasses.get(actual[i]);
+				cm[idxPredicted][idxActual] += 1;
+			}
+		}
+
+		return cm;
+	}
+
+	private static void plotConfusionMatrices(Prediction[] predicted, Dataset actualDataset) {
+		// Names of the class variables
+		List<String> nameCVs = actualDataset.getNameClassVariables();
+		// Predictions (State objects) for each sequence and class variable
+		State[] predictedClasses = Arrays.stream(predicted).map(sequence -> sequence.getPredictedClasses())
+				.toArray(State[]::new);
+		State[] actualClasses = actualDataset.getStatesClassVariables();
+
+		for (String nameCV : nameCVs) {
+			// Predicted classes of each class variables
+			String[] predictedClassesCV = Arrays.stream(predictedClasses).map(state -> state.getValueVariable(nameCV))
+					.toArray(String[]::new);
+			// Actual classes of the class variables from the State objects
+			String[] actualClassesCV = Arrays.stream(actualClasses).map(state -> state.getValueVariable(nameCV))
+					.toArray(String[]::new);
+			// Obtain possible classes of the class variable
+			String[] possibleClassesCV = Util.getUnique(actualClassesCV);
+			int[][] cm = getMultiClassConfusionMatrix(predictedClassesCV, actualClassesCV, possibleClassesCV);
+
+			System.out.printf("****Confusion matrix: %s****\n", nameCV);
+			System.out.println(Arrays.deepToString(possibleClassesCV));
+			for (int i = 0; i < possibleClassesCV.length; i++) {
+				System.out.print(possibleClassesCV[i] + "\t");
+				for (int j = 0; j < possibleClassesCV.length; j++)
+					System.out.print(cm[i][j] + "\t");
+				System.out.println();
+			}
+		}
+
 	}
 
 }

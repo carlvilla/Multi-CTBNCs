@@ -18,6 +18,8 @@ import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
 import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
+import com.cig.mctbnc.nodes.CIMNode;
+import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 import com.cig.mctbnc.util.ProbabilityUtil;
@@ -52,7 +54,20 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	static Logger logger = LogManager.getLogger(MCTBNC.class);
 
 	/**
-	 * Constructor for MCTBNC.
+	 * Receives a Bayesian network and a continuous time Bayesian network that
+	 * represent the class subgraph and feature/bridge subgraph of a MCTBNC,
+	 * respectively.
+	 * 
+	 * @param bn   Bayesian network
+	 * @param ctbn continuous time Bayesian network
+	 */
+	public MCTBNC(BN<NodeTypeBN> bn, CTBN<NodeTypeCTBN> ctbn) {
+		this.bn = bn;
+		this.ctbn = ctbn;
+	}
+
+	/**
+	 * Receives learning algorithms for BNs and CTBNs to generate a MCTBNC.
 	 * 
 	 * @param bnLearningAlgs   algorithms used to learn a BN
 	 * @param ctbnLearningAlgs algorithms used to learn a CTBN
@@ -140,24 +155,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Return the structure constraints for the BN.
-	 * 
-	 * @return StructureConstraint object
-	 */
-	public StructureConstraints getStructureConstraintsBN() {
-		return new DAG();
-	}
-
-	/**
-	 * Return the structure constraints for the CTBN.
-	 * 
-	 * @return StructureConstraint object
-	 */
-	public StructureConstraints getStructureConstraintsCTBN() {
-		return new CTBNC();
-	}
-
-	/**
 	 * Establish the approach that will be used to define the initial structure of
 	 * the MCTBNC. For now it is possible to define an empty structure or a naive
 	 * Bayes.
@@ -182,6 +179,80 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 				}
 			}
 		}
+	}
+
+	/**
+	 * Sample a sequence given its duration.
+	 * 
+	 * @param duration duration of the sequence
+	 * @return sampled sequence
+	 */
+	public Sequence sample(int duration) {
+		int numFeatures = ctbn.getNumNodes();
+		int numClassVariables = bn.getNumNodes();
+
+		String[] states = new String[numFeatures + numClassVariables];
+
+		// Forward sampling Bayesian network (class subgraph). Sample the state
+		// of the class variables
+		sampleClassVariables();
+
+		// Sample a sequence given the state of the class variables
+		sampleSequence();
+
+		double currentTime = 0.0;
+		while (currentTime < duration) {
+
+		}
+
+		return null;
+	}
+
+	private void sampleClassVariables() {
+
+	}
+
+	private void sampleSequence() {
+
+		// x(t) state of X at time t
+		// Time(X) next potential transition time for X
+
+	}
+
+	/**
+	 * Sample from an exponential distribution with parameter "lambda". This method
+	 * is used to sample the next transition time when generating a sequence.
+	 * 
+	 * @param lambda parameter of the exponential distribution
+	 * @return sampled time
+	 */
+	private double sampleExpDist(double lambda) {
+		return -Math.log(1 - Math.random()) / lambda;
+	}
+
+	public String[] sampleInitialState() {
+		// Sample the state of the class variables
+		String[] state = new String[1];
+
+		return state;
+	}
+
+	/**
+	 * Return the structure constraints for the BN.
+	 * 
+	 * @return StructureConstraint object
+	 */
+	public StructureConstraints getStructureConstraintsBN() {
+		return new DAG();
+	}
+
+	/**
+	 * Return the structure constraints for the CTBN.
+	 * 
+	 * @return StructureConstraint object
+	 */
+	public StructureConstraints getStructureConstraintsCTBN() {
+		return new CTBNC();
 	}
 
 	@Override

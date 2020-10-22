@@ -58,6 +58,21 @@ public final class Util {
 	}
 
 	/**
+	 * Returns the index of a String in an array.
+	 * 
+	 * @param array
+	 * @param element
+	 * @return index
+	 */
+	public static int getIndexElement(String[] array, String element) {
+		for (int i = 0; i < array.length; i++) {
+			if (array[i].equals(element))
+				return i;
+		}
+		return -1;
+	}
+
+	/**
 	 * Returns the index of the largest value in an array.
 	 * 
 	 * @param array
@@ -156,5 +171,18 @@ public final class Util {
 	public static <Key, Value> Cache<Key, Value> createCache(int maxSize) {
 		Cache<Key, Value> cache = CacheBuilder.newBuilder().maximumSize(maxSize).build();
 		return cache;
+	}
+
+	/**
+	 * Sum all the values in a row of an array.
+	 * 
+	 * @param cim
+	 * @param i
+	 */
+	public static double sumRow(double[][] array, int row) {
+		double result = 0.0;
+		for (int i = 0; i < array.length; i++)
+			result += array[row][i];
+		return result;
 	}
 }

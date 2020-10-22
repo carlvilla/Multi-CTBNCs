@@ -46,18 +46,22 @@ public class SingleCSVReader extends AbstractCSVReader {
 
 	@Override
 	public Dataset readDataset() {
-		Dataset dataset = new Dataset(nameTimeVariable, nameClassVariables);
-		try {
-			// Read the entire CSV
-			List<String[]> dataCSV = readCSV(file.getAbsolutePath(), excludeVariables);
-			// Extract the sequences from the CSV by using the selected strategy
-			extractFixedSequences(dataset, dataCSV);
-			// Remove zero variance features
-			dataset.removeZeroVarianceFeatures();
-			// Save name of the file in the dataset
-			dataset.setNameFiles(List.of(file.getName()));
-		} catch (VariableNotFoundException e) {
-			logger.warn(e.getMessage());
+		if (isDatasetOutdated()) {
+			dataset = new Dataset(nameTimeVariable, nameClassVariables);
+			try {
+				// Read the entire CSV
+				List<String[]> dataCSV = readCSV(file.getAbsolutePath(), excludeVariables);
+				// Extract the sequences from the CSV by using the selected strategy
+				extractFixedSequences(dataset, dataCSV);
+				// Remove zero variance features
+				dataset.removeZeroVarianceFeatures();
+				// Save name of the file in the dataset
+				dataset.setNameFiles(List.of(file.getName()));
+				// Set the dataset as not out-of-date
+				setDatasetAsOutdated(false);
+			} catch (VariableNotFoundException e) {
+				logger.warn(e.getMessage());
+			}
 		}
 		return dataset;
 	}

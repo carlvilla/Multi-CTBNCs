@@ -34,6 +34,22 @@ public interface DatasetReader {
 	 * 
 	 * @return names of the variables
 	 */
-	List<String> getAllVariablesDataset();
+	public List<String> getAllVariablesDataset();
+
+	/**
+	 * Define a previously read dataset as out-of-date, so it should be reloaded.
+	 * 
+	 * @param outdated <code>true</code> to set dataset as out-of-date;
+	 *                 <code>false</code> otherwise.
+	 */
+	public void setDatasetAsOutdated(boolean outdated);
+
+	/**
+	 * Indicate if the dataset is out-of-date.
+	 * 
+	 * @return <code>true</code> if dataset is out-of-date; <code>false</code>
+	 *         otherwise.
+	 */
+	public boolean isDatasetOutdated();
 
 }

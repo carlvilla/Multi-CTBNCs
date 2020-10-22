@@ -133,21 +133,11 @@ public class State {
 			return false;
 		// The object is of State type
 		State otherState = (State) object;
-		// Extract the events of the other State object
-		// Map<String, String> eventsOther = otherState.getEvents();
 		// If there is a different number of events, the states cannot be equal
 		if (events.size() != otherState.getEvents().size())
 			return false;
-//		// Check if both maps has the same variables and values
-//		for (Map.Entry<String, String> entry : events.entrySet()) {
-//			String valueOther = eventsOther.get(entry.getKey());
-//			if (valueOther == null || !entry.getValue().equals(valueOther))
-//				return false;
-//		}
-
+		// Check if both maps has the same variables and values
 		return events.equals(otherState.getEvents());
-
-		// return true;
 	}
 
 	@Override
