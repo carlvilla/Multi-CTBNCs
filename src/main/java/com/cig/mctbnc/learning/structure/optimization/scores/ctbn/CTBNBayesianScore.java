@@ -15,7 +15,7 @@ import com.cig.mctbnc.nodes.Node;
 public class CTBNBayesianScore implements CTBNScoreFunction {
 
 	/**
-	 * Bayesian score defined by Nodelman et al. (2003). (BDe?)
+	 * Bayesian Dirichlet equivalence metric defined by Nodelman et al.(2003).
 	 */
 	public double compute(CTBN<? extends Node> ctbn, int nodeIndex) {
 		// Obtain node to evaluate
@@ -24,9 +24,9 @@ public class CTBNBayesianScore implements CTBNScoreFunction {
 		CTBNSufficientStatistics ss = node.getSufficientStatistics();
 		
 		
-		System.out.println("-----------");
-		System.out.println("Nodo: " + node.getName());
-		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
+//		System.out.println("-----------");
+//		System.out.println("Nodo: " + node.getName());
+//		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
 		
 		
 		// Hyperparameters of the hyperprior distribution
@@ -44,8 +44,8 @@ public class CTBNBayesianScore implements CTBNScoreFunction {
 		for (State state : Qx.keySet()) {
 			double nx = ss.getNx().get(state);
 			double tx = ss.getTx().get(state);
-			ll += Gamma.logGamma(nx + 1) + (nxHP + 1) + Math.log(txHP);
-			ll -= Gamma.logGamma(nxHP + 1) + (nx + 1) + Math.log(tx);
+			ll += Gamma.logGamma(nx + 1) + (nxHP + 1) * Math.log(txHP);
+			ll -= Gamma.logGamma(nxHP + 1) + (nx + 1) * Math.log(tx);
 			ll += Gamma.logGamma(nxHP);
 			ll -= Gamma.logGamma(nx);
 			for (State toState : Oxx.get(state).keySet()) {
@@ -56,7 +56,7 @@ public class CTBNBayesianScore implements CTBNScoreFunction {
 			}
 		}
 		
-		System.out.println("Total: " + ll);
+//		System.out.println("Total: " + ll);
 
 		
 		return ll;
