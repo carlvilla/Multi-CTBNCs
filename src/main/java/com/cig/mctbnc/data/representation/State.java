@@ -69,6 +69,16 @@ public class State {
 	}
 
 	/**
+	 * Remove all events except those whose variable name is specified.
+	 * 
+	 * @param nameVariables names of the variables whose events should not be
+	 *                      removed.
+	 */
+	public void removeAllEventsExcept(List<String> nameVariables) {
+		events.keySet().removeIf(k -> !(nameVariables.contains(k)));
+	}
+
+	/**
 	 * Return the events of the state.
 	 * 
 	 * @return Map with events

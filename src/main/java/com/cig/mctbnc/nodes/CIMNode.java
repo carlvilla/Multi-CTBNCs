@@ -17,8 +17,8 @@ import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
 public class CIMNode extends DiscreteNode {
 
 	// The conditional intensity matrix can be summarized by two types of parameters
-	// (Nodelman et al., 2012): (1) instantaneous probability of the variable leaving
-	// a certain state while its parents take a certain value
+	// (Nodelman et al., 2012): (1) instantaneous probability of the variable
+	// leaving a certain state while its parents take a certain value
 	Map<State, Double> Qx;
 	// (2) probability of the variable leaving a certain state for another one while
 	// its parents take a certain value
@@ -42,6 +42,7 @@ public class CIMNode extends DiscreteNode {
 	 * 
 	 * @param name
 	 * @param states
+	 * @param isClassVariable
 	 */
 	public CIMNode(String name, List<State> states, boolean isClassVariable) {
 		super(name, states, isClassVariable);
@@ -52,22 +53,35 @@ public class CIMNode extends DiscreteNode {
 		this.sufficientStatistics = (CTBNSufficientStatistics) sufficientStatistics;
 	}
 
-	public CTBNSufficientStatistics getSufficientStatistics() {
-		return sufficientStatistics;
-	}
-
-	public String toString() {
-		String discreteNodeDescription = super.toString();
-		StringBuilder sb = new StringBuilder();
-		sb.append(discreteNodeDescription + "\n");
-		// sb.append("--CIM--\n");
-		// sb.append(CIM);
-		return sb.toString();
-	}
-
+	/**
+	 * Set the parameters of a node.
+	 * 
+	 * @param Qx
+	 * @param Oxx
+	 */
 	public void setParameters(Map<State, Double> Qx, Map<State, Map<State, Double>> Oxx) {
 		this.Qx = Qx;
 		this.Oxx = Oxx;
+	}
+
+	/**
+	 * Sample the time that the node stays in a certain state given the state of its
+	 * parents.
+	 * 
+	 * @param evidence contains the state of the node and its parents
+	 * @return sampled time
+	 */
+	public double sampleTimeState(State evidence) {
+		return 0.0;
+	}
+
+	/**
+	 * Get the sufficient statistics of a CIM node.
+	 * 
+	 * @return sufficient statistics.
+	 */
+	public CTBNSufficientStatistics getSufficientStatistics() {
+		return sufficientStatistics;
 	}
 
 	/**
@@ -88,6 +102,15 @@ public class CIMNode extends DiscreteNode {
 	 */
 	public Map<State, Map<State, Double>> getOxx() {
 		return Oxx;
+	}
+
+	public String toString() {
+		String discreteNodeDescription = super.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append(discreteNodeDescription + "\n");
+		// sb.append("--CIM--\n");
+		// sb.append(CIM);
+		return sb.toString();
 	}
 
 }

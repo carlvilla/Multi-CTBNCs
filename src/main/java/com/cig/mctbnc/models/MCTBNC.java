@@ -3,6 +3,7 @@ package com.cig.mctbnc.models;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -188,46 +189,69 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 * @return sampled sequence
 	 */
 	public Sequence sample(int duration) {
-		int numFeatures = ctbn.getNumNodes();
-		int numClassVariables = bn.getNumNodes();
-
-		String[] states = new String[numFeatures + numClassVariables];
-
 		// Forward sampling Bayesian network (class subgraph). Sample the state
 		// of the class variables
-		sampleClassVariables();
-
+		State sampledCVs = sampleClassVariables();
 		// Sample a sequence given the state of the class variables
-		sampleSequence();
+		Sequence sequence = sampleSequence(sampledCVs, duration);
+		return sequence;
+	}
 
+	/**
+	 * Sample the state of the class variables.
+	 */
+	private State sampleClassVariables() {
+		// Define topological order
+		List<Node> classVariables = bn.getTopologicalOrdering();
+		// Store the sampled state of the nodes
+		State sampledState = new State();
+		for (int i = 0; i < classVariables.size(); i++) {
+			// Extract CPT node
+			CPTNode cptNode = (CPTNode) classVariables.get(i);
+			// Sample state of the node given the states of the currently sampled nodes
+			State state = cptNode.sampleState(sampledState);
+			// Save sampled state of the node
+			sampledState.addEvents(state.getEvents());
+		}
+		return sampledState;
+	}
+
+	/**
+	 * Sample the state of the features given the sampled state of the class
+	 * variables.
+	 * 
+	 * @param sampledCVs
+	 */
+	private Sequence sampleSequence(State sampledCVs, int duration) {
+
+		// Sample the initial state of the sequence
+		
+		
 		double currentTime = 0.0;
 		while (currentTime < duration) {
 
+			List<CIMNode> nodes = (List<CIMNode>) ctbn.getNodes();
+
+			State evidence = new State();
+			
+			// Get the potential time that the variable will stay in its current state
+			double sampledTime = nodes.get(0).sampleTimeState(evidence);
+
+			// Update current time
+			currentTime += sampledTime;
+
+			// If the currentTime is greater than the current duration, the entire sequence
+			// was already generated
+			if (currentTime > duration) {
+				break;
+			}
+
 		}
+
+		// Sequence sequence = new Sequence();
+		// return sequence;
 
 		return null;
-	}
-
-	private void sampleClassVariables() {
-		// Define topological order
-		List<Node> classVariables = bn.getTopologicalOrdering();
-
-		// Sample from uniform distribution and obtain results from it?
-		System.out.println(classVariables);
-
-		for (int i = 0; i < classVariables.size(); i++) {
-			CPTNode cptNode = (CPTNode) classVariables.get(i);
-			
-			cptNode.getCPT().get(key);
-			
-		}
-
-	}
-
-	private void sampleSequence() {
-
-		// x(t) state of X at time t
-		// Time(X) next potential transition time for X
 
 	}
 
