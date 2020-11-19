@@ -33,6 +33,13 @@ public interface Node {
 	public List<Node> getParents();
 
 	/**
+	 * Return the number of parents of the node.
+	 * 
+	 * @return parent node list
+	 */
+	public int getNumParents();
+	
+	/**
 	 * Define if the node is a class variable.
 	 * 
 	 * @param isClassVariable boolean that determines if the node is a class

@@ -18,7 +18,7 @@ import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.util.Util;
 
 /**
- * Class use to sampling from a MCTBNC.
+ * Class use to sample sequences from a MCTBNC.
  * 
  * @author Carlos Villa Blanco
  *
@@ -56,8 +56,9 @@ public class MainSampling {
 		CV3.isClassVariable(true);
 
 		// Definition of the structure of the class subgraph
-		CV2.setParent(CV1);
-		CV3.setParent(CV1);
+		CV1.setParent(CV2);
+		CV1.setParent(CV3);
+		CV3.setParent(CV2);
 		BN<CPTNode> CS = new BN<CPTNode>(List.of(CV1, CV2, CV3));
 		// Definition of the parameters of the Bayesian network (class subgraph)
 		generateRandomConditionalDistributions(CS);
@@ -88,12 +89,12 @@ public class MainSampling {
 		CIMNode F4 = new CIMNode("F4", states);
 
 		// Definition of the feature and bridge subgraph
-		F1.setParent(CV1);
+		F1.setParent(new CPTNode("CV1", states));
 		F1.setParent(F2);
-		F2.setParent(CV1);
+		F2.setParent(new CPTNode("CV1", states));
 		F2.setParent(F1);
 		F2.setParent(F3);
-		F3.setParent(CV3);
+		F3.setParent(new CPTNode("CV3", states));
 		F3.setParent(F4);
 		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(F1, F2, F3, F4), CS);
 		// Definition of the parameters of the continuous time Bayesian network (feature
@@ -115,7 +116,7 @@ public class MainSampling {
 
 	/**
 	 * Generate uniformly distributed random conditional probability tables for a
-	 * specified Bayesian network.
+	 * Bayesian network.
 	 * 
 	 * @param bn Bayesian network
 	 * 
@@ -166,7 +167,7 @@ public class MainSampling {
 
 	/**
 	 * Generate uniformly distributed random conditional intensity tables for a
-	 * specified continuous time Bayesian network.
+	 * continuous time Bayesian network.
 	 * 
 	 * @param ctbn continuous time Bayesian network
 	 * 

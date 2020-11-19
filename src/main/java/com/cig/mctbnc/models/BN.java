@@ -1,6 +1,11 @@
 package com.cig.mctbnc.models;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
@@ -70,6 +75,36 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 */
 	public List<NodeType> getLearnedNodes() {
 		return (List<NodeType>) nodes;
+	}
+
+	/**
+	 * Obtain the topological ordering of the nodes with the Kahn's
+	 * algorithm.
+	 * 
+	 * @return sorted nodes
+	 */
+	public List<Node> getTopologicalOrdering() {
+		List<Node> sortedNodes = new ArrayList<Node>();
+		LinkedList<Node> nodesWithoutParents = nodes.stream().filter(node -> !node.hasParents())
+				.collect(Collectors.toCollection(LinkedList::new));
+		// Create a map with the nodes and their incoming arcs.
+		Map<Node, Integer> indegree = IntStream.range(0, getNumNodes()).boxed()
+				.collect(Collectors.toMap(i -> nodes.get(i), i -> nodes.get(i).getNumParents()));
+		// Iterate over nodes without parents
+		while (!nodesWithoutParents.isEmpty()) {
+			Node node = nodesWithoutParents.poll();
+			sortedNodes.add(node);
+			// Iterate over the children of the node
+			List<Node> childrenNodes = node.getChildren();
+			for (Node childNode : childrenNodes) {
+				// Discard the arc between the parent and the child
+				indegree.put(childNode, indegree.get(childNode) - 1);
+				// If the child has no more incoming arcs, it is added as a node without parents
+				if (indegree.get(childNode) == 0)
+					nodesWithoutParents.add(childNode);
+			}
+		}
+		return sortedNodes;
 	}
 
 	@Override

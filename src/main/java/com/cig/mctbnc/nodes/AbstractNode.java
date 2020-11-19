@@ -127,6 +127,11 @@ public abstract class AbstractNode implements Node {
 	public List<Node> getParents() {
 		return parents;
 	}
+	
+	@Override
+	public int getNumParents() {
+		return parents.size();
+	}
 
 	@Override
 	public boolean hasParents() {

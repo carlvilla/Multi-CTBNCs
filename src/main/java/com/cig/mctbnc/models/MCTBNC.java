@@ -209,6 +209,18 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	private void sampleClassVariables() {
+		// Define topological order
+		List<Node> classVariables = bn.getTopologicalOrdering();
+
+		// Sample from uniform distribution and obtain results from it?
+		System.out.println(classVariables);
+
+		for (int i = 0; i < classVariables.size(); i++) {
+			CPTNode cptNode = (CPTNode) classVariables.get(i);
+			
+			cptNode.getCPT().get(key);
+			
+		}
 
 	}
 
