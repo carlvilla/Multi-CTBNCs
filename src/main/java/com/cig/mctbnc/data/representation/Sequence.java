@@ -28,6 +28,15 @@ public class Sequence {
 	// directly from sequences
 	private List<String> featureNames;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param nameVariables
+	 * @param nameTimeVariable
+	 * @param nameClassVariables
+	 * @param valueObservations
+	 * @throws ErroneousSequenceException
+	 */
 	public Sequence(List<String> nameVariables, String nameTimeVariable, List<String> nameClassVariables,
 			List<String[]> valueObservations) throws ErroneousSequenceException {
 		// Set time variable
@@ -36,14 +45,33 @@ public class Sequence {
 		// and time variable
 		this.featureNames = Util.<String>filter(Util.<String>filter(nameVariables, nameClassVariables),
 				nameTimeVariable);
-
 		// Define values class variables for the sequence
 		setValuesClassVariables(nameVariables, nameClassVariables, valueObservations);
-
 		// Get observations with the values of all variables
 		observations = new ArrayList<Observation>();
 		for (String[] valueObservation : valueObservations) {
 			Observation observation = new Observation(nameVariables, nameTimeVariable, valueObservation);
+			checkIntegrityObservation(observation);
+			observations.add(observation);
+		}
+	}
+
+	/**
+	 * Constructor used for the models when generating sequences.
+	 * 
+	 * @param stateClassVariables
+	 * @param transitions
+	 * @param time
+	 */
+	public Sequence(State stateClassVariables, List<State> transitions, String nameTimeVariable, List<Double> time)
+			throws ErroneousSequenceException {
+		this.classVariablesValues = stateClassVariables.getEvents();
+		// Get names features
+		List<String> nameVariables = transitions.get(0).getNameVariables();
+		// Get observations with the values of all variables
+		observations = new ArrayList<Observation>();
+		for (int i = 0; i < time.size(); i++) {
+			Observation observation = new Observation(nameVariables, transitions.get(i).getValues(), time.get(i));
 			checkIntegrityObservation(observation);
 			observations.add(observation);
 		}

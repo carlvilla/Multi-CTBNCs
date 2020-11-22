@@ -2,6 +2,7 @@ package com.cig.mctbnc.nodes;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.SufficientStatistics;
@@ -37,8 +38,8 @@ public class CIMNode extends DiscreteNode {
 	}
 
 	/**
-	 * Construct a CIMNode given its name, possible states and if it is a class
-	 * variable or not.
+	 * Initialize a CIMNode given its name, possible states and if it is a class
+	 * variable.
 	 * 
 	 * @param name
 	 * @param states
@@ -46,6 +47,20 @@ public class CIMNode extends DiscreteNode {
 	 */
 	public CIMNode(String name, List<State> states, boolean isClassVariable) {
 		super(name, states, isClassVariable);
+	}
+
+	/**
+	 * Initialize a CIMNode node given a list of strings with its states. The order
+	 * of parameters is changed with respect to the other constructor to avoid both
+	 * of them having the same erasure.
+	 * 
+	 * @param name
+	 * @param isClassVariable
+	 * @param states
+	 * 
+	 */
+	public CIMNode(String name, boolean isClassVariable, List<String> states) {
+		super(name, isClassVariable, states);
 	}
 
 	@Override
@@ -66,13 +81,73 @@ public class CIMNode extends DiscreteNode {
 
 	/**
 	 * Sample the time that the node stays in a certain state given the state of its
-	 * parents.
+	 * parents. Returns -1 if not all the states of the parents were provided.
 	 * 
 	 * @param evidence contains the state of the node and its parents
 	 * @return sampled time
 	 */
 	public double sampleTimeState(State evidence) {
-		return 0.0;
+		// Query object to retrieve intensity that the node transits given the evidence
+		State query = new State(evidence.getEvents());
+		// Ignore nodes in the evidence that are not parents or the node itself
+		List<String> requiredNodes = getParents().stream().map(parent -> parent.getName()).collect(Collectors.toList());
+		requiredNodes.add(getName());
+		query.removeAllEventsExcept(requiredNodes);
+
+		double q = 0.0;
+		try {
+			// Retrieve intensity of the node of transitioning from the state specified in
+			// "evidence"
+			q = getQx().get(query);
+		} catch (NullPointerException e) {
+			// It is necessary the previous state of all the parents
+			return -1;
+		}
+
+		if (q == 0)
+			return Double.POSITIVE_INFINITY;
+		else
+			// Sample time from exponential distribution with parameter 'q'
+			return -Math.log(1 - Math.random()) / q;
+
+	}
+
+	/**
+	 * Sample the next state of the node given its current state and that of its
+	 * parents. Returns -1 if not all the states of the parents were provided.
+	 * 
+	 */
+	public State sampleNextState(State evidence) {
+		// Query object to retrieve the probability of transiting to each possible state
+		State query = new State(evidence.getEvents());
+		// Ignore nodes in the evidence that are not parents or the node itself
+		List<String> requiredNodes = getParents().stream().map(parent -> parent.getName()).collect(Collectors.toList());
+		requiredNodes.add(getName());
+		query.removeAllEventsExcept(requiredNodes);
+
+		
+		State sampledState = null;
+		
+		// Sample from uniform distribution
+		double probUniform = Math.random();
+		// Accumulated probability
+		double accProb = 0;
+		
+		for(State nextState: getOxx().get(query).keySet()) {
+			// Probability of transitioning to "nextState"
+			accProb += getOxx().get(query).get(nextState);
+			
+			if (probUniform <= accProb) {
+				// Generated state for the node
+				sampledState = nextState;
+				break;
+			}
+			
+		}
+		
+		
+		return sampledState;
+
 	}
 
 	/**

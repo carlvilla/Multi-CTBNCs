@@ -1,6 +1,8 @@
 package com.cig.mctbnc.nodes;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.cig.mctbnc.data.representation.State;
 
@@ -9,29 +11,46 @@ public abstract class DiscreteNode extends AbstractNode {
 	private int numStatesParents = 1;
 
 	/**
-	 * Initialize a discrete node.
+	 * Initialize a discrete node given a list of states.
 	 * 
-	 * @param index
 	 * @param name
-	 * @param list
+	 * @param states
+	 * 
 	 */
-	public DiscreteNode(String name, List<State> list) {
+	public DiscreteNode(String name, List<State> states) {
 		super(name);
-		this.states = list;
+		this.states = states;
 	}
 
 	/**
-	 * Initialize a discrete node with the possibility of specifying if the node is
-	 * for a class variable or a feature.
+	 * Initialize a discrete node specifying if the node is for a class variable or
+	 * a feature.
 	 * 
-	 * @param index
 	 * @param name
-	 * @param classVariable
-	 * @param list
+	 * @param states
+	 * @param isClassVariable
+	 * 
 	 */
-	public DiscreteNode(String name, List<State> list, boolean classVariable) {
-		super(name, classVariable);
-		this.states = list;
+	public DiscreteNode(String name, List<State> states, boolean isClassVariable) {
+		super(name, isClassVariable);
+		this.states = (List<State>) states;
+	}
+
+	/**
+	 * Initialize a discrete node given a list of strings with its states. The order
+	 * of parameters is changed with respect to the other constructor to avoid both
+	 * of them having the same erasure.
+	 * 
+	 * @param name
+	 * @param isClassVariable
+	 * @param states
+	 * 
+	 */
+	public DiscreteNode(String name, boolean isClassVariable, List<String> states) {
+		super(name, isClassVariable);
+		this.states = new ArrayList<State>();
+		for (String valueState : states)
+			this.states.add(new State(Map.of(name, valueState)));
 	}
 
 	@Override

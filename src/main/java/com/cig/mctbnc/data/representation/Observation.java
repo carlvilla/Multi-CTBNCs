@@ -40,6 +40,22 @@ public class Observation {
 	}
 
 	/**
+	 * Create an observation given the value of the time variable separately.
+	 * 
+	 * @param nameVariables
+	 * @param values
+	 * @param timeValue
+	 */
+	public Observation(List<String> nameVariables, String[] values, double timeValue) {
+		// Store name of the variable and its value for the observation
+		variablesValues = new LinkedHashMap<String, String>();
+		for (int i = 0; i < nameVariables.size(); i++)
+			variablesValues.put(nameVariables.get(i), values[i]);
+		// Store time value
+		this.timeValue = timeValue;
+	}
+
+	/**
 	 * Remove the value of a feature from the observation.
 	 * 
 	 * @param nameFeature
@@ -111,6 +127,7 @@ public class Observation {
 		sb.append(timeValue + "|");
 		for (String valueVariable : variablesValues.values())
 			sb.append(valueVariable + "|");
+		sb.append("\n");
 		return sb.toString();
 	}
 

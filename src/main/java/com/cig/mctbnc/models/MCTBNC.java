@@ -3,8 +3,13 @@ package com.cig.mctbnc.models;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +19,7 @@ import com.cig.mctbnc.classification.Prediction;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.exceptions.ErroneousSequenceException;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
@@ -224,53 +230,88 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 */
 	private Sequence sampleSequence(State sampledCVs, int duration) {
 
-		// Sample the initial state of the sequence
-		
-		
+		// Features whose transitions will be sampled
+		LinkedList<CIMNode> features = new LinkedList<CIMNode>((Collection<? extends CIMNode>) ctbn.getNodes());
+		// Time when states occur
+		List<Double> time = new ArrayList<Double>();
 		double currentTime = 0.0;
+
+		// List of states with the transitions of the sequence
+		List<State> transitions = new ArrayList<State>();
+
+		// Sample the initial state of the sequence (first observation). Theoretically,
+		// it would be sampled from a multi-dimensional Bayesian network classifier.
+		// However, it will used a uniform distribution instead.
+		State evidence = new State();
+		for (int i = 0; i < features.size(); i++) {
+			CIMNode node = (CIMNode) features.get(i);
+			int sampledState = (int) (Math.random() * node.getStates().size());
+			evidence.addEvents(node.getStates().get(sampledState).getEvents());
+		}
+
+		// Add the states of the class variables
+		evidence.addEvents(sampledCVs.getEvents());
+
+		time.add(currentTime);
+
+		// LinkedList<Double> transitionTimes = new LinkedList<Double>();
+
+		TreeMap<Double, CIMNode> transitionTimes = new TreeMap<Double, CIMNode>();
+		
+		State initialObservation = new State(evidence.getEvents());
+		transitions.add(initialObservation);
+		
 		while (currentTime < duration) {
+			// Obtain time the nodes stay in their state
 
-			List<CIMNode> nodes = (List<CIMNode>) ctbn.getNodes();
+			while (!features.isEmpty()) {
 
-			State evidence = new State();
-			
-			// Get the potential time that the variable will stay in its current state
-			double sampledTime = nodes.get(0).sampleTimeState(evidence);
+				CIMNode featureToSample = features.pollFirst();
+
+				// Get the potential time that the variable will stay in its current state
+				double sampledTime = featureToSample.sampleTimeState(evidence);
+
+				transitionTimes.put(sampledTime, featureToSample);
+
+			}
+
+			Entry<Double, CIMNode> nextNodeToChange = transitionTimes.pollFirstEntry();
 
 			// Update current time
-			currentTime += sampledTime;
+			currentTime += nextNodeToChange.getKey();
 
 			// If the currentTime is greater than the current duration, the entire sequence
 			// was already generated
-			if (currentTime > duration) {
+			if (currentTime >= duration)
 				break;
-			}
+
+			CIMNode changingNode = nextNodeToChange.getValue();
+
+			State nextState = changingNode.sampleNextState(evidence);
+
+			evidence.modifyEventValue(changingNode.getName(), nextState.getValues()[0]);
+
+			State currentObservation = new State(evidence.getEvents());
+
+			// Save the observation
+			transitions.add(currentObservation);
+			// Save the time when the observation (transition) occurred
+			time.add(currentTime);
+
+			// Add the feature to the list to sample the next time it will transition
+			features.add(changingNode);
 
 		}
 
-		// Sequence sequence = new Sequence();
-		// return sequence;
+		Sequence sequence = null;
+		try {
+			sequence = new Sequence(sampledCVs, transitions, "t", time);
+		} catch (ErroneousSequenceException e) {
+			logger.warn(e.getMessage());
+		}
 
-		return null;
+		return sequence;
 
-	}
-
-	/**
-	 * Sample from an exponential distribution with parameter "lambda". This method
-	 * is used to sample the next transition time when generating a sequence.
-	 * 
-	 * @param lambda parameter of the exponential distribution
-	 * @return sampled time
-	 */
-	private double sampleExpDist(double lambda) {
-		return -Math.log(1 - Math.random()) / lambda;
-	}
-
-	public String[] sampleInitialState() {
-		// Sample the state of the class variables
-		String[] state = new String[1];
-
-		return state;
 	}
 
 	/**

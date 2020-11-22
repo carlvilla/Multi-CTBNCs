@@ -34,36 +34,16 @@ public class MainSampling {
 		// Number of sequences to generate
 		int numSequences = 5000;
 		// Duration of the sequences
-		int durationSequences = 1;
+		int durationSequences = 10;
 		// Destination path for the generated dataset
 		String path = "src/main/resources/datasets/synthetic";
-
+		
 		// Define class variables
-		List<State> states = new ArrayList<State>();
-		states.add(new State(Map.of("CV1", "A")));
-		states.add(new State(Map.of("CV1", "B")));
-		CPTNode CV1 = new CPTNode("CV1", states);
-		states = new ArrayList<State>();
-		states.add(new State(Map.of("CV2", "A")));
-		states.add(new State(Map.of("CV2", "B")));
-		CPTNode CV2 = new CPTNode("CV2", states);
-		states = new ArrayList<State>();
-		states.add(new State(Map.of("CV3", "A")));
-		states.add(new State(Map.of("CV3", "B")));
-		CPTNode CV3 = new CPTNode("CV3", states);
-		states = new ArrayList<State>();
-		states.add(new State(Map.of("CV4", "A")));
-		states.add(new State(Map.of("CV4", "B")));
-		CPTNode CV4 = new CPTNode("CV4", states);
-		states = new ArrayList<State>();
-		states.add(new State(Map.of("CV5", "A")));
-		states.add(new State(Map.of("CV5", "B")));
-		CPTNode CV5 = new CPTNode("CV5", states);
-		CV1.isClassVariable(true);
-		CV2.isClassVariable(true);
-		CV3.isClassVariable(true);
-		CV4.isClassVariable(true);
-		CV5.isClassVariable(true);
+		CPTNode CV1 = new CPTNode("CV1", true, List.of("A", "B"));
+		CPTNode CV2 = new CPTNode("CV2", true, List.of("A", "B"));
+		CPTNode CV3 = new CPTNode("CV3", true, List.of("A", "B"));
+		CPTNode CV4 = new CPTNode("CV4", true, List.of("A", "B"));
+		CPTNode CV5 = new CPTNode("CV5", true, List.of("A", "B"));
 
 		// Definition of the structure of the class subgraph
 		CV1.setChild(CV2);
@@ -72,43 +52,30 @@ public class MainSampling {
 		CV3.setChild(CV5);
 		CV4.setChild(CV5);
 		BN<CPTNode> CS = new BN<CPTNode>(List.of(CV1, CV2, CV3, CV4, CV5));
+		
 		// Definition of the parameters of the Bayesian network (class subgraph)
 		generateRandomConditionalDistributions(CS);
 
 		// Define features
-		states = new ArrayList<State>();
-		states.add(new State(Map.of("F1", "A")));
-		states.add(new State(Map.of("F1", "B")));
-		states.add(new State(Map.of("F1", "C")));
-		CIMNode F1 = new CIMNode("F1", states);
+		CIMNode F1 = new CIMNode("F1", false, List.of("A", "B", "C"));
+		CIMNode F2 = new CIMNode("F2", false, List.of("A", "B", "C"));
+		CIMNode F3 = new CIMNode("F3", false, List.of("A", "B", "C"));
+		CIMNode F4 = new CIMNode("F4", false, List.of("A", "B", "C"));
 
-		states = new ArrayList<State>();
-		states.add(new State(Map.of("F2", "A")));
-		states.add(new State(Map.of("F2", "B")));
-		states.add(new State(Map.of("F2", "C")));
-		CIMNode F2 = new CIMNode("F2", states);
-
-		states = new ArrayList<State>();
-		states.add(new State(Map.of("F3", "A")));
-		states.add(new State(Map.of("F3", "B")));
-		states.add(new State(Map.of("F3", "C")));
-		CIMNode F3 = new CIMNode("F3", states);
-
-		states = new ArrayList<State>();
-		states.add(new State(Map.of("F4", "A")));
-		states.add(new State(Map.of("F4", "B")));
-		states.add(new State(Map.of("F4", "C")));
-		CIMNode F4 = new CIMNode("F4", states);
-
-		// Definition of the feature and bridge subgraph
-		F1.setParent(new CPTNode("CV1", states));
-		F1.setParent(F2);
-		F2.setParent(new CPTNode("CV1", states));
-		F2.setParent(F1);
-		F2.setParent(F3);
-		F3.setParent(new CPTNode("CV3", states));
-		F3.setParent(F4);
+		// Definition of the structure of the bridge and feature subgraphs
+		CV1.setChild(F1);		
+		CV1.setChild(F2);
+		CV3.setChild(F3);
+		CV3.setChild(F2);
+		CV3.setChild(F3);
+		CV4.setChild(F4);
+		CV5.setChild(F4);
+		F1.setChild(F2);
+		F2.setChild(F1);
+		F3.setChild(F2);
+		F4.setChild(F3);
 		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(F1, F2, F3, F4), CS);
+		
 		// Definition of the parameters of the continuous time Bayesian network (feature
 		// and bridge subgraph)
 		generateRandomConditionalDistributions(FBS);

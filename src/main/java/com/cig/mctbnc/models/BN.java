@@ -78,8 +78,7 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	}
 
 	/**
-	 * Obtain the topological ordering of the nodes with the Kahn's
-	 * algorithm.
+	 * Obtain the topological ordering of the nodes with the Kahn's algorithm.
 	 * 
 	 * @return sorted nodes
 	 */
@@ -94,8 +93,9 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		while (!nodesWithoutParents.isEmpty()) {
 			Node node = nodesWithoutParents.poll();
 			sortedNodes.add(node);
-			// Iterate over the children of the node
-			List<Node> childrenNodes = node.getChildren();
+			// Iterate over the children of the node (features are ignored)
+			List<Node> childrenNodes = node.getChildren().stream().filter(child -> child.isClassVariable())
+					.collect(Collectors.toList());
 			for (Node childNode : childrenNodes) {
 				// Discard the arc between the parent and the child
 				indegree.put(childNode, indegree.get(childNode) - 1);

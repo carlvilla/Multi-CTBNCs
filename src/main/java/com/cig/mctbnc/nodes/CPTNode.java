@@ -20,14 +20,25 @@ public class CPTNode extends DiscreteNode {
 	BNSufficientStatistics sufficientStatistics;
 
 	/**
-	 * Constructor to create a node containing a conditional probability table (CPT)
-	 * given the name of the variable and its possible states.
+	 * Constructor that receives the name of the variable and its possible states.
 	 * 
 	 * @param nameVariable
 	 * @param statesVariable
 	 */
-	public CPTNode(String nameVariable, List<State> statesVariable) {
-		super(nameVariable, statesVariable);
+	public CPTNode(String name, List<State> states) {
+		super(name, states);
+	}
+
+	/**
+	 * Constructor that receives the name of the variable, a list of strings with
+	 * its possible states and if it is a class variable.
+	 * @param name 
+	 * @param states 
+	 * @param isClassVariable 
+	 * 
+	 */
+	public CPTNode(String name, boolean isClassVariable, List<String> states) {
+		super(name, isClassVariable, states);
 	}
 
 	/**
@@ -82,7 +93,7 @@ public class CPTNode extends DiscreteNode {
 				// Retrieve probability given the evidence and certain state of the node
 				accProb += getCPT().get(query);
 			} catch (NullPointerException e) {
-				// The evidence does not contain all
+				// The evidence does not contain all data
 				return sampledState;
 			}
 			if (probUniform <= accProb) {
