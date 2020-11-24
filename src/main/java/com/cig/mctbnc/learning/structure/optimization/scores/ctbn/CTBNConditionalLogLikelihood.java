@@ -2,11 +2,9 @@ package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -57,7 +55,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 
 		// The contribution of a node is 0 if it has no class variables as parents
 		if (!hasClassVariablesAsParent(node))
-			return 0; //Double.NEGATIVE_INFINITY;
+			return 0; // Double.NEGATIVE_INFINITY;
 
 		// Obtain possible states of the class variables that are parents of the node
 		List<String> nameCVs = nameClassVariablesParents(node);
@@ -160,14 +158,14 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 					// Add to class configuration of unobserved class variables the state of
 					// observed class variables
 					state.addEvents(query.getEvents());
-					double nx = node.getSufficientStatistics().get(state);
+					double nx = node.getSufficientStatistics().getNx().get(state);
 					double ox = node.getCPT().get(state);
 					if (ox > 0)
 						lp += nx * Math.log(ox);
 				}
 			} else {
 				// All parents of the class variables are observed
-				double nx = node.getSufficientStatistics().get(query);
+				double nx = node.getSufficientStatistics().getNx().get(query);
 				double ox = node.getCPT().get(query);
 				if (ox > 0)
 					lp += nx * Math.log(ox);
@@ -204,14 +202,14 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 					.allMatch(nameCV -> fromState.getValueVariable(nameCV).equals(stateCVs.getValueVariable(nameCV)));
 			if (containsCC) {
 				double qx = node.getQx().get(fromState);
-				double nx = ss.getNx().get(fromState);
+				double nx = ss.getMx().get(fromState);
 				double tx = ss.getTx().get(fromState);
 				if (qx > 0)
 					lpp += nx * Math.log(qx) - qx * tx;
 				// Maps with probabilities (ox_) and number of occurrences (nx_) of transitions
 				// from "fromState" to any other possible state of the feature node
-				Map<State, Double> ox_ = node.getOxx().get(fromState);
-				Map<State, Double> nx_ = node.getSufficientStatistics().getNxy().get(fromState);
+				Map<State, Double> ox_ = node.getOxy().get(fromState);
+				Map<State, Double> nx_ = node.getSufficientStatistics().getMxy().get(fromState);
 				// Iterate over all states of the feature node (except its state in "fromState")
 				for (State toState : ox_.keySet()) {
 					double oxx = ox_.get(toState);

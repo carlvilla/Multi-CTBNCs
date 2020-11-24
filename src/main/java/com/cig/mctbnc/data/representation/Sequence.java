@@ -2,7 +2,6 @@ package com.cig.mctbnc.data.representation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,7 +38,7 @@ public class Sequence {
 	 */
 	public Sequence(List<String> nameVariables, String nameTimeVariable, List<String> nameClassVariables,
 			List<String[]> valueObservations) throws ErroneousSequenceException {
-		// Set time variable
+		// Set name of the time variable
 		this.nameTimeVariable = nameTimeVariable;
 		// Set the names of the features by filtering the names of the class variables
 		// and time variable
@@ -61,13 +60,22 @@ public class Sequence {
 	 * 
 	 * @param stateClassVariables
 	 * @param transitions
+	 * @param nameTimeVariable
 	 * @param time
+	 * @throws ErroneousSequenceException
+	 * 
 	 */
 	public Sequence(State stateClassVariables, List<State> transitions, String nameTimeVariable, List<Double> time)
 			throws ErroneousSequenceException {
-		this.classVariablesValues = stateClassVariables.getEvents();
-		// Get names features
+		// Set name of the time variable
+		this.nameTimeVariable = nameTimeVariable;
+		// Set names variables
 		List<String> nameVariables = transitions.get(0).getNameVariables();
+		// Get names features
+		this.featureNames = Util.<String>filter(
+				Util.<String>filter(nameVariables, stateClassVariables.getNameVariables()), nameTimeVariable);
+		// Set values class variables
+		this.classVariablesValues = stateClassVariables.getEvents();
 		// Get observations with the values of all variables
 		observations = new ArrayList<Observation>();
 		for (int i = 0; i < time.size(); i++) {

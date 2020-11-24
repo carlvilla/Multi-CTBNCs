@@ -20,10 +20,10 @@ import com.cig.mctbnc.nodes.Node;
  * Compute and store the sufficient statistics of a discrete CTBN node. The
  * sufficient statistics are:
  * 
- * (1) Nxx: number of times a variable transitions from a certain state to
+ * (1) Mxy: number of times a variable transitions from a certain state to
  * another one while its parents take a certain value.
  * 
- * (2) Nx: number of times a variable leaves a certain state (for any other
+ * (2) Mx: number of times a variable leaves a certain state (for any other
  * state) while its parents take a certain value.
  * 
  * (3) T: time that a variable stays in a certain state while its parents take a
@@ -34,27 +34,27 @@ import com.cig.mctbnc.nodes.Node;
  */
 public class CTBNSufficientStatistics implements SufficientStatistics {
 	// Sufficient statistics
-	private Map<State, Map<State, Double>> Nxy;
-	private Map<State, Double> Nx;
+	private Map<State, Map<State, Double>> Mxy;
+	private Map<State, Double> Mx;
 	private Map<State, Double> Tx;
 	static Logger logger = LogManager.getLogger(CTBNSufficientStatistics.class);
 	// Hyperparameters of the Dirichlet prior distribution (zero if MLE is used)
-	private double NxyHP;
-	private double NxHP; // defined with NxyHP and the number of states of the variable
+	private double MxyHP;
+	private double MxHP; // defined with MxyHP and the number of states of the variable
 	private double TxHP;
 
 	/**
 	 * Receives the hyperparameters of the Dirichlet prior distribution over the
 	 * parameters that are necessary for Bayesian estimation.
 	 * 
-	 * @param NxyHP
+	 * @param MxyHP
 	 * @param TxHP
 	 */
-	public CTBNSufficientStatistics(double NxyHP, double TxHP) {
-		Nxy = new HashMap<State, Map<State, Double>>();
-		Nx = new HashMap<State, Double>();
+	public CTBNSufficientStatistics(double MxyHP, double TxHP) {
+		Mxy = new HashMap<State, Map<State, Double>>();
+		Mx = new HashMap<State, Double>();
 		Tx = new HashMap<State, Double>();
-		this.NxyHP = NxyHP;
+		this.MxyHP = MxyHP;
 		this.TxHP = TxHP;
 	}
 
@@ -93,10 +93,10 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 				for (String nameParent : nameParents)
 					fromState.addEvent(nameParent, fromObservation.getValueVariable(nameParent));
 				// If the node is transitioning to a different state, the sufficient statistics
-				// Nxy and Nx have to be updated
+				// Mxy and Mx have to be updated
 				if (nodeIsTransitioning) {
-					updateOccurrencesNxy(fromState, toState, 1);
-					updateOccurrencesNx(fromState, 1);
+					updateOccurrencesMxy(fromState, toState, 1);
+					updateOccurrencesMx(fromState, 1);
 				}
 				// Increase the time the node and its parents are in a certain state
 				double transitionTime = toObservation.getTimeValue() - fromObservation.getTimeValue();
@@ -114,8 +114,8 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 		// TODO Instead of passing a node, the class should only accept DiscreteNode.
 		// Improve architecture
 		List<State> statesVariable = ((DiscreteNode) node).getStates();
-		// Hyperparameter NxPrior (number of transitions originating from certain state)
-		NxHP = NxyHP * (statesVariable.size() - 1);
+		// Hyperparameter MxPrior (number of transitions originating from certain state)
+		MxHP = MxyHP * (statesVariable.size() - 1);
 		if (node.hasParents()) {
 			List<Node> parents = node.getParents();
 			List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
@@ -124,27 +124,27 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 				for (State fromState : statesVariable) {
 					State fromStateWithParents = new State(fromState.getEvents());
 					fromStateWithParents.addEvents(stateParents.getEvents());
-					// Initialize Nx
-					Nx.put(fromStateWithParents, NxHP);
+					// Initialize Mx
+					Mx.put(fromStateWithParents, MxHP);
 					// Initialize Tx
 					Tx.put(fromStateWithParents, TxHP);
 					for (State toState : statesVariable)
 						// if (!fromState.equals(toState))
 						if (!fromState.getValues()[0].equals(toState.getValues()[0]))
-							// Initialize Nxy
-							updateOccurrencesNxy(fromStateWithParents, toState, NxyHP);
+							// Initialize Mxy
+							updateOccurrencesMxy(fromStateWithParents, toState, MxyHP);
 				}
 		} else {
 			for (State fromState : statesVariable) {
-				// Initialize Nx
-				Nx.put(fromState, NxHP);
+				// Initialize Mx
+				Mx.put(fromState, MxHP);
 				// Initialize Tx
 				Tx.put(fromState, TxHP);
 				for (State toState : statesVariable)
 					// if (!fromState.equals(toState))
 					if (!fromState.getValues()[0].equals(toState.getValues()[0]))
-						// Initialize Nxy
-						updateOccurrencesNxy(fromState, toState, NxyHP);
+						// Initialize Mxy
+						updateOccurrencesMxy(fromState, toState, MxyHP);
 			}
 		}
 	}
@@ -157,20 +157,20 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @param toState        next state
 	 * @param numOccurrences number of occurrences
 	 */
-	private void updateOccurrencesNxy(State fromState, State toState, double numOccurrences) {
-		Map<State, Double> mapFromState = Nxy.get(fromState);
+	private void updateOccurrencesMxy(State fromState, State toState, double numOccurrences) {
+		Map<State, Double> mapFromState = Mxy.get(fromState);
 		if (mapFromState == null) {
 			// If the state 'fromState' was never seen before, it is created a map to
 			// contain all the occurrences of its transitions to other states
 			mapFromState = new HashMap<State, Double>();
 			mapFromState.put(toState, numOccurrences);
-			Nxy.put(fromState, mapFromState);
+			Mxy.put(fromState, mapFromState);
 		} else {
-			// Current value of Nxy for 'fromState' and 'toState'
-			Double currentNxy = mapFromState.get(toState);
-			if (currentNxy == null)
-				currentNxy = 0.0;
-			mapFromState.put(toState, currentNxy + numOccurrences);
+			// Current value of Mxy for 'fromState' and 'toState'
+			Double currentMxy = mapFromState.get(toState);
+			if (currentMxy == null)
+				currentMxy = 0.0;
+			mapFromState.put(toState, currentMxy + numOccurrences);
 		}
 	}
 
@@ -181,10 +181,10 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @param fromState      current state
 	 * @param numOccurrences number of occurrences
 	 */
-	private void updateOccurrencesNx(State fromState, double numOccurrences) {
-		// Current value of Nx for 'fromState'
-		double currentNx = Nx.getOrDefault(fromState, 0.0);
-		Nx.put(fromState, currentNx + numOccurrences);
+	private void updateOccurrencesMx(State fromState, double numOccurrences) {
+		// Current value of Mx for 'fromState'
+		double currentMx = Mx.getOrDefault(fromState, 0.0);
+		Mx.put(fromState, currentMx + numOccurrences);
 	}
 
 	/**
@@ -207,11 +207,11 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * 
 	 * @return number of occurrences of every transition
 	 */
-	public Map<State, Map<State, Double>> getNxy() {
-		// It is possible that Nxy is empty if the variable do not have any transition
-		if (Nxy.isEmpty() && !Nx.isEmpty() && !Tx.isEmpty())
-			logger.warn("Sufficient statistic Nxy was not computed");
-		return Nxy;
+	public Map<State, Map<State, Double>> getMxy() {
+		// It is possible that Mxy is empty if the variable do not have any transition
+		if (Mxy.isEmpty() && !Mx.isEmpty() && !Tx.isEmpty())
+			logger.warn("Sufficient statistic Mxy was not computed");
+		return Mxy;
 	}
 
 	/**
@@ -220,10 +220,10 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * 
 	 * @return number of times the variable leaves every state
 	 */
-	public Map<State, Double> getNx() {
-		if (Nx.isEmpty())
-			logger.warn("Sufficient statistic Nx was not computed");
-		return Nx;
+	public Map<State, Double> getMx() {
+		if (Mx.isEmpty())
+			logger.warn("Sufficient statistic Mx was not computed");
+		return Mx;
 	}
 
 	/**
@@ -238,14 +238,36 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 		return Tx;
 	}
 
-	public double getNxyHyperparameter() {
-		return NxyHP;
+	/**
+	 * Return the value of the hyperparameter with the number of 'imaginary'
+	 * transitions that occurred from a certain state to another before seen the
+	 * data.
+	 * 
+	 * @return hyperparameter with the number of 'imaginary' transitions that
+	 *         occurred from a certain state to another
+	 */
+	public double getMxyHyperparameter() {
+		return MxyHP;
 	}
 
-	public double getNxHyperparameter() {
-		return NxHP;
+	/**
+	 * Return the value of the hyperparameter with the number of 'imaginary'
+	 * transitions that occurred from a certain state before seen the data.
+	 * 
+	 * @return hyperparameter with the number of 'imaginary' transitions that
+	 *         occurred from a certain state
+	 */
+	public double getMxHyperparameter() {
+		return MxHP;
 	}
 
+	/**
+	 * Return the value of the hyperparameter with the 'imaginary' time that was
+	 * spent in a certain state before seen the data.
+	 * 
+	 * @return hyperparameter with the 'imaginary' time that was spent in a certain
+	 *         state
+	 */
 	public double getTxHyperparameter() {
 		return TxHP;
 	}

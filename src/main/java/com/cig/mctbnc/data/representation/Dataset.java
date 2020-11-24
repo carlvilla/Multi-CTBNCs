@@ -2,7 +2,6 @@ package com.cig.mctbnc.data.representation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +34,13 @@ public class Dataset {
 	private Map<List<String>, List<State>> statesCombinationVariables;
 	static Logger logger = LogManager.getLogger(Dataset.class);
 
+	/**
+	 * Constructor that create an empty dataset with the names of the time variable
+	 * and class variables.
+	 * 
+	 * @param nameTimeVariable
+	 * @param nameClassVariables
+	 */
 	public Dataset(String nameTimeVariable, List<String> nameClassVariables) {
 		sequences = new ArrayList<Sequence>();
 		this.nameTimeVariable = nameTimeVariable;
@@ -42,6 +48,11 @@ public class Dataset {
 		initialiazeStructures();
 	}
 
+	/**
+	 * Constructor that creates a dataset with a list of sequences.
+	 * 
+	 * @param sequences
+	 */
 	public Dataset(List<Sequence> sequences) {
 		this.sequences = sequences;
 		nameFeatures = sequences.get(0).getFeatureNames();
@@ -146,14 +157,29 @@ public class Dataset {
 		return sequences;
 	}
 
+	/**
+	 * Return the name of the time variable.
+	 * 
+	 * @return name of time variable
+	 */
 	public String getNameTimeVariable() {
 		return nameTimeVariable;
 	}
 
+	/**
+	 * Return the names of the features,
+	 * 
+	 * @return list with the names of the features
+	 */
 	public List<String> getNameFeatures() {
 		return nameFeatures;
 	}
 
+	/**
+	 * Return the name of the class variables.
+	 * 
+	 * @return list with the names of the class variables
+	 */
 	public List<String> getNameClassVariables() {
 		return nameClassVariables;
 	}
@@ -177,8 +203,9 @@ public class Dataset {
 	 * @return name of all the variables
 	 */
 	public List<String> getNameAllVariables() {
-		List<String> nameVariables = getNameVariables();
+		List<String> nameVariables = new ArrayList<String>();
 		nameVariables.add(getNameTimeVariable());
+		nameVariables.addAll(getNameVariables());
 		return nameVariables;
 	}
 
@@ -351,7 +378,7 @@ public class Dataset {
 		// If all the variables are class variables, then it is not necessary to
 		// check the observations of each sequence
 		boolean onlyClassVariable = getNameClassVariables().containsAll(nameVariables);
-		if (onlyClassVariable) {
+		if (onlyClassVariable)
 			for (Sequence sequence : getSequences()) {
 				boolean occurrence = true;
 				// Check if the events of the query are the same as the events in the sequence
@@ -364,11 +391,9 @@ public class Dataset {
 				if (occurrence)
 					numOccurrences++;
 			}
-		}
 		// If there are features, it is necessary to study the observations
-		else {
+		else
 			throw new UnsupportedOperationException();
-		}
 		return numOccurrences;
 	}
 

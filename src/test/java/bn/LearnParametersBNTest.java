@@ -14,6 +14,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.learning.parameters.bn.BNBayesianEstimation;
 import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
 import com.cig.mctbnc.nodes.CPTNode;
@@ -107,18 +108,18 @@ public class LearnParametersBNTest {
 
 	@Test
 	@Order(1)
-	public void testMLE() {
+	public void testMLEParameters() {
 		// Learn sufficient statistics and parameters given the nodes and the dataset
 		BNParameterLearningAlgorithm bnParameterLearning = new BNMaximumLikelihoodEstimation();
 		bnParameterLearning.learn(nodes, dataset);
-		
+
 		// Parameters C1
 		Map<State, Double> cptC1 = nodes.get(0).getCPT();
 		// Parameters C2
 		Map<State, Double> cptC2 = nodes.get(1).getCPT();
 		// Parameters C3
 		Map<State, Double> cptC3 = nodes.get(2).getCPT();
-		
+
 		// Parameters C1
 		State state = new State();
 		state.addEvent("C1", "a");
@@ -137,33 +138,33 @@ public class LearnParametersBNTest {
 		state.addEvent("C2", "b");
 		state.addEvent("C3", "b");
 		assertEquals(0.333, cptC1.get(state), 0.001);
-		
+
 		// Parameters C2
 		state = new State();
 		state.addEvent("C2", "b");
 		state.addEvent("C3", "b");
 		assertEquals(1, cptC2.get(state), 0.001);
-		
+
 		state = new State();
 		state.addEvent("C2", "a");
 		state.addEvent("C3", "a");
 		assertEquals(1, cptC2.get(state), 0.001);
-		
+
 		// Never seen state
-		state = new State(); 
+		state = new State();
 		state.addEvent("C2", "b");
 		state.addEvent("C3", "c");
 		assertEquals(null, cptC2.get(state));
-		
+
 		// Parameters C3
 		state = new State();
 		state.addEvent("C3", "a");
 		assertEquals(0.142, cptC3.get(state), 0.001);
-		
+
 		state = new State();
 		state.addEvent("C3", "b");
 		assertEquals(0.857, cptC3.get(state), 0.001);
-		
+
 		state = new State();
 		state.addEvent("C3", "c");
 		assertEquals(null, cptC3.get(state));
@@ -172,60 +173,218 @@ public class LearnParametersBNTest {
 	@Test
 	public void testMLESufficientStatistics() {
 		// Sufficient statistics C1
-		Map<State, Integer> ssC1 = nodes.get(0).getSufficientStatistics();
+		Map<State, Double> nxC1 = nodes.get(0).getSufficientStatistics().getNx();
 		// Sufficient statistics C2
-		Map<State, Integer> ssC2 = nodes.get(1).getSufficientStatistics();
+		Map<State, Double> nxC2 = nodes.get(1).getSufficientStatistics().getNx();
 		// Sufficient statistics C3
-		Map<State, Integer> ssC3 = nodes.get(2).getSufficientStatistics();
+		Map<State, Double> nxC3 = nodes.get(2).getSufficientStatistics().getNx();
 
 		// Sufficient statistics C1
 		State state = new State();
 		state.addEvent("C1", "a");
 		state.addEvent("C2", "b");
 		state.addEvent("C3", "b");
-		assertEquals(3, ssC1.get(state));
+		assertEquals(3, nxC1.get(state));
 
 		state = new State();
 		state.addEvent("C1", "b");
 		state.addEvent("C2", "a");
 		state.addEvent("C3", "b");
-		assertEquals(0, ssC1.get(state));
+		assertEquals(0, nxC1.get(state));
 
 		state = new State();
 		state.addEvent("C1", "c");
 		state.addEvent("C2", "b");
 		state.addEvent("C3", "b");
-		assertEquals(2, ssC1.get(state));
-		
+		assertEquals(2, nxC1.get(state));
+
 		// Sufficient statistics C2
 		state = new State();
 		state.addEvent("C2", "b");
 		state.addEvent("C3", "b");
-		assertEquals(6, ssC2.get(state));
-		
+		assertEquals(6, nxC2.get(state));
+
 		state = new State();
 		state.addEvent("C2", "a");
 		state.addEvent("C3", "a");
-		assertEquals(1, ssC2.get(state));
-		
+		assertEquals(1, nxC2.get(state));
+
 		// Never seen state
-		state = new State(); 
+		state = new State();
 		state.addEvent("C2", "b");
 		state.addEvent("C3", "c");
-		assertEquals(null, ssC2.get(state));
-		
+		assertEquals(null, nxC2.get(state));
+
 		// Sufficient statistics C3
 		state = new State();
 		state.addEvent("C3", "a");
-		assertEquals(1, ssC3.get(state));
-		
+		assertEquals(1, nxC3.get(state));
+
 		state = new State();
 		state.addEvent("C3", "b");
-		assertEquals(6, ssC3.get(state));
-		
+		assertEquals(6, nxC3.get(state));
+
 		state = new State();
 		state.addEvent("C3", "c");
-		assertEquals(null, ssC3.get(state));
+		assertEquals(null, nxC3.get(state));
+	}
+
+	/**
+	 * Check the parameters of a BN obtained by Bayesian estimation. The imaginary
+	 * counts are all established to 0, so the result should be the same as with
+	 * maximum likelihood estimation.
+	 */
+	@Test
+	public void testBE_ImaginaryCountsOff() {
+		// Establish imaginary counts
+		double NxyPrior = 0.0;
+		BNParameterLearningAlgorithm bnParameterLearning = new BNBayesianEstimation(NxyPrior);
+		bnParameterLearning.learn(nodes, dataset);
+		// Sufficient statistics
+		testMLESufficientStatistics();
+		// Parameters
+		testMLEParameters();
+	}
+
+	/**
+	 * Check the parameters of a BN obtained by Bayesian estimation. All the
+	 * imaginary counts are more than 0.
+	 */
+	@Test
+	public void testBE_ImaginaryCountsOn() {
+		// Establish imaginary counts
+		double NxPrior = 3.0;
+		BNParameterLearningAlgorithm bnParameterLearning = new BNBayesianEstimation(NxPrior);
+		bnParameterLearning.learn(nodes, dataset);
+		// Sufficient statistics
+		testBESufficientStatistic();
+		// Parameters
+		testBEParameters();
+	}
+
+	/**
+	 * Check the estimation of the parameters of a given BN and dataset when using
+	 * Bayesian estimation.
+	 */
+	public void testBEParameters() {
+		// Parameters C1
+		Map<State, Double> cptC1 = nodes.get(0).getCPT();
+		// Parameters C2
+		Map<State, Double> cptC2 = nodes.get(1).getCPT();
+		// Parameters C3
+		Map<State, Double> cptC3 = nodes.get(2).getCPT();
+
+		// Parameters C1
+		State state = new State();
+		state.addEvent("C1", "a");
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "b");
+		assertEquals(0.4, cptC1.get(state), 0.001);
+
+		state = new State();
+		state.addEvent("C1", "b");
+		state.addEvent("C2", "a");
+		state.addEvent("C3", "b");
+		assertEquals(0.333, cptC1.get(state), 0.001);
+
+		state = new State();
+		state.addEvent("C1", "c");
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "b");
+		assertEquals(0.333, cptC1.get(state), 0.001);
+
+		// Parameters C2
+		state = new State();
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "b");
+		assertEquals(0.75, cptC2.get(state), 0.001);
+
+		state = new State();
+		state.addEvent("C2", "a");
+		state.addEvent("C3", "a");
+		assertEquals(0.571, cptC2.get(state), 0.001);
+
+		// Never seen state
+		state = new State();
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "c");
+		assertEquals(null, cptC2.get(state));
+
+		// Parameters C3
+		state = new State();
+		state.addEvent("C3", "a");
+		assertEquals(0.307, cptC3.get(state), 0.001);
+
+		state = new State();
+		state.addEvent("C3", "b");
+		assertEquals(0.692, cptC3.get(state), 0.001);
+
+		state = new State();
+		state.addEvent("C3", "c");
+		assertEquals(null, cptC3.get(state));
+	}
+
+	/**
+	 * Check the computation of the sufficient statistics of a given BN and dataset
+	 * when using Bayesian estimation. They should include the defined
+	 * hyperparameters.
+	 */
+	public void testBESufficientStatistic() {
+		// Sufficient statistics C1
+		Map<State, Double> nxC1 = nodes.get(0).getSufficientStatistics().getNx();
+		// Sufficient statistics C2
+		Map<State, Double> nxC2 = nodes.get(1).getSufficientStatistics().getNx();
+		// Sufficient statistics C3
+		Map<State, Double> nxC3 = nodes.get(2).getSufficientStatistics().getNx();
+
+		// Sufficient statistics C1
+		State state = new State();
+		state.addEvent("C1", "a");
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "b");
+		assertEquals(6, nxC1.get(state));
+
+		state = new State();
+		state.addEvent("C1", "b");
+		state.addEvent("C2", "a");
+		state.addEvent("C3", "b");
+		assertEquals(3, nxC1.get(state));
+
+		state = new State();
+		state.addEvent("C1", "c");
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "b");
+		assertEquals(5, nxC1.get(state));
+
+		// Sufficient statistics C2
+		state = new State();
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "b");
+		assertEquals(9, nxC2.get(state));
+
+		state = new State();
+		state.addEvent("C2", "a");
+		state.addEvent("C3", "a");
+		assertEquals(4, nxC2.get(state));
+
+		// Never seen state
+		state = new State();
+		state.addEvent("C2", "b");
+		state.addEvent("C3", "c");
+		assertEquals(null, nxC2.get(state));
+
+		// Sufficient statistics C3
+		state = new State();
+		state.addEvent("C3", "a");
+		assertEquals(4, nxC3.get(state));
+
+		state = new State();
+		state.addEvent("C3", "b");
+		assertEquals(9, nxC3.get(state));
+
+		state = new State();
+		state.addEvent("C3", "c");
+		assertEquals(null, nxC3.get(state));
 	}
 
 }

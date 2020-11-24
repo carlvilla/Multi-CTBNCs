@@ -26,7 +26,7 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 
 	@Override
 	public void learn(List<? extends Node> nodes, Dataset dataset) {
-		sufficientStatistics(nodes, dataset);
+		setSufficientStatistics(nodes, dataset);
 		setCIMs(nodes);
 	}
 
@@ -42,14 +42,12 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 	 * @param nodes
 	 * @param dataset
 	 */
-	private void sufficientStatistics(List<? extends Node> nodes, Dataset dataset) {
-		int numNodes = nodes.size();
+	private void setSufficientStatistics(List<? extends Node> nodes, Dataset dataset) {
 		// TODO PARALELLIZE
-		for (int i = 0; i < numNodes; i++) {
+		for (int i = 0; i < nodes.size(); i++) {
 			CTBNSufficientStatistics ssNode = getSufficientStatisticsNode(nodes.get(i), dataset);
 			nodes.get(i).setSufficientStatistics(ssNode);
 		}
-
 	}
 
 	/**
@@ -105,30 +103,30 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 		Map<State, Double> Qx = new HashMap<State, Double>();
 		Map<State, Map<State, Double>> Oxx = new HashMap<State, Map<State, Double>>();
 		// Retrieve sufficient statistics
-		Map<State, Map<State, Double>> Nxy = node.getSufficientStatistics().getNxy();
-		Map<State, Double> Nx = node.getSufficientStatistics().getNx();
+		Map<State, Map<State, Double>> Mxy = node.getSufficientStatistics().getMxy();
+		Map<State, Double> Mx = node.getSufficientStatistics().getMx();
 		Map<State, Double> Tx = node.getSufficientStatistics().getTx();
 		// Parameter with probabilities of leaving a certain state
-		for (State fromState : Nx.keySet()) {
+		for (State fromState : Mx.keySet()) {
 			// Number of transitions from this state
-			double NxFromState = Nx.get(fromState);
+			double MxFromState = Mx.get(fromState);
 			// Instantaneous probability
-			double qx = NxFromState / Tx.get(fromState);
+			double qx = MxFromState / Tx.get(fromState);
 			// qx can be undefined if the priors are 0 (maximum likelihood estimation)
 			if (Double.isNaN(qx))
 				qx = 0;
 			// Save the estimated instantaneous probability
 			Qx.put(fromState, qx);
 			// Obtain the map with all the transitions from "fromState" to other states
-			Map<State, Double> mapNxyFromState = Nxy.get(fromState);
+			Map<State, Double> mapMxyFromState = Mxy.get(fromState);
 			// It may happen that a variable has not transitions in a training set (e.g.
 			// when using CV without stratification)
-			if (mapNxyFromState != null) {
+			if (mapMxyFromState != null) {
 				// Iterate over all possible transitions to obtain their probabilities
-				for (State toState : mapNxyFromState.keySet()) {
+				for (State toState : mapMxyFromState.keySet()) {
 					if (!Oxx.containsKey(fromState))
 						Oxx.put(fromState, new HashMap<State, Double>());
-					double oxx = mapNxyFromState.get(toState) / NxFromState;
+					double oxx = mapMxyFromState.get(toState) / MxFromState;
 					// The previous operation can be undefined if the priors are 0
 					if (Double.isNaN(oxx))
 						oxx = 0;

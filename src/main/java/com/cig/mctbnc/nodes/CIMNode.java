@@ -23,7 +23,7 @@ public class CIMNode extends DiscreteNode {
 	Map<State, Double> Qx;
 	// (2) probability of the variable leaving a certain state for another one while
 	// its parents take a certain value
-	Map<State, Map<State, Double>> Oxx;
+	Map<State, Map<State, Double>> Oxy;
 
 	CTBNSufficientStatistics sufficientStatistics;
 
@@ -72,11 +72,11 @@ public class CIMNode extends DiscreteNode {
 	 * Set the parameters of a node.
 	 * 
 	 * @param Qx
-	 * @param Oxx
+	 * @param Oxy
 	 */
-	public void setParameters(Map<State, Double> Qx, Map<State, Map<State, Double>> Oxx) {
+	public void setParameters(Map<State, Double> Qx, Map<State, Map<State, Double>> Oxy) {
 		this.Qx = Qx;
-		this.Oxx = Oxx;
+		this.Oxy = Oxy;
 	}
 
 	/**
@@ -125,27 +125,25 @@ public class CIMNode extends DiscreteNode {
 		requiredNodes.add(getName());
 		query.removeAllEventsExcept(requiredNodes);
 
-		
 		State sampledState = null;
-		
+
 		// Sample from uniform distribution
 		double probUniform = Math.random();
 		// Accumulated probability
 		double accProb = 0;
-		
-		for(State nextState: getOxx().get(query).keySet()) {
+
+		for (State nextState : getOxy().get(query).keySet()) {
 			// Probability of transitioning to "nextState"
-			accProb += getOxx().get(query).get(nextState);
-			
+			accProb += getOxy().get(query).get(nextState);
+
 			if (probUniform <= accProb) {
 				// Generated state for the node
 				sampledState = nextState;
 				break;
 			}
-			
+
 		}
-		
-		
+
 		return sampledState;
 
 	}
@@ -173,10 +171,10 @@ public class CIMNode extends DiscreteNode {
 	 * Return the parameter containing the probabilities of the variable leaving a
 	 * state for a certain one
 	 * 
-	 * @return parameter Oxx
+	 * @return parameter Oxy
 	 */
-	public Map<State, Map<State, Double>> getOxx() {
-		return Oxx;
+	public Map<State, Map<State, Double>> getOxy() {
+		return Oxy;
 	}
 
 	public String toString() {

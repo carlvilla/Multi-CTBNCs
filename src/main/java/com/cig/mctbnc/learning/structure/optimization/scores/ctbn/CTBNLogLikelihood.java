@@ -74,7 +74,7 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 		CTBNSufficientStatistics ss = node.getSufficientStatistics();
 		// Obtain parameters and sufficient statistics of the node
 		// Contains the probabilities of transitioning from one state to another
-		Map<State, Map<State, Double>> Oxx = node.getOxx();
+		Map<State, Map<State, Double>> Oxx = node.getOxy();
 		// CIMs. Given the state of a variable and its parents is obtained the
 		// instantaneous probability
 		Map<State, Double> Qx = node.getQx();
@@ -82,7 +82,7 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 		double ll = 0.0;
 		for (State state : Qx.keySet()) {
 			double qx = Qx.get(state);
-			double nx = ss.getNx().get(state);
+			double nx = ss.getMx().get(state);
 			double tx = ss.getTx().get(state);
 			// Probability density function of the exponential distribution. If it is 0,
 			// there are no transitions from this state
@@ -92,7 +92,7 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 					// Probability of transitioning from "state" to "toState"
 					double oxx = Oxx.get(state).get(toState);
 					// Number of times the variable transitions from "state" to "toState"
-					double nxx = ss.getNxy().get(state).get(toState);
+					double nxx = ss.getMxy().get(state).get(toState);
 					if (oxx != 0)
 						ll += nxx * Math.log(oxx);
 				}

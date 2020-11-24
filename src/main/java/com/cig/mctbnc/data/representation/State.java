@@ -1,7 +1,7 @@
 package com.cig.mctbnc.data.representation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +23,7 @@ public class State {
 	 * Default constructor.
 	 */
 	public State() {
-		events = new HashMap<String, String>();
+		events = new LinkedHashMap<String, String>();
 	}
 
 	/**
@@ -32,7 +32,7 @@ public class State {
 	 * @param events events to include to the State
 	 */
 	public State(Map<String, String> events) {
-		this.events = new HashMap<String, String>(events);
+		this.events = new LinkedHashMap<String, String>(events);
 	}
 
 	/**

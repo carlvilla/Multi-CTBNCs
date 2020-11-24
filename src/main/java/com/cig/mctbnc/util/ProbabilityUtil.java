@@ -121,7 +121,7 @@ public final class ProbabilityUtil {
 						// Probability that the feature transitions from one state to another while its
 						// parents have a certain state. NOTE: the probability would be zero if either
 						// the departure or arrival state was not considered during model training
-						Map<State, Double> Oxx = nodeCTBN.getOxx().get(fromState);
+						Map<State, Double> Oxx = nodeCTBN.getOxy().get(fromState);
 						if (Oxx != null) {
 							Double oxy = Oxx.get(toState);
 							double qxy = 0;

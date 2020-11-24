@@ -223,95 +223,89 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Sample the state of the features given the sampled state of the class
-	 * variables.
+	 * Sample the transitions of a sequence given its duration and the state of the
+	 * class variables.
 	 * 
 	 * @param sampledCVs
 	 */
 	private Sequence sampleSequence(State sampledCVs, int duration) {
-
 		// Features whose transitions will be sampled
-		LinkedList<CIMNode> features = new LinkedList<CIMNode>((Collection<? extends CIMNode>) ctbn.getNodes());
-		// Time when states occur
-		List<Double> time = new ArrayList<Double>();
+		LinkedList<CIMNode> features = new LinkedList<CIMNode>((Collection<CIMNode>) ctbn.getNodes());
+		// List with the time when observations occur
+		List<Double> timestamp = new ArrayList<Double>();
+		// List of states with the observations (which form transitions) of the sequence
+		List<State> observations = new ArrayList<State>();
+		// Sample initial observation of the sequence
+		State currentObservation = sampleInitialStateSequence(sampledCVs);
+		// Add the initial observation and time when it occurred to the results lists
+		observations.add(currentObservation);
 		double currentTime = 0.0;
-
-		// List of states with the transitions of the sequence
-		List<State> transitions = new ArrayList<State>();
-
-		// Sample the initial state of the sequence (first observation). Theoretically,
-		// it would be sampled from a multi-dimensional Bayesian network classifier.
-		// However, it will used a uniform distribution instead.
-		State evidence = new State();
-		for (int i = 0; i < features.size(); i++) {
-			CIMNode node = (CIMNode) features.get(i);
-			int sampledState = (int) (Math.random() * node.getStates().size());
-			evidence.addEvents(node.getStates().get(sampledState).getEvents());
-		}
-
-		// Add the states of the class variables
-		evidence.addEvents(sampledCVs.getEvents());
-
-		time.add(currentTime);
-
-		// LinkedList<Double> transitionTimes = new LinkedList<Double>();
-
+		timestamp.add(currentTime);
+		// Keep the times when each of the nodes will change their state
 		TreeMap<Double, CIMNode> transitionTimes = new TreeMap<Double, CIMNode>();
-		
-		State initialObservation = new State(evidence.getEvents());
-		transitions.add(initialObservation);
-		
+		// Generate transitions until the time of the current observation surpasses the
+		// duration of the sequence
 		while (currentTime < duration) {
-			// Obtain time the nodes stay in their state
-
+			// Create an object that contains the previous observations
+			State previousObservation = new State(currentObservation.getEvents());
+			// Obtain the time when each of the features change their states. It is only
+			// considered those features whose next transition time is unknown
 			while (!features.isEmpty()) {
-
+				// Get first feature of the list
 				CIMNode featureToSample = features.pollFirst();
-
-				// Get the potential time that the variable will stay in its current state
-				double sampledTime = featureToSample.sampleTimeState(evidence);
-
+				// Get the time that the variable will stay in its current state
+				double sampledTime = featureToSample.sampleTimeState(previousObservation);
+				// Add the times to the list ordered from lowest to highest
 				transitionTimes.put(sampledTime, featureToSample);
-
 			}
-
-			Entry<Double, CIMNode> nextNodeToChange = transitionTimes.pollFirstEntry();
-
+			// Get Entry with the next node whose state will change and the time this occurs
+			Entry<Double, CIMNode> nextTransition = transitionTimes.pollFirstEntry();
 			// Update current time
-			currentTime += nextNodeToChange.getKey();
-
-			// If the currentTime is greater than the current duration, the entire sequence
-			// was already generated
-			if (currentTime >= duration)
-				break;
-
-			CIMNode changingNode = nextNodeToChange.getValue();
-
-			State nextState = changingNode.sampleNextState(evidence);
-
-			evidence.modifyEventValue(changingNode.getName(), nextState.getValues()[0]);
-
-			State currentObservation = new State(evidence.getEvents());
-
+			currentTime += nextTransition.getKey();
+			// Get the next node whose state will change
+			CIMNode changingNode = nextTransition.getValue();
+			// Sample the next state of the node
+			State nextState = changingNode.sampleNextState(previousObservation);
+			// Get current observation using the previous one and the new state of the node
+			currentObservation = new State(previousObservation.getEvents());
+			currentObservation.modifyEventValue(changingNode.getName(), nextState.getValues()[0]);
 			// Save the observation
-			transitions.add(currentObservation);
+			observations.add(currentObservation);
 			// Save the time when the observation (transition) occurred
-			time.add(currentTime);
-
-			// Add the feature to the list to sample the next time it will transition
+			timestamp.add(currentTime);
+			// Add the feature to the list to sample the time its next transition will occur
 			features.add(changingNode);
-
 		}
-
+		// Create sequence with the sampled transitions and state of the class variables
 		Sequence sequence = null;
 		try {
-			sequence = new Sequence(sampledCVs, transitions, "t", time);
+			sequence = new Sequence(sampledCVs, observations, "t", timestamp);
 		} catch (ErroneousSequenceException e) {
 			logger.warn(e.getMessage());
 		}
-
 		return sequence;
+	}
 
+	/**
+	 * Sample the initial state of the sequence (first observation). Theoretically,
+	 * it would be sampled from a multi-dimensional Bayesian network classifier.
+	 * However, it will be used a uniform distribution for simplicity.
+	 * 
+	 * @param sampledCVs
+	 * @return State object with the initial observation of a sequence
+	 */
+	private State sampleInitialStateSequence(State sampledCVs) {
+		State evidence = new State();
+		for (int i = 0; i < ctbn.getNodes().size(); i++) {
+			CIMNode node = (CIMNode) ctbn.getNodes().get(i);
+			int sampledState = (int) (Math.random() * node.getStates().size());
+			evidence.addEvents(node.getStates().get(sampledState).getEvents());
+		}
+		// Add the states of the class variables to the first observation
+		evidence.addEvents(sampledCVs.getEvents());
+		// Add the initial observation and the time when it occurred
+		State initialObservation = new State(evidence.getEvents());
+		return initialObservation;
 	}
 
 	/**

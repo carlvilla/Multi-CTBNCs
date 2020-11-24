@@ -11,25 +11,25 @@ import com.cig.mctbnc.nodes.Node;
  */
 public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 	// Hyperparameters Dirichlet prior distribution
-	private double NxyHP;
+	private double MxyHP;
 	private double TxHP;
 
 	/**
 	 * Constructor Bayesian parameter estimator for CTBNs.
 	 * 
-	 * @param NxyHP
+	 * @param MxyHP
 	 * @param TxHP
 	 */
-	public CTBNBayesianEstimation(double NxyHP, double TxHP) {
-		logger.info("Learning parameters of CTBN with Bayesian estimation (Nxy={}, Tx={})", NxyHP, TxHP);
+	public CTBNBayesianEstimation(double MxyHP, double TxHP) {
+		logger.info("Learning parameters of CTBN with Bayesian estimation (Nxy={}, Tx={})", MxyHP, TxHP);
 		// Definition of imaginary counts of the hyperparameters
-		this.NxyHP = NxyHP;
+		this.MxyHP = MxyHP;
 		this.TxHP = TxHP;
 	}
 
 	@Override
 	protected CTBNSufficientStatistics getSufficientStatisticsNode(Node node, Dataset dataset) {
-		CTBNSufficientStatistics ssNode = new CTBNSufficientStatistics(NxyHP, TxHP);
+		CTBNSufficientStatistics ssNode = new CTBNSufficientStatistics(MxyHP, TxHP);
 		ssNode.computeSufficientStatistics(node, dataset);
 		return ssNode;
 	}

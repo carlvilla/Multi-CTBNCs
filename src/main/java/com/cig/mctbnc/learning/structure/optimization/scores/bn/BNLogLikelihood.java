@@ -1,10 +1,7 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.bn;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.DoubleUnaryOperator;
 
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.structure.optimization.BNScoreFunction;
@@ -44,7 +41,7 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 			String[] possibleValuesStudiedVariable = node.getStates().stream()
 					.map(stateAux -> stateAux.getValueVariable(node.getName())).toArray(String[]::new);
 			// All the possible states between the studied variable and its parents
-			Set<State> states = node.getSufficientStatistics().keySet();
+			Set<State> states = node.getSufficientStatistics().getNx().keySet();
 			for (State state : states)
 				for (String k : possibleValuesStudiedVariable) {
 					State query = new State(state.getEvents());
@@ -82,7 +79,7 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 	 */
 	private double classProbability(CPTNode node, State state) {
 		// Number of times the studied variable and its parents take a certain value
-		int Nijk = node.getSufficientStatistics().get(state);
+		double Nijk = node.getSufficientStatistics().getNx().get(state);
 		double classProbability = 0.0;
 		if (Nijk != 0)
 			classProbability = Nijk * Math.log(node.getCPT().get(state));

@@ -119,8 +119,8 @@ public class CPTNode extends DiscreteNode {
 	 * 
 	 * @return sufficient statistics
 	 */
-	public Map<State, Integer> getSufficientStatistics() {
-		return sufficientStatistics.getSufficientStatistics();
+	public BNSufficientStatistics getSufficientStatistics() {
+		return sufficientStatistics;
 	}
 
 	public String toString() {

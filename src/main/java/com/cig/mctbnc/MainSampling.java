@@ -32,53 +32,55 @@ public class MainSampling {
 	 */
 	public static void main(String[] args) {
 		// Number of sequences to generate
-		int numSequences = 5000;
+		int numSequences = 2000;
 		// Duration of the sequences
 		int durationSequences = 10;
 		// Destination path for the generated dataset
-		String path = "src/main/resources/datasets/synthetic";
+		String path = "src/main/resources/datasets/synthetic/";
 		
 		// Define class variables
-		CPTNode CV1 = new CPTNode("CV1", true, List.of("A", "B"));
-		CPTNode CV2 = new CPTNode("CV2", true, List.of("A", "B"));
-		CPTNode CV3 = new CPTNode("CV3", true, List.of("A", "B"));
-		CPTNode CV4 = new CPTNode("CV4", true, List.of("A", "B"));
-		CPTNode CV5 = new CPTNode("CV5", true, List.of("A", "B"));
+		CPTNode CV1 = new CPTNode("CV1", true, List.of("CV1_A", "CV1_B"));
+		CPTNode CV2 = new CPTNode("CV2", true, List.of("CV2_A", "CV2_B"));
+		CPTNode CV3 = new CPTNode("CV3", true, List.of("CV3_A", "CV3_B"));
+		CPTNode CV4 = new CPTNode("CV4", true, List.of("CV4_A", "CV4_B"));
 
 		// Definition of the structure of the class subgraph
-		CV1.setChild(CV2);
-		CV1.setChild(CV3);
-		CV1.setChild(CV4);
-		CV3.setChild(CV5);
-		CV4.setChild(CV5);
-		BN<CPTNode> CS = new BN<CPTNode>(List.of(CV1, CV2, CV3, CV4, CV5));
+		CV2.setChild(CV1);
+		CV2.setChild(CV3);
+		CV4.setChild(CV2);
+		CV4.setChild(CV3);
+		BN<CPTNode> CS = new BN<CPTNode>(List.of(CV1, CV2, CV3, CV4));
 		
 		// Definition of the parameters of the Bayesian network (class subgraph)
-		generateRandomConditionalDistributions(CS);
+		generateRandomCPD(CS);
 
 		// Define features
-		CIMNode F1 = new CIMNode("F1", false, List.of("A", "B", "C"));
-		CIMNode F2 = new CIMNode("F2", false, List.of("A", "B", "C"));
-		CIMNode F3 = new CIMNode("F3", false, List.of("A", "B", "C"));
-		CIMNode F4 = new CIMNode("F4", false, List.of("A", "B", "C"));
+		CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C", "X1_D", "X1_E"));
+		CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C", "X2_D", "X2_E"));
+		CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C", "X3_D", "X3_E"));
+		CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C", "X4_D", "X4_E"));
+		CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C", "X5_D", "X5_E"));
 
 		// Definition of the structure of the bridge and feature subgraphs
-		CV1.setChild(F1);		
-		CV1.setChild(F2);
-		CV3.setChild(F3);
-		CV3.setChild(F2);
-		CV3.setChild(F3);
-		CV4.setChild(F4);
-		CV5.setChild(F4);
-		F1.setChild(F2);
-		F2.setChild(F1);
-		F3.setChild(F2);
-		F4.setChild(F3);
-		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(F1, F2, F3, F4), CS);
+		CV1.setChild(X1);		
+		CV2.setChild(X1);
+		CV2.setChild(X2);
+		CV2.setChild(X2);
+		CV3.setChild(X3);
+		CV3.setChild(X4);
+		CV4.setChild(X5);
+		X1.setChild(X2);
+		X1.setChild(X3);
+		X2.setChild(X3);
+		X2.setChild(X4);
+		X4.setChild(X3);
+		X4.setChild(X5);
+		X5.setChild(X4);
+		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
 		
 		// Definition of the parameters of the continuous time Bayesian network (feature
 		// and bridge subgraph)
-		generateRandomConditionalDistributions(FBS);
+		generateRandomCPD(FBS);
 
 		// Define MCTBNC
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(CS, FBS);
@@ -100,7 +102,7 @@ public class MainSampling {
 	 * @param bn Bayesian network
 	 * 
 	 */
-	public static void generateRandomConditionalDistributions(BN<CPTNode> bn) {
+	public static void generateRandomCPD(BN<CPTNode> bn) {
 		// Iterate over all possible node to define their CPTs
 		for (CPTNode node : bn.getNodes()) {
 			Map<State, Double> CPT = new HashMap<State, Double>();
@@ -123,7 +125,7 @@ public class MainSampling {
 					}
 				}
 			} else {
-				// IT IS ASSUMMED THAT VARIABLES ARE BINARY
+				// IT IS ASSUMMED THAT BINARY VARIABLES
 				double prob = Math.random();
 				State state1 = node.getStates().get(0);
 				State state2 = node.getStates().get(1);
@@ -141,7 +143,7 @@ public class MainSampling {
 	 * @param ctbn continuous time Bayesian network
 	 * 
 	 */
-	public static void generateRandomConditionalDistributions(CTBN<CIMNode> ctbn) {
+	public static void generateRandomCPD(CTBN<CIMNode> ctbn) {
 		// Min and max values of the intensities
 		int min = 1;
 		int max = 10;

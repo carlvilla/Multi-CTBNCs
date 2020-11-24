@@ -15,11 +15,14 @@ import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
 public class BNSufficientStatistics implements SufficientStatistics {
-	private Map<State, Integer> N;
+	private Map<State, Double> Nx;
+	// Hyperparameters of the Dirichlet prior distribution (zero if MLE is used)
+	private double NxHP;
 	static Logger logger = LogManager.getLogger(BNSufficientStatistics.class);
 
-	public BNSufficientStatistics() {
-		N = new HashMap<State, Integer>();
+	public BNSufficientStatistics(double NxHP) {
+		Nx = new HashMap<State, Double>();
+		this.NxHP = NxHP;
 	}
 
 	/**
@@ -32,37 +35,33 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	public void computeSufficientStatistics(Node node, Dataset dataset) {
 		logger.trace("Computing sufficient statistics BN for node {}", node.getName());
 		List<State> statesVariable = ((DiscreteNode) node).getStates();
-
 		if (node.hasParents()) {
 			List<Node> parents = node.getParents();
 			List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
 			List<State> statesParents = dataset.getPossibleStatesVariables(nameParents);
-
 			for (int j = 0; j < statesParents.size(); j++)
 				for (int k = 0; k < statesVariable.size(); k++) {
 					// Get number of times variable "nameVariable" has value statesVariable[k]
 					// while its parents have values statesParents[j]
 					State stateVariable = statesVariable.get(k);
 					State stateParents = statesParents.get(j);
-
 					// Create State object where the variable has value k and its parents
 					// are in the state j
 					State query = new State();
 					query.addEvents(stateParents.getEvents());
 					query.addEvents(stateVariable.getEvents());
-
 					// Query the dataset with the state k for the variables and
 					// the state j for its parents
 					// TODO Instead of looking for the occurrences of each state, iterate the
 					// observations just once
-					int Nijk = dataset.getNumOccurrences(query);
-					N.put(query, Nijk);
+					double Nijk = dataset.getNumOccurrences(query);
+					Nx.put(query, this.NxHP + Nijk);
 				}
 
 		} else {
 			for (int k = 0; k < statesVariable.size(); k++) {
 				State stateVariable = statesVariable.get(k);
-				N.put(stateVariable, dataset.getNumOccurrences(stateVariable));
+				Nx.put(stateVariable, this.NxHP + dataset.getNumOccurrences(stateVariable));
 			}
 		}
 	}
@@ -74,8 +73,12 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	 * @return Map object that relates the states of a node with the number of
 	 *         appearances in a dataset.
 	 */
-	public Map<State, Integer> getSufficientStatistics() {
-		return N;
+	public Map<State, Double> getNx() {
+		return Nx;
+	}
+
+	public double getNxHyperparameter() {
+		return NxHP;
 	}
 
 }

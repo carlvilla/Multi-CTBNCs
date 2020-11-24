@@ -1,6 +1,5 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
-import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.commons.math3.special.Gamma;
@@ -12,54 +11,46 @@ import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.Node;
 
+/**
+ * Implements the Bayesian Dirichlet equivalence metric for CTBNs (Nodelman et
+ * al., 2003).
+ */
 public class CTBNBayesianScore implements CTBNScoreFunction {
 
-	/**
-	 * Bayesian Dirichlet equivalence metric defined by Nodelman et al.(2003).
-	 */
 	public double compute(CTBN<? extends Node> ctbn, int nodeIndex) {
 		// Obtain node to evaluate
 		CIMNode node = (CIMNode) ctbn.getNodes().get(nodeIndex);
 		// Retrieve sufficient statistics of the node
 		CTBNSufficientStatistics ss = node.getSufficientStatistics();
-		
-		
+
 //		System.out.println("-----------");
 //		System.out.println("Nodo: " + node.getName());
 //		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
-		
-		
+
 		// Hyperparameters of the hyperprior distribution
-		double nxyHP = ss.getNxyHyperparameter();
-		double nxHP = ss.getNxHyperparameter();
+		double mxyHP = ss.getMxyHyperparameter();
+		double mxHP = ss.getMxHyperparameter();
 		double txHP = ss.getTxHyperparameter();
-		// Obtain parameters and sufficient statistics of the node
-		// Contains the probabilities of transitioning from one state to another
-		Map<State, Map<State, Double>> Oxx = node.getOxx();
-		// CIMs. Given the state of a variable and its parents is obtained the
-		// instantaneous probability
-		Map<State, Double> Qx = node.getQx();
-		// Store marginal log likelihood
-		double ll = 0.0;
-		for (State state : Qx.keySet()) {
-			double nx = ss.getNx().get(state);
+		// Estimate score
+		double bdeScore = 0.0;
+		for (State state : node.getQx().keySet()) {
+			double mx = ss.getMx().get(state);
 			double tx = ss.getTx().get(state);
-			ll += Gamma.logGamma(nx + 1) + (nxHP + 1) * Math.log(txHP);
-			ll -= Gamma.logGamma(nxHP + 1) + (nx + 1) * Math.log(tx);
-			ll += Gamma.logGamma(nxHP);
-			ll -= Gamma.logGamma(nx);
-			for (State toState : Oxx.get(state).keySet()) {
+			bdeScore += Gamma.logGamma(mx + 1) + (mxHP + 1) * Math.log(txHP);
+			bdeScore -= Gamma.logGamma(mxHP + 1) + (mx + 1) * Math.log(tx);
+			bdeScore += Gamma.logGamma(mxHP);
+			bdeScore -= Gamma.logGamma(mx);
+			for (State toState : node.getOxy().get(state).keySet()) {
 				// Number of times the variable transitions from "state" to "toState"
-				double nxx = ss.getNxy().get(state).get(toState);
-				ll += Gamma.logGamma(nxyHP);
-				ll -= Gamma.logGamma(nxx);
+				double mxy = ss.getMxy().get(state).get(toState);
+				bdeScore += Gamma.logGamma(mxyHP);
+				bdeScore -= Gamma.logGamma(mxy);
 			}
 		}
-		
-//		System.out.println("Total: " + ll);
 
-		
-		return ll;
+//		System.out.println("Total: " + score);
+
+		return bdeScore;
 	}
 
 }

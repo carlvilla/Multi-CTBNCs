@@ -91,6 +91,16 @@ public final class Util {
 	}
 
 	/**
+	 * Transform a list into an array of Strings.
+	 * 
+	 * @param list
+	 * @return array
+	 */
+	public static String[] listToArray(List<?> list) {
+		return list.stream().toArray(String[]::new);
+	}
+
+	/**
 	 * Objects in a list are shuffled.
 	 * 
 	 * @param <T>  type of the elements to shuffle

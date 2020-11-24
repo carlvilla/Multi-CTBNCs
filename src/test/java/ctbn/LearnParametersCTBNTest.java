@@ -114,25 +114,25 @@ public class LearnParametersCTBNTest {
 		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNMaximumLikelihoodEstimation();
 		ctbnParameterLearning.learn(nodes, dataset);
 		// Sufficient statistics
-		testMLESufficientStatisticNxxCTBN();
-		testMLESufficientStatisticNxCTBN();
-		testMLESufficientStatisticTxCTBN();
+		testMLESufficientStatisticMxx();
+		testMLESufficientStatisticMx();
+		testMLESufficientStatisticTx();
 		// Parameters
-		testMLEParameterQxCTBN();
-		testMLEParameterOxxCTBN();
+		testMLEParameterQx();
+		testMLEParameterOxx();
 	}
 
 	/**
-	 * Check the computation of the sufficient statistic Nxx for a certain CTBN and
+	 * Check the computation of the sufficient statistic Mxx for a certain CTBN and
 	 * dataset when using maximum likelihood estimation.
 	 */
-	public void testMLESufficientStatisticNxxCTBN() {
+	public void testMLESufficientStatisticMxx() {
 		// Sufficient statistics V1
-		Map<State, Map<State, Double>> ssV1 = nodes.get(0).getSufficientStatistics().getNxy();
+		Map<State, Map<State, Double>> ssV1 = nodes.get(0).getSufficientStatistics().getMxy();
 		// Sufficient statistics V2
-		Map<State, Map<State, Double>> ssV2 = nodes.get(1).getSufficientStatistics().getNxy();
+		Map<State, Map<State, Double>> ssV2 = nodes.get(1).getSufficientStatistics().getMxy();
 		// Sufficient statistics V3
-		Map<State, Map<State, Double>> ssV3 = nodes.get(2).getSufficientStatistics().getNxy();
+		Map<State, Map<State, Double>> ssV3 = nodes.get(2).getSufficientStatistics().getMxy();
 
 		// Sufficient statistics V1
 		State fromState = new State();
@@ -193,16 +193,16 @@ public class LearnParametersCTBNTest {
 	}
 
 	/**
-	 * Check the computation of the sufficient statistic Nx for a certain CTBN and
+	 * Check the computation of the sufficient statistic Mx for a certain CTBN and
 	 * dataset when using maximum likelihood estimation.
 	 */
-	public void testMLESufficientStatisticNxCTBN() {
+	public void testMLESufficientStatisticMx() {
 		// Sufficient statistics V1
-		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getNx();
+		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getMx();
 		// Sufficient statistics V2
-		Map<State, Double> ssV2 = nodes.get(1).getSufficientStatistics().getNx();
+		Map<State, Double> ssV2 = nodes.get(1).getSufficientStatistics().getMx();
 		// Sufficient statistics V3
-		Map<State, Double> ssV3 = nodes.get(2).getSufficientStatistics().getNx();
+		Map<State, Double> ssV3 = nodes.get(2).getSufficientStatistics().getMx();
 
 		// Sufficient statistics V1
 		State fromState = new State();
@@ -257,7 +257,7 @@ public class LearnParametersCTBNTest {
 	 * the time that a variable stay in a certain state, when using maximum
 	 * likelihood estimation.
 	 */
-	public void testMLESufficientStatisticTxCTBN() {
+	public void testMLESufficientStatisticTx() {
 		// Test the sufficient parameters for certain combinations of states
 		// Sufficient statistics V1
 		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getTx();
@@ -341,7 +341,7 @@ public class LearnParametersCTBNTest {
 	 * Check the parameter qx, i.e., the instantaneous probability of a variable
 	 * leaving a certain state for another given the state of its parents.
 	 */
-	public void testMLEParameterQxCTBN() {
+	public void testMLEParameterQx() {
 		// Parameters V1
 		Map<State, Double> qxV1 = nodes.get(0).getQx();
 		// Parameters V2
@@ -423,13 +423,13 @@ public class LearnParametersCTBNTest {
 	 * Check the parameter Oxx, i.e., the probability that a variable transitions
 	 * from one state to another while its parents are in a certain state.
 	 */
-	public void testMLEParameterOxxCTBN() {
+	public void testMLEParameterOxx() {
 		// Parameters V1
 		State fromState = new State();
 		fromState.addEvent("V1", "a");
 		fromState.addEvent("V2", "a");
 		fromState.addEvent("V3", "a");
-		Map<State, Double> OxV1 = nodes.get(0).getOxx().get(fromState);
+		Map<State, Double> OxV1 = nodes.get(0).getOxy().get(fromState);
 
 		State toState = new State();
 		toState.addEvent("V1", "b");
@@ -443,7 +443,7 @@ public class LearnParametersCTBNTest {
 		fromState.addEvent("V1", "a");
 		fromState.addEvent("V2", "b");
 		fromState.addEvent("V3", "b");
-		OxV1 = nodes.get(0).getOxx().get(fromState);
+		OxV1 = nodes.get(0).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V1", "b");
@@ -457,7 +457,7 @@ public class LearnParametersCTBNTest {
 		fromState = new State();
 		fromState.addEvent("V2", "a");
 		fromState.addEvent("V3", "a");
-		Map<State, Double> OxV2 = nodes.get(1).getOxx().get(fromState);
+		Map<State, Double> OxV2 = nodes.get(1).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V2", "b");
@@ -466,7 +466,7 @@ public class LearnParametersCTBNTest {
 		fromState = new State();
 		fromState.addEvent("V2", "b");
 		fromState.addEvent("V3", "b");
-		OxV2 = nodes.get(1).getOxx().get(fromState);
+		OxV2 = nodes.get(1).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V2", "a");
@@ -475,7 +475,7 @@ public class LearnParametersCTBNTest {
 		fromState = new State();
 		fromState.addEvent("V2", "b");
 		fromState.addEvent("V3", "c");
-		OxV2 = nodes.get(1).getOxx().get(fromState);
+		OxV2 = nodes.get(1).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V2", "a");
@@ -484,7 +484,7 @@ public class LearnParametersCTBNTest {
 		// Parameters V3
 		fromState = new State();
 		fromState.addEvent("V3", "a");
-		Map<State, Double> OxV3 = nodes.get(2).getOxx().get(fromState);
+		Map<State, Double> OxV3 = nodes.get(2).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V3", "b");
@@ -496,7 +496,7 @@ public class LearnParametersCTBNTest {
 
 		fromState = new State();
 		fromState.addEvent("V3", "b");
-		OxV3 = nodes.get(2).getOxx().get(fromState);
+		OxV3 = nodes.get(2).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V3", "a");
@@ -508,7 +508,7 @@ public class LearnParametersCTBNTest {
 
 		fromState = new State();
 		fromState.addEvent("V3", "c");
-		OxV3 = nodes.get(2).getOxx().get(fromState);
+		OxV3 = nodes.get(2).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V3", "a");
@@ -527,51 +527,50 @@ public class LearnParametersCTBNTest {
 	@Test
 	public void testBE_ImaginaryCountsOff() {
 		// Establish imaginary counts
-		double NxyPrior = 0.0;
+		double MxyPrior = 0.0;
 		double TxPrior = 0.0;
-		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(NxyPrior, TxPrior);
+		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(MxyPrior, TxPrior);
 		ctbnParameterLearning.learn(nodes, dataset);
 		// Sufficient statistics
-		testMLESufficientStatisticNxxCTBN();
-		testMLESufficientStatisticNxCTBN();
-		testMLESufficientStatisticTxCTBN();
+		testMLESufficientStatisticMxx();
+		testMLESufficientStatisticMx();
+		testMLESufficientStatisticTx();
 		// Parameters
-		testMLEParameterQxCTBN();
-		testMLEParameterOxxCTBN();
+		testMLEParameterQx();
+		testMLEParameterOxx();
 	}
 
 	/**
-	 * Check the parameters of a CTBN obtained by Bayesian estimation. The imaginary
-	 * counts are all established to 0, so the result should be the same as with
-	 * maximum likelihood estimation.
+	 * Check the parameters of a CTBN obtained by Bayesian estimation. All the
+	 * imaginary counts are more than 0.
 	 */
 	@Test
 	public void testBE_ImaginaryCountsOn() {
 		// Establish imaginary counts
-		double NxyPrior = 1.0;
+		double MxyPrior = 1.0;
 		double TxPrior = 2.0;
-		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(NxyPrior, TxPrior);
+		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(MxyPrior, TxPrior);
 		ctbnParameterLearning.learn(nodes, dataset);
 		// Sufficient statistics
-		testBESufficientStatisticNxxCTBN();
-		testBESufficientStatisticNxCTBN();
-		testBESufficientStatisticTxCTBN();
+		testBESufficientStatisticMxx();
+		testBESufficientStatisticMx();
+		testBESufficientStatisticTx();
 		// Parameters
-		testBEParameterQxCTBN();
-		testBEParameterOxxCTBN();
+		testBEParameterQx();
+		testBEParameterOxx();
 	}
 
 	/**
-	 * Check the computation of the sufficient statistic Nxx for a certain CTBN and
+	 * Check the computation of the sufficient statistic Mxx for a certain CTBN and
 	 * dataset when using Bayesian estimation.
 	 */
-	public void testBESufficientStatisticNxxCTBN() {
+	public void testBESufficientStatisticMxx() {
 		// Sufficient statistics V1
-		Map<State, Map<State, Double>> ssV1 = nodes.get(0).getSufficientStatistics().getNxy();
+		Map<State, Map<State, Double>> ssV1 = nodes.get(0).getSufficientStatistics().getMxy();
 		// Sufficient statistics V2
-		Map<State, Map<State, Double>> ssV2 = nodes.get(1).getSufficientStatistics().getNxy();
+		Map<State, Map<State, Double>> ssV2 = nodes.get(1).getSufficientStatistics().getMxy();
 		// Sufficient statistics V3
-		Map<State, Map<State, Double>> ssV3 = nodes.get(2).getSufficientStatistics().getNxy();
+		Map<State, Map<State, Double>> ssV3 = nodes.get(2).getSufficientStatistics().getMxy();
 
 		// Sufficient statistics V1
 		State fromState = new State();
@@ -632,16 +631,16 @@ public class LearnParametersCTBNTest {
 	}
 
 	/**
-	 * Check the computation of the sufficient statistic Nx for a certain CTBN and
+	 * Check the computation of the sufficient statistic Mx for a certain CTBN and
 	 * dataset when using Bayesian estimation.
 	 */
-	public void testBESufficientStatisticNxCTBN() {
+	public void testBESufficientStatisticMx() {
 		// Sufficient statistics V1
-		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getNx();
+		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getMx();
 		// Sufficient statistics V2
-		Map<State, Double> ssV2 = nodes.get(1).getSufficientStatistics().getNx();
+		Map<State, Double> ssV2 = nodes.get(1).getSufficientStatistics().getMx();
 		// Sufficient statistics V3
-		Map<State, Double> ssV3 = nodes.get(2).getSufficientStatistics().getNx();
+		Map<State, Double> ssV3 = nodes.get(2).getSufficientStatistics().getMx();
 
 		// Sufficient statistics V1
 		State fromState = new State();
@@ -696,7 +695,7 @@ public class LearnParametersCTBNTest {
 	 * the time that a variable stay in a certain state, when using Bayesian
 	 * estimation.
 	 */
-	public void testBESufficientStatisticTxCTBN() {
+	public void testBESufficientStatisticTx() {
 		// Test the sufficient parameters for certain combinations of states
 		// Sufficient statistics V1
 		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getTx();
@@ -780,7 +779,7 @@ public class LearnParametersCTBNTest {
 	 * Check the parameter qx, i.e., the instantaneous probability of a variable
 	 * leaving a certain state for another given the state of its parents.
 	 */
-	public void testBEParameterQxCTBN() {
+	public void testBEParameterQx() {
 		// Parameters V1
 		Map<State, Double> qxV1 = nodes.get(0).getQx();
 		// Parameters V2
@@ -862,13 +861,13 @@ public class LearnParametersCTBNTest {
 	 * Check the parameter Oxx, i.e., the probability that a variable transitions
 	 * from one state to another while its parents are in a certain state.
 	 */
-	public void testBEParameterOxxCTBN() {
+	public void testBEParameterOxx() {
 		// Parameters V1
 		State fromState = new State();
 		fromState.addEvent("V1", "a");
 		fromState.addEvent("V2", "a");
 		fromState.addEvent("V3", "a");
-		Map<State, Double> OxV1 = nodes.get(0).getOxx().get(fromState);
+		Map<State, Double> OxV1 = nodes.get(0).getOxy().get(fromState);
 
 		State toState = new State();
 		toState.addEvent("V1", "b");
@@ -882,7 +881,7 @@ public class LearnParametersCTBNTest {
 		fromState.addEvent("V1", "a");
 		fromState.addEvent("V2", "b");
 		fromState.addEvent("V3", "b");
-		OxV1 = nodes.get(0).getOxx().get(fromState);
+		OxV1 = nodes.get(0).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V1", "b");
@@ -896,7 +895,7 @@ public class LearnParametersCTBNTest {
 		fromState = new State();
 		fromState.addEvent("V2", "a");
 		fromState.addEvent("V3", "a");
-		Map<State, Double> OxV2 = nodes.get(1).getOxx().get(fromState);
+		Map<State, Double> OxV2 = nodes.get(1).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V2", "b");
@@ -905,7 +904,7 @@ public class LearnParametersCTBNTest {
 		fromState = new State();
 		fromState.addEvent("V2", "b");
 		fromState.addEvent("V3", "b");
-		OxV2 = nodes.get(1).getOxx().get(fromState);
+		OxV2 = nodes.get(1).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V2", "a");
@@ -914,7 +913,7 @@ public class LearnParametersCTBNTest {
 		fromState = new State();
 		fromState.addEvent("V2", "b");
 		fromState.addEvent("V3", "c");
-		OxV2 = nodes.get(1).getOxx().get(fromState);
+		OxV2 = nodes.get(1).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V2", "a");
@@ -923,7 +922,7 @@ public class LearnParametersCTBNTest {
 		// Parameters V3
 		fromState = new State();
 		fromState.addEvent("V3", "a");
-		Map<State, Double> OxV3 = nodes.get(2).getOxx().get(fromState);
+		Map<State, Double> OxV3 = nodes.get(2).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V3", "b");
@@ -935,7 +934,7 @@ public class LearnParametersCTBNTest {
 
 		fromState = new State();
 		fromState.addEvent("V3", "b");
-		OxV3 = nodes.get(2).getOxx().get(fromState);
+		OxV3 = nodes.get(2).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V3", "a");
@@ -947,7 +946,7 @@ public class LearnParametersCTBNTest {
 
 		fromState = new State();
 		fromState.addEvent("V3", "c");
-		OxV3 = nodes.get(2).getOxx().get(fromState);
+		OxV3 = nodes.get(2).getOxy().get(fromState);
 
 		toState = new State();
 		toState.addEvent("V3", "a");
