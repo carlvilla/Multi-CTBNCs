@@ -165,13 +165,8 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 			mapFromState = new HashMap<State, Double>();
 			mapFromState.put(toState, numOccurrences);
 			Mxy.put(fromState, mapFromState);
-		} else {
-			// Current value of Mxy for 'fromState' and 'toState'
-			Double currentMxy = mapFromState.get(toState);
-			if (currentMxy == null)
-				currentMxy = 0.0;
-			mapFromState.put(toState, currentMxy + numOccurrences);
-		}
+		} else
+			mapFromState.merge(toState, numOccurrences, Double::sum);
 	}
 
 	/**
@@ -182,9 +177,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @param numOccurrences number of occurrences
 	 */
 	private void updateOccurrencesMx(State fromState, double numOccurrences) {
-		// Current value of Mx for 'fromState'
-		double currentMx = Mx.getOrDefault(fromState, 0.0);
-		Mx.put(fromState, currentMx + numOccurrences);
+		Mx.merge(fromState, numOccurrences, Double::sum);
 	}
 
 	/**
@@ -195,9 +188,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @param time  time
 	 */
 	private void updateOccurrencesTx(State state, double time) {
-		// Current time computed for the state
-		double currentTime = Tx.getOrDefault(state, 0.0);
-		Tx.put(state, currentTime + time);
+		Tx.merge(state, time, Double::sum);
 	}
 
 	/**

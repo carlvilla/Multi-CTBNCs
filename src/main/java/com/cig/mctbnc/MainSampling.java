@@ -2,8 +2,10 @@ package com.cig.mctbnc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
@@ -15,6 +17,7 @@ import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.DiscreteNode;
+import com.cig.mctbnc.util.ProbabilityUtil;
 import com.cig.mctbnc.util.Util;
 
 /**
@@ -32,12 +35,12 @@ public class MainSampling {
 	 */
 	public static void main(String[] args) {
 		// Number of sequences to generate
-		int numSequences = 2000;
+		int numSequences = 1000;
 		// Duration of the sequences
-		int durationSequences = 10;
+		int durationSequences = 20;
 		// Destination path for the generated dataset
-		String path = "src/main/resources/datasets/synthetic/";
-		
+		String path = "src/main/resources/datasets/Decidir/extreme/D1/";
+
 		// Define class variables
 		CPTNode CV1 = new CPTNode("CV1", true, List.of("CV1_A", "CV1_B"));
 		CPTNode CV2 = new CPTNode("CV2", true, List.of("CV2_A", "CV2_B"));
@@ -49,22 +52,23 @@ public class MainSampling {
 		CV2.setChild(CV3);
 		CV4.setChild(CV2);
 		CV4.setChild(CV3);
-		BN<CPTNode> CS = new BN<CPTNode>(List.of(CV1, CV2, CV3, CV4));
 		
+		
+		BN<CPTNode> CS = new BN<CPTNode>(List.of(CV1, CV2, CV3, CV4));
+
 		// Definition of the parameters of the Bayesian network (class subgraph)
 		generateRandomCPD(CS);
 
 		// Define features
-		CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C", "X1_D", "X1_E"));
-		CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C", "X2_D", "X2_E"));
-		CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C", "X3_D", "X3_E"));
-		CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C", "X4_D", "X4_E"));
-		CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C", "X5_D", "X5_E"));
+		CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));// , "X1_D", "X1_E"));
+		CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));// , "X2_D", "X2_E"));
+		CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));// , "X3_D", "X3_E"));
+		CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));// , "X4_D", "X4_E"));
+		CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));// , "X5_D", "X5_E"));
 
 		// Definition of the structure of the bridge and feature subgraphs
-		CV1.setChild(X1);		
+		CV1.setChild(X1);
 		CV2.setChild(X1);
-		CV2.setChild(X2);
 		CV2.setChild(X2);
 		CV3.setChild(X3);
 		CV3.setChild(X4);
@@ -75,9 +79,9 @@ public class MainSampling {
 		X2.setChild(X4);
 		X4.setChild(X3);
 		X4.setChild(X5);
-		X5.setChild(X4);
+		X5.setChild(X4);		
 		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
-		
+
 		// Definition of the parameters of the continuous time Bayesian network (feature
 		// and bridge subgraph)
 		generateRandomCPD(FBS);
@@ -92,6 +96,18 @@ public class MainSampling {
 
 		// Save generated dataset
 		Dataset dataset = new Dataset(sequences);
+		
+		
+		
+		
+		State[] states = dataset.getStatesClassVariables();
+		Set<State> statesUniq = new HashSet<State>();
+		for(State state:states) {
+			statesUniq.add(state);
+		}
+		
+		
+		
 		MultipleCSVWriter.write(dataset, path);
 	}
 
@@ -115,8 +131,12 @@ public class MainSampling {
 				for (State stateParents : statesParents) {
 					// Obtain probability of each node state given the parents from uniform
 					// distribution
-					double prob = Math.random();
-					// IT IS ASSUMMED THAT THE VARIABLES ARE BINARY
+					//double prob = Math.random();
+					// Extreme probabilities
+					double prob = ProbabilityUtil.extremeProbability();
+					
+					
+					// IT IS ASSUMMED BINARY VARIABLES
 					for (String valueNode : valuesNode) {
 						State query = new State(stateParents.getEvents());
 						query.addEvent(node.getName(), valueNode);
@@ -125,8 +145,12 @@ public class MainSampling {
 					}
 				}
 			} else {
-				// IT IS ASSUMMED THAT BINARY VARIABLES
-				double prob = Math.random();
+				// IT IS ASSUMMED BINARY VARIABLES
+				//double prob = Math.random();
+				// Extreme probabilities
+				double prob = ProbabilityUtil.extremeProbability();
+				
+				
 				State state1 = node.getStates().get(0);
 				State state2 = node.getStates().get(1);
 				CPT.put(state1, prob);

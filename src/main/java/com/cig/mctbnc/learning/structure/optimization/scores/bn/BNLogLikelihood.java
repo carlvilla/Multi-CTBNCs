@@ -43,11 +43,7 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 			// All the possible states between the studied variable and its parents
 			Set<State> states = node.getSufficientStatistics().getNx().keySet();
 			for (State state : states)
-				for (String k : possibleValuesStudiedVariable) {
-					State query = new State(state.getEvents());
-					query.modifyEventValue(node.getName(), k);
-					llScore += classProbability(node, state);
-				}
+				llScore += classProbability(node, state);
 			// If the specified penalization function is available, it is applied
 			if (penalizationFunctionMap.containsKey(penalizationFunction)) {
 				// Overfitting is avoid by penalizing the complexity of the network

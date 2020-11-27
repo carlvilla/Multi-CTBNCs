@@ -100,7 +100,7 @@ public class LearnParametersBNTest {
 			nodes.add(new CPTNode(nameClassVariable, dataset.getPossibleStatesVariable(nameClassVariable)));
 		}
 
-		// V2 and V3 are parents of V1 and V3 is parent of V2
+		// C2 and C3 are parents of C1 and C3 is parent of C2
 		nodes.get(0).setParent(nodes.get(1));
 		nodes.get(0).setParent(nodes.get(2));
 		nodes.get(1).setParent(nodes.get(2));

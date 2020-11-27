@@ -30,7 +30,8 @@ public class BNBayesianScore implements BNScoreFunction {
 			// Retrieve sufficient statistics of the node
 			Map<State, Double> nx = node.getSufficientStatistics().getNx();
 			// All the possible states between the studied variable and its parents
-			Set<State> states = nx.keySet();
+			Set<State> states = nx.keySet();			
+			// TODO
 			for (State state : states) {
 				// Number of states of the node
 				int numStatesNode = node.getStates().size();

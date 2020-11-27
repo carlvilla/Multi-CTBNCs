@@ -1,5 +1,6 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import com.cig.mctbnc.data.representation.State;
@@ -35,9 +36,9 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 		// Obtain node to evaluate
 		CIMNode node = (CIMNode) ctbn.getNodes().get(nodeIndex);
 
-//		System.out.println("-----------");
-//		System.out.println("Nodo: " + node.getName());
-//		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
+		System.out.println("-----------");
+		System.out.println("Nodo: " + node.getName());
+		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
 
 		double ll = 0.0;
 		ll += logLikelihoodScore(node);
@@ -58,7 +59,7 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 			ll -= (double) networkComplexity * penalization;
 		}
 
-//		System.out.println("Total: " + llScore);
+		System.out.println("Total: " + ll);
 
 		return ll;
 	}
@@ -88,11 +89,13 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 			// there are no transitions from this state
 			if (qx != 0) {
 				ll += nx * Math.log(qx) - qx * tx;
-				for (State toState : Oxx.get(state).keySet()) {
+				Map<State, Double> fromStateOxx = Oxx.get(state);
+				Map<State, Double> fromStateMxy = ss.getMxy().get(state);
+				for (State toState : fromStateOxx.keySet()) {
 					// Probability of transitioning from "state" to "toState"
-					double oxx = Oxx.get(state).get(toState);
+					double oxx = fromStateOxx.get(toState);
 					// Number of times the variable transitions from "state" to "toState"
-					double nxx = ss.getMxy().get(state).get(toState);
+					double nxx = fromStateMxy.get(toState);
 					if (oxx != 0)
 						ll += nxx * Math.log(oxx);
 				}

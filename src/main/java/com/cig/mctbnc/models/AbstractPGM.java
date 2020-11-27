@@ -255,7 +255,6 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		graph.setAttribute("ui.stylesheet", "url(src/main/resources/css/graph-style.css);");
 		// Define viewer
 		FxViewer viewer = new FxViewer(graph, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-		// viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
 		viewer.enableAutoLayout();
 		FxViewPanel panel = (FxViewPanel) viewer.addDefaultView(false, new FxGraphRenderer());
 

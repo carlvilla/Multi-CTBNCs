@@ -156,4 +156,17 @@ public final class ProbabilityUtil {
 		return mll;
 	}
 
+	/**
+	 * Return a probability between 0 or 0.3, or between 0.7 and 1.
+	 * 
+	 * @return probability
+	 */
+	public static double extremeProbability() {
+		if (Math.random() < 0.5) {
+			return Math.random() * 0.3;
+		} else {
+			return 0.7 + Math.random() * (1 - 0.7);
+		}
+	}
+
 }

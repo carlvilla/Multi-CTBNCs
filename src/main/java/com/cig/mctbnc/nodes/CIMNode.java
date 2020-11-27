@@ -93,28 +93,33 @@ public class CIMNode extends DiscreteNode {
 		List<String> requiredNodes = getParents().stream().map(parent -> parent.getName()).collect(Collectors.toList());
 		requiredNodes.add(getName());
 		query.removeAllEventsExcept(requiredNodes);
-
+		// Intensity of the node of transitioning from the state specified in "evidence"
+		// (parameter exponential distribution)
 		double q = 0.0;
 		try {
-			// Retrieve intensity of the node of transitioning from the state specified in
-			// "evidence"
 			q = getQx().get(query);
 		} catch (NullPointerException e) {
-			// It is necessary the previous state of all the parents
 			return -1;
 		}
-
+		// If the parameter is 0, the node is in an absorbing state that cannot be left
 		if (q == 0)
 			return Double.POSITIVE_INFINITY;
-		else
-			// Sample time from exponential distribution with parameter 'q'
-			return -Math.log(1 - Math.random()) / q;
-
+		else {
+			// Sample from uniform distribution to obtain the probability of the time that
+			// will be sampled
+			double prob = Math.random();
+			// Use the quantile function of the exponential distribution with parameter 'q'
+			// to sample the time with the previous obtained probability
+			return -Math.log(1 - prob) / q;
+		}
 	}
 
 	/**
-	 * Sample the next state of the node given its current state and that of its
-	 * parents. Returns -1 if not all the states of the parents were provided.
+	 * Sample the next state of the node given the current one and that of its
+	 * parents. Returns null if not all the parents were instantiated.
+	 * 
+	 * @param evidence
+	 * @return sampled state
 	 * 
 	 */
 	public State sampleNextState(State evidence) {
@@ -124,28 +129,26 @@ public class CIMNode extends DiscreteNode {
 		List<String> requiredNodes = getParents().stream().map(parent -> parent.getName()).collect(Collectors.toList());
 		requiredNodes.add(getName());
 		query.removeAllEventsExcept(requiredNodes);
-
-		State sampledState = null;
-
 		// Sample from uniform distribution
 		double probUniform = Math.random();
 		// Accumulated probability
 		double accProb = 0;
-
-		for (State nextState : getOxy().get(query).keySet()) {
-			// Probability of transitioning to "nextState"
-			accProb += getOxy().get(query).get(nextState);
-
-			if (probUniform <= accProb) {
-				// Generated state for the node
-				sampledState = nextState;
-				break;
+		// Sampled state
+		State sampledState = null;
+		try {
+			for (State nextState : getOxy().get(query).keySet()) {
+				// Probability of transitioning to "nextState"
+				accProb += getOxy().get(query).get(nextState);
+				if (probUniform <= accProb) {
+					// Generated state for the node
+					sampledState = nextState;
+					break;
+				}
 			}
-
+		} catch (NullPointerException e) {
+			return null;
 		}
-
 		return sampledState;
-
 	}
 
 	/**
@@ -181,8 +184,6 @@ public class CIMNode extends DiscreteNode {
 		String discreteNodeDescription = super.toString();
 		StringBuilder sb = new StringBuilder();
 		sb.append(discreteNodeDescription + "\n");
-		// sb.append("--CIM--\n");
-		// sb.append(CIM);
 		return sb.toString();
 	}
 

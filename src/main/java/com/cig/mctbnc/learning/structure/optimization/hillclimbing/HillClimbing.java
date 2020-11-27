@@ -9,7 +9,6 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
-import com.cig.mctbnc.learning.structure.optimization.CTBNScoreFunction;
 import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.Node;
 

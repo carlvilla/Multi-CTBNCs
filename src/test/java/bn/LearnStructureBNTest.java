@@ -9,14 +9,12 @@ import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
-import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithmFactory;
 import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorihtmFactory;
 import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
-import com.cig.mctbnc.learning.structure.optimization.hillclimbing.BNHillClimbing;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 
