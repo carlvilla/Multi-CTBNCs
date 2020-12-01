@@ -1,6 +1,7 @@
 package bn;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,14 @@ import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
 
+/**
+ * Tests over the score functions for BNs. Some structures are built and their
+ * scores manually estimated in order to verify the correct behavior of the
+ * score functions.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 class ScoresBNTest {
 	static Dataset dataset;
 	static List<CPTNode> nodes;
@@ -116,18 +125,23 @@ class ScoresBNTest {
 		BN<CPTNode> bn = new BN<CPTNode>(nodes, dataset);
 		bn.setParameterLearningAlgorithm(new BNMaximumLikelihoodEstimation());
 		bn.learnParameters();
-		double ll = 2 * Math.log(2 / 3.0) + 1 * Math.log(1 / 3.0) + 1 * Math.log(1) + 2 * Math.log(2 / 3.0)
-				+ 1 * Math.log(1 / 3.0) + 3 * Math.log(1) + 3 * Math.log(0.5) + 3 * Math.log(0.5)
-				+ 1 * Math.log(1 / 4.0) + 3 * Math.log(3 / 4.0) + 6 * Math.log(6 / 10.0) + 4 * Math.log(4 / 10.0);
 		// Log-likelihood
 		BNScoreFunction scoreFunction = new BNLogLikelihood("No");
-		assertEquals(ll, scoreFunction.compute(bn), 0.001);
+		double llS1Expected = 2 * Math.log(2 / 3.0) + 1 * Math.log(1 / 3.0) + 1 * Math.log(1) + 2 * Math.log(2 / 3.0)
+				+ 1 * Math.log(1 / 3.0) + 3 * Math.log(1) + 3 * Math.log(0.5) + 3 * Math.log(0.5)
+				+ 1 * Math.log(1 / 4.0) + 3 * Math.log(3 / 4.0) + 6 * Math.log(6 / 10.0) + 4 * Math.log(4 / 10.0);
+		double llS1Actual = scoreFunction.compute(bn);
+		assertEquals(llS1Expected, llS1Actual, 0.001);
 		// Penalized log-likelihood with BIC
 		scoreFunction = new BNLogLikelihood("BIC");
-		assertEquals(ll - 0.5 * Math.log(10) * ((3 - 1) * 4 + (2 - 1) * 2 + (2 - 1)), scoreFunction.compute(bn), 0.001);
+		double llS1BICExpected = llS1Expected - 0.5 * Math.log(10) * ((3 - 1) * 4 + (2 - 1) * 2 + (2 - 1));
+		double llS1BICActual = scoreFunction.compute(bn);
+		assertEquals(llS1BICExpected, llS1BICActual, 0.001);
 		// Penalized log-likelihood with AIC
 		scoreFunction = new BNLogLikelihood("AIC");
-		assertEquals(ll - ((3 - 1) * 4 + (2 - 1) * 2 + (2 - 1)), scoreFunction.compute(bn), 0.001);
+		double llS1AICExpected = llS1Expected - ((3 - 1) * 4 + (2 - 1) * 2 + (2 - 1));
+		double llS1AICActual = scoreFunction.compute(bn);
+		assertEquals(llS1AICExpected, llS1AICActual, 0.001);
 
 		// Test with structure C1 -> C2 -> C3
 		// Remove arcs previous structure
@@ -137,18 +151,23 @@ class ScoresBNTest {
 		bn = new BN<CPTNode>(nodes, dataset);
 		bn.setParameterLearningAlgorithm(new BNMaximumLikelihoodEstimation());
 		bn.learnParameters();
-		ll = 2 * Math.log(2 / 10.0) + 4 * Math.log(4 / 10.0) + 4 * Math.log(4 / 10.0) + 2 * Math.log(2 / 2.0)
-				+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0) + 4 * Math.log(4 / 4.0) + 3 * Math.log(3 / 4.0)
-				+ 1 * Math.log(1 / 4.0) + 3 * Math.log(3 / 6.0) + 3 * Math.log(3 / 6.0);
 		// Log-likelihood
 		scoreFunction = new BNLogLikelihood("No");
-		assertEquals(ll, scoreFunction.compute(bn), 0.001);
+		double llS2Expected = 2 * Math.log(2 / 10.0) + 4 * Math.log(4 / 10.0) + 4 * Math.log(4 / 10.0)
+				+ 2 * Math.log(2 / 2.0) + 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0) + 4 * Math.log(4 / 4.0)
+				+ 3 * Math.log(3 / 4.0) + 1 * Math.log(1 / 4.0) + 3 * Math.log(3 / 6.0) + 3 * Math.log(3 / 6.0);
+		double llS2Actual = scoreFunction.compute(bn);
+		assertEquals(llS2Expected, llS2Actual, 0.001);
 		// Penalized log-likelihood with BIC
 		scoreFunction = new BNLogLikelihood("BIC");
-		assertEquals(ll - 0.5 * Math.log(10) * ((3 - 1) + (2 - 1) * 3 + (2 - 1) * 2), scoreFunction.compute(bn), 0.001);
+		double llS2BICExpected = llS2Expected - 0.5 * Math.log(10) * ((3 - 1) + (2 - 1) * 3 + (2 - 1) * 2);
+		double llS2BICActual = scoreFunction.compute(bn);
+		assertEquals(llS2BICExpected, llS2BICActual, 0.001);
 		// Penalized log-likelihood with AIC
 		scoreFunction = new BNLogLikelihood("AIC");
-		assertEquals(ll - ((3 - 1) + (2 - 1) * 3 + (2 - 1) * 2), scoreFunction.compute(bn), 0.001);
+		double llS2AICExpected = llS2Expected - ((3 - 1) + (2 - 1) * 3 + (2 - 1) * 2);
+		double llS2AICActual = scoreFunction.compute(bn);
+		assertEquals(llS2AICExpected, llS2AICActual, 0.001);
 
 		// Test with structure C2 -> C1 <- C3
 		// Remove arcs previous structure
@@ -159,22 +178,114 @@ class ScoresBNTest {
 		bn = new BN<CPTNode>(nodes, dataset);
 		bn.setParameterLearningAlgorithm(new BNMaximumLikelihoodEstimation());
 		bn.learnParameters();
-		ll = 2 * Math.log(2 / 3.0) + 1 * Math.log(1 / 3.0) + 2 * Math.log(2 / 3.0) + 1 * Math.log(1 / 3.0)
-				+ 3 * Math.log(3 / 3.0) + 4 * Math.log(4 / 10.0) + 6 * Math.log(6 / 10.0) + 6 * Math.log(6 / 10.0)
-				+ 4 * Math.log(4 / 10.0);
 		// Log-likelihood
 		scoreFunction = new BNLogLikelihood("No");
-		assertEquals(ll, scoreFunction.compute(bn), 0.001);
+		double llS3Expected = 2 * Math.log(2 / 3.0) + 1 * Math.log(1 / 3.0) + 2 * Math.log(2 / 3.0)
+				+ 1 * Math.log(1 / 3.0) + 3 * Math.log(3 / 3.0) + 4 * Math.log(4 / 10.0) + 6 * Math.log(6 / 10.0)
+				+ 6 * Math.log(6 / 10.0) + 4 * Math.log(4 / 10.0);
+		double llS3Actual = scoreFunction.compute(bn);
+		assertEquals(llS3Expected, llS3Actual, 0.001);
 		// Penalized log-likelihood with BIC
 		scoreFunction = new BNLogLikelihood("BIC");
-		assertEquals(ll - 0.5 * Math.log(10) * ((3 - 1) * 4 + (2 - 1) + (2 - 1)), scoreFunction.compute(bn), 0.001);
+		double llS3BICExpected = llS3Expected - 0.5 * Math.log(10) * ((3 - 1) * 4 + (2 - 1) + (2 - 1));
+		double llS3BICActual = scoreFunction.compute(bn);
+		assertEquals(llS3BICExpected, scoreFunction.compute(bn), 0.001);
 		// Penalized log-likelihood with AIC
 		scoreFunction = new BNLogLikelihood("AIC");
-		assertEquals(ll - ((3 - 1) * 4 + (2 - 1) + (2 - 1)), scoreFunction.compute(bn), 0.001);
+		double llS3AICExpected = llS3Expected - ((3 - 1) * 4 + (2 - 1) + (2 - 1));
+		double llS3AICActual = scoreFunction.compute(bn);
+		assertEquals(llS3AICExpected, llS3AICActual, 0.001);
+
+		// Compare scores between structures.
+		// Although the dataset was extracted from the third structure (with some
+		// noise), the more dense first structure has a higher log-likelihood. If a BIC
+		// penalization is applied, the first structure would have a better score
+		assertTrue(llS1Actual > llS3Actual);
+		assertTrue(llS1BICActual < llS3BICActual);
+		assertTrue(llS1AICActual < llS3AICActual);
 	}
 
 	@Test
 	void testBayesianScore() {
+		double nxHP = 2.0;
+
+		// Test with structure C1 <- C2 <- C3 -> C1
+		nodes.get(0).setParent(nodes.get(1));
+		nodes.get(0).setParent(nodes.get(2));
+		nodes.get(1).setParent(nodes.get(2));
+		BN<CPTNode> bn = new BN<CPTNode>(nodes, dataset);
+		bn.setParameterLearningAlgorithm(new BNBayesianEstimation(nxHP));
+		bn.learnParameters();
+		BNScoreFunction scoreFunction = new BNBayesianScore();
+		double bdeS1Expected = Gamma.logGamma(nxHP * 3) - Gamma.logGamma(nxHP * 3 + 2 + 1) + Gamma.logGamma(nxHP + 2)
+				- Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP + 1) - Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP * 3)
+				- Gamma.logGamma(nxHP * 3 + 1) + Gamma.logGamma(nxHP + 1) - Gamma.logGamma(nxHP)
+				+ Gamma.logGamma(nxHP * 3) - Gamma.logGamma(nxHP * 3 + 2 + 1) + Gamma.logGamma(nxHP + 2)
+				- Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP + 1) - Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP * 3)
+				- Gamma.logGamma(nxHP * 3 + 3) + Gamma.logGamma(nxHP + 3) - Gamma.logGamma(nxHP)
+
+				+ Gamma.logGamma(nxHP * 2) - Gamma.logGamma(6 + nxHP * 2) + Gamma.logGamma(3 + nxHP)
+				- Gamma.logGamma(nxHP) + Gamma.logGamma(3 + nxHP) - Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP * 2)
+				- Gamma.logGamma(4 + nxHP * 2) + Gamma.logGamma(1 + nxHP) - Gamma.logGamma(nxHP)
+				+ Gamma.logGamma(3 + nxHP) - Gamma.logGamma(nxHP)
+
+				+ Gamma.logGamma(nxHP * 2) - Gamma.logGamma(nxHP * 2 + 6 + 4) + Gamma.logGamma(nxHP + 6)
+				- Gamma.logGamma(nxHP) + Gamma.logGamma(4 + nxHP) - Gamma.logGamma(nxHP);
+		double bdeS1Actual = scoreFunction.compute(bn);
+		assertEquals(bdeS1Expected, bdeS1Actual, 0.001);
+
+		// Test with structure C1 -> C2 -> C3
+		// Remove arcs previous structure
+		resetStructure(nodes);
+		nodes.get(1).setParent(nodes.get(0));
+		nodes.get(2).setParent(nodes.get(1));
+		bn = new BN<CPTNode>(nodes, dataset);
+		bn.setParameterLearningAlgorithm(new BNBayesianEstimation(nxHP));
+		bn.learnParameters();
+		scoreFunction = new BNBayesianScore();
+		double bdeS2Expected = Gamma.logGamma(nxHP * 3) - Gamma.logGamma(nxHP * 3 + 2 + 4 + 4)
+				+ Gamma.logGamma(nxHP + 2) - Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP + 4) - Gamma.logGamma(nxHP)
+				+ Gamma.logGamma(nxHP + 4) - Gamma.logGamma(nxHP)
+
+				+ Gamma.logGamma(nxHP * 2) - Gamma.logGamma(nxHP * 2 + 2) + Gamma.logGamma(nxHP + 2)
+				- Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP * 2) - Gamma.logGamma(nxHP * 2 + 2 + 2)
+				+ Gamma.logGamma(nxHP + 2) - Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP + 2) - Gamma.logGamma(nxHP)
+				+ Gamma.logGamma(nxHP * 2) - Gamma.logGamma(nxHP * 2 + 4) + Gamma.logGamma(nxHP + 4)
+				- Gamma.logGamma(nxHP)
+
+				+ Gamma.logGamma(nxHP * 2) - Gamma.logGamma(nxHP * 2 + 3 + 1) + Gamma.logGamma(nxHP + 3)
+				- Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP + 1) - Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP * 2)
+				- Gamma.logGamma(nxHP * 2 + 3 + 3) + Gamma.logGamma(nxHP + 3) - Gamma.logGamma(nxHP)
+				+ Gamma.logGamma(nxHP + 3) - Gamma.logGamma(nxHP);
+		double bdeS2Actual = scoreFunction.compute(bn);
+		assertEquals(bdeS2Expected, bdeS2Actual, 0.001);
+
+		// Test with structure C2 -> C1 <- C3
+		// Remove arcs previous structure
+		resetStructure(nodes);
+		nodes.get(0).setParent(nodes.get(1));
+		nodes.get(0).setParent(nodes.get(2));
+		bn = new BN<CPTNode>(nodes, dataset);
+		bn.setParameterLearningAlgorithm(new BNBayesianEstimation(nxHP));
+		bn.learnParameters();
+		scoreFunction = new BNBayesianScore();
+		double bdeS3Expected = Gamma.logGamma(nxHP * 3) - Gamma.logGamma(nxHP * 3 + 2 + 1) + Gamma.logGamma(nxHP + 2)
+				- Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP + 1) - Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP * 3)
+				- Gamma.logGamma(nxHP * 3 + 1) + Gamma.logGamma(nxHP + 1) - Gamma.logGamma(nxHP)
+				+ Gamma.logGamma(nxHP * 3) - Gamma.logGamma(nxHP * 3 + 2 + 1) + Gamma.logGamma(nxHP + 2)
+				- Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP + 1) - Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP * 3)
+				- Gamma.logGamma(nxHP * 3 + 3) + Gamma.logGamma(nxHP + 3) - Gamma.logGamma(nxHP)
+
+				+ Gamma.logGamma(nxHP * 2) - Gamma.logGamma(nxHP * 2 + 4 + 6) + Gamma.logGamma(nxHP + 4)
+				- Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP + 6) - Gamma.logGamma(nxHP)
+
+				+ Gamma.logGamma(nxHP * 2) - Gamma.logGamma(nxHP * 2 + 6 + 4) + Gamma.logGamma(nxHP + 6)
+				- Gamma.logGamma(nxHP) + Gamma.logGamma(nxHP + 4) - Gamma.logGamma(nxHP);
+		double bdeS3Actual = scoreFunction.compute(bn);
+		assertEquals(bdeS3Expected, bdeS3Actual, 0.001);
+
+		// Compare scores between structures
+		assertTrue(bdeS1Actual < bdeS3Actual);
 	}
 
 	@AfterEach

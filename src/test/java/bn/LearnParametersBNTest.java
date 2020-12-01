@@ -28,7 +28,7 @@ import com.cig.mctbnc.nodes.CPTNode;
  *
  */
 @TestMethodOrder(OrderAnnotation.class)
-public class LearnParametersBNTest {
+class LearnParametersBNTest {
 	static Dataset dataset;
 	static List<CPTNode> nodes;
 

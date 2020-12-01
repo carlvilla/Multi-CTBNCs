@@ -2,7 +2,6 @@ package com.cig.mctbnc.learning.structure.optimization.scores.bn;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.math3.special.Gamma;
 
@@ -27,26 +26,25 @@ public class BNBayesianScore implements BNScoreFunction {
 		double nxHP = nodes.get(0).getSufficientStatistics().getNxHyperparameter();
 		double bdeScore = 0.0;
 		for (CPTNode node : nodes) {
-			// Retrieve sufficient statistics of the node
+			// Retrieve sufficient statistics of the node. They already include the
+			// hyperparameters
 			Map<State, Double> nx = node.getSufficientStatistics().getNx();
-			// All the possible states between the studied variable and its parents
-			Set<State> states = nx.keySet();			
-			// TODO
-			for (State state : states) {
+			// All possible states of the node's parents
+			List<State> statesParents = node.getStatesParents();
+			for (State stateParents : statesParents) {
 				// Number of states of the node
 				int numStatesNode = node.getStates().size();
 				// Number of times the parents have a certain state independently of the node
 				double n = 0;
 				for (State stateNode : node.getStates()) {
-					State query = new State(state.getEvents());
-					query.modifyEventValue(node.getName(), stateNode.getValues()[0]);
+					State query = new State(stateParents.getEvents());
+					query.addEvents(stateNode.getEvents());
 					n += nx.get(query);
-					bdeScore += Gamma.logGamma(nxHP + nx.get(query)) - Gamma.logGamma(nxHP);
+					bdeScore += Gamma.logGamma(nx.get(query)) - Gamma.logGamma(nxHP);
 				}
-				bdeScore += Gamma.logGamma(nxHP * numStatesNode) - Gamma.logGamma(nxHP * numStatesNode + n);
+				bdeScore += Gamma.logGamma(nxHP * numStatesNode) - Gamma.logGamma(n);
 			}
 		}
 		return bdeScore;
 	}
-
 }

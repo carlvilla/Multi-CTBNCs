@@ -17,7 +17,6 @@ import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.DiscreteNode;
-import com.cig.mctbnc.util.ProbabilityUtil;
 import com.cig.mctbnc.util.Util;
 
 /**
@@ -52,8 +51,7 @@ public class MainSampling {
 		CV2.setChild(CV3);
 		CV4.setChild(CV2);
 		CV4.setChild(CV3);
-		
-		
+
 		BN<CPTNode> CS = new BN<CPTNode>(List.of(CV1, CV2, CV3, CV4));
 
 		// Definition of the parameters of the Bayesian network (class subgraph)
@@ -79,7 +77,7 @@ public class MainSampling {
 		X2.setChild(X4);
 		X4.setChild(X3);
 		X4.setChild(X5);
-		X5.setChild(X4);		
+		X5.setChild(X4);
 		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
 
 		// Definition of the parameters of the continuous time Bayesian network (feature
@@ -96,18 +94,13 @@ public class MainSampling {
 
 		// Save generated dataset
 		Dataset dataset = new Dataset(sequences);
-		
-		
-		
-		
+
 		State[] states = dataset.getStatesClassVariables();
 		Set<State> statesUniq = new HashSet<State>();
-		for(State state:states) {
+		for (State state : states) {
 			statesUniq.add(state);
 		}
-		
-		
-		
+
 		MultipleCSVWriter.write(dataset, path);
 	}
 
@@ -131,11 +124,10 @@ public class MainSampling {
 				for (State stateParents : statesParents) {
 					// Obtain probability of each node state given the parents from uniform
 					// distribution
-					//double prob = Math.random();
+					double prob = Math.random();
 					// Extreme probabilities
-					double prob = ProbabilityUtil.extremeProbability();
-					
-					
+					// double prob = ProbabilityUtil.extremeProbability();
+
 					// IT IS ASSUMMED BINARY VARIABLES
 					for (String valueNode : valuesNode) {
 						State query = new State(stateParents.getEvents());
@@ -146,11 +138,10 @@ public class MainSampling {
 				}
 			} else {
 				// IT IS ASSUMMED BINARY VARIABLES
-				//double prob = Math.random();
+				double prob = Math.random();
 				// Extreme probabilities
-				double prob = ProbabilityUtil.extremeProbability();
-				
-				
+				// double prob = ProbabilityUtil.extremeProbability();
+
 				State state1 = node.getStates().get(0);
 				State state2 = node.getStates().get(1);
 				CPT.put(state1, prob);

@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -26,7 +25,7 @@ import com.cig.mctbnc.nodes.CIMNode;
  *
  */
 @TestMethodOrder(OrderAnnotation.class)
-public class LearnParametersCTBNTest {
+class LearnParametersCTBNTest {
 	static Dataset dataset;
 	static List<CIMNode> nodes;
 

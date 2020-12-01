@@ -1,6 +1,7 @@
 package com.cig.mctbnc.models;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,14 +26,34 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 
 	/**
 	 * Initialize a continuous time Bayesian network by receiving a list of nodes
-	 * and a Bayesian network representing the class subgraph of a MCTBNC.
+	 * and a Bayesian network representing the class subgraph of a MCTBNC. This
+	 * constructor is used when the structure of the model is provided.
 	 * 
 	 * @param nodes
 	 * @param bnClassSubgraph
 	 */
 	public CTBN(List<NodeType> nodes, BN<? extends Node> bnClassSubgraph) {
 		super(nodes);
+		this.nameVariables = nodes.stream().map(node -> node.getName()).collect(Collectors.toList());
 		this.bnClassSubgraph = bnClassSubgraph;
+	}
+
+	/**
+	 * Initialize a continuous time Bayesian network by receiving a list of nodes, a
+	 * Bayesian network representing the class subgraph of a MCTBNC and a training
+	 * dataset. This constructor is used when the structure of the model is
+	 * provided.
+	 * 
+	 * @param nodes
+	 * @param bnClassSubgraph
+	 * @param trainingDataset
+	 */
+	public CTBN(List<NodeType> nodes, BN<? extends Node> bnClassSubgraph, Dataset trainingDataset) {
+		super(nodes);
+		this.nameVariables = nodes.stream().map(node -> node.getName()).collect(Collectors.toList());
+		this.bnClassSubgraph = bnClassSubgraph;
+		// Save dataset used to learn the model
+		this.dataset = trainingDataset;
 	}
 
 	/**
@@ -128,17 +149,16 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		StringBuilder sb = new StringBuilder();
 		sb.append("--Structure continuous time Bayesian network--\n");
 		for (Node node : nodes) {
-			if (node.getChildren().isEmpty())
-				sb.append("(" + node.getName() + ")");
-			else {
-				sb.append("(" + node.getName() + ") => ");
-				for (Node child : node.getChildren()) {
-					sb.append(String.join(", ", "(" + child.getName() + ")"));
+			if (node.getParents().isEmpty())
+				sb.append("{}");
+			else	
+				for (Node parent : node.getParents()) {
+					sb.append("(" + parent.getName() + ")");
 				}
-			}
-			sb.append("\n");
+			sb.append(" => (" + node.getName() + ") \n");
 		}
 		return sb.toString();
+
 	}
 
 	@Override

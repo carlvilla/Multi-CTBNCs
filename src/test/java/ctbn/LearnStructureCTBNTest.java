@@ -9,19 +9,16 @@ import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithmFactory;
 import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorihtmFactory;
 import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
-import com.cig.mctbnc.learning.structure.optimization.hillclimbing.CTBNHillClimbing;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 
-public class LearnStructureCTBNTest {
+class LearnStructureCTBNTest {
 
 	@Test
 	/**

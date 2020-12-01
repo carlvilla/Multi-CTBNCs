@@ -30,6 +30,14 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	public CTBNConditionalLogLikelihood(String penalizationFunction) {
 		super(penalizationFunction);
 	}
+	
+	@Override
+	public double compute(CTBN<? extends Node> ctbn) {
+		double cll = 0;
+		for (int indexNode = 0; indexNode < ctbn.getNumNodes(); indexNode++)
+			cll += compute(ctbn, indexNode);
+		return cll;
+	}
 
 	/**
 	 * Compute the (penalized) conditional log-likelihood score at a given node of a
@@ -47,7 +55,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 		// Obtain node to evaluate
 		CIMNode node = (CIMNode) ctbn.getNodes().get(nodeIndex);
 		// Store the conditional log-likelihood score
-		double cllScore = 0.0;
+		double cll = 0.0;
 
 //		System.out.println("-----------");
 //		System.out.println("Nodo: " + node.getName());
@@ -72,7 +80,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			// Posterior probability of the sequences given the class configuration
 			uPs[i] += logPosteriorProbabilitySequence(node, statesCVs.get(i));
 			// Add the class probability and posterior probability
-			cllScore += uPs[i];
+			cll += uPs[i];
 		}
 
 //		System.out.println("Without denominator: "+cllScore);
@@ -86,7 +94,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 		double sum = Arrays.stream(uPs).map(uP -> Math.exp(uP - largestUP)).sum();
 		// Obtain the prior probability (normalizing constant)
 		double nc = largestUP + Math.log(sum);
-		cllScore -= nc;
+		cll -= nc;
 		// Apply the specified penalization function (if available)
 		if (penalizationFunctionMap.containsKey(penalizationFunction)) {
 			// Overfitting is avoid by penalizing the complexity of the network
@@ -101,12 +109,12 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			int sampleSize = ctbn.getDataset().getNumDataPoints();
 			// Non-negative penalization
 			double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
-			cllScore -= (double) networkComplexity * penalization;
+			cll -= (double) networkComplexity * penalization;
 		}
 
 //		System.out.println(cllScore);
 
-		return cllScore;
+		return cll;
 	}
 
 	/**

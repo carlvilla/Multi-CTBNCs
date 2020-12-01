@@ -351,7 +351,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		Prediction[] predictions = new Prediction[numSequences];
 		// Obtain the name of the class variables
 		List<String> nameClassVariables = dataset.getNameClassVariables();
-		// Obtation all possible states of the class variables
+		// Obtain all possible states of the class variables
 		List<State> statesClassVariables = dataset.getPossibleStatesVariables(nameClassVariables);
 		// Make predictions on all the sequences
 		for (int i = 0; i < numSequences; i++) {

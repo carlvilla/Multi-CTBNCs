@@ -3,7 +3,6 @@ package com.cig.mctbnc.learning.parameters.bn;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,9 +35,7 @@ public class BNSufficientStatistics implements SufficientStatistics {
 		logger.trace("Computing sufficient statistics BN for node {}", node.getName());
 		List<State> statesVariable = ((DiscreteNode) node).getStates();
 		if (node.hasParents()) {
-			List<Node> parents = node.getParents();
-			List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
-			List<State> statesParents = dataset.getPossibleStatesVariables(nameParents);
+			List<State> statesParents = ((DiscreteNode) node).getStatesParents();
 			for (int j = 0; j < statesParents.size(); j++)
 				for (int k = 0; k < statesVariable.size(); k++) {
 					// Get number of times variable "nameVariable" has value statesVariable[k]

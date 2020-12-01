@@ -6,6 +6,8 @@ import com.cig.mctbnc.nodes.Node;
 
 public interface CTBNScoreFunction {
 
+	public double compute(CTBN<? extends Node> ctbn);
+
 	public double compute(CTBN<? extends Node> ctbn, int nodeIndex);
 
 }

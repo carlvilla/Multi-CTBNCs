@@ -38,7 +38,14 @@ public interface Node {
 	 * @return parent node list
 	 */
 	public int getNumParents();
-	
+
+	/**
+	 * Return the name of the parents of the node.
+	 * 
+	 * @return list of parents' names
+	 */
+	public List<String> getNameParents();
+
 	/**
 	 * Define if the node is a class variable.
 	 * 

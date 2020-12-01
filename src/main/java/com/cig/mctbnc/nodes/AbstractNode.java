@@ -2,9 +2,7 @@ package com.cig.mctbnc.nodes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import com.cig.mctbnc.data.representation.State;
+import java.util.stream.Collectors;
 
 /**
  * Contains common variables and methods for any kind of node.
@@ -127,10 +125,15 @@ public abstract class AbstractNode implements Node {
 	public List<Node> getParents() {
 		return parents;
 	}
-	
+
 	@Override
 	public int getNumParents() {
 		return parents.size();
+	}
+
+	@Override
+	public List<String> getNameParents() {
+		return parents.stream().map(parent -> parent.getName()).collect(Collectors.toList());
 	}
 
 	@Override

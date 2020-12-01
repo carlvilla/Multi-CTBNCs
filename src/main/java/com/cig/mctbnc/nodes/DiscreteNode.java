@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.util.Util;
 
 public abstract class DiscreteNode extends AbstractNode {
 	private List<State> states;
+	// A list to keep the possible states of discrete parents to avoid recompute it
+	private List<State> statesParents;
 	private int numStatesParents = 1;
 
 	/**
@@ -20,6 +23,7 @@ public abstract class DiscreteNode extends AbstractNode {
 	public DiscreteNode(String name, List<State> states) {
 		super(name);
 		this.states = states;
+		this.statesParents = new ArrayList<State>();
 	}
 
 	/**
@@ -34,6 +38,7 @@ public abstract class DiscreteNode extends AbstractNode {
 	public DiscreteNode(String name, List<State> states, boolean isClassVariable) {
 		super(name, isClassVariable);
 		this.states = (List<State>) states;
+		this.statesParents = new ArrayList<State>();
 	}
 
 	/**
@@ -51,6 +56,7 @@ public abstract class DiscreteNode extends AbstractNode {
 		this.states = new ArrayList<State>();
 		for (String valueState : states)
 			this.states.add(new State(Map.of(name, valueState)));
+		this.statesParents = new ArrayList<State>();
 	}
 
 	@Override
@@ -59,6 +65,8 @@ public abstract class DiscreteNode extends AbstractNode {
 		if (nodeParent instanceof DiscreteNode)
 			// It is increased the number of states that the parents of the node can take
 			numStatesParents *= ((DiscreteNode) nodeParent).getStates().size();
+		// As the parents changed, the list of their states is outdated
+		this.statesParents = new ArrayList<State>();
 	}
 
 	@Override
@@ -67,6 +75,8 @@ public abstract class DiscreteNode extends AbstractNode {
 		if (nodeParent instanceof DiscreteNode)
 			// It is decreased the number of states that the parents of the node can take
 			numStatesParents /= ((DiscreteNode) nodeParent).getStates().size();
+		// As the parents changed, the list of their states is outdated
+		this.statesParents = new ArrayList<State>();
 	}
 
 	/**
@@ -76,6 +86,29 @@ public abstract class DiscreteNode extends AbstractNode {
 	 */
 	public List<State> getStates() {
 		return states;
+	}
+
+	/**
+	 * Return a list of the states that the parents can take.
+	 * 
+	 * @return possible states of the parents
+	 */
+	public List<State> getStatesParents() {
+		if (statesParents.isEmpty())
+			if (parents.isEmpty())
+				// The node has no parents. It will be returned a list with an empty state. This
+				// is necessary to enter into loops over the states of the parents once without
+				// complicating the code
+				statesParents.add(new State());
+			else {
+				// Retrieve states of the parents
+				List<List<State>> statesDiscreteParents = new ArrayList<List<State>>();
+				for (Node parentNode : parents)
+					if (parentNode instanceof DiscreteNode)
+						statesDiscreteParents.add(((DiscreteNode) parentNode).getStates());
+				statesParents = Util.cartesianProduct(statesDiscreteParents);
+			}
+		return statesParents;
 	}
 
 	/**

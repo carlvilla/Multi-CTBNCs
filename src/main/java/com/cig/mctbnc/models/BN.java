@@ -112,16 +112,14 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		StringBuilder sb = new StringBuilder();
 		sb.append("--Structure Bayesian network--\n");
 		for (Node node : nodes) {
-			if (node.getChildren().isEmpty())
-				sb.append("(" + node.getName() + ")");
-			else {
-				sb.append("(" + node.getName() + ") => ");
-				for (Node child : node.getChildren()) {
-					sb.append(String.join(", ", "(" + child.getName() + ")"));
+			if (node.getParents().isEmpty())
+				sb.append("{}");
+			else	
+				for (Node parent : node.getParents()) {
+					sb.append("(" + parent.getName() + ")");
 				}
-			}
-			sb.append("\n");
-		}
+			sb.append(" => (" + node.getName() + ") \n");
+		}		
 		return sb.toString();
 	}
 

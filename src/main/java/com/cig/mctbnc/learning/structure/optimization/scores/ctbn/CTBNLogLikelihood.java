@@ -1,6 +1,5 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
-import java.util.Arrays;
 import java.util.Map;
 
 import com.cig.mctbnc.data.representation.State;
@@ -23,23 +22,26 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 		super(penalizationFunction);
 	}
 
+	@Override
+	public double compute(CTBN<? extends Node> ctbn) {
+		double ll = 0;
+		for (int indexNode = 0; indexNode < ctbn.getNumNodes(); indexNode++)
+			ll += compute(ctbn, indexNode);
+		return ll;
+	}
+
 	/**
 	 * Compute the (penalized) log-likelihood score at a given node of a discrete
 	 * continuous time Bayesian network.
 	 * 
 	 * @param ctbn                 continuous time Bayesian network
-	 * @param nodeIndex            index of the node
+	 * @param indexNode            index of the node
 	 * @param penalizationFunction penalization function
 	 * @return penalized log-likelihood score
 	 */
-	public double compute(CTBN<? extends Node> ctbn, int nodeIndex) {
+	public double compute(CTBN<? extends Node> ctbn, int indexNode) {
 		// Obtain node to evaluate
-		CIMNode node = (CIMNode) ctbn.getNodes().get(nodeIndex);
-
-		System.out.println("-----------");
-		System.out.println("Nodo: " + node.getName());
-		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
-
+		CIMNode node = (CIMNode) ctbn.getNodes().get(indexNode);
 		double ll = 0.0;
 		ll += logLikelihoodScore(node);
 		// Apply the specified penalization function (if available)
@@ -58,9 +60,6 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 			double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
 			ll -= (double) networkComplexity * penalization;
 		}
-
-		System.out.println("Total: " + ll);
-
 		return ll;
 	}
 

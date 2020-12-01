@@ -117,9 +117,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 		// Hyperparameter MxPrior (number of transitions originating from certain state)
 		MxHP = MxyHP * (statesVariable.size() - 1);
 		if (node.hasParents()) {
-			List<Node> parents = node.getParents();
-			List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
-			List<State> statesParents = dataset.getPossibleStatesVariables(nameParents);
+			List<State> statesParents = ((DiscreteNode) node).getStatesParents();
 			for (State stateParents : statesParents)
 				for (State fromState : statesVariable) {
 					State fromStateWithParents = new State(fromState.getEvents());

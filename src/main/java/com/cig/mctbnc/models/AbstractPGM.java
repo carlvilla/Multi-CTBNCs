@@ -127,6 +127,8 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		this.dataset = dataset;
 		// Use node factory to create nodes of the specified type
 		nodeFactory = new NodeFactory<NodeType>(nodeClass);
+		// Clear the entire model
+		removeAllNodes();
 		// Create nodes using the dataset
 		List<NodeType> nodes = new ArrayList<NodeType>();
 		for (String nameVariable : nameVariables) {
@@ -271,7 +273,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * @param graph
 	 * @param nodes
 	 */
-	public void addNodes(Graph graph, List<NodeType> nodes) {
+	private void addNodes(Graph graph, List<NodeType> nodes) {
 		for (Node node : nodes) {
 			String nameNode = node.getName();
 			graph.addNode(nameNode).setAttribute("ui.label", nameNode);
@@ -284,7 +286,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * @param graph
 	 * @param nodes
 	 */
-	public void addEdges(Graph graph, List<NodeType> nodes) {
+	private void addEdges(Graph graph, List<NodeType> nodes) {
 		for (Node node : nodes) {
 			String nameNode = node.getName();
 			for (Node child : node.getChildren()) {
