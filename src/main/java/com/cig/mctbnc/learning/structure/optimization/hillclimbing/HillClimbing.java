@@ -28,7 +28,7 @@ public abstract class HillClimbing implements StructureLearningAlgorithm {
 	static Logger logger = LogManager.getLogger(HillClimbing.class);
 
 	@Override
-	public void learn(PGM<? extends Node> pgm, Dataset trainingDataset, ParameterLearningAlgorithm bnParameterLearning,
+	public void learn(PGM<? extends Node> pgm, Dataset trainingDataset, ParameterLearningAlgorithm parameterLearning,
 			StructureConstraints structureConstraints) {
 		logger.info("Learning {} using Hill Climbing", pgm.getType());
 		// Define model
@@ -36,7 +36,7 @@ public abstract class HillClimbing implements StructureLearningAlgorithm {
 		// Define nodes of the PGM
 		this.nodes = pgm.getNodes();
 		// Define parameter learning algorithm
-		this.parameterLearning = bnParameterLearning;
+		this.parameterLearning = parameterLearning;
 		// Define the structure constraints
 		this.structureConstraints = structureConstraints;
 		// Get initial structure

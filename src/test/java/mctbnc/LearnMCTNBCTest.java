@@ -20,7 +20,7 @@ import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorihtmFactory;
 import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
 import com.cig.mctbnc.models.MCTBNC;
-import com.cig.mctbnc.models.MCTNBC;
+import com.cig.mctbnc.models.submodels.MCTNBC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 

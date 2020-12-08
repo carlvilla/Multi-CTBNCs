@@ -16,7 +16,7 @@ import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
-import com.cig.mctbnc.nodes.DiscreteNode;
+import com.cig.mctbnc.util.ProbabilityUtil;
 import com.cig.mctbnc.util.Util;
 
 /**
@@ -37,9 +37,110 @@ public class MainSampling {
 		int numSequences = 1000;
 		// Duration of the sequences
 		int durationSequences = 20;
+		// Extreme probabilities
+		boolean forceExtremeProb = false;
+		// Minimum and maximum values of the intensities
+		int minIntensity = 1;
+		int maxIntensity = 10; 
 		// Destination path for the generated dataset
-		String path = "src/main/resources/datasets/Decidir/extreme/D1/";
+		String path = "src/main/resources/datasets/noExtreme/D5";
 
+		
+//		// ------------------- Structure 1 -------------------
+//		
+//		// Define class variables
+//		CPTNode CV1 = new CPTNode("CV1", true, List.of("CV1_A", "CV1_B"));
+//		CPTNode CV2 = new CPTNode("CV2", true, List.of("CV2_A", "CV2_B"));
+//		CPTNode CV3 = new CPTNode("CV3", true, List.of("CV3_A", "CV3_B"));
+//		CPTNode CV4 = new CPTNode("CV4", true, List.of("CV4_A", "CV4_B"));
+//
+//		// Definition of the structure of the class subgraph
+//		CV2.setChild(CV1);
+//		CV2.setChild(CV3);
+//		CV4.setChild(CV2);
+//		CV4.setChild(CV3);
+//		BN<CPTNode> CS = new BN<CPTNode>(List.of(CV1, CV2, CV3, CV4));
+//
+//		// Definition of the parameters of the Bayesian network (class subgraph)
+//		generateRandomCPD(CS, forceExtremeProb);
+//
+//		// Define features
+//		CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
+//		CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));
+//		CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));
+//		CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));
+//		CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));
+//
+//		// Definition of the structure of the bridge and feature subgraphs
+//		CV1.setChild(X1);
+//		CV2.setChild(X1);
+//		CV2.setChild(X2);
+//		CV3.setChild(X3);
+//		CV3.setChild(X4);
+//		CV4.setChild(X5);
+//		X1.setChild(X2);
+//		X1.setChild(X3);
+//		X2.setChild(X3);
+//		X2.setChild(X4);
+//		X4.setChild(X3);
+//		X4.setChild(X5);
+//		X5.setChild(X4);
+//		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
+//		
+//		// ------------------- Structure 1 -------------------		
+		
+		
+		// ------------------- Structure 2 -------------------
+		
+//		// Define class variables
+//		CPTNode CV1 = new CPTNode("CV1", true, List.of("CV1_A", "CV1_B"));
+//		CPTNode CV2 = new CPTNode("CV2", true, List.of("CV2_A", "CV2_B"));
+//		CPTNode CV3 = new CPTNode("CV3", true, List.of("CV3_A", "CV3_B"));
+//		CPTNode CV4 = new CPTNode("CV4", true, List.of("CV4_A", "CV4_B"));
+//		CPTNode CV5 = new CPTNode("CV5", true, List.of("CV5_A", "CV5_B"));
+//		CPTNode CV6 = new CPTNode("CV6", true, List.of("CV6_A", "CV6_B"));
+//
+//		// Definition of the structure of the class subgraph
+//		CV1.setChild(CV2);
+//		CV1.setChild(CV3);
+//		CV1.setChild(CV5);
+//		CV2.setChild(CV5);
+//		CV3.setChild(CV4);
+//		CV3.setChild(CV6);
+//		CV4.setChild(CV6);
+//		BN<CPTNode> CS = new BN<CPTNode>(List.of(CV1, CV2, CV3, CV4, CV5, CV6));
+//
+//		// Definition of the parameters of the Bayesian network (class subgraph)
+//		generateRandomCPD(CS, forceExtremeProb);
+//
+//		// Define features
+//		CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));// , "X1_D", "X1_E"));
+//		CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));// , "X2_D", "X2_E"));
+//		CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));// , "X3_D", "X3_E"));
+//		CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));// , "X4_D", "X4_E"));
+//		CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));// , "X5_D", "X5_E"));
+//
+//		// Definition of the structure of the bridge and feature subgraphs
+//		CV1.setChild(X1);
+//		CV2.setChild(X2);
+//		CV3.setChild(X3);
+//		CV4.setChild(X4);
+//		CV5.setChild(X5);
+//		CV6.setChild(X5);
+//		X1.setChild(X2);
+//		X1.setChild(X5);
+//		X2.setChild(X1);
+//		X3.setChild(X4);
+//		X3.setChild(X5);
+//		X4.setChild(X3);
+//		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
+		
+		
+		// ------------------- Structure 2 -------------------
+		
+		
+		// ------------------- Structure 3 -------------------
+		
 		// Define class variables
 		CPTNode CV1 = new CPTNode("CV1", true, List.of("CV1_A", "CV1_B"));
 		CPTNode CV2 = new CPTNode("CV2", true, List.of("CV2_A", "CV2_B"));
@@ -51,26 +152,23 @@ public class MainSampling {
 		CV2.setChild(CV3);
 		CV4.setChild(CV2);
 		CV4.setChild(CV3);
-
 		BN<CPTNode> CS = new BN<CPTNode>(List.of(CV1, CV2, CV3, CV4));
 
 		// Definition of the parameters of the Bayesian network (class subgraph)
-		generateRandomCPD(CS);
+		generateRandomCPD(CS, forceExtremeProb);
 
 		// Define features
-		CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));// , "X1_D", "X1_E"));
-		CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));// , "X2_D", "X2_E"));
-		CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));// , "X3_D", "X3_E"));
-		CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));// , "X4_D", "X4_E"));
-		CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));// , "X5_D", "X5_E"));
+		CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
+		CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));
+		CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));
+		CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));
+		CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));
 
 		// Definition of the structure of the bridge and feature subgraphs
-		CV1.setChild(X1);
 		CV2.setChild(X1);
 		CV2.setChild(X2);
 		CV3.setChild(X3);
 		CV3.setChild(X4);
-		CV4.setChild(X5);
 		X1.setChild(X2);
 		X1.setChild(X3);
 		X2.setChild(X3);
@@ -79,10 +177,13 @@ public class MainSampling {
 		X4.setChild(X5);
 		X5.setChild(X4);
 		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
+		
+		// ------------------- Structure 3 -------------------	
+		
 
 		// Definition of the parameters of the continuous time Bayesian network (feature
 		// and bridge subgraph)
-		generateRandomCPD(FBS);
+		generateRandomCPD(FBS, minIntensity, maxIntensity);
 
 		// Define MCTBNC
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(CS, FBS);
@@ -106,46 +207,33 @@ public class MainSampling {
 
 	/**
 	 * Generate uniformly distributed random conditional probability tables for a
-	 * Bayesian network.
+	 * Bayesian network. IT IS ASSUMMED BINARY VARIABLES.
 	 * 
-	 * @param bn Bayesian network
+	 * @param bn               Bayesian network
+	 * @param forceExtremeProb force the probabilities to be extreme (0 to 0.3 or
+	 *                         0.7 to 1)
 	 * 
 	 */
-	public static void generateRandomCPD(BN<CPTNode> bn) {
+	public static void generateRandomCPD(BN<CPTNode> bn, boolean forceExtremeProb) {
 		// Iterate over all possible node to define their CPTs
 		for (CPTNode node : bn.getNodes()) {
 			Map<State, Double> CPT = new HashMap<State, Double>();
-			if (node.hasParents()) {
-				// All possible combinations between the states of the parents
-				List<State> statesParents = getStatesParents(node);
-				String[] valuesNode = node.getStates().stream().map(state -> state.getValues()[0])
-						.toArray(String[]::new);
-				// Iterate over all possible states
-				for (State stateParents : statesParents) {
-					// Obtain probability of each node state given the parents from uniform
-					// distribution
-					double prob = Math.random();
-					// Extreme probabilities
-					// double prob = ProbabilityUtil.extremeProbability();
-
-					// IT IS ASSUMMED BINARY VARIABLES
-					for (String valueNode : valuesNode) {
-						State query = new State(stateParents.getEvents());
-						query.addEvent(node.getName(), valueNode);
-						CPT.put(query, prob);
-						prob = 1 - prob;
-					}
+			// All possible combinations between the states of the parents
+			List<State> statesParents = node.getStatesParents();
+			List<State> statesNode = node.getStates();
+			// String[] valuesNode = node.getStates().stream().map(state ->
+			// state.getValues()[0]).toArray(String[]::new);
+			// Iterate over all possible states
+			for (State stateParents : statesParents) {
+				// Obtain probability of each node state given the parents from uniform
+				// distribution
+				double prob = forceExtremeProb ? ProbabilityUtil.extremeProbability() : Math.random();
+				for (State stateNode : statesNode) {
+					State query = new State(stateParents.getEvents());
+					query.addEvents(stateNode.getEvents());
+					CPT.put(query, prob);
+					prob = 1 - prob;
 				}
-			} else {
-				// IT IS ASSUMMED BINARY VARIABLES
-				double prob = Math.random();
-				// Extreme probabilities
-				// double prob = ProbabilityUtil.extremeProbability();
-
-				State state1 = node.getStates().get(0);
-				State state2 = node.getStates().get(1);
-				CPT.put(state1, prob);
-				CPT.put(state2, 1 - prob);
 			}
 			node.setCPT(CPT);
 		}
@@ -155,89 +243,48 @@ public class MainSampling {
 	 * Generate uniformly distributed random conditional intensity tables for a
 	 * continuous time Bayesian network.
 	 * 
-	 * @param ctbn continuous time Bayesian network
+	 * @param ctbn         continuous time Bayesian network
+	 * @param minIntensity minimum value of the intensities
+	 * @param maxIntensity maximum value of the intensities
 	 * 
 	 */
-	public static void generateRandomCPD(CTBN<CIMNode> ctbn) {
-		// Min and max values of the intensities
-		int min = 1;
-		int max = 10;
+	public static void generateRandomCPD(CTBN<CIMNode> ctbn, double minIntensity, double maxIntensity) {
 		// The initial distribution of a CTBN is a Bayesian network
 		for (CIMNode node : ctbn.getNodes()) {
-			int numStates = node.getStates().size();
 			List<State> statesNode = node.getStates();
+			int numStates = node.getStates().size();
 			Map<State, Double> Qx = new HashMap<State, Double>();
 			Map<State, Map<State, Double>> Oxx = new HashMap<State, Map<State, Double>>();
-			if (node.hasParents()) {
-				// All possible combinations between the states of the parents
-				List<State> statesParents = getStatesParents(node);
-				for (State stateParents : statesParents) {
-					// Define CIM
-					double[][] cim = new double[numStates][numStates];
-					for (int i = 0; i < numStates; i++) {
-						for (int j = 0; j < numStates; j++) {
-							double intensity = min + (max - min) * Math.random();
-							if (i != j)
-								cim[i][j] = intensity;
-						}
-						cim[i][i] = Util.sumRow(cim, i);
-						// Current variable stays on state 'i' an amount of time that follows an
-						// exponential distribution with parameter 'cim[i][i]' when the parents have
-						// state 'stateParents'
-						State query = new State(stateParents.getEvents());
-						query.addEvent(node.getName(), statesNode.get(i).getValues()[0]);
-						Qx.put(query, cim[i][i]);
-						// Define probabilities of the variable transitioning from state 'i' to any
-						// other 'j' given the current state of the parents 'stateParents'
-						Map<State, Double> prob = new HashMap<State, Double>();
-						for (int j = 0; j < numStates; j++)
-							if (i != j)
-								prob.put(statesNode.get(j), cim[i][j] / cim[i][i]);
-						Oxx.put(query, prob);
-					}
-				}
-			} else {
+			// All possible combinations between the states of the parents
+			List<State> statesParents = node.getStatesParents(); // getStatesParents(node);
+			for (State stateParents : statesParents) {
+				// Define CIM
 				double[][] cim = new double[numStates][numStates];
 				for (int i = 0; i < numStates; i++) {
 					for (int j = 0; j < numStates; j++) {
-						double intensity = min + (max - min) * Math.random();
+						double intensity = minIntensity + (maxIntensity - minIntensity) * Math.random();
 						if (i != j)
 							cim[i][j] = intensity;
 					}
 					cim[i][i] = Util.sumRow(cim, i);
 					// Current variable stays on state 'i' an amount of time that follows an
-					// exponential distribution with parameter 'cim[i][i]'
-					Qx.put(statesNode.get(i), cim[i][i]);
+					// exponential distribution with parameter 'cim[i][i]' when the parents have
+					// state 'stateParents'
+					State query = new State(stateParents.getEvents());
+					query.addEvents(statesNode.get(i).getEvents());
+					Qx.put(query, cim[i][i]);
 					// Define probabilities of the variable transitioning from state 'i' to any
-					// other 'j'
+					// other 'j' given the current state of the parents 'stateParents'
 					Map<State, Double> prob = new HashMap<State, Double>();
 					for (int j = 0; j < numStates; j++)
 						if (i != j)
 							prob.put(statesNode.get(j), cim[i][j] / cim[i][i]);
-					Oxx.put(statesNode.get(i), prob);
+					Oxx.put(query, prob);
 				}
 			}
 			// Set parameters on the node
 			node.setParameters(Qx, Oxx);
 		}
-	}
-
-	/**
-	 * Obtain all state combinations of the parents of a discrete node.
-	 * 
-	 * @param node
-	 * @return state combinations of the parents of the node
-	 */
-	private static List<State> getStatesParents(DiscreteNode node) {
-		// All possible states of each parent of the node
-		List<List<State>> statesEachParent = new ArrayList<List<State>>();
-		for (int i = 0; i < node.getParents().size(); i++) {
-			DiscreteNode parentNode = (DiscreteNode) node.getParents().get(i);
-			statesEachParent.add(parentNode.getStates());
-		}
-		// All possible combinations between the states of the parents
-		List<State> statesParents = Util.cartesianProduct(statesEachParent);
-		return statesParents;
 	}
 
 }

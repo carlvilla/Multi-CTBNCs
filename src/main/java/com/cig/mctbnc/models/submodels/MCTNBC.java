@@ -1,10 +1,11 @@
-package com.cig.mctbnc.models;
+package com.cig.mctbnc.models.submodels;
 
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.BN.EmptyBN;
 import com.cig.mctbnc.learning.structure.constraints.CTBNC.NaiveBayes;
+import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.Node;
 
 /**

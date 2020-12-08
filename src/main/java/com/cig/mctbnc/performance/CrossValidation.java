@@ -64,6 +64,14 @@ public class CrossValidation implements ValidationMethod {
 			Util.shuffle(fileNames, seed);
 			logger.info("Sequences shuffled");
 		}
+		
+		// Stratified
+//		if(stratified) {
+//			
+//			
+//		}
+		
+		
 		// Obtain size of each fold
 		int[] sizeFolds = new int[folds];
 		Arrays.fill(sizeFolds, numSequences / folds);
@@ -85,7 +93,7 @@ public class CrossValidation implements ValidationMethod {
 			Dataset testingDataset = extractTestingDataset(sequences, fileNames, fromIndex, toIndex);
 			// Train the model
 			model.learn(trainingDataset);
-			model.display();
+			//model.display();
 			// Make predictions over the current fold
 			Prediction[] predictions = model.predict(testingDataset, true);
 			// Result of performance metrics when evaluating the model with the current fold

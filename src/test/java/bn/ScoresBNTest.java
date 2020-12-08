@@ -293,7 +293,7 @@ class ScoresBNTest {
 		resetStructure(nodes);
 	}
 
-	private void resetStructure(List<CPTNode> nodes) {
+	private void resetStructure(List<? extends Node> nodes) {
 		for (Node node : nodes)
 			node.removeAllEdges();
 	}

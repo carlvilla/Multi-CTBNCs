@@ -100,6 +100,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		this.dataset = dataset;
 		// Measure execution time
 		Instant start = Instant.now();
+		
 		// ------------------ Class subgraph ------------------
 		// Learn structure and parameters of class subgraph (Bayesian network)
 		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
@@ -123,6 +124,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// ------------------ Join subgraphs ------------------
 		// Join class subgraph with feature and bridge subgraphs
 		setStructure();
+		
 		Instant end = Instant.now();
 		logger.info("MCTBNC model learnt in {} seconds", Duration.between(start, end));
 	}

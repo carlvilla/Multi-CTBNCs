@@ -8,10 +8,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
-import com.cig.mctbnc.models.DAG_kDB_MCTBNC;
-import com.cig.mctbnc.models.EMPTY_kDB_MCTBNC;
 import com.cig.mctbnc.models.MCTBNC;
-import com.cig.mctbnc.models.MCTNBC;
+import com.cig.mctbnc.models.submodels.DAG_MaxK_MCTBNC;
+import com.cig.mctbnc.models.submodels.EMPTY_MaxK_MCTBNC;
+import com.cig.mctbnc.models.submodels.MCTNBC;
 import com.cig.mctbnc.nodes.Node;
 
 /**
@@ -46,12 +46,12 @@ public class ClassifierFactory {
 		case "DAG-kDB MCTBNC":
 			int maxK = Integer.valueOf(parameters.get("maxK"));
 			logger.info("Creating a DAG-{}DB multi-dimensional continuous Bayesian network classifier", maxK);
-			return new DAG_kDB_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
+			return new DAG_MaxK_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);
 		case "Empty-kDB MCTBNC":
 			maxK = Integer.valueOf(parameters.get("maxK"));
 			logger.info("Creating a Empty-{}DB multi-dimensional continuous Bayesian network classifier", maxK);
-			return new EMPTY_kDB_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
+			return new EMPTY_MaxK_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);
 		default:
 			// If the specified classifier is not found, a MCTBNC is created

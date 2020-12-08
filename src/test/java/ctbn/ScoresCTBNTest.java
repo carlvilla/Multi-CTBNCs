@@ -12,10 +12,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.structure.optimization.CTBNScoreFunction;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNBayesianScore;
+import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNConditionalLogLikelihood;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNLogLikelihood;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.models.CTBN;
@@ -53,56 +55,56 @@ class ScoresCTBNTest {
 	@BeforeAll
 	public static void setUp() {
 		// Define dataset
-		List<String> nameClassVariables = List.of("C1", "C2");
+		List<String> nameClassVariables = List.of("C1", "C2", "C3");
 		String nameTimeVariable = "Time";
 
 		List<String[]> dataSequence1 = new ArrayList<String[]>();
-		dataSequence1.add(new String[] { "Time", "X1", "X2", "X3", "C1", "C2" });
-		dataSequence1.add(new String[] { "0.0", "a", "a", "a", "a", "a" });
-		dataSequence1.add(new String[] { "0.1", "a", "b", "a", "a", "a" });
-		dataSequence1.add(new String[] { "0.4", "b", "b", "a", "a", "a" });
-		dataSequence1.add(new String[] { "0.5", "b", "b", "b", "a", "a" });
-		dataSequence1.add(new String[] { "0.6", "b", "a", "b", "a", "a" });
-		dataSequence1.add(new String[] { "0.9", "a", "a", "b", "a", "a" });
-		dataSequence1.add(new String[] { "1.0", "a", "a", "a", "a", "a" });
-		dataSequence1.add(new String[] { "1.1", "a", "b", "a", "a", "a" });
+		dataSequence1.add(new String[] { "Time", "X1", "X2", "X3", "C1", "C2", "C3" });
+		dataSequence1.add(new String[] { "0.0", "a", "a", "a", "a", "a", "a" });
+		dataSequence1.add(new String[] { "0.1", "a", "b", "a", "a", "a", "a" });
+		dataSequence1.add(new String[] { "0.4", "b", "b", "a", "a", "a", "a" });
+		dataSequence1.add(new String[] { "0.5", "b", "b", "b", "a", "a", "a" });
+		dataSequence1.add(new String[] { "0.6", "b", "a", "b", "a", "a", "a" });
+		dataSequence1.add(new String[] { "0.9", "a", "a", "b", "a", "a", "a" });
+		dataSequence1.add(new String[] { "1.0", "a", "a", "a", "a", "a", "a" });
+		dataSequence1.add(new String[] { "1.1", "a", "b", "a", "a", "a", "a" });
 
 		List<String[]> dataSequence2 = new ArrayList<String[]>();
-		dataSequence2.add(new String[] { "Time", "X1", "X2", "X3", "C1", "C2" });
-		dataSequence2.add(new String[] { "0.0", "b", "b", "b", "b", "a" });
-		dataSequence2.add(new String[] { "0.1", "b", "a", "b", "b", "a" });
-		dataSequence2.add(new String[] { "0.4", "c", "a", "b", "b", "a" });
-		dataSequence2.add(new String[] { "0.5", "c", "a", "a", "b", "a" });
-		dataSequence2.add(new String[] { "0.6", "c", "b", "a", "b", "a" });
-		dataSequence2.add(new String[] { "0.9", "b", "b", "a", "b", "a" });
-		dataSequence2.add(new String[] { "1.0", "b", "b", "b", "b", "a" });
-		dataSequence2.add(new String[] { "1.1", "b", "a", "b", "b", "a" });
-		dataSequence2.add(new String[] { "1.2", "a", "a", "b", "b", "a" }); // Noise
+		dataSequence2.add(new String[] { "Time", "X1", "X2", "X3", "C1", "C2", "C3" });
+		dataSequence2.add(new String[] { "0.0", "b", "b", "b", "b", "a", "a" });
+		dataSequence2.add(new String[] { "0.1", "b", "a", "b", "b", "a", "a" });
+		dataSequence2.add(new String[] { "0.4", "c", "a", "b", "b", "a", "a" });
+		dataSequence2.add(new String[] { "0.5", "c", "a", "a", "b", "a", "a" });
+		dataSequence2.add(new String[] { "0.6", "c", "b", "a", "b", "a", "a" });
+		dataSequence2.add(new String[] { "0.9", "b", "b", "a", "b", "a", "a" });
+		dataSequence2.add(new String[] { "1.0", "b", "b", "b", "b", "a", "a" });
+		dataSequence2.add(new String[] { "1.1", "b", "a", "b", "b", "a", "a" });
+		dataSequence2.add(new String[] { "1.2", "a", "a", "b", "b", "a", "a" }); // Noise
 
 		List<String[]> dataSequence3 = new ArrayList<String[]>();
-		dataSequence3.add(new String[] { "Time", "X1", "X2", "X3", "C1", "C2" });
-		dataSequence3.add(new String[] { "0.0", "a", "a", "a", "a", "b" });
-		dataSequence3.add(new String[] { "0.1", "a", "b", "a", "a", "b" });
-		dataSequence3.add(new String[] { "0.2", "a", "b", "b", "a", "b" });
-		dataSequence3.add(new String[] { "0.3", "a", "a", "b", "a", "b" });
-		dataSequence3.add(new String[] { "0.4", "a", "a", "a", "a", "b" });
-		dataSequence3.add(new String[] { "0.5", "a", "b", "a", "a", "b" });
-		dataSequence3.add(new String[] { "0.6", "b", "b", "a", "a", "b" });
-		dataSequence3.add(new String[] { "0.7", "b", "b", "b", "a", "b" });
-		dataSequence3.add(new String[] { "0.8", "b", "a", "b", "a", "b" });
+		dataSequence3.add(new String[] { "Time", "X1", "X2", "X3", "C1", "C2", "C3" });
+		dataSequence3.add(new String[] { "0.0", "a", "a", "a", "a", "b", "a" });
+		dataSequence3.add(new String[] { "0.1", "a", "b", "a", "a", "b", "a" });
+		dataSequence3.add(new String[] { "0.2", "a", "b", "b", "a", "b", "a" });
+		dataSequence3.add(new String[] { "0.3", "a", "a", "b", "a", "b", "a" });
+		dataSequence3.add(new String[] { "0.4", "a", "a", "a", "a", "b", "a" });
+		dataSequence3.add(new String[] { "0.5", "a", "b", "a", "a", "b", "a" });
+		dataSequence3.add(new String[] { "0.6", "b", "b", "a", "a", "b", "a" });
+		dataSequence3.add(new String[] { "0.7", "b", "b", "b", "a", "b", "a" });
+		dataSequence3.add(new String[] { "0.8", "b", "a", "b", "a", "b", "a" });
 
 		List<String[]> dataSequence4 = new ArrayList<String[]>();
-		dataSequence4.add(new String[] { "Time", "X1", "X2", "X3", "C1", "C2" });
-		dataSequence4.add(new String[] { "0.0", "c", "a", "a", "b", "b" });
-		dataSequence4.add(new String[] { "0.1", "c", "b", "a", "b", "b" });
-		dataSequence4.add(new String[] { "0.4", "b", "b", "a", "b", "b" });
-		dataSequence4.add(new String[] { "0.5", "b", "b", "b", "b", "b" });
-		dataSequence4.add(new String[] { "0.6", "b", "a", "b", "b", "b" });
-		dataSequence4.add(new String[] { "0.9", "c", "a", "b", "b", "b" });
-		dataSequence4.add(new String[] { "1.0", "c", "a", "a", "b", "b" });
-		dataSequence4.add(new String[] { "1.1", "c", "b", "a", "b", "b" });
-		dataSequence4.add(new String[] { "1.4", "b", "b", "a", "b", "b" });
-		dataSequence4.add(new String[] { "1.5", "b", "b", "b", "b", "b" });
+		dataSequence4.add(new String[] { "Time", "X1", "X2", "X3", "C1", "C2", "C3" });
+		dataSequence4.add(new String[] { "0.0", "c", "a", "a", "b", "b", "b" });
+		dataSequence4.add(new String[] { "0.1", "c", "b", "a", "b", "b", "b" });
+		dataSequence4.add(new String[] { "0.4", "b", "b", "a", "b", "b", "b" });
+		dataSequence4.add(new String[] { "0.5", "b", "b", "b", "b", "b", "b" });
+		dataSequence4.add(new String[] { "0.6", "b", "a", "b", "b", "b", "b" });
+		dataSequence4.add(new String[] { "0.9", "c", "a", "b", "b", "b", "b" });
+		dataSequence4.add(new String[] { "1.0", "c", "a", "a", "b", "b", "b" });
+		dataSequence4.add(new String[] { "1.1", "c", "b", "a", "b", "b", "b" });
+		dataSequence4.add(new String[] { "1.4", "b", "b", "a", "b", "b", "b" });
+		dataSequence4.add(new String[] { "1.5", "b", "b", "b", "b", "b", "b" });
 
 		dataset = new Dataset(nameTimeVariable, nameClassVariables);
 		dataset.addSequence(dataSequence1);
@@ -113,10 +115,10 @@ class ScoresCTBNTest {
 		// Define class variables' nodes and class subgraph
 		nodesCVs = new ArrayList<CPTNode>();
 		for (String nameClassVariable : dataset.getNameClassVariables()) {
-			nodesCVs.add(new CPTNode(nameClassVariable, dataset.getPossibleStatesVariable(nameClassVariable)));
+			CPTNode nodeCV = new CPTNode(nameClassVariable, dataset.getPossibleStatesVariable(nameClassVariable));
+			nodeCV.isClassVariable(true);
+			nodesCVs.add(nodeCV);
 		}
-		// Structure class subgraph
-		nodesCVs.get(0).setParent(nodesCVs.get(1));
 
 		// Define features' nodes
 		nodesFs = new ArrayList<CIMNode>();
@@ -128,8 +130,13 @@ class ScoresCTBNTest {
 
 	@Test
 	void testLogLikelihood() {
-		// Test with structure X3 <- C2 -> C1 -> X1 -> X3 <-> X2
+		// Test with structure C1 -> X1 -> X3 <-> X2 X3 <- C2
+
+		// Structure class subgraph
+		nodesCVs.get(0).setParent(nodesCVs.get(1));
 		BN<CPTNode> bnClassSubgraph = new BN<CPTNode>(nodesCVs, dataset);
+
+		// Structure feature and bridge subgraphs
 		nodesFs.get(0).setParent(nodesCVs.get(0));
 		nodesFs.get(2).setParent(nodesCVs.get(1));
 		nodesFs.get(1).setParent(nodesFs.get(2));
@@ -182,7 +189,6 @@ class ScoresCTBNTest {
 		ctbn.learnParameters();
 		// Log-likelihood
 		scoreFunction = new CTBNLogLikelihood("No");
-
 		double llS2Expected = 3 * Math.log(3 / 0.7) - (3 / 0.7) * 0.7 + 2 * Math.log(2 / 3.0) + 1 * Math.log(1 / 3.0)
 				+ 1 * Math.log(1 / 0.3) - (1 / 0.3) * 0.3 + 1 * Math.log(1 / 0.3) - (1 / 0.3) * 0.3
 				+ 1 * Math.log(1 / 0.3) - (1 / 0.3) * 0.3 + 1 * Math.log(1 / 0.2) - (1 / 0.2) * 0.2
@@ -215,6 +221,117 @@ class ScoresCTBNTest {
 
 	@Test
 	void testConditionalLogLikelihood() {
+
+		// Test with structure X3 <- C2 -> C3 <- C1 -> X1 -> X3 <-> X2
+		// Class subgraph
+		nodesCVs.get(2).setParent(nodesCVs.get(0));
+		nodesCVs.get(2).setParent(nodesCVs.get(1));
+		BN<CPTNode> bnClassSubgraph = new BN<CPTNode>(nodesCVs, dataset);
+		bnClassSubgraph.setParameterLearningAlgorithm(new BNMaximumLikelihoodEstimation());
+		bnClassSubgraph.learnParameters();
+		// Feature and bridge subgraphs
+		nodesFs.get(0).setParent(nodesCVs.get(0));
+		nodesFs.get(2).setParent(nodesCVs.get(1));
+		nodesFs.get(1).setParent(nodesFs.get(2));
+		nodesFs.get(2).setParent(nodesFs.get(0));
+		nodesFs.get(2).setParent(nodesFs.get(1));
+		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(nodesFs, bnClassSubgraph, dataset);
+		ctbn.setParameterLearningAlgorithm(new CTBNMaximumLikelihoodEstimation());
+		ctbn.learnParameters();
+
+		// Conditional log-likelihood
+		CTBNScoreFunction scoreFunction = new CTBNConditionalLogLikelihood("No");
+	
+
+		double probCVs = 2 * Math.log(2 / 4) + 2 * Math.log(2 / 4) + 2 * Math.log(2 / 4) + 2 * Math.log(2 / 4);
+
+		double llSequences = 2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2 + Math.log(1 / 0.7) - (1 / 0.7) * 0.7
+				+ Math.log(1 / 1.3) - (1 / 1.3) * 1.3 + Math.log(1 / 3) + 2 * Math.log(2 / 3) + 3 * Math.log(3 / 1.4)
+				- (3 / 1.4) * 1.4
+
+		;
+		
+
+
+		double cllS1Expected =
+
+				0
+
+		;
+		
+		
+		double cllS1Actual = scoreFunction.compute(ctbn, 0);
+
+		assertEquals(cllS1Expected, cllS1Actual, 0.001);
+
+		// Penalized conditional log-likelihood
+
+		// Test with structure X3 -> X1 <- X2 <- C1 <- C2 -> X1 (a feature has no
+		// parents)
+		// Remove previous structure (except class subgraph)
+		resetStructure(nodesFs);
+		// New structure
+		nodesFs.get(0).setParent(nodesCVs.get(1));
+		nodesFs.get(1).setParent(nodesCVs.get(0));
+		nodesFs.get(0).setParent(nodesFs.get(1));
+		nodesFs.get(0).setParent(nodesFs.get(2));
+		ctbn = new CTBN<CIMNode>(nodesFs, bnClassSubgraph, dataset);
+		ctbn.setParameterLearningAlgorithm(new CTBNMaximumLikelihoodEstimation());
+		ctbn.learnParameters();
+
+		// Conditional log-likelihood
+		scoreFunction = new CTBNConditionalLogLikelihood("No");
+		double cllS2Actual = scoreFunction.compute(ctbn);
+		double cllS2Expected = 0;
+
+		System.out.println(cllS2Actual);
+
+		// assertEquals(cllS2Expected, cllS2Actual, 0.001);
+
+		// Penalized conditional log-likelihood
+
+		// Compare scores between structures.
+
+		// CHECK EFFECT OF ARCS IN CLASS SUBGRAPH ON CONDITIONAL LOG-LIKELIHOOD
+
+		resetStructure(nodesFs);
+
+		nodesCVs.get(0).setParent(nodesCVs.get(2));
+
+		// Test with structure X3 <- C2 -> C1 -> X1 -> X3 <-> X2
+		bnClassSubgraph = new BN<CPTNode>(nodesCVs, dataset);
+		bnClassSubgraph.setParameterLearningAlgorithm(new BNMaximumLikelihoodEstimation());
+		bnClassSubgraph.learnParameters();
+
+		nodesFs.get(0).setParent(nodesCVs.get(0));
+		nodesFs.get(2).setParent(nodesCVs.get(1));
+		nodesFs.get(1).setParent(nodesFs.get(2));
+		nodesFs.get(2).setParent(nodesFs.get(0));
+		nodesFs.get(2).setParent(nodesFs.get(1));
+		ctbn = new CTBN<CIMNode>(nodesFs, bnClassSubgraph, dataset);
+		ctbn.setParameterLearningAlgorithm(new CTBNMaximumLikelihoodEstimation());
+		ctbn.learnParameters();
+
+		scoreFunction = new CTBNConditionalLogLikelihood("No");
+		System.out.println(scoreFunction.compute(ctbn));
+
+		// Test with structure X3 <- C2 C1 -> X1 -> X3 <-> X2
+		resetStructure(nodesCVs);
+		nodesFs.get(0).setParent(nodesCVs.get(0));
+		nodesFs.get(2).setParent(nodesCVs.get(1));
+
+		bnClassSubgraph = new BN<CPTNode>(nodesCVs, dataset);
+		bnClassSubgraph.setParameterLearningAlgorithm(new BNMaximumLikelihoodEstimation());
+		bnClassSubgraph.learnParameters();
+
+		ctbn = new CTBN<CIMNode>(nodesFs, bnClassSubgraph, dataset);
+		ctbn.setParameterLearningAlgorithm(new CTBNMaximumLikelihoodEstimation());
+		ctbn.learnParameters();
+
+		scoreFunction = new CTBNConditionalLogLikelihood("No");
+		System.out.println(scoreFunction.compute(ctbn));
+
+		// CHECK EFFECT OF ARCS IN CLASS SUBGRAPH ON CONDITIONAL LOG-LIKELIHOOD
 
 	}
 
@@ -315,16 +432,11 @@ class ScoresCTBNTest {
 		nodesFs.get(0).setParent(nodesFs.get(1));
 		nodesFs.get(0).setParent(nodesFs.get(2));
 		ctbn = new CTBN<CIMNode>(nodesFs, bnClassSubgraph, dataset);
-
 		ctbn.setParameterLearningAlgorithm(new CTBNBayesianEstimation(mxyHP, txHP));
 		ctbn.learnParameters();
+
 		// Log-likelihood
 		scoreFunction = new CTBNBayesianScore();
-
-		System.out.println(+Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 1) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP * 2 + 1 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
-				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 1 + 1) * Math.log(txHP + 0.3)));
-
 		double bsS2Expected = Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 1) + Gamma.logGamma(mxyHP)
 				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP * 2 + 1 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 1 + 1) * Math.log(txHP + 0.2))
@@ -407,7 +519,7 @@ class ScoresCTBNTest {
 		resetStructure(nodesFs);
 	}
 
-	private void resetStructure(List<CIMNode> nodes) {
+	private void resetStructure(List<? extends Node> nodes) {
 		for (Node node : nodes)
 			node.removeAllEdges();
 	}

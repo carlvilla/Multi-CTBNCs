@@ -1,10 +1,11 @@
-package com.cig.mctbnc.models;
+package com.cig.mctbnc.models.submodels;
 
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
 import com.cig.mctbnc.learning.structure.constraints.CTBNC.MaxKCTBNC;
+import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.Node;
 
 /**
@@ -18,11 +19,11 @@ import com.cig.mctbnc.nodes.Node;
  * @param <NodeTypeCTBN>
  *
  */
-public class DAG_kDB_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node>
+public class DAG_MaxK_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node>
 		extends MCTBNC<NodeTypeBN, NodeTypeCTBN> {
 	int maxK;
 
-	public DAG_kDB_MCTBNC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnlearningAlgs, int maxK,
+	public DAG_MaxK_MCTBNC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnlearningAlgs, int maxK,
 			Class bnNodeClass, Class ctbnNodeClass) {
 		super(bnLearningAlgs, ctbnlearningAlgs, bnNodeClass, ctbnNodeClass);
 		this.maxK = maxK;
