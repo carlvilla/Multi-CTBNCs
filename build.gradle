@@ -12,6 +12,9 @@ plugins{
 	id 'application'
 	// Apply the JavaFX gradle plugin:
 	id 'org.openjfx.javafxplugin' version '0.0.9'
+	// To import project into Eclipse
+	id 'eclipse'
+	
 }
 
 mainClassName = "com.cig.mctbnc.Main"
