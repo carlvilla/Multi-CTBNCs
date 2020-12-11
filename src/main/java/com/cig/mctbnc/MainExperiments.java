@@ -32,19 +32,14 @@ import com.cig.mctbnc.performance.ValidationMethodFactory;
  */
 public class MainExperiments {
 
-//	static List<String> datasets = List.of("src/main/resources/datasets/synthetic/extreme/D1",
-//			"src/main/resources/datasets/synthetic/extreme/D2", "src/main/resources/datasets/synthetic/extreme/D3",
-//			"src/main/resources/datasets/synthetic/extreme/D4", "src/main/resources/datasets/synthetic/extreme/D5",
-//			"src/main/resources/datasets/synthetic/noExtreme/D1", "src/main/resources/datasets/synthetic/noExtreme/D2",
-//			"src/main/resources/datasets/synthetic/noExtreme/D3", "src/main/resources/datasets/synthetic/noExtreme/D4",
-//			"src/main/resources/datasets/synthetic/noExtreme/D5");
-
-	static List<String> datasets = List.of("src/main/resources/datasets/synthetic/extreme/D1",
-			"src/main/resources/datasets/synthetic/extreme/D2", "src/main/resources/datasets/synthetic/extreme/D3",
-			"src/main/resources/datasets/synthetic/extreme/D4", "src/main/resources/datasets/synthetic/extreme/D5",
-			"src/main/resources/datasets/synthetic/noExtreme/D1", "src/main/resources/datasets/synthetic/noExtreme/D2",
-			"src/main/resources/datasets/synthetic/noExtreme/D3", "src/main/resources/datasets/synthetic/noExtreme/D4",
-			"src/main/resources/datasets/synthetic/noExtreme/D5");
+	static List<String> datasets = List.of("src/main/resources/datasets/Experiment7/extreme/D1",
+			"src/main/resources/datasets/Experiment7/extreme/D2", "src/main/resources/datasets/Experiment7/extreme/D3",
+			"src/main/resources/datasets/Experiment7/extreme/D4", "src/main/resources/datasets/Experiment7/extreme/D5",
+			"src/main/resources/datasets/Experiment7/noExtreme/D1",
+			"src/main/resources/datasets/Experiment7/noExtreme/D2",
+			"src/main/resources/datasets/Experiment7/noExtreme/D3",
+			"src/main/resources/datasets/Experiment7/noExtreme/D4",
+			"src/main/resources/datasets/Experiment7/noExtreme/D5");
 
 	static String nameTimeVariable = "t";
 	static List<String> nameClassVariables = List.of("CV1", "CV2", "CV3", "CV4");
@@ -66,9 +61,9 @@ public class MainExperiments {
 	static double tx = 0.001;
 
 	// Get score function
-	static String scoreFunction = "Conditional log-likelihood"; // "Bayesian score", "Log-likelihood"
+	static String scoreFunction = "Log-likelihood"; // "Bayesian score", "Log-likelihood", "Conditional log-likelihood"
 	// Define penalization function (if any)
-	static String penalizationFunction = "No"; // "AIC", "BIC"
+	static String penalizationFunction = "BIC"; // "AIC", "No"
 
 	static String maxK = "6";
 

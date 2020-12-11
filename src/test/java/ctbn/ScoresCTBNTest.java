@@ -243,24 +243,195 @@ class ScoresCTBNTest {
 		CTBNScoreFunction scoreFunction = new CTBNConditionalLogLikelihood("No");
 	
 
-		double probCVs = 2 * Math.log(2 / 4) + 2 * Math.log(2 / 4) + 2 * Math.log(2 / 4) + 2 * Math.log(2 / 4);
+		double probCVs = 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0);
 
-		double llSequences = 2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2 + Math.log(1 / 0.7) - (1 / 0.7) * 0.7
-				+ Math.log(1 / 1.3) - (1 / 1.3) * 1.3 + Math.log(1 / 3) + 2 * Math.log(2 / 3) + 3 * Math.log(3 / 1.4)
+		double llSequences = 
+				
+				// X1
+				
+				2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2 + Math.log(1 / 0.7) - (1 / 0.7) * 0.7
+				+ Math.log(1 / 1.3) - (1 / 1.3) * 1.3 + Math.log(1 / 3.0) + 2 * Math.log(2 / 3.0) + 3 * Math.log(3 / 1.4)
 				- (3 / 1.4) * 1.4
-
-		;
+				
+				// X2
+				+ 7 * Math.log(7/0.7) - (7/0.7) * 0.7 
+				+ 6 * Math.log(6/0.6) - (6/0.6) * 0.6 
+				
+				
+				// X3
+				+ 2 * Math.log(2/0.2) - (2/0.2) * 0.2
+				+ 1 * Math.log(1/0.1) - (1/0.1) * 0.1
+				+ 1 * Math.log(1/0.1) - (1/0.1) * 0.1
+				+ 1 * Math.log(1/0.2) - (1/0.2) * 0.2
+				+ 1 * Math.log(1/0.1) - (1/0.1) * 0.1
+				+ 3 * Math.log(3/0.3) - (3/0.3) * 0.3
+				+ 1 * Math.log(1/0.1) - (1/0.1) * 0.1
+				
+				;
 		
-
-
-		double cllS1Expected =
-
-				0
-
-		;
+//		//M * Math.log(M/T) - (M/T)* T
+//		
+//		double mll = Math.log(
+//				
+//				//Math.pow(Mx/Tx, Mx) * Math.exp((Mx/Tx) * Tx)
+//				
+//				//  C1, C2, C3 = a, a, a
+//				0.5 * 0.5 * 1
+//				
+//				// X1 = a
+//				* Math.pow(2/1.2, 2) * Math.exp(- (2/1.2) * 1.2)		
+//		
+//				// X1 = b
+//				* Math.pow(1/0.7, 1) * Math.exp(- (1/0.7) * 0.7)
+//				
+//				// X1 = c - No cuando C1 = a
+//	
+//				
+//				
+//				// X2 = a - X3 = a
+//				//* Math.pow(7/0.7, 7) * Math.exp(- (7/0.7) * 0.7)		
+//		
+//				// X2 = a - X3 = b
+//				
+//				// X2 = b - X3 = a
+//		
+//				// X2 = b - X3 = b
+//				//* Math.pow(6/0.6, 6) * Math.exp(- (6/0.6) * 0.6)
+//	
+//				
+//				
+//				// X3 = a - X1 = a / X2 = a / C2 = a
+//				// X3 = a - X1 = a / X2 = b / C2 = a
+//				// X3 = a - X1 = b / X2 = b / C2 = a
+//				// X3 = a - X1 = b / X2 = b / C2 = a
+//				// X3 = a - X1 = c / X2 = a / C2 = a
+//				// X3 = a - X1 = c / X2 = b / C2 = a
+//				
+//				
+//				// X3 = b - X1 = b / X2 = b / C2 = a
+//				// X3 = b - X1 = b / X2 = a / C2 = a
+//				// X3 = b - X1 = a / X2 = a / C2 = a
+//				// X3 = b - X1 = c / X2 = a / C2 = a
+//				
+//				
+//				
+//				// C1, C2, C3 = a, a, b
+//				+ 0.5 * 0.5 * 1
+//				
+//				// X1 = a
+//				* Math.pow(2/1.2, 2) * Math.exp(- (2/1.2) * 1.2)		
+//		
+//				// X1 = b
+//				* Math.pow(1/0.7, 1) * Math.exp(- (1/0.7) * 0.7)
+//				
+//				// X1 = c - No cuando C1 = a
+//				
+//				
+//				
+//				
+//				// C1, C2, C3 = a, b, a
+//				+ 0.5 * 0.5 * 1
+//				
+//				// X1 = a
+//				* Math.pow(2/1.2, 2) * Math.exp(- (2/1.2) * 1.2)		
+//		
+//				// X1 = b
+//				* Math.pow(1/0.7, 1) * Math.exp(- (1/0.7) * 0.7)
+//				
+//				// X1 = c - No cuando C1 = a
+//				
+//				
+//				
+//				// C1, C2, C3 = a, b, b
+//				+ 0.5 * 0.5 * 1
+//				
+//				// X1 = a
+//				* Math.pow(2/1.2, 2) * Math.exp(- (2/1.2) * 1.2)		
+//		
+//				// X1 = b
+//				* Math.pow(1/0.7, 1) * Math.exp(- (1/0.7) * 0.7)
+//				
+//				// X1 = c - No cuando C1 = a
+//				
+//				
+//				
+//				// C1, C2, C3 = b, a, a
+//				+ 0.5 * 0.5 * 1
+//				
+//				// X1 = a - No cuando C1 = b
+//				
+//				// X1 = b
+//				* Math.pow(3/1.3, 3) * Math.exp(- (3/1.3) * 1.3) 
+//				// a 'a'
+//				* Math.pow(1 / 3.0, 1)	
+//				// a 'c'
+//				* Math.pow(2 / 3.0, 2)	
+//				
+//				// X1 = c
+//				* Math.pow(3/1.4, 3) * Math.exp(- (3/1.4) * 1.4)
+//				
+//				
+//				
+//				// C1, C2, C3 = b, a, b
+//				+ 0.5 * 0.5 * 1
+//				
+//				// X1 = a - No cuando C1 = b
+//				
+//				// X1 = b
+//				* Math.pow(3/1.3, 3) * Math.exp(- (3/1.3) * 1.3) 
+//				// a 'a'
+//				* Math.pow(1 / 3.0, 1)	
+//				// a 'c'
+//				* Math.pow(2 / 3.0, 2)	
+//				
+//				// X1 = c
+//				* Math.pow(3/1.4, 3) * Math.exp(- (3/1.4) * 1.4)
+//				
+//				
+//				
+//				// C1, C2, C3 = b, b, a
+//				+ 0.5 * 0.5 * 1
+//				
+//				// X1 = a - No cuando C1 = b
+//				
+//				// X1 = b
+//				* Math.pow(3/1.3, 3) * Math.exp(- (3/1.3) * 1.3) 
+//				// a 'a'
+//				* Math.pow(1 / 3.0, 1)	
+//				// a 'c'
+//				* Math.pow(2 / 3.0, 2)	
+//				
+//				// X1 = c
+//				* Math.pow(3/1.4, 3) * Math.exp(- (3/1.4) * 1.4)
+//				
+//				
+//				
+//				// C1, C2, C3 = b, b, b
+//				+ 0.5 * 0.5 * 1
+//				
+//				// X1 = a - No cuando C1 = b
+//				
+//				// X1 = b
+//				* Math.pow(3/1.3, 3) * Math.exp(- (3/1.3) * 1.3) 
+//				// a 'a'
+//				* Math.pow(1 / 3.0, 1)	
+//				// a 'c'
+//				* Math.pow(2 / 3.0, 2)	
+//				
+//				// X1 = c
+//				* Math.pow(3/1.4, 3) * Math.exp(- (3/1.4) * 1.4)
+//				
+//				
+//				);
+//		
+//		// (Mx/Tx) ^ (Mx) * Math.exp((Mx/Tx) * Tx)
+//		
+//		double cllS1Expected = probCVs + llSequences - mll;
 		
 		
-		double cllS1Actual = scoreFunction.compute(ctbn, 0);
+		double cllS1Expected = llSequences;
+		
+		double cllS1Actual = scoreFunction.compute(ctbn);
 
 		assertEquals(cllS1Expected, cllS1Actual, 0.001);
 

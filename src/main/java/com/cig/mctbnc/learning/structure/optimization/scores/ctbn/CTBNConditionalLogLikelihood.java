@@ -20,6 +20,10 @@ import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
 
+/**
+ * Implements the conditional log-likelihood score to perform a discriminative
+ * training.
+ */
 public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implements CTBNScoreFunction {
 	/**
 	 * Receives the name of the penalization function used for the structure
@@ -30,12 +34,15 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	public CTBNConditionalLogLikelihood(String penalizationFunction) {
 		super(penalizationFunction);
 	}
-	
+
 	@Override
 	public double compute(CTBN<? extends Node> ctbn) {
 		double cll = 0;
-		for (int indexNode = 0; indexNode < ctbn.getNumNodes(); indexNode++)
-			cll += compute(ctbn, indexNode);
+		for (int indexNode = 0; indexNode < ctbn.getNumNodes(); indexNode++) {
+			double cllAux = compute(ctbn, indexNode);
+			if (cllAux != Double.NEGATIVE_INFINITY)
+				cll += compute(ctbn, indexNode);
+		}
 		return cll;
 	}
 
@@ -61,9 +68,10 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 //		System.out.println("Nodo: " + node.getName());
 //		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
 
-		// The contribution of a node is 0 if it has no class variables as parents
+		// The node has no class variables as parents. The worst score is given to this
+		// structure.
 		if (!hasClassVariablesAsParent(node))
-			return 0; // Double.NEGATIVE_INFINITY;
+			return Double.NEGATIVE_INFINITY;
 
 		// Obtain possible states of the class variables that are parents of the node
 		List<String> nameCVs = nameClassVariablesParents(node);
@@ -71,6 +79,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 		// Parameters of class variables are in the BN, their nodes are retrieved
 		BN<CPTNode> bnClassSubgraph = (BN<CPTNode>) ctbn.getBnClassSubgraph();
 		List<CPTNode> nodesCVs = bnClassSubgraph.getNodesByNames(nameCVs);
+
 		// Compute unnormalized posteriors given each possible state of the class
 		// variables
 		double[] uPs = new double[statesCVs.size()];
@@ -83,7 +92,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			cll += uPs[i];
 		}
 
-//		System.out.println("Without denominator: "+cllScore);
+//		System.out.println("Without denominator: " + cll);
 
 		// Prior probability of the sequences (Denominator term)
 		// The log-sum-exp trick is used to avoid underflows
@@ -95,6 +104,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 		// Obtain the prior probability (normalizing constant)
 		double nc = largestUP + Math.log(sum);
 		cll -= nc;
+
 		// Apply the specified penalization function (if available)
 		if (penalizationFunctionMap.containsKey(penalizationFunction)) {
 			// Overfitting is avoid by penalizing the complexity of the network
@@ -112,7 +122,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			cll -= (double) networkComplexity * penalization;
 		}
 
-//		System.out.println(cllScore);
+//		System.out.println(cll);
 
 		return cll;
 	}
@@ -180,7 +190,6 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			}
 		}
 		return lp;
-
 	}
 
 	/**
