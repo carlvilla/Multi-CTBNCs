@@ -225,6 +225,52 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
+	 * Return the names of the variables of the PGM.
+	 * 
+	 * @return names of the variables
+	 */
+	public List<String> getNameVariables() {
+		return nameVariables;
+	}
+
+	/**
+	 * Return the algorithm that is used to learn the parameters of the PGM.
+	 * 
+	 * @return parameter learning algorithm
+	 */
+	public ParameterLearningAlgorithm getParameterLearningAlg() {
+		return parameterLearningAlg;
+	}
+
+	/**
+	 * Return the algorithm that is used to learn the structure of the PGM.
+	 * 
+	 * @return structure learning algorithm
+	 */
+	public StructureLearningAlgorithm getStructureLearningAlg() {
+		return structureLearningAlg;
+	}
+
+	/**
+	 * Return the constraints that the PGM needs to meet.
+	 * 
+	 * @return structure constraints
+	 * 
+	 */
+	public StructureConstraints getStructureConstraints() {
+		return structureConstraints;
+	}
+
+	/**
+	 * Return the type of the nodes.
+	 * 
+	 * @return type of the nodes
+	 */
+	public Class<NodeType> getNodeClass() {
+		return nodeClass;
+	}
+
+	/**
 	 * Return the dataset used to learn the PGM.
 	 * 
 	 * @return dataset

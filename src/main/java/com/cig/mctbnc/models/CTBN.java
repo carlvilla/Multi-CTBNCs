@@ -115,6 +115,28 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	}
 
 	/**
+	 * Constructor to clone a CTBN.
+	 * 
+	 * @param ctbn
+	 */
+	public CTBN(CTBN<NodeType> ctbn) {
+		super(ctbn.getNodes());
+		this.bnClassSubgraph = ctbn.getBnClassSubgraph();
+		// Set variables to use
+		this.nameVariables = ctbn.getNameVariables();
+		// Set node type
+		this.nodeClass = ctbn.getNodeClass();
+		// Set necessary algorithms to learn the model
+		setParameterLearningAlgorithm(ctbn.getParameterLearningAlg());
+		setStructureLearningAlgorithm(ctbn.getStructureLearningAlg());
+		setStructureConstraints(ctbn.getStructureConstraints());
+		// Set the training dataset
+		setTrainingDataset(ctbn.getDataset());
+		// Set the class subgraph
+		this.bnClassSubgraph = ctbn.getBnClassSubgraph();
+	}
+
+	/**
 	 * Modify the structure of the CTBN by changing the parent set of an specified
 	 * node and update the parameters of the model. This method is necessary to
 	 * learn the structure of a CTBN by optimizing the parent set of its nodes.
@@ -151,7 +173,7 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		for (Node node : nodes) {
 			if (node.getParents().isEmpty())
 				sb.append("{}");
-			else	
+			else
 				for (Node parent : node.getParents()) {
 					sb.append("(" + parent.getName() + ")");
 				}
