@@ -402,7 +402,7 @@ public class Metrics {
 	private static String getPositiveClass(String[] possibleClasses) {
 		for (int i = 0; i < possibleClasses.length; i++) {
 			String classI = possibleClasses[i];
-			if (classI.equalsIgnoreCase("True") || classI.equalsIgnoreCase("Positive") || classI.equals("1")) {
+			if (classI.equalsIgnoreCase("True") || classI.equalsIgnoreCase("Positive") || classI.equals("1") || classI.contains("A")) {
 				return classI;
 			}
 		}

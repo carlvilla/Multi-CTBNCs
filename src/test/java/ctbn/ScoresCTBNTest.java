@@ -454,7 +454,6 @@ class ScoresCTBNTest {
 		double cllS2Actual = scoreFunction.compute(ctbn);
 		double cllS2Expected = 0;
 
-		System.out.println(cllS2Actual);
 
 		// assertEquals(cllS2Expected, cllS2Actual, 0.001);
 
@@ -483,7 +482,6 @@ class ScoresCTBNTest {
 		ctbn.learnParameters();
 
 		scoreFunction = new CTBNConditionalLogLikelihood("No");
-		System.out.println(scoreFunction.compute(ctbn));
 
 		// Test with structure X3 <- C2 C1 -> X1 -> X3 <-> X2
 		resetStructure(nodesCVs);
@@ -499,7 +497,6 @@ class ScoresCTBNTest {
 		ctbn.learnParameters();
 
 		scoreFunction = new CTBNConditionalLogLikelihood("No");
-		System.out.println(scoreFunction.compute(ctbn));
 
 		// CHECK EFFECT OF ARCS IN CLASS SUBGRAPH ON CONDITIONAL LOG-LIKELIHOOD
 

@@ -46,11 +46,6 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 				bestAdjacencyMatrix[indexParentNode][indexNode] = bestAdjacencyMatrixNode[indexParentNode][indexNode];
 			}
 		});
-
-//		for (int indexNode = 0; indexNode < numNodes; indexNode++) {
-//			bestAdjacencyMatrix = findStructureNode(indexNode, bestAdjacencyMatrix);
-//		}
-
 		logger.debug("Best structure found: {}", (Object) bestAdjacencyMatrix);
 		return bestAdjacencyMatrix;
 	}

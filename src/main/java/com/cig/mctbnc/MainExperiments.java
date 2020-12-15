@@ -83,6 +83,12 @@ public class MainExperiments {
 
 	static int trainingSize = 0;
 
+	/**
+	 * Class use to perform experiments.
+	 * 
+	 * @param args
+	 * @throws FileNotFoundException
+	 */
 	public static void main(String[] args) throws FileNotFoundException {
 
 		for (String pathDataset : datasets) {

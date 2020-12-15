@@ -27,6 +27,7 @@ import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
 import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
+import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;
 import com.cig.mctbnc.util.ProbabilityUtil;
@@ -100,7 +101,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		this.dataset = dataset;
 		// Measure execution time
 		Instant start = Instant.now();
-		
+
 		// ------------------ Class subgraph ------------------
 		// Learn structure and parameters of class subgraph (Bayesian network)
 		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
@@ -124,7 +125,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// ------------------ Join subgraphs ------------------
 		// Join class subgraph with feature and bridge subgraphs
 		setStructure();
-		
+
 		Instant end = Instant.now();
 		logger.info("MCTBNC model learnt in {} seconds", Duration.between(start, end));
 	}
@@ -351,16 +352,18 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		logger.info("Performing prediction over {} sequences", dataset.getNumDataPoints());
 		int numSequences = dataset.getNumDataPoints();
 		Prediction[] predictions = new Prediction[numSequences];
-		// Obtain the name of the class variables
-		List<String> nameClassVariables = dataset.getNameClassVariables();
-		// Obtain all possible states of the class variables
-		List<State> statesClassVariables = dataset.getPossibleStatesVariables(nameClassVariables);
+		// Obtain possible states of each class variables
+		List<List<State>> statesEachClassVariable = bn.getNodes().stream()
+				.map(node -> ((DiscreteNode) node).getStates()).collect(Collectors.toList());
+		// Obtain all possible class configurations
+		List<State> statesClassVariables = Util.cartesianProduct(statesEachClassVariable);
 		// Make predictions on all the sequences
 		for (int i = 0; i < numSequences; i++) {
 			logger.trace("Performing prediction over sequence {}/{}", i, dataset.getNumDataPoints());
 			Sequence evidenceSequence = dataset.getSequences().get(i);
 			predictions[i] = predict(evidenceSequence, statesClassVariables, estimateProbabilities);
 		}
+
 		return predictions;
 	}
 

@@ -355,12 +355,10 @@ public class MainSampling {
 		X3.setChild(X4);
 		X4.setChild(X5);
 		X5.setChild(X4);
-
-		
-		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
-		
+	
 		// ------------------- Experiment 7 -------------------	
-		
+
+		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
 
 		// Definition of the parameters of the continuous time Bayesian network (feature
 		// and bridge subgraph)
