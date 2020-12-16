@@ -81,8 +81,17 @@ public class Metrics {
 		Map<String, Double> results = new LinkedHashMap<String, Double>();
 		double globalAccuracy = globalAccuracy(predicted, actualDataset);
 		double meanAccuracy = meanAccuracy(predicted, actualDataset);
+		
+		System.out.println("-----PRECISION-----");
+		
 		double macroPrecision = macroAverage(predicted, actualDataset, Metrics::precision);
+		
+		System.out.println("-----RECALL-----");
+		
 		double macroRecall = macroAverage(predicted, actualDataset, Metrics::recall);
+		
+		System.out.println("-----F1 SCORE-----");
+		
 		double macroF1Score = macroAverage(predicted, actualDataset, Metrics::f1score);
 		double microPrecision = microAverage(predicted, actualDataset, Metrics::precision);
 		double microRecall = microAverage(predicted, actualDataset, Metrics::recall);
@@ -166,13 +175,31 @@ public class Metrics {
 		// Iterate over every class variable
 		List<String> nameCVs = predicted[0].getPredictedClasses().getNameVariables();
 		for (String nameCV : nameCVs) {
+			
+			
+			double accuracyCV = 0;
+			
+			
+			
 			// Iterate over every instance
 			for (int j = 0; j < numInstances; j++) {
 				String predictedClass = predicted[j].getPredictedClasses().getValueVariable(nameCV);
 				String actualClass = actualCCs[j].getValueVariable(nameCV);
-				if (predictedClass.equals(actualClass))
+				if (predictedClass.equals(actualClass)) {
 					meanAccuracy += 1;
+					
+				
+					accuracyCV += 1;
+					
+				}
 			}
+			
+			
+			accuracyCV = accuracyCV / (double) numInstances;
+			System.out.println("-----ACCURACY-----");
+			System.out.println("Accuracy" + nameCV + ": " + accuracyCV);
+			
+			
 		}
 		meanAccuracy /= (double) numInstances;
 		meanAccuracy /= nameCVs.size();
@@ -324,6 +351,13 @@ public class Metrics {
 				logger.info("Using {} as positive class of '{}'", positiveClass, nameCV);
 				Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, positiveClass);
 				metricResultCV = metric.compute(cm);
+				
+				
+				
+				System.out.println(nameCV + ": " + metricResultCV);
+				
+				
+				
 			}
 			metricResult += metricResultCV;
 		}

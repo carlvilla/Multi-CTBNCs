@@ -21,6 +21,8 @@ import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
+import com.cig.mctbnc.performance.CrossValidation;
+import com.cig.mctbnc.performance.CrossValidationSeveralModels;
 import com.cig.mctbnc.performance.ValidationMethod;
 import com.cig.mctbnc.performance.ValidationMethodFactory;
 
@@ -45,7 +47,8 @@ public class MainExperiments {
 	static List<String> nameClassVariables = List.of("CV1", "CV2", "CV3", "CV4");
 	static List<String> nameSelectedFeatures = List.of("X1", "X2", "X3", "X4", "X5");
 
-	static List<String> models = List.of("Empty-kDB MCTBNC", "MCTBNC");
+	// static List<String> models = List.of("Empty-kDB MCTBNC", "MCTBNC");
+	static List<String> models = List.of("MCTBNC");
 
 	// Get names learning algorithms
 	static String nameBnPLA = "Bayesian estimation";
@@ -61,19 +64,11 @@ public class MainExperiments {
 	static double tx = 0.001;
 
 	// Get score function
-	static String scoreFunction = "Log-likelihood"; // "Bayesian score", "Log-likelihood", "Conditional log-likelihood"
+	static List<String> scoreFunctions = List.of("Log-likelihood", "Bayesian score", "Conditional log-likelihood");
 	// Define penalization function (if any)
 	static String penalizationFunction = "BIC"; // "AIC", "No"
 
 	static String maxK = "6";
-
-	// Define learning algorithms for the feature and class subgraph (Continuous
-	// time Bayesian network)
-	static CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, nxy,
-			tx);
-	static CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory.getAlgorithm(nameCtbnSLA,
-			scoreFunction, penalizationFunction);
-	static CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 
 	static String initialStructure = "Empty";
 
@@ -91,45 +86,60 @@ public class MainExperiments {
 	 */
 	public static void main(String[] args) throws FileNotFoundException {
 
-		for (String pathDataset : datasets) {
-			System.out.printf("############################## DATASET: %s ##############################\n",
-					pathDataset);
-			for (String selectedModel : models) {
-				System.out.printf("****************************** MODEL: %s ******************************\n",
-						selectedModel);
-				DatasetReader datasetReader = new MultipleCSVReader(pathDataset);
-				// Set the variables that will be used
-				datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
+		for (String scoreFunction : scoreFunctions) {
+			System.out.printf("------------------------------ Score function: %s ------------------------------\n",
+					scoreFunction);
 
-				// Define learning algorithms for the class subgraph (Bayesian network)
-				BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, alpha);
-				BNStructureLearningAlgorithm bnSLA = BNStructureLearningAlgorihtmFactory.getAlgorithm(nameBnSLA,
-						scoreFunction, penalizationFunction);
-				BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
+			for (String pathDataset : datasets) {
+				System.out.printf("############################## DATASET: %s ##############################\n",
+						pathDataset);
+				for (String selectedModel : models) {
+					System.out.printf("****************************** MODEL: %s ******************************\n",
+							selectedModel);
+					DatasetReader datasetReader = new MultipleCSVReader(pathDataset);
+					// Set the variables that will be used
+					datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
 
-				// Define model
-				// Retrieve learning algorithms
+					// Define learning algorithms for the class subgraph (Bayesian network)
+					BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA,
+							alpha);
+					BNStructureLearningAlgorithm bnSLA = BNStructureLearningAlgorihtmFactory.getAlgorithm(nameBnSLA,
+							scoreFunction, penalizationFunction);
+					BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
 
-				// Parameters that could be necessary for the generation of the model
-				Map<String, String> parameters = new WeakHashMap<String, String>();
-				parameters.put("maxK", maxK);
+					// Define learning algorithms for the feature and class subgraph (Continuous
+					// time Bayesian network)
+					CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory
+							.getAlgorithm(nameCtbnPLA, nxy, tx);
+					CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory
+							.getAlgorithm(nameCtbnSLA, scoreFunction, penalizationFunction);
+					CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 
-				// Generate selected model
+					// Parameters that could be necessary for the generation of the model
+					Map<String, String> parameters = new WeakHashMap<String, String>();
+					parameters.put("maxK", maxK);
 
-				MCTBNC<CPTNode, CIMNode> model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(selectedModel,
-						bnLearningAlgs, ctbnLearningAlgs, parameters, CPTNode.class, CIMNode.class);
-				// Define initial structure
-				model.setIntialStructure(initialStructure);
+					// Generate selected model
 
-				// Define the validation method
-				// Get selected validation method
+					MCTBNC<CPTNode, CIMNode> model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(selectedModel,
+							bnLearningAlgs, ctbnLearningAlgs, parameters, CPTNode.class, CIMNode.class);
+					// Define initial structure
+					model.setIntialStructure(initialStructure);
 
-				// Retrieve algorithm of the validation method
-				ValidationMethod validationMethod = ValidationMethodFactory.getValidationMethod(
-						selectedValidationMethod, datasetReader, shuffleSequences, trainingSize, folds);
+					// Define the validation method
+					// Get selected validation method
 
-				// Evaluate the performance of the model
-				validationMethod.evaluate(model);
+					// Retrieve algorithm of the validation method
+					// ValidationMethod validationMethod =
+					// ValidationMethodFactory.getValidationMethod(
+					// selectedValidationMethod, datasetReader, shuffleSequences, trainingSize,
+					// folds);
+					ValidationMethod validationMethod = new CrossValidationSeveralModels(datasetReader, folds,
+							shuffleSequences);
+
+					// Evaluate the performance of the model
+					validationMethod.evaluate(model);
+				}
 			}
 		}
 	}

@@ -28,6 +28,8 @@ public class Dataset {
 	private List<String> nameFeatures;
 	private List<String> nameClassVariables;
 	private List<String> nameFiles;
+	// A list of class variables that should be ignored
+	private List<String> ignoredClassVariables;
 	// Store the possible states of a variable to avoid recomputations
 	private Map<String, List<State>> statesVariables;
 	// Store combinations of states of different variables to avoid recomputations
@@ -149,6 +151,16 @@ public class Dataset {
 	}
 
 	/**
+	 * Set the class variables that should be ignored.
+	 * @param ignoredClassVariables 
+	 * 
+	 * @param remove
+	 */
+	public void setIgnoredClassVariables(List<String> ignoredClassVariables) {
+		this.ignoredClassVariables = ignoredClassVariables;
+	}
+
+	/**
 	 * Return the sequences of the dataset.
 	 * 
 	 * @return list with the sequences of the dataset
@@ -176,11 +188,15 @@ public class Dataset {
 	}
 
 	/**
-	 * Return the name of the class variables.
+	 * Return the name of the class variables. It is filtered those class variables
+	 * that should be ignored.
 	 * 
 	 * @return list with the names of the class variables
 	 */
 	public List<String> getNameClassVariables() {
+		if (!(ignoredClassVariables == null || ignoredClassVariables.isEmpty()))
+			return nameClassVariables.stream().filter(var -> !ignoredClassVariables.contains(var))
+					.collect(Collectors.toList());
 		return nameClassVariables;
 	}
 
@@ -554,5 +570,4 @@ public class Dataset {
 		}
 		return ObservationHasState;
 	}
-
 }

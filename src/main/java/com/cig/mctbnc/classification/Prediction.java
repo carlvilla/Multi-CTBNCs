@@ -14,7 +14,7 @@ import com.cig.mctbnc.data.representation.State;
 public class Prediction {
 	State predictedClasses;
 	double probabilityPrediction;
-	Map<State, Double> probabilities;
+	public Map<State, Double> probabilities;
 
 	/**
 	 * Set the predicted classes
