@@ -174,12 +174,12 @@ public class Metrics {
 		double meanAccuracy = 0.0;
 		// Iterate over every class variable
 		List<String> nameCVs = predicted[0].getPredictedClasses().getNameVariables();
+		
+		System.out.println("-----ACCURACY----- \n" + nameCVs);
+		
 		for (String nameCV : nameCVs) {
-			
-			
+
 			double accuracyCV = 0;
-			
-			
 			
 			// Iterate over every instance
 			for (int j = 0; j < numInstances; j++) {
@@ -196,11 +196,13 @@ public class Metrics {
 			
 			
 			accuracyCV = accuracyCV / (double) numInstances;
-			System.out.println("-----ACCURACY-----");
-			System.out.println("Accuracy" + nameCV + ": " + accuracyCV);
 			
-			
+			System.out.print(accuracyCV + " ");
+				
 		}
+		
+		System.out.println();
+		
 		meanAccuracy /= (double) numInstances;
 		meanAccuracy /= nameCVs.size();
 		return meanAccuracy;

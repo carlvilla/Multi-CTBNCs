@@ -240,34 +240,38 @@ class ScoresCTBNTest {
 
 		// Conditional log-likelihood
 		CTBNScoreFunction scoreFunction = new CTBNConditionalLogLikelihood("No");
-	
 
-		double probCVs = 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0);
+		double probCVs =
 
-		double llSequences = 
-				
+				// Evaluate X1
+				1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0)
+						+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0)
+
+						// Evaluate X2
+						+ 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0)
+						+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0)
+
+						// Evaluate X3
+						+ 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0)
+						+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0);
+
+		double llSequences =
 				// X1
-				
-				2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2 + Math.log(1 / 0.7) - (1 / 0.7) * 0.7
-				+ Math.log(1 / 1.3) - (1 / 1.3) * 1.3 + Math.log(1 / 3.0) + 2 * Math.log(2 / 3.0) + 3 * Math.log(3 / 1.4)
-				- (3 / 1.4) * 1.4
-				
-				// X2
-				+ 7 * Math.log(7/0.7) - (7/0.7) * 0.7 
-				+ 6 * Math.log(6/0.6) - (6/0.6) * 0.6 
-				
-				
-				// X3
-				+ 2 * Math.log(2/0.2) - (2/0.2) * 0.2
-				+ 1 * Math.log(1/0.1) - (1/0.1) * 0.1
-				+ 1 * Math.log(1/0.1) - (1/0.1) * 0.1
-				+ 1 * Math.log(1/0.2) - (1/0.2) * 0.2
-				+ 1 * Math.log(1/0.1) - (1/0.1) * 0.1
-				+ 3 * Math.log(3/0.3) - (3/0.3) * 0.3
-				+ 1 * Math.log(1/0.1) - (1/0.1) * 0.1
-				
-				;
-		
+				2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2 + Math.log(1 / 0.7) - (1 / 0.7) * 0.7 + 3 * Math.log(3 / 1.3)
+						- (3 / 1.3) * 1.3 + 1 * Math.log(1 / 3.0) + 2 * Math.log(2 / 3.0) + 3 * Math.log(3 / 1.4)
+						- (3 / 1.4) * 1.4
+
+						// X2
+						+ 7 * Math.log(7 / 0.7) - (7 / 0.7) * 0.7 + 6 * Math.log(6 / 0.6) - (6 / 0.6) * 0.6
+
+						// X3
+						+ 2 * Math.log(2 / 0.2) - (2 / 0.2) * 0.2 + 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1 + 1 * Math.log(1 / 0.2) - (1 / 0.2) * 0.2
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1 + 3 * Math.log(3 / 0.3) - (3 / 0.3) * 0.3
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1
+
+		;
+
 //		//M * Math.log(M/T) - (M/T)* T
 //		
 //		double mll = Math.log(
@@ -426,13 +430,16 @@ class ScoresCTBNTest {
 //		// (Mx/Tx) ^ (Mx) * Math.exp((Mx/Tx) * Tx)
 //		
 //		double cllS1Expected = probCVs + llSequences - mll;
-		
-		
-		double cllS1Expected = llSequences;
-		
+
+		double cllS1Expected = probCVs + llSequences;
+
+		System.out.println("Primero");
+
 		double cllS1Actual = scoreFunction.compute(ctbn);
 
-//		assertEquals(cllS1Expected, cllS1Actual, 0.001);
+		assertEquals(cllS1Expected, cllS1Actual, 0.001);
+
+		System.out.println("Después");
 
 		// Penalized conditional log-likelihood
 
@@ -451,9 +458,8 @@ class ScoresCTBNTest {
 
 		// Conditional log-likelihood
 		scoreFunction = new CTBNConditionalLogLikelihood("No");
-		double cllS2Actual = scoreFunction.compute(ctbn);
+		// double cllS2Actual = scoreFunction.compute(ctbn);
 		double cllS2Expected = 0;
-
 
 		// assertEquals(cllS2Expected, cllS2Actual, 0.001);
 

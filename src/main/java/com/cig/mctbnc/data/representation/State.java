@@ -36,6 +36,15 @@ public class State {
 	}
 
 	/**
+	 * Constructor to clone states;
+	 * 
+	 * @param state
+	 */
+	public State(State state) {
+		this.events = new LinkedHashMap<String, String>(state.events);
+	}
+
+	/**
 	 * Add an event (a variable taking a certain value) to the state.
 	 * 
 	 * @param nameVariable  name of the variable

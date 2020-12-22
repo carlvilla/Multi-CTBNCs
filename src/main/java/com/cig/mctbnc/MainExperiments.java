@@ -34,21 +34,22 @@ import com.cig.mctbnc.performance.ValidationMethodFactory;
  */
 public class MainExperiments {
 
-	static List<String> datasets = List.of("src/main/resources/datasets/Experiment7/extreme/D1",
-			"src/main/resources/datasets/Experiment7/extreme/D2", "src/main/resources/datasets/Experiment7/extreme/D3",
-			"src/main/resources/datasets/Experiment7/extreme/D4", "src/main/resources/datasets/Experiment7/extreme/D5",
-			"src/main/resources/datasets/Experiment7/noExtreme/D1",
-			"src/main/resources/datasets/Experiment7/noExtreme/D2",
-			"src/main/resources/datasets/Experiment7/noExtreme/D3",
-			"src/main/resources/datasets/Experiment7/noExtreme/D4",
-			"src/main/resources/datasets/Experiment7/noExtreme/D5");
-
+	static List<String> datasets = List.of("src/main/resources/datasets/Experiment/extreme/D1",
+			"src/main/resources/datasets/Experiment/extreme/D2",
+			"src/main/resources/datasets/Experiment/extreme/D3",
+			"src/main/resources/datasets/Experiment/extreme/D4",
+			"src/main/resources/datasets/Experiment/extreme/D5",
+			"src/main/resources/datasets/Experiment/noExtreme/D1",
+			"src/main/resources/datasets/Experiment/noExtreme/D2",
+			"src/main/resources/datasets/Experiment/noExtreme/D3",
+			"src/main/resources/datasets/Experiment/noExtreme/D4",
+			"src/main/resources/datasets/Experiment/noExtreme/D5");
+		
 	static String nameTimeVariable = "t";
-	static List<String> nameClassVariables = List.of("CV1", "CV2", "CV3", "CV4");
+	static List<String> nameClassVariables = List.of("CV1", "CV2", "CV3", "CV4", "CV5");
 	static List<String> nameSelectedFeatures = List.of("X1", "X2", "X3", "X4", "X5");
 
-	// static List<String> models = List.of("Empty-kDB MCTBNC", "MCTBNC");
-	static List<String> models = List.of("MCTBNC");
+	static List<String> models = List.of("CTBNCs", "MCTBNC", "Empty-kDB MCTBNC");
 
 	// Get names learning algorithms
 	static String nameBnPLA = "Bayesian estimation";
@@ -64,7 +65,7 @@ public class MainExperiments {
 	static double tx = 0.001;
 
 	// Get score function
-	static List<String> scoreFunctions = List.of("Log-likelihood", "Bayesian score", "Conditional log-likelihood");
+	static List<String> scoreFunctions = List.of("Bayesian score"); // "Conditional log-likelihood", "Log-likelihood"
 	// Define penalization function (if any)
 	static String penalizationFunction = "BIC"; // "AIC", "No"
 
@@ -93,9 +94,11 @@ public class MainExperiments {
 			for (String pathDataset : datasets) {
 				System.out.printf("############################## DATASET: %s ##############################\n",
 						pathDataset);
+
 				for (String selectedModel : models) {
 					System.out.printf("****************************** MODEL: %s ******************************\n",
 							selectedModel);
+
 					DatasetReader datasetReader = new MultipleCSVReader(pathDataset);
 					// Set the variables that will be used
 					datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
@@ -119,24 +122,21 @@ public class MainExperiments {
 					Map<String, String> parameters = new WeakHashMap<String, String>();
 					parameters.put("maxK", maxK);
 
-					// Generate selected model
-
-					MCTBNC<CPTNode, CIMNode> model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(selectedModel,
-							bnLearningAlgs, ctbnLearningAlgs, parameters, CPTNode.class, CIMNode.class);
+					// Generate selected model and validation method
+					MCTBNC<CPTNode, CIMNode> model;
+					ValidationMethod validationMethod;
+					if (selectedModel.equals("CTBNCs")) {
+						model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("MCTBNC", bnLearningAlgs,
+								ctbnLearningAlgs, parameters, CPTNode.class, CIMNode.class);
+						validationMethod = new CrossValidationSeveralModels(datasetReader, folds, shuffleSequences);
+					} else {
+						model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(selectedModel, bnLearningAlgs,
+								ctbnLearningAlgs, parameters, CPTNode.class, CIMNode.class);
+						validationMethod = ValidationMethodFactory.getValidationMethod(selectedValidationMethod,
+								datasetReader, shuffleSequences, trainingSize, folds);
+					}
 					// Define initial structure
 					model.setIntialStructure(initialStructure);
-
-					// Define the validation method
-					// Get selected validation method
-
-					// Retrieve algorithm of the validation method
-					// ValidationMethod validationMethod =
-					// ValidationMethodFactory.getValidationMethod(
-					// selectedValidationMethod, datasetReader, shuffleSequences, trainingSize,
-					// folds);
-					ValidationMethod validationMethod = new CrossValidationSeveralModels(datasetReader, folds,
-							shuffleSequences);
-
 					// Evaluate the performance of the model
 					validationMethod.evaluate(model);
 				}

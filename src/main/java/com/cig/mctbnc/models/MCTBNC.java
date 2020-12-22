@@ -363,7 +363,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 			Sequence evidenceSequence = dataset.getSequences().get(i);
 			predictions[i] = predict(evidenceSequence, statesClassVariables, estimateProbabilities);
 		}
-
 		return predictions;
 	}
 
@@ -398,7 +397,8 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		Prediction prediction = new Prediction();
 		// Retrieve class configuration which obtain largest a-posterior probability
 		int idxBestCC = Util.getIndexLargestValue(laps);
-		State predictedCC = statesClassVariables.get(idxBestCC);
+		// The state is clone to avoid that different predictions use the same objects
+		State predictedCC = new State(statesClassVariables.get(idxBestCC));
 		// Save the predicted classes
 		prediction.setPredictedClasses(predictedCC);
 		if (estimateProbabilities) {

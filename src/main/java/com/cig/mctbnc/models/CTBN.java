@@ -165,6 +165,11 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	public BN<? extends Node> getBnClassSubgraph() {
 		return bnClassSubgraph;
 	}
+	
+	@Override
+	public List<NodeType> getNodesClassVariables() {
+		return (List<NodeType>) bnClassSubgraph.getNodes();
+	}
 
 	@Override
 	public String toString() {

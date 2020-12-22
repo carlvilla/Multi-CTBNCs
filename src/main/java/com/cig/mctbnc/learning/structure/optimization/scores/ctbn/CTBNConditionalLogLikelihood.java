@@ -1,7 +1,7 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +18,6 @@ import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
-import com.cig.mctbnc.util.Util;
 
 /**
  * Implements the conditional log-likelihood score to perform a discriminative
@@ -39,9 +38,9 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	public double compute(CTBN<? extends Node> ctbn) {
 		double cll = 0;
 		for (int indexNode = 0; indexNode < ctbn.getNumNodes(); indexNode++) {
-			double cllAux = compute(ctbn, indexNode);
-			if (cllAux != Double.NEGATIVE_INFINITY)
-				cll += compute(ctbn, indexNode);
+			double cllNode = compute(ctbn, indexNode);
+			if (cllNode != Double.NEGATIVE_INFINITY)
+				cll += cllNode;
 		}
 		return cll;
 	}
@@ -70,42 +69,180 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 
 		// The node has no class variables as parents. The worst score is given to this
 		// structure.
-		if (!hasClassVariablesAsParent(node))
-			return Double.NEGATIVE_INFINITY;
+//		if (!hasClassVariablesAsParent(node))
+//			return Double.NEGATIVE_INFINITY;
 
 		// Obtain possible states of the class variables that are parents of the node
-		List<String> nameCVs = nameClassVariablesParents(node);
-		List<State> statesCVs = ctbn.getDataset().getPossibleStatesVariables(nameCVs);
+		// List<String> nameCVs = nameClassVariablesParents(node);
+
 		// Parameters of class variables are in the BN, their nodes are retrieved
 		BN<CPTNode> bnClassSubgraph = (BN<CPTNode>) ctbn.getBnClassSubgraph();
-		List<CPTNode> nodesCVs = bnClassSubgraph.getNodesByNames(nameCVs);
+		List<CPTNode> nodesCVs = bnClassSubgraph.getLearnedNodes();
+		// Name class variables
+		List<String> nameCVs = bnClassSubgraph.getNameVariables();
 
+		// Class probability term
+		
+		Map<State, Double> norm = new HashMap<State, Double>();
+		
+		double cpt = 0;
+		for (CPTNode nodeCV : nodesCVs) {
+			List<State> statesParentsCV = nodeCV.getStatesParents();
+			for (State stateParentsCV : statesParentsCV) {
+				for (State stateCV : nodeCV.getStates()) {
+					State query = new State(stateParentsCV.getEvents());
+					query.addEvents(stateCV.getEvents());
+					double nx = nodeCV.getSufficientStatistics().getNx().get(query);
+					double ox = nodeCV.getCPT().get(query);
+					if (nx > 0) {
+						double prob = nx * Math.log(ox);
+						cpt += prob;
+						norm.put(query, prob);
+				}
+			}
+		}
+		}
+
+		cll += cpt;
+
+		// Posterior probability of the sequences given the class configuration (only
+		// relevant those that are parents of the node)
+		double pps = 0.0;
+		// Sufficient statistics of the node
+		CTBNSufficientStatistics ss = node.getSufficientStatistics();
+		// States the feature node and its parents (features and class variables) take
+		Set<State> statesNodeAndParents = node.getQx().keySet();
+		for (State fromState : statesNodeAndParents) {
+			double qx = node.getQx().get(fromState);
+			double nx = ss.getMx().get(fromState);
+			double tx = ss.getTx().get(fromState);
+			if (qx > 0)
+				pps += nx * Math.log(qx) - qx * tx;
+			// Maps with probabilities (ox_) and number of occurrences (nx_) of transitions
+			// from "fromState" to any other possible state of the feature node
+			Map<State, Double> ox_ = node.getOxy().get(fromState);
+			Map<State, Double> nx_ = node.getSufficientStatistics().getMxy().get(fromState);
+			// Iterate over all states of the feature node (except its state in "fromState")
+			for (State toState : ox_.keySet()) {
+				double oxx = ox_.get(toState);
+				double nxx = nx_.get(toState);
+				if (oxx > 0)
+					pps += nxx * Math.log(oxx);
+			}
+		}
+		cll += pps;
+
+		
+		// Marginal log-likelihood
+		
+		// Obtain possible states of the class variables
+		List<State> statesCVs = ctbn.getDataset().getPossibleStatesVariables(nameCVs);
+		
+		
+		double mll = 0.0;
+		
+		for(State stateCVs: statesCVs) {
+			
+			
+			double mllStateCVs = 1;
+			
+			
+			for(CPTNode nodeCV: nodesCVs) {
+				
+				List<String> nameParentsCV = nodeCV.getNameParents();
+				
+				State query = new State();
+				query.addEvent(nodeCV.getName(), stateCVs.getValueVariable(nodeCV.getName()));
+				
+				String[] valuesParents = stateCVs.getValueVariables(nameParentsCV);
+				
+				for(int i=0; i<nameParentsCV.size();i++)
+					query.addEvent(nameParentsCV.get(i), valuesParents[i]);
+				
+				
+				mllStateCVs *= nodeCV.getCPT().get(query);
+				
+				
+			}
+			
+			for (State fromState : statesNodeAndParents) {
+				
+				List<Node> CVParents = node.getParents().stream().filter(nodeCVAux -> nodeCVAux.isClassVariable()).collect(Collectors.toList());
+				
+				boolean exit = true;
+				
+				for(Node parentOfNode: CVParents) {		
+					if(! fromState.getValueVariable(parentOfNode.getName()).equals(stateCVs.getValueVariable(parentOfNode.getName())) ) {
+						break;
+					}
+					exit = false;
+				}
+				
+				if(exit)
+					continue;
+				
+				double qx = node.getQx().get(fromState);
+				double mx = ss.getMx().get(fromState);
+				double tx = ss.getTx().get(fromState);
+				
+				mllStateCVs *= Math.pow(qx, mx) * Math.exp(-qx * tx);
+				
+				// Maps with probabilities (ox_) and number of occurrences (nx_) of transitions
+				// from "fromState" to any other possible state of the feature node
+				Map<State, Double> ox_ = node.getOxy().get(fromState);
+				Map<State, Double> mx_ = node.getSufficientStatistics().getMxy().get(fromState);
+				// Iterate over all states of the feature node (except its state in "fromState")
+				for (State toState : ox_.keySet()) {
+					double oxx = ox_.get(toState);
+					double mxx = mx_.get(toState);
+					if (oxx > 0) {
+						mllStateCVs *= Math.pow(oxx, mxx);
+
+						
+
+					}
+				}
+				
+				
+				
+				
+			}
+						
+			mll += mllStateCVs;
+		}
+		
+		mll = Math.log(mll);
+		
+		cll -= mll;
+		
+		
+		
 		// Compute unnormalized posteriors given each possible state of the class
 		// variables
-		double[] uPs = new double[statesCVs.size()];
-		for (int i = 0; i < statesCVs.size(); i++) {
-			// Class probability term
-			uPs[i] = logPriorProbabilityClass(nodesCVs, statesCVs.get(i), ctbn.getDataset());
-			// Posterior probability of the sequences given the class configuration
-			uPs[i] += logPosteriorProbabilitySequence(node, statesCVs.get(i));
-			// Add the class probability and posterior probability
-			cll += uPs[i];
-		}
+//		double[] uPs = new double[statesCVs.size()];
+//		for (int i = 0; i < statesCVs.size(); i++) {
+//			// Class probability term
+//			uPs[i] = logPriorProbabilityClass(nodesCVs, statesCVs.get(i), ctbn.getDataset());
+//			// Posterior probability of the sequences given the class configuration
+//			uPs[i] += logPosteriorProbabilitySequence(node, statesCVs.get(i));
+//			// Add the class probability and posterior probability
+//			cll += uPs[i];
+//		}
 
 //		System.out.println("Without denominator: " + cll);
 
-		// Prior probability of the sequences (Denominator term)
-		// The log-sum-exp trick is used to avoid underflows
-		int idxLargestUP = Util.getIndexLargestValue(uPs);
-		double largestUP = uPs[idxLargestUP];
-		// Sum the exponential value of each unnormalized posterior minus the largest
-		// unnormalized posterior
-		double sum = Arrays.stream(uPs).map(uP -> Math.exp(uP - largestUP)).sum();
-		// Obtain the prior probability (normalizing constant)
-		double nc = largestUP + Math.log(sum);
-		cll -= nc;
-
-		// Apply the specified penalization function (if available)
+//		// Prior probability of the sequences (Denominator term)
+//		// The log-sum-exp trick is used to avoid underflows
+//		int idxLargestUP = Util.getIndexLargestValue(uPs);
+//		double largestUP = uPs[idxLargestUP];
+//		// Sum the exponential value of each unnormalized posterior minus the largest
+//		// unnormalized posterior
+//		double sum = Arrays.stream(uPs).map(uP -> Math.exp(uP - largestUP)).sum();
+//		// Obtain the prior probability (normalizing constant)
+//		double nc = largestUP + Math.log(sum);
+//		cll -= nc;
+//
+//		// Apply the specified penalization function (if available)
 		if (penalizationFunctionMap.containsKey(penalizationFunction)) {
 			// Overfitting is avoid by penalizing the complexity of the network
 			// Number of possible transitions
@@ -125,6 +262,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 //		System.out.println(cll);
 
 		return cll;
+
 	}
 
 	/**
@@ -140,6 +278,8 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	 * @return
 	 */
 	private double logPriorProbabilityClass(List<CPTNode> nodesCVs, State stateCVs, Dataset dataset) {
+		System.out.println("Prior prob. class variables");
+
 		double lp = 0.0;
 		// Iterate over class variables nodes
 		for (CPTNode node : nodesCVs) {
@@ -172,21 +312,27 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 						.collect(Collectors.toList());
 				// Extract all class configurations from unobserved class variables
 				List<State> states = dataset.getPossibleStatesVariables(nameParentsUnobserved);
-				for (final State state : states) {
+				for (State state : states) {
 					// Add to class configuration of unobserved class variables the state of
 					// observed class variables
 					state.addEvents(query.getEvents());
 					double nx = node.getSufficientStatistics().getNx().get(state);
 					double ox = node.getCPT().get(state);
-					if (ox > 0)
+					if (ox > 0) {
 						lp += nx * Math.log(ox);
+
+						System.out.println("+ " + nx + " * Math.log(" + ox + ")");
+					}
 				}
 			} else {
 				// All parents of the class variables are observed
 				double nx = node.getSufficientStatistics().getNx().get(query);
 				double ox = node.getCPT().get(query);
-				if (ox > 0)
+				if (ox > 0) {
 					lp += nx * Math.log(ox);
+
+					System.out.println("+ " + nx + " * Math.log(" + ox + ")");
+				}
 			}
 		}
 		return lp;
@@ -203,6 +349,8 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	 * @return
 	 */
 	private double logPosteriorProbabilitySequence(CIMNode node, State stateCVs) {
+		System.out.println("Posterior prob. sequence");
+
 		// Sufficient statistics of the node
 		CTBNSufficientStatistics ss = node.getSufficientStatistics();
 		// Names of the class variables that are parents of the feature node
@@ -221,8 +369,12 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 				double qx = node.getQx().get(fromState);
 				double nx = ss.getMx().get(fromState);
 				double tx = ss.getTx().get(fromState);
-				if (qx > 0)
+				if (qx > 0) {
 					lpp += nx * Math.log(qx) - qx * tx;
+
+					System.out.println("+ " + nx + " * Math.log(" + qx + ") - " + qx + " * " + tx);
+
+				}
 				// Maps with probabilities (ox_) and number of occurrences (nx_) of transitions
 				// from "fromState" to any other possible state of the feature node
 				Map<State, Double> ox_ = node.getOxy().get(fromState);
@@ -231,8 +383,12 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 				for (State toState : ox_.keySet()) {
 					double oxx = ox_.get(toState);
 					double nxx = nx_.get(toState);
-					if (oxx > 0)
+					if (oxx > 0) {
 						lpp += nxx * Math.log(oxx);
+
+						System.out.println("+ " + nxx + " * Math.log(" + oxx + ")");
+
+					}
 				}
 			}
 		}

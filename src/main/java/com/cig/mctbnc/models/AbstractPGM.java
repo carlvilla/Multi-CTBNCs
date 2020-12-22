@@ -49,6 +49,9 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 */
 	public AbstractPGM(List<NodeType> nodes) {
 		addNodes(nodes);
+		this.nameVariables = new ArrayList<String>();
+		for (Node node : nodes)
+			this.nameVariables.add(node.getName());
 	}
 
 	/**
