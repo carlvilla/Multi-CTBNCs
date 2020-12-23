@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,9 +40,7 @@ public class Metrics {
 			return null;
 		}
 		showPredictions(predicted, actualDataset);
-
 		plotConfusionMatrices(predicted, actualDataset);
-
 		if (actualDataset.getNumClassVariables() == 1)
 			// There is only one class variable
 			return evaluateUniDimensionalClassification(predicted, actualDataset);
@@ -80,18 +79,18 @@ public class Metrics {
 		// Save results metrics in a map
 		Map<String, Double> results = new LinkedHashMap<String, Double>();
 		double globalAccuracy = globalAccuracy(predicted, actualDataset);
-		double meanAccuracy = meanAccuracy(predicted, actualDataset);
-		
+		double meanAccuracy = meanAccuracy(predicted, actualDataset, results);
+
 		System.out.println("-----PRECISION-----");
-		
+
 		double macroPrecision = macroAverage(predicted, actualDataset, Metrics::precision);
-		
+
 		System.out.println("-----RECALL-----");
-		
+
 		double macroRecall = macroAverage(predicted, actualDataset, Metrics::recall);
-		
+
 		System.out.println("-----F1 SCORE-----");
-		
+
 		double macroF1Score = macroAverage(predicted, actualDataset, Metrics::f1score);
 		double microPrecision = microAverage(predicted, actualDataset, Metrics::precision);
 		double microRecall = microAverage(predicted, actualDataset, Metrics::recall);
@@ -163,9 +162,23 @@ public class Metrics {
 	 * 
 	 * @param predicted     array of Prediction objects with predicted classes
 	 * @param actualDataset dataset with actual classes
+	 * @param results       map to store the accuracies of each class variables
 	 * @return mean accuracy
 	 */
 	public static double meanAccuracy(Prediction[] predicted, Dataset actualDataset) {
+		return meanAccuracy(predicted, actualDataset, null);
+	}
+
+	/**
+	 * Compute the mean of the accuracies for each class variable (Bielza et al.,
+	 * 2011).
+	 * 
+	 * @param predicted     array of Prediction objects with predicted classes
+	 * @param actualDataset dataset with actual classes
+	 * @param results       map to store the accuracies of each class variables
+	 * @return mean accuracy
+	 */
+	public static double meanAccuracy(Prediction[] predicted, Dataset actualDataset, Map<String, Double> results) {
 		// Obtain the actual class configurations
 		State[] actualCCs = actualDataset.getStatesClassVariables();
 		// Obtain number of instances
@@ -174,35 +187,32 @@ public class Metrics {
 		double meanAccuracy = 0.0;
 		// Iterate over every class variable
 		List<String> nameCVs = predicted[0].getPredictedClasses().getNameVariables();
-		
+
 		System.out.println("-----ACCURACY----- \n" + nameCVs);
-		
+
 		for (String nameCV : nameCVs) {
 
 			double accuracyCV = 0;
-			
+
 			// Iterate over every instance
 			for (int j = 0; j < numInstances; j++) {
 				String predictedClass = predicted[j].getPredictedClasses().getValueVariable(nameCV);
 				String actualClass = actualCCs[j].getValueVariable(nameCV);
 				if (predictedClass.equals(actualClass)) {
 					meanAccuracy += 1;
-					
-				
 					accuracyCV += 1;
-					
 				}
 			}
-			
-			
 			accuracyCV = accuracyCV / (double) numInstances;
-			
+			if (results != null)
+				results.put("Accuracy " + nameCV, accuracyCV);
+
 			System.out.print(accuracyCV + " ");
-				
+
 		}
-		
+
 		System.out.println();
-		
+
 		meanAccuracy /= (double) numInstances;
 		meanAccuracy /= nameCVs.size();
 		return meanAccuracy;
@@ -353,13 +363,9 @@ public class Metrics {
 				logger.info("Using {} as positive class of '{}'", positiveClass, nameCV);
 				Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, positiveClass);
 				metricResultCV = metric.compute(cm);
-				
-				
-				
+
 				System.out.println(nameCV + ": " + metricResultCV);
-				
-				
-				
+
 			}
 			metricResult += metricResultCV;
 		}
@@ -438,7 +444,8 @@ public class Metrics {
 	private static String getPositiveClass(String[] possibleClasses) {
 		for (int i = 0; i < possibleClasses.length; i++) {
 			String classI = possibleClasses[i];
-			if (classI.equalsIgnoreCase("True") || classI.equalsIgnoreCase("Positive") || classI.equals("1") || classI.contains("A")) {
+			if (classI.equalsIgnoreCase("True") || classI.equalsIgnoreCase("Positive") || classI.equals("1")
+					|| classI.contains("A")) {
 				return classI;
 			}
 		}
@@ -501,7 +508,6 @@ public class Metrics {
 		State[] predictedClasses = Arrays.stream(predicted).map(sequence -> sequence.getPredictedClasses())
 				.toArray(State[]::new);
 		State[] actualClasses = actualDataset.getStatesClassVariables();
-
 		for (String nameCV : nameCVs) {
 			// Predicted classes of each class variables
 			String[] predictedClassesCV = Arrays.stream(predictedClasses).map(state -> state.getValueVariable(nameCV))
@@ -510,9 +516,9 @@ public class Metrics {
 			String[] actualClassesCV = Arrays.stream(actualClasses).map(state -> state.getValueVariable(nameCV))
 					.toArray(String[]::new);
 			// Obtain possible classes of the class variable
-			String[] possibleClassesCV = Util.getUnique(actualClassesCV);
+			String[] possibleClassesCV = Util.getUnique(
+					Stream.of(predictedClassesCV, actualClassesCV).flatMap(Stream::of).toArray(String[]::new));
 			int[][] cm = getMultiClassConfusionMatrix(predictedClassesCV, actualClassesCV, possibleClassesCV);
-
 			System.out.printf("****Confusion matrix: %s****\n", nameCV);
 			System.out.println(Arrays.deepToString(possibleClassesCV));
 			for (int i = 0; i < possibleClassesCV.length; i++) {

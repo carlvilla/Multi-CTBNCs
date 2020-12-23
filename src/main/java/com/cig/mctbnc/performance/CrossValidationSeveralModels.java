@@ -16,6 +16,8 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.models.MCTBNC;
+import com.cig.mctbnc.performance.writers.ExcelExperimentsWriter;
+import com.cig.mctbnc.performance.writers.MetricsWriter;
 import com.cig.mctbnc.util.Util;
 
 /**
@@ -25,13 +27,14 @@ import com.cig.mctbnc.util.Util;
  * @author Carlos Villa Blanco
  *
  */
-public class CrossValidationSeveralModels implements ValidationMethod {
+public class CrossValidationSeveralModels extends ValidationMethod {
 	Dataset dataset;
 	int folds;
 	boolean shuffle;
 	Logger logger = LogManager.getLogger(CrossValidation.class);
 
 	public CrossValidationSeveralModels(DatasetReader datasetReader, int folds, boolean shuffle) {
+		super();
 		logger.info("Preparing {}-cross validation / Shuffle: {}", folds, shuffle);
 		// Obtain dataset and the number of sequence it contains
 		dataset = datasetReader.readDataset();
@@ -109,9 +112,7 @@ public class CrossValidationSeveralModels implements ValidationMethod {
 				// Merge predictions
 				if (predictionsFold == null) {
 					predictionsFold = predictions;
-					
 
-					
 				} else {
 					for (int k = 0; k < predictionsFold.length; k++) {
 						State prediction = predictions[k].getPredictedClasses();
@@ -129,7 +130,7 @@ public class CrossValidationSeveralModels implements ValidationMethod {
 			resultsFold.forEach((metric, value) -> resultsCV.merge(metric, value, (a, b) -> a + b));
 			// Display results fold
 			System.out.println(MessageFormat.format("--------------------Results fold {0}--------------------", i));
-			displayResults(resultsFold);
+			displayResultsFold(resultsFold);
 			System.out.println("------------------------------------------------------");
 			fromIndex += sizeFolds[i];
 
@@ -190,12 +191,22 @@ public class CrossValidationSeveralModels implements ValidationMethod {
 	}
 
 	/**
+	 * Display the results of a fold.
+	 * 
+	 * @param results
+	 */
+	private void displayResultsFold(Map<String, Double> results) {
+		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
+	}
+
+	/**
 	 * Display the results of the cross validation.
 	 * 
 	 * @param results
 	 */
 	private void displayResults(Map<String, Double> results) {
 		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
+		metricsWriter.write(results);
 	}
 
 }

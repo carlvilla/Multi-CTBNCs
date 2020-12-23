@@ -40,4 +40,9 @@ public class BNBayesianEstimation extends BNParameterLearningAlgorithm {
 		return ssNode;
 	}
 
+	@Override
+	public String getNameMethod() {
+		return String.format("Bayesian estimation (Nx=%s)", NxHP);
+	}
+
 }

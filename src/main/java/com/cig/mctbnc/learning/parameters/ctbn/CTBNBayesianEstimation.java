@@ -34,4 +34,9 @@ public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 		return ssNode;
 	}
 
+	@Override
+	public String getNameMethod() {
+		return String.format("Bayesian estimation (Mxy=%s, TxHP=%s)", MxyHP, TxHP);
+	}
+
 }

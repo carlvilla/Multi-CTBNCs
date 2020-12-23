@@ -17,5 +17,10 @@ public class CTBNMaximumLikelihoodEstimation extends CTBNParameterLearningAlgori
 		ssNode.computeSufficientStatistics(node, dataset);
 		return ssNode;
 	}
+	
+	@Override
+	public String getNameMethod() {
+		return "Maximum likelihood estimation";
+	}
 
 }

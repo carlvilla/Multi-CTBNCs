@@ -24,7 +24,7 @@ import com.cig.mctbnc.util.Util;
  * @author Carlos Villa Blanco
  *
  */
-public class CrossValidation implements ValidationMethod {
+public class CrossValidation extends ValidationMethod {
 	Dataset dataset;
 	int folds;
 	boolean shuffle;
@@ -102,7 +102,7 @@ public class CrossValidation implements ValidationMethod {
 			resultsFold.forEach((metric, value) -> resultsCV.merge(metric, value, (a, b) -> a + b));
 			// Display results fold
 			System.out.println(MessageFormat.format("--------------------Results fold {0}--------------------", i));
-			displayResults(resultsFold);
+			displayResultsFold(resultsFold);
 			System.out.println("------------------------------------------------------");
 			fromIndex += sizeFolds[i];
 		}
@@ -165,8 +165,18 @@ public class CrossValidation implements ValidationMethod {
 	 * 
 	 * @param results
 	 */
+	private void displayResultsFold(Map<String, Double> results) {
+		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
+	}
+
+	/**
+	 * Display the results of the cross validation.
+	 * 
+	 * @param results
+	 */
 	private void displayResults(Map<String, Double> results) {
 		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
+		metricsWriter.write(results);
 	}
 
 }

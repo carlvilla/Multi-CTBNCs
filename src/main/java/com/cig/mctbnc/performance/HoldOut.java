@@ -20,7 +20,7 @@ import com.cig.mctbnc.util.Util;
  * @author Carlos Villa Blanco
  *
  */
-public class HoldOut implements ValidationMethod {
+public class HoldOut extends ValidationMethod {
 	Dataset trainingDataset;
 	Dataset testingDataset;
 	Logger logger = LogManager.getLogger(HoldOut.class);

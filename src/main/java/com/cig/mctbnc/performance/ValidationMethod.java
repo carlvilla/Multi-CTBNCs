@@ -1,6 +1,7 @@
 package com.cig.mctbnc.performance;
 
 import com.cig.mctbnc.models.MCTBNC;
+import com.cig.mctbnc.performance.writers.MetricsWriter;
 
 /**
  * Define common methods for validation algorithms.
@@ -8,13 +9,18 @@ import com.cig.mctbnc.models.MCTBNC;
  * @author Carlos Villa Blanco
  *
  */
-public interface ValidationMethod {
+public abstract class ValidationMethod {
+	MetricsWriter metricsWriter;
 
 	/**
 	 * Evaluate the performance of the specified model.
 	 * 
 	 * @param model model to evaluate
 	 */
-	public void evaluate(MCTBNC<?, ?> model);
+	public abstract void evaluate(MCTBNC<?, ?> model);
+
+	public void setWriter(MetricsWriter metricsWriter) {
+		this.metricsWriter = metricsWriter;
+	}
 
 }

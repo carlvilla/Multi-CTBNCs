@@ -22,4 +22,9 @@ public class BNMaximumLikelihoodEstimation extends BNParameterLearningAlgorithm 
 		return ssNode;
 	}
 
+	@Override
+	public String getNameMethod() {
+		return "Maximum likelihood estimation";
+	}
+
 }

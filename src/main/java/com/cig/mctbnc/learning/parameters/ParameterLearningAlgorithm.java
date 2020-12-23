@@ -23,4 +23,11 @@ public interface ParameterLearningAlgorithm {
 	 */
 	public void learn(Node node, Dataset dataset);
 
+	/**
+	 * Get the name of the method to learn the parameters.
+	 * 
+	 * @return name of the method to learn the parameters
+	 */
+	public String getNameMethod();
+
 }

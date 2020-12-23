@@ -56,6 +56,9 @@ dependencies {
   	
   	// The Apache Commons Math project 
   	compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+  	
+  	// Apache POI
+  	compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.9'
 }
 
 javafx{
