@@ -35,25 +35,19 @@ import com.cig.mctbnc.performance.writers.MetricsWriter;
  */
 public class MainExperiments {
 
-//	static List<String> datasets = List.of("src/main/resources/datasets/Experiment12/extreme/D1",
-//			"src/main/resources/datasets/Experiment12/extreme/D2",
-//			"src/main/resources/datasets/Experiment12/extreme/D3",
-//			"src/main/resources/datasets/Experiment12/extreme/D4",
-//			"src/main/resources/datasets/Experiment12/extreme/D5",
-//			"src/main/resources/datasets/Experiment12/noExtreme/D1",
-//			"src/main/resources/datasets/Experiment12/noExtreme/D2",
-//			"src/main/resources/datasets/Experiment12/noExtreme/D3",
-//			"src/main/resources/datasets/Experiment12/noExtreme/D4",
-//			"src/main/resources/datasets/Experiment12/noExtreme/D5");
-
-	static List<String> datasets = List.of("/Users/carlosvillablanco/Desktop/Datasets/prueba/D1");
+	static List<String> datasets = List.of("/Users/carlosvillablanco/Desktop/Datasets/prueba/D1",
+			"/Users/carlosvillablanco/Desktop/Datasets/prueba/D2",
+			"/Users/carlosvillablanco/Desktop/Datasets/prueba/D3");
 
 	static String nameTimeVariable = "t";
 
-	static List<String> nameClassVariables = List.of("CV1", "CV2", "CV3", "CV4", "CV5");
-	static List<String> nameFeatureVariables = List.of("X1", "X2", "X3", "X4", "X5");
+//	static List<String> nameClassVariables = List.of("CV1", "CV2", "CV3", "CV4", "CV5");
+//	static List<String> nameFeatureVariables = List.of("X1", "X2", "X3", "X4", "X5");
 
-	static List<String> models = List.of("CTBNCs", "Empty-kDB MCTBNC", "MCTBNC"); // "MCTBNC", , "MCTBNC",
+	static List<String> nameClassVariables = List.of("CV1", "CV2");
+	static List<String> nameFeatureVariables = List.of("X1", "X2");
+
+	static List<String> models = List.of("CTBNCs", "Empty-kDB MCTBNC", "MCTBNC");
 
 	// Get names learning algorithms
 	static String nameBnPLA = "Bayesian estimation";
@@ -69,7 +63,7 @@ public class MainExperiments {
 	static double tx = 0.001;
 
 	// Get score function
-	static List<String> scoreFunctions = List.of("Log-likelihood"); // "Conditional log-likelihood", , "Bayesian score"
+	static List<String> scoreFunctions = List.of("Log-likelihood", "Bayesian score"); // , "Conditional log-likelihood"
 	// Define penalization function (if any)
 	static String penalizationFunction = "BIC"; // "AIC", "No"
 
@@ -143,10 +137,8 @@ public class MainExperiments {
 						validationMethod = ValidationMethodFactory.getValidationMethod(selectedValidationMethod,
 								datasetReader, shuffleSequences, trainingSize, folds);
 					}
-
 					// Set output to show results
 					validationMethod.setWriter(metricsWriter);
-
 					// Define initial structure
 					model.setIntialStructure(initialStructure);
 					// Evaluate the performance of the model
@@ -154,9 +146,7 @@ public class MainExperiments {
 				}
 			}
 		}
-
 		metricsWriter.close();
-
 	}
 
 }

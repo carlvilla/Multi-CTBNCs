@@ -1,5 +1,6 @@
 package com.cig.mctbnc.performance.writers;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -8,10 +9,24 @@ import java.util.Map;
  * @author Carlos Villa Blanco
  *
  */
-public interface MetricsWriter {
+public abstract class MetricsWriter {
+	List<String> nameClassVariables;
 
-	void write(Map<String, Double> results);
+	public abstract void write(Map<String, Double> results);
 
-	void close();
+	/**
+	 * Close the writer.
+	 */
+	public void close() {
+	}
+
+	/**
+	 * Establish the class variables that the writer should take into account.
+	 * 
+	 * @param nameClassVariables
+	 */
+	public void setClassVariables(List<String> nameClassVariables) {
+		this.nameClassVariables = nameClassVariables;
+	}
 
 }

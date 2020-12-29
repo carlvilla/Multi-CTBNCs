@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFConditionalFormattingRule;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFSheetConditionalFormatting;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -22,31 +23,25 @@ import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
 
 /**
- * Excel writer for automatic experiments.
+ * Excel writer for experiments.
  * 
  * @author Carlos Villa Blanco
  *
  */
-public class ExcelExperimentsWriter implements MetricsWriter {
+public class ExcelExperimentsWriter extends MetricsWriter {
 	String path = "src/main/resources/results/";
 	XSSFWorkbook workbook;
 	XSSFSheet sheet;
 	FileOutputStream out = null;
-
 	int numDatasets;
 	int numModels;
 	int numScoreFunctions;
-
-	List<String> nameClassVariables;
-	List<String> nameDatasets;
-	List<String> nameModels;
+	int idxCurrentDataset = 0;
+	int idxCurrentModel = 0;
+	int idxCurrentScoreFunction = 0;
 	List<String> metrics = List.of("Global accuracy", "Mean accuracy", "Macro-average precision",
 			"Macro-average recall", "Macro-average f1 score", "Micro-average precision", "Micro-average recall",
 			"Micro-average f1 score", "Globar Brier score");
-
-	int currentDataset = 0;
-	int currentModel = 0;
-	int currentScoreFunction = 0;
 
 	/**
 	 * Initialize the writer.
@@ -64,15 +59,11 @@ public class ExcelExperimentsWriter implements MetricsWriter {
 	public ExcelExperimentsWriter(List<String> scoreFunctions, List<String> nameDatasets, List<String> nameModels,
 			List<String> nameFeatureVariables, List<String> nameClassVariables, BNParameterLearningAlgorithm bnPLA,
 			CTBNParameterLearningAlgorithm ctbnPLA, String penalizationFunction) {
-
 		// Set values global variables
-		this.numDatasets = nameDatasets.size();
-		this.numModels = nameModels.size();
-		this.numScoreFunctions = scoreFunctions.size();
+		numDatasets = nameDatasets.size();
+		numModels = nameModels.size();
+		numScoreFunctions = scoreFunctions.size();
 		this.nameClassVariables = nameClassVariables;
-		this.nameDatasets = nameDatasets;
-		this.nameModels = nameModels;
-
 		// Create a workbook, sheet and file to store the results
 		workbook = new XSSFWorkbook();
 		sheet = workbook.createSheet("Experiments");
@@ -82,161 +73,27 @@ public class ExcelExperimentsWriter implements MetricsWriter {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		// Enable newlines in cells
-		CellStyle newLineCS = workbook.createCellStyle();
-		newLineCS.setWrapText(true);
-
 		// Conditions experiments
-		sheet.addMergedRegion(new CellRangeAddress(3, 7, 1, 9));
-		sheet.createRow(3).createCell(1).setCellStyle(newLineCS);
-		sheet.getRow(3).getCell(1)
-				.setCellValue("- Feature variables: " + nameFeatureVariables + "\n - Class variables: "
-						+ nameClassVariables + " \n - Penalization: " + penalizationFunction
-						+ "\n - Parameter learning alg. class subgraph: " + bnPLA.getNameMethod()
-						+ "\n - Parameter learning alg. bridge and feature subgraphs: " + ctbnPLA.getNameMethod());
-
+		writeConditionsExperiment(bnPLA, ctbnPLA, nameFeatureVariables, penalizationFunction);
 		for (int i = 0; i < scoreFunctions.size(); i++) {
-			// Score
-			sheet.createRow(15).createCell(0).setCellValue(scoreFunctions.get(i));
+			// Get initial row in the excel for score
+			int initialRow = getInitialRowScore(i);
+			// Score function
+			setScoreFunction(initialRow, scoreFunctions.get(i));
 			// Table with results
-			generateTableDatasets();
+			generateTableDatasets(initialRow, nameDatasets, nameModels);
 			// Comparison of evaluation metrics
-			generateTableComparionMetrics();
+			generateTableComparionMetrics(initialRow, nameModels);
 			// Comparison of evaluation metrics per class variable
-			generateTableComparionPerClassVariable();
+			generateTableComparionPerClassVariable(initialRow, nameModels, nameClassVariables);
 			// Set formulas
-			setFormulas();
+			setFormulas(initialRow, nameModels, nameClassVariables);
 			// Conditional formatting
-			setConditionalFormating();
+			setConditionalFormating(initialRow);
 		}
 		// Merge title dataset
 		sheet.autoSizeColumn(10);
 
-	}
-
-	/**
-	 * Generate a table where it is shown the results of each model for each dataset
-	 * and evaluation metric.
-	 */
-	public void generateTableDatasets() {
-		// Results for each of the datasets
-		sheet.createRow(16);
-		sheet.createRow(17);
-		for (int i = 0; i < numDatasets; i++) {
-			sheet.getRow(16).createCell(1 + numModels * i).setCellValue(nameDatasets.get(i));
-			sheet.addMergedRegion(new CellRangeAddress(16, 16, 1 + numModels * i, numModels * (i + 1)));
-			for (int j = 0; j < numModels; j++) {
-				sheet.getRow(17).createCell(1 + numModels * i + j).setCellValue(nameModels.get(j));
-			}
-		}
-
-	}
-
-	/**
-	 * Generate a table where it is compare the results of each model.
-	 */
-	public void generateTableComparionMetrics() {
-		sheet.createRow(30);
-		sheet.createRow(31).createCell(0).setCellValue("Model");
-		for (int i = 0; i < metrics.size(); i++) {
-			sheet.createRow(18 + i).createCell(0).setCellValue(metrics.get(i));
-			sheet.addMergedRegion(new CellRangeAddress(30, 30, i * 2 + 1, i * 2 + 2));
-			sheet.getRow(30).createCell(i * 2 + 1).setCellValue(metrics.get(i));
-		}
-		for (int i = 0; i < metrics.size(); i++) {
-			sheet.getRow(31).createCell(i * 2 + 1).setCellValue("Mean");
-			sheet.getRow(31).createCell(i * 2 + 2).setCellValue("Std. deviation");
-		}
-		for (int i = 0; i < nameModels.size(); i++) {
-			sheet.createRow(32 + i).createCell(0).setCellValue(nameModels.get(i));
-			if (i < nameModels.size() - 1)
-				sheet.createRow(33 + numModels + i).createCell(0)
-						.setCellValue(nameModels.get(numModels - 1) + " vs. " + nameModels.get(i));
-		}
-	}
-
-	/**
-	 * Generate a table where it is compare the results of each model for each class
-	 * variable.
-	 */
-	public void generateTableComparionPerClassVariable() {
-		int rowClasses = 26 + 9 + 2 * numModels - 1;
-		sheet.addMergedRegion(new CellRangeAddress(rowClasses, rowClasses + 1, 0, 0));
-		sheet.createRow(rowClasses).createCell(0).setCellValue("Model");
-		sheet.createRow(rowClasses + 1);
-		for (int i = 0; i < nameClassVariables.size(); i++) {
-			sheet.addMergedRegion(new CellRangeAddress(rowClasses, rowClasses, 2 * i + 1, 2 * i + 2));
-			sheet.getRow(rowClasses).createCell(2 * i + 1).setCellValue(nameClassVariables.get(i));
-			sheet.getRow(rowClasses + 1).createCell(2 * i + 1).setCellValue("Mean");
-			sheet.getRow(rowClasses + 1).createCell(2 * i + 2).setCellValue("Std. deviation");
-		}
-		for (int i = 0; i < nameModels.size(); i++) {
-			sheet.addMergedRegion(new CellRangeAddress(rowClasses + 2 + (numDatasets + 3) * i,
-					rowClasses + 2 + (numDatasets + 3) * i + numDatasets, 0, 0));
-			sheet.createRow(rowClasses + 2 + (numDatasets + 3) * i).createCell(0).setCellValue(nameModels.get(i));
-			sheet.createRow(rowClasses + 2 + (numDatasets + 3) * i + numDatasets);
-			// Create rows for the results of the evaluation metrics for each class
-			// variable, dataset and model
-			for (int j = 1; j < this.numDatasets; j++) {
-				sheet.createRow(rowClasses + 2 + (numDatasets + 3) * i + j);
-			}
-		}
-	}
-
-	/**
-	 * Set formulas in certain cells.
-	 */
-	public void setFormulas() {
-		for (int i = 0; i < numModels; i++)
-			for (int j = 0; j < metrics.size(); j++) {
-				String strFormula = "";
-				for (int k = 0; k < numDatasets; k++) {
-					int row = 19 + j;
-					String col = columnName(1 + k * numModels + i);
-					strFormula += col + row + ",";
-				}
-				sheet.getRow(32 + i).createCell(1 + j * 2).setCellFormula("AVERAGE(" + strFormula + ")");
-				sheet.getRow(32 + i).createCell((1 + j) * 2).setCellFormula("STDEV(" + strFormula + ")");
-			}
-		for (int i = 0; i < metrics.size(); i++) {
-			String col = columnName(1 + i * 2);
-			for (int j = 1; j < numModels; j++) {
-				String strFormula = col + (32 + numModels) + " - " + col + (32 + j);
-				sheet.getRow(32 + numModels + j).createCell(1 + i * 2).setCellFormula(strFormula);
-			}
-		}
-		// Table class variables
-		int rowClasses = 26 + 9 + 2 * numModels - 1;
-		for (int i = 0; i < nameModels.size(); i++) {
-			for (int j = 0; j < nameClassVariables.size(); j++) {
-				sheet.getRow(rowClasses + 2 + (numDatasets + 3) * i + numDatasets).createCell(1 + j * 2)
-						.setCellFormula("AVERAGE(" + columnName(1 + j * 2) + (rowClasses + 3 + (numDatasets + 3) * i)
-								+ ":" + columnName(1 + j * 2) + (rowClasses + 2 + numDatasets + (numDatasets + 3) * i)
-								+ ")");
-				sheet.getRow(rowClasses + 2 + (numDatasets + 3) * i + numDatasets).createCell(2 + j * 2)
-						.setCellFormula("STDEV(" + columnName(1 + j * 2) + (rowClasses + 3 + (numDatasets + 3) * i)
-								+ ":" + columnName(1 + j * 2) + (rowClasses + 2 + numDatasets + (numDatasets + 3) * i)
-								+ ")");
-			}
-		}
-	}
-
-	/**
-	 * Define the conditional formating used for some cells.
-	 */
-	public void setConditionalFormating() {
-		XSSFSheetConditionalFormatting condFormat = sheet.getSheetConditionalFormatting();
-		XSSFConditionalFormattingRule moreRule = condFormat.createConditionalFormattingRule(ComparisonOperator.GT, "0");
-		XSSFConditionalFormattingRule lessRule = condFormat.createConditionalFormattingRule(ComparisonOperator.LT, "0");
-		moreRule.createPatternFormatting().setFillBackgroundColor(IndexedColors.GREEN.getIndex());
-		lessRule.createPatternFormatting().setFillBackgroundColor(IndexedColors.RED.getIndex());
-
-		for (int i = 1; i < numModels; i++) {
-			CellRangeAddress[] rangeFormating = { CellRangeAddress.valueOf(
-					"B" + (32 + numModels + i) + ":" + columnName(metrics.size() * 2 - 1) + (33 + numModels + i)) };
-			condFormat.addConditionalFormatting(rangeFormating, moreRule);
-			condFormat.addConditionalFormatting(rangeFormating, lessRule);
-		}
 	}
 
 	public void write(Map<String, Double> results) {
@@ -249,41 +106,39 @@ public class ExcelExperimentsWriter implements MetricsWriter {
 		double mir = results.get("Micro-average recall");
 		double mif1 = results.get("Micro-average f1 score");
 		Double gb = results.getOrDefault("Global Brier score", null);
-
-		int numColumn = this.currentModel + (this.numModels * this.currentDataset) + 1;
-		sheet.getRow(18).createCell(numColumn).setCellValue(ga);
-		sheet.getRow(19).createCell(numColumn).setCellValue(ma);
-		sheet.getRow(20).createCell(numColumn).setCellValue(map);
-		sheet.getRow(21).createCell(numColumn).setCellValue(mar);
-		sheet.getRow(22).createCell(numColumn).setCellValue(maf1);
-		sheet.getRow(23).createCell(numColumn).setCellValue(mip);
-		sheet.getRow(24).createCell(numColumn).setCellValue(mir);
-		sheet.getRow(25).createCell(numColumn).setCellValue(mif1);
+		// Get initial row in the excel for current score
+		int initialRow = getInitialRowScore(idxCurrentScoreFunction);
+		int numColumn = idxCurrentModel + (numModels * idxCurrentDataset) + 1;
+		// Evaluation metrics per dataset and model
+		sheet.getRow(initialRow + 3).createCell(numColumn).setCellValue(ga);
+		sheet.getRow(initialRow + 4).createCell(numColumn).setCellValue(ma);
+		sheet.getRow(initialRow + 5).createCell(numColumn).setCellValue(map);
+		sheet.getRow(initialRow + 6).createCell(numColumn).setCellValue(mar);
+		sheet.getRow(initialRow + 7).createCell(numColumn).setCellValue(maf1);
+		sheet.getRow(initialRow + 8).createCell(numColumn).setCellValue(mip);
+		sheet.getRow(initialRow + 9).createCell(numColumn).setCellValue(mir);
+		sheet.getRow(initialRow + 10).createCell(numColumn).setCellValue(mif1);
 		if (gb != null)
-			sheet.getRow(26).createCell(numColumn).setCellValue(gb);
-
+			sheet.getRow(initialRow + 11).createCell(numColumn).setCellValue(gb);
 		// Evaluation metrics per class variables
-		int rowClasses = 26 + 9 + 2 * numModels - 1;
-
+		int initialRowClasses = initialRow + 19 + 2 * numModels;
 		for (int i = 0; i < nameClassVariables.size(); i++) {
 			double acc = results.get("Accuracy " + nameClassVariables.get(i));
-			sheet.getRow(rowClasses + 2 + this.currentDataset + (this.numDatasets + 3) * this.currentModel)
+			sheet.getRow(initialRowClasses + 2 + idxCurrentDataset + (numDatasets + 2) * idxCurrentModel)
 					.createCell(2 * i + 1).setCellValue(acc);
 		}
-
 		// It is updated the reference to the currently evaluated dataset and model
-		if (this.currentModel == this.numModels - 1 && this.currentDataset == this.numDatasets - 1) {
+		if (idxCurrentModel == numModels - 1 && idxCurrentDataset == numDatasets - 1) {
 			// All the models where studied for all datasets
-			this.currentModel = 0;
-			this.currentDataset = 0;
-			this.currentScoreFunction++;
-		} else if (this.currentModel == this.numModels - 1) {
+			idxCurrentModel = 0;
+			idxCurrentDataset = 0;
+			idxCurrentScoreFunction++;
+		} else if (idxCurrentModel == numModels - 1) {
 			// All the models where studied for the current dataset
-			this.currentModel = 0;
-			this.currentDataset++;
+			idxCurrentModel = 0;
+			idxCurrentDataset++;
 		} else
-			this.currentModel++;
-
+			idxCurrentModel++;
 	}
 
 	public void close() {
@@ -298,13 +153,227 @@ public class ExcelExperimentsWriter implements MetricsWriter {
 	}
 
 	/**
+	 * Write in the excel the score function that is being used.
+	 * 
+	 * @param initialRow
+	 * @param scoreFunction
+	 */
+	private void setScoreFunction(int initialRow, String scoreFunction) {
+		sheet.addMergedRegion(new CellRangeAddress(initialRow, initialRow, 0, 4));
+		sheet.createRow(initialRow).createCell(0).setCellValue("Score function: " + scoreFunction);
+		XSSFFont font = workbook.createFont();
+		font.setBold(true);
+		CellStyle styleCS = workbook.createCellStyle();
+		styleCS.setFont(font);
+		sheet.getRow(initialRow).getCell(0).setCellStyle(styleCS);
+	}
+
+	/**
+	 * Write information about the conditions in which the experiments were
+	 * performed.
+	 * 
+	 * @param bnPLA
+	 * @param ctbnPLA
+	 * @param nameFeatureVariables
+	 * @param penalizationFunction
+	 */
+	private void writeConditionsExperiment(BNParameterLearningAlgorithm bnPLA, CTBNParameterLearningAlgorithm ctbnPLA,
+			List<String> nameFeatureVariables, String penalizationFunction) {
+		// Enable newlines in cells
+		CellStyle newLineCS = workbook.createCellStyle();
+		newLineCS.setWrapText(true);
+		// Conditions experiments
+		sheet.addMergedRegion(new CellRangeAddress(3, 8, 1, 10));
+		sheet.createRow(3).createCell(1).setCellStyle(newLineCS);
+		sheet.getRow(3).getCell(1)
+				.setCellValue("- Feature variables: " + nameFeatureVariables + "\n - Class variables: "
+						+ nameClassVariables + " \n - Penalization: " + penalizationFunction
+						+ "\n - Parameter learning alg. class subgraph: " + bnPLA.getNameMethod()
+						+ "\n - Parameter learning alg. bridge and feature subgraphs: " + ctbnPLA.getNameMethod());
+	}
+
+	/**
+	 * Generate a table where it is shown the results of each model for each dataset
+	 * and evaluation metric.
+	 */
+	private void generateTableDatasets(int initialRow, List<String> nameDatasets, List<String> nameModels) {
+		// Results for each of the datasets
+		sheet.createRow(initialRow + 1);
+		sheet.createRow(initialRow + 2);
+		for (int i = 0; i < numDatasets; i++) {
+			sheet.getRow(initialRow + 1).createCell(1 + numModels * i).setCellValue(nameDatasets.get(i));
+			sheet.addMergedRegion(
+					new CellRangeAddress(initialRow + 1, initialRow + 1, 1 + numModels * i, numModels * (i + 1)));
+			for (int j = 0; j < numModels; j++) {
+				sheet.getRow(initialRow + 2).createCell(1 + numModels * i + j).setCellValue(nameModels.get(j));
+			}
+		}
+	}
+
+	/**
+	 * Generate a table where it is compare the results of each model.
+	 */
+	private void generateTableComparionMetrics(int initialRow, List<String> nameModels) {
+		int initialRowTable = initialRow + metrics.size() + 6;
+		sheet.createRow(initialRowTable);
+		sheet.createRow(initialRowTable + 1).createCell(0).setCellValue("Model");
+		for (int i = 0; i < metrics.size(); i++) {
+			sheet.createRow(initialRow + 3 + i).createCell(0).setCellValue(metrics.get(i));
+			sheet.addMergedRegion(new CellRangeAddress(initialRowTable, initialRowTable, i * 2 + 1, i * 2 + 2));
+			sheet.getRow(initialRowTable).createCell(i * 2 + 1).setCellValue(metrics.get(i));
+		}
+		for (int i = 0; i < metrics.size(); i++) {
+			sheet.getRow(initialRowTable + 1).createCell(i * 2 + 1).setCellValue("Mean");
+			sheet.getRow(initialRowTable + 1).createCell(i * 2 + 2).setCellValue("Std. deviation");
+		}
+		for (int i = 0; i < nameModels.size(); i++) {
+			sheet.createRow(initialRowTable + 2 + i).createCell(0).setCellValue(nameModels.get(i));
+			if (i < nameModels.size() - 1)
+				sheet.createRow(initialRowTable + 3 + numModels + i).createCell(0)
+						.setCellValue(nameModels.get(numModels - 1) + " vs. " + nameModels.get(i));
+		}
+	}
+
+	/**
+	 * Generate a table where it is compare the results of each model for each class
+	 * variable.
+	 */
+	private void generateTableComparionPerClassVariable(int initialRow, List<String> nameModels,
+			List<String> nameClassVariables) {
+		int initialRowClasses = initialRow + 19 + 2 * numModels;
+		sheet.addMergedRegion(new CellRangeAddress(initialRowClasses, initialRowClasses + 1, 0, 0));
+		sheet.createRow(initialRowClasses).createCell(0).setCellValue("Model");
+		sheet.createRow(initialRowClasses + 1);
+		for (int i = 0; i < nameClassVariables.size(); i++) {
+			sheet.addMergedRegion(new CellRangeAddress(initialRowClasses, initialRowClasses, 2 * i + 1, 2 * i + 2));
+			sheet.getRow(initialRowClasses).createCell(2 * i + 1).setCellValue(nameClassVariables.get(i));
+			sheet.getRow(initialRowClasses + 1).createCell(2 * i + 1).setCellValue("Mean");
+			sheet.getRow(initialRowClasses + 1).createCell(2 * i + 2).setCellValue("Std. deviation");
+		}
+		initialRowClasses += 2;
+		for (int i = 0; i < nameModels.size(); i++) {
+			sheet.addMergedRegion(new CellRangeAddress(initialRowClasses + (numDatasets + 2) * i,
+					initialRowClasses + (numDatasets + 2) * i + numDatasets, 0, 0));
+			sheet.createRow(initialRowClasses + (numDatasets + 2) * i).createCell(0).setCellValue(nameModels.get(i));
+			sheet.createRow(initialRowClasses + (numDatasets + 2) * i + numDatasets);
+			// Create rows for the results of the evaluation metrics for each class
+			// variable, dataset and model
+			for (int j = 1; j < numDatasets; j++) {
+				sheet.createRow(initialRowClasses + (numDatasets + 2) * i + j);
+			}
+		}
+		initialRowClasses += (numDatasets + 2) * numModels;
+		for (int i = 0; i < nameModels.size(); i++) {
+			if (i < nameModels.size() - 1)
+				sheet.createRow(initialRowClasses + i).createCell(0)
+						.setCellValue(nameModels.get(numModels - 1) + " vs. " + nameModels.get(i));
+		}
+	}
+
+	/**
+	 * Set formulas in certain cells.
+	 * 
+	 * @param initialRow
+	 * @param nameModels
+	 * @param nameClassVariables
+	 */
+	private void setFormulas(int initialRow, List<String> nameModels, List<String> nameClassVariables) {
+		// Evaluation metrics
+		for (int i = 0; i < numModels; i++)
+			for (int j = 0; j < metrics.size(); j++) {
+				String strFormula = "";
+				for (int k = 0; k < numDatasets; k++) {
+					int row = initialRow + 4 + j;
+					String col = columnName(1 + k * numModels + i);
+					strFormula += col + row;
+					if (k < numDatasets - 1)
+						strFormula += ",";
+				}
+				sheet.getRow(initialRow + 17 + i).createCell(1 + j * 2).setCellFormula("AVERAGE(" + strFormula + ")");
+				sheet.getRow(initialRow + 17 + i).createCell((1 + j) * 2).setCellFormula("STDEV(" + strFormula + ")");
+			}
+		for (int i = 0; i < metrics.size(); i++) {
+			String col = columnName(1 + i * 2);
+			for (int j = 1; j < numModels; j++) {
+				String strFormula = col + (initialRow + 17 + numModels) + " - " + col + (initialRow + 17 + j);
+				sheet.getRow(initialRow + 17 + numModels + j).createCell(1 + i * 2).setCellFormula(strFormula);
+			}
+		}
+		// Table class variables
+		int initialRowClasses = initialRow + 21 + 2 * numModels;
+		for (int i = 0; i < nameModels.size(); i++) {
+			for (int j = 0; j < nameClassVariables.size(); j++) {
+				sheet.getRow(initialRowClasses + (numDatasets + 2) * i + numDatasets).createCell(1 + j * 2)
+						.setCellFormula("AVERAGE(" + columnName(1 + j * 2)
+								+ (initialRowClasses + 1 + (numDatasets + 2) * i) + ":" + columnName(1 + j * 2)
+								+ (initialRowClasses + numDatasets + (numDatasets + 2) * i) + ")");
+				sheet.getRow(initialRowClasses + (numDatasets + 2) * i + numDatasets).createCell(2 + j * 2)
+						.setCellFormula("STDEV(" + columnName(1 + j * 2)
+								+ (initialRowClasses + 1 + (numDatasets + 2) * i) + ":" + columnName(1 + j * 2)
+								+ (initialRowClasses + numDatasets + (numDatasets + 2) * i) + ")");
+			}
+		}
+		for (int i = 0; i < nameClassVariables.size(); i++) {
+			String col = columnName(1 + i * 2);
+			int rowLastModel = (int) (initialRowClasses + (numDatasets + 1) * numModels + numModels - 1);
+			for (int j = 0; j < numModels - 1; j++) {
+				int rowOtherModel = initialRowClasses + ((numDatasets + 1) * (j + 1)) + j;
+				String strFormula = col + rowLastModel + " - " + col + rowOtherModel;
+				sheet.getRow(initialRowClasses + ((numDatasets + 1) * numModels) + (numModels - 1) + j + 1)
+						.createCell(1 + i * 2).setCellFormula(strFormula);
+			}
+		}
+	}
+
+	/**
+	 * Define the conditional formating used for some cells.
+	 * 
+	 * @param initialRow
+	 */
+	private void setConditionalFormating(int initialRow) {
+		XSSFSheetConditionalFormatting condFormat = sheet.getSheetConditionalFormatting();
+		XSSFConditionalFormattingRule moreRule = condFormat.createConditionalFormattingRule(ComparisonOperator.GT, "0");
+		XSSFConditionalFormattingRule lessRule = condFormat.createConditionalFormattingRule(ComparisonOperator.LT, "0");
+		moreRule.createPatternFormatting().setFillBackgroundColor(IndexedColors.GREEN.getIndex());
+		lessRule.createPatternFormatting().setFillBackgroundColor(IndexedColors.RED.getIndex());
+		for (int i = 1; i < numModels; i++) {
+			CellRangeAddress[] rangeFormating = { CellRangeAddress.valueOf("B" + (initialRow + 17 + numModels + i) + ":"
+					+ columnName(metrics.size() * 2 - 1) + (initialRow + 18 + numModels + i)) };
+			condFormat.addConditionalFormatting(rangeFormating, moreRule);
+			condFormat.addConditionalFormatting(rangeFormating, lessRule);
+		}
+		int initialRowClasses = initialRow + 21 + 2 * numModels;
+		CellRangeAddress[] rangeFormating = { CellRangeAddress.valueOf("B"
+				+ (initialRowClasses + ((numDatasets + 1) * numModels) + (numModels - 1) + 1) + ":"
+				+ columnName(nameClassVariables.size() * 2 - 1)
+				+ ((initialRowClasses + ((numDatasets + 1) * numModels) + (numModels - 1) + 1) + numModels - 1)) };
+		condFormat.addConditionalFormatting(rangeFormating, moreRule);
+		condFormat.addConditionalFormatting(rangeFormating, lessRule);
+	}
+
+	/**
 	 * Converts numeric index of a column to its corresponding letter.
 	 * 
 	 * @param index
 	 * @return column letter
 	 */
-	public static String columnName(int index) {
+	private String columnName(int index) {
 		return CellReference.convertNumToColString(index);
+	}
+
+	/**
+	 * Get the initial row in the excel for the score whose index is given.
+	 * 
+	 * @param i
+	 * @return initial row for given score
+	 */
+	private int getInitialRowScore(int i) {
+		int headers = 6;
+		int blankSpaces = 13;
+		int numCellsForScore = metrics.size() + numModels + numModels * (numDatasets + 1) + headers + blankSpaces
+				+ (numModels - 1) * 2;
+		int initialRow = 15 + i * numCellsForScore;
+		return initialRow;
 	}
 
 }

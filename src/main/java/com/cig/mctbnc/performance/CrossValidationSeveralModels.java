@@ -56,7 +56,6 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 	 * @param model model to evaluate
 	 */
 	public void evaluate(MCTBNC<?, ?> model) {
-
 		// Get sequences from the dataset
 		List<Sequence> sequences = dataset.getSequences();
 		int numSequences = sequences.size();
