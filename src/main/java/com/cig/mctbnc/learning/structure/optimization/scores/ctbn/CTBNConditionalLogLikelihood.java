@@ -1,6 +1,7 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,15 +35,16 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 		super(penalizationFunction);
 	}
 
-	@Override
+	/**
+	 * Compute the (penalized) conditional log-likelihood score of a discrete
+	 * continuous time Bayesian network. This is based on the idea of optimizing the
+	 * conditional log-likelihood proposed by Friedman et al., 1997 and used for the
+	 * first time to learn the structure of a CTBNC by Codecasa and Stella, 2015.
+	 * 
+	 * @param ctbn continuous time Bayesian network
+	 */
 	public double compute(CTBN<? extends Node> ctbn) {
-		double cll = 0;
-		for (int indexNode = 0; indexNode < ctbn.getNumNodes(); indexNode++) {
-			double cllNode = compute(ctbn, indexNode);
-			if (cllNode != Double.NEGATIVE_INFINITY)
-				cll += cllNode;
-		}
-		return cll;
+		return 0;
 	}
 
 	/**
@@ -63,9 +65,9 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 		// Store the conditional log-likelihood score
 		double cll = 0.0;
 
-//		System.out.println("-----------");
-//		System.out.println("Nodo: " + node.getName());
-//		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
+		System.out.println("-----------");
+		System.out.println("Nodo: " + node.getName());
+		System.out.println(Arrays.toString(node.getParents().stream().map(nodop -> nodop.getName()).toArray()));
 
 		// The node has no class variables as parents. The worst score is given to this
 		// structure.
@@ -81,10 +83,14 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 		// Name class variables
 		List<String> nameCVs = bnClassSubgraph.getNameVariables();
 
+		// Es necesario calcular las probabilidades de las variables clase y la
+		// likelihood para calcular el denominador. El problema es que para la
+		// probabilidad a priori se consideran todas las variables clase y para los
+		// demás términos solo las variables clase padres de features.
+
 		// Class probability term
-		
 		Map<State, Double> norm = new HashMap<State, Double>();
-		
+
 		double cpt = 0;
 		for (CPTNode nodeCV : nodesCVs) {
 			List<State> statesParentsCV = nodeCV.getStatesParents();
@@ -98,9 +104,9 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 						double prob = nx * Math.log(ox);
 						cpt += prob;
 						norm.put(query, prob);
+					}
 				}
 			}
-		}
 		}
 
 		cll += cpt;
@@ -132,61 +138,57 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 		}
 		cll += pps;
 
-		
 		// Marginal log-likelihood
-		
+
 		// Obtain possible states of the class variables
 		List<State> statesCVs = ctbn.getDataset().getPossibleStatesVariables(nameCVs);
-		
-		
+
 		double mll = 0.0;
-		
-		for(State stateCVs: statesCVs) {
-			
-			
+
+		for (State stateCVs : statesCVs) {
+
 			double mllStateCVs = 1;
-			
-			
-			for(CPTNode nodeCV: nodesCVs) {
-				
+
+			for (CPTNode nodeCV : nodesCVs) {
+
 				List<String> nameParentsCV = nodeCV.getNameParents();
-				
+
 				State query = new State();
 				query.addEvent(nodeCV.getName(), stateCVs.getValueVariable(nodeCV.getName()));
-				
+
 				String[] valuesParents = stateCVs.getValueVariables(nameParentsCV);
-				
-				for(int i=0; i<nameParentsCV.size();i++)
+
+				for (int i = 0; i < nameParentsCV.size(); i++)
 					query.addEvent(nameParentsCV.get(i), valuesParents[i]);
-				
-				
+
 				mllStateCVs *= nodeCV.getCPT().get(query);
-				
-				
+
 			}
-			
+
 			for (State fromState : statesNodeAndParents) {
-				
-				List<Node> CVParents = node.getParents().stream().filter(nodeCVAux -> nodeCVAux.isClassVariable()).collect(Collectors.toList());
-				
+
+				List<Node> CVParents = node.getParents().stream().filter(nodeCVAux -> nodeCVAux.isClassVariable())
+						.collect(Collectors.toList());
+
 				boolean exit = true;
-				
-				for(Node parentOfNode: CVParents) {		
-					if(! fromState.getValueVariable(parentOfNode.getName()).equals(stateCVs.getValueVariable(parentOfNode.getName())) ) {
+
+				for (Node parentOfNode : CVParents) {
+					if (!fromState.getValueVariable(parentOfNode.getName())
+							.equals(stateCVs.getValueVariable(parentOfNode.getName()))) {
 						break;
 					}
 					exit = false;
 				}
-				
-				if(exit)
+
+				if (exit)
 					continue;
-				
+
 				double qx = node.getQx().get(fromState);
 				double mx = ss.getMx().get(fromState);
 				double tx = ss.getTx().get(fromState);
-				
+
 				mllStateCVs *= Math.pow(qx, mx) * Math.exp(-qx * tx);
-				
+
 				// Maps with probabilities (ox_) and number of occurrences (nx_) of transitions
 				// from "fromState" to any other possible state of the feature node
 				Map<State, Double> ox_ = node.getOxy().get(fromState);
@@ -198,25 +200,18 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 					if (oxx > 0) {
 						mllStateCVs *= Math.pow(oxx, mxx);
 
-						
-
 					}
 				}
-				
-				
-				
-				
+
 			}
-						
+
 			mll += mllStateCVs;
 		}
-		
+
 		mll = Math.log(mll);
-		
+
 		cll -= mll;
-		
-		
-		
+
 		// Compute unnormalized posteriors given each possible state of the class
 		// variables
 //		double[] uPs = new double[statesCVs.size()];
@@ -259,10 +254,9 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			cll -= (double) networkComplexity * penalization;
 		}
 
-//		System.out.println(cll);
+		System.out.println(cll);
 
 		return cll;
-
 	}
 
 	/**

@@ -18,8 +18,6 @@ import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
-import com.cig.mctbnc.util.ProbabilityUtil;
-import com.cig.mctbnc.util.Util;
 
 class ClassificationTest {
 	static MCTBNC<CPTNode, CIMNode> mctbnc;

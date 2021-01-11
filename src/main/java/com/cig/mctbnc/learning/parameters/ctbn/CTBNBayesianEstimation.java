@@ -4,7 +4,8 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.nodes.Node;
 
 /**
- * Bayesian parameter estimation for CTBN.
+ * Bayesian parameter estimation for CTBN. It is assumed all of the
+ * hyperparameters to be equal to "MxyHP" or "TxHP" (Lindstone rule).
  * 
  * @author Carlos Villa Blanco
  *
