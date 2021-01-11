@@ -64,14 +64,7 @@ public class CrossValidation extends ValidationMethod {
 			Util.shuffle(fileNames, seed);
 			logger.info("Sequences shuffled");
 		}
-		
-		// Stratified
-//		if(stratified) {
-//			
-//			
-//		}
-		
-		
+		// TODO Stratification
 		// Obtain size of each fold
 		int[] sizeFolds = new int[folds];
 		Arrays.fill(sizeFolds, numSequences / folds);
@@ -102,7 +95,7 @@ public class CrossValidation extends ValidationMethod {
 			resultsFold.forEach((metric, value) -> resultsCV.merge(metric, value, (a, b) -> a + b));
 			// Display results fold
 			System.out.println(MessageFormat.format("--------------------Results fold {0}--------------------", i));
-			displayResultsFold(resultsFold);
+			displayResultsFold(resultsFold, model);
 			System.out.println("------------------------------------------------------");
 			fromIndex += sizeFolds[i];
 		}
@@ -161,22 +154,13 @@ public class CrossValidation extends ValidationMethod {
 	}
 
 	/**
-	 * Display the results of the cross validation.
+	 * Display the results of a fold.
 	 * 
 	 * @param results
 	 */
-	private void displayResultsFold(Map<String, Double> results) {
+	private void displayResultsFold(Map<String, Double> results, MCTBNC<?, ?> model) {
 		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
-	}
-
-	/**
-	 * Display the results of the cross validation.
-	 * 
-	 * @param results
-	 */
-	private void displayResults(Map<String, Double> results) {
-		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
-		metricsWriter.write(results);
+		System.out.println(model);
 	}
 
 }

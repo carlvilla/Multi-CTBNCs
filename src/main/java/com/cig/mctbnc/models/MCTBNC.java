@@ -101,7 +101,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		this.dataset = dataset;
 		// Measure execution time
 		Instant start = Instant.now();
-
 		// ------------------ Class subgraph ------------------
 		// Learn structure and parameters of class subgraph (Bayesian network)
 		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
@@ -125,7 +124,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// ------------------ Join subgraphs ------------------
 		// Join class subgraph with feature and bridge subgraphs
 		setStructure();
-
 		Instant end = Instant.now();
 		logger.info("MCTBNC model learnt in {} seconds", Duration.between(start, end));
 	}
@@ -364,6 +362,22 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 			predictions[i] = predict(evidenceSequence, statesClassVariables, estimateProbabilities);
 		}
 		return predictions;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("--Structure multi-dimensional continuous time Bayesian network classifier--\n");
+		for (Node node : nodes) {
+			if (node.getParents().isEmpty())
+				sb.append("{}");
+			else
+				for (Node parent : node.getParents()) {
+					sb.append("(" + parent.getName() + ")");
+				}
+			sb.append(" => (" + node.getName() + ") \n");
+		}
+		return sb.toString();
 	}
 
 	/**

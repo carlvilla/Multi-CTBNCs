@@ -128,10 +128,9 @@ public class Metrics {
 			// Get the estimated probability of our prediction
 			double probability = predicted[i].getProbabilityPrediction();
 			// Show predicted and actual classes along with the name of the sequence file
-
 			// TODO The order of the class variables can change from that in the dataset due
 			// to the HashMap in State
-			logger.info("File {} / Real classes: {} / Predicted classes {} / Prob. {}",
+			logger.trace("File {} / Real classes: {} / Predicted classes {} / Prob. {}",
 					actualDataset.getNameFiles().get(i), actualCC, predictedCC, probability);
 		}
 	}

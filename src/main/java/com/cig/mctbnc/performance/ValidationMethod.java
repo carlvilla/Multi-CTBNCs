@@ -1,5 +1,7 @@
 package com.cig.mctbnc.performance;
 
+import java.util.Map;
+
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.performance.writers.MetricsWriter;
 
@@ -21,6 +23,25 @@ public abstract class ValidationMethod {
 
 	public void setWriter(MetricsWriter metricsWriter) {
 		this.metricsWriter = metricsWriter;
+	}
+
+	/**
+	 * Display the results obtained with the validation method.
+	 * 
+	 * @param results
+	 */
+	public void displayResults(Map<String, Double> results) {
+		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
+		metricsWriter.write(results);
+	}
+
+	/**
+	 * Display the model obtained with the validation method.
+	 *
+	 * @param model
+	 */
+	public void displayModel(MCTBNC<?, ?> model) {
+		System.out.println(model);
 	}
 
 }

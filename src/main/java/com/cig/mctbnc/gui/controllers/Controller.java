@@ -437,7 +437,7 @@ public class Controller {
 	 */
 	public void changeModel() {
 		String model = cmbModel.getValue();
-		if (model.equals("DAG-kDB MCTBNC") || model.equals("Empty-kDB MCTBNC"))
+		if (model.equals("DAG-maxK MCTBNC") || model.equals("Empty-maxK MCTBNC"))
 			// Enable selecting the number of maximum parents
 			fldKParents.setDisable(false);
 		else
