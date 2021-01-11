@@ -28,47 +28,47 @@ class ClassificationTest {
 		// Definition of the model
 
 		// Define class variables
-		CPTNode CV1 = new CPTNode("CV1", true, List.of("CV1_A", "CV1_B"));
-		CPTNode CV2 = new CPTNode("CV2", true, List.of("CV2_A", "CV2_B"));
+		CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
+		CPTNode C2 = new CPTNode("C2", true, List.of("C2_A", "C2_B"));
 
 		// Definition of the structure of the class subgraph
-		CV1.setChild(CV2);
+		C1.setChild(C2);
 
-		Map<State, Double> CPTCV1 = new HashMap<State, Double>();
-		State CV1state1 = new State(Map.of("CV1", "CV1_A"));
-		State CV1state2 = new State(Map.of("CV1", "CV1_B"));
-		CPTCV1.put(CV1state1, 0.6);
-		CPTCV1.put(CV1state2, 0.4);
-		CV1.setCPT(CPTCV1);
+		Map<State, Double> CPTC1 = new HashMap<State, Double>();
+		State C1state1 = new State(Map.of("C1", "C1_A"));
+		State C1state2 = new State(Map.of("C1", "C1_B"));
+		CPTC1.put(C1state1, 0.6);
+		CPTC1.put(C1state2, 0.4);
+		C1.setCPT(CPTC1);
 
-		Map<State, Double> CPTCV2 = new HashMap<State, Double>();
-		State CV2state1 = new State(Map.of("CV2", "CV2_A", "CV1", "CV1_A"));
-		State CV2state2 = new State(Map.of("CV2", "CV2_B", "CV1", "CV1_A"));
-		State CV2state3 = new State(Map.of("CV2", "CV2_A", "CV1", "CV1_B"));
-		State CV2state4 = new State(Map.of("CV2", "CV2_B", "CV1", "CV1_B"));
-		CPTCV2.put(CV2state1, 0.2);
-		CPTCV2.put(CV2state2, 0.8);
-		CPTCV2.put(CV2state3, 0.8);
-		CPTCV2.put(CV2state4, 0.2);
-		CV2.setCPT(CPTCV2);
+		Map<State, Double> CPTC2 = new HashMap<State, Double>();
+		State C2state1 = new State(Map.of("C2", "C2_A", "C1", "C1_A"));
+		State C2state2 = new State(Map.of("C2", "C2_B", "C1", "C1_A"));
+		State C2state3 = new State(Map.of("C2", "C2_A", "C1", "C1_B"));
+		State C2state4 = new State(Map.of("C2", "C2_B", "C1", "C1_B"));
+		CPTC2.put(C2state1, 0.2);
+		CPTC2.put(C2state2, 0.8);
+		CPTC2.put(C2state3, 0.8);
+		CPTC2.put(C2state4, 0.2);
+		C2.setCPT(CPTC2);
 
-		BN<CPTNode> bn = new BN<CPTNode>(List.of(CV1, CV2));
+		BN<CPTNode> bn = new BN<CPTNode>(List.of(C1, C2));
 
 		// Define features
 		CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
 		CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B"));
 
 		// Definition of the structure of the bridge and feature subgraphs
-		CV1.setChild(X1);
-		CV2.setChild(X2);
+		C1.setChild(X1);
+		C2.setChild(X2);
 		X1.setChild(X2);
 
-		State X1state1 = new State(Map.of("X1", "X1_A", "CV1", "CV1_A"));
-		State X1state2 = new State(Map.of("X1", "X1_B", "CV1", "CV1_A"));
-		State X1state3 = new State(Map.of("X1", "X1_C", "CV1", "CV1_A"));
-		State X1state4 = new State(Map.of("X1", "X1_A", "CV1", "CV1_B"));
-		State X1state5 = new State(Map.of("X1", "X1_B", "CV1", "CV1_B"));
-		State X1state6 = new State(Map.of("X1", "X1_C", "CV1", "CV1_B"));
+		State X1state1 = new State(Map.of("X1", "X1_A", "C1", "C1_A"));
+		State X1state2 = new State(Map.of("X1", "X1_B", "C1", "C1_A"));
+		State X1state3 = new State(Map.of("X1", "X1_C", "C1", "C1_A"));
+		State X1state4 = new State(Map.of("X1", "X1_A", "C1", "C1_B"));
+		State X1state5 = new State(Map.of("X1", "X1_B", "C1", "C1_B"));
+		State X1state6 = new State(Map.of("X1", "X1_C", "C1", "C1_B"));
 
 		State X1toA = new State(Map.of("X1", "X1_A"));
 		State X1toB = new State(Map.of("X1", "X1_B"));
@@ -92,18 +92,18 @@ class ClassificationTest {
 
 		X1.setParameters(Qx, Oxy);
 
-		State X2state1 = new State(Map.of("X2", "X2_A", "X1", "X1_A", "CV2", "CV2_A"));
-		State X2state2 = new State(Map.of("X2", "X2_B", "X1", "X1_A", "CV2", "CV2_A"));
-		State X2state3 = new State(Map.of("X2", "X2_A", "X1", "X1_B", "CV2", "CV2_A"));
-		State X2state4 = new State(Map.of("X2", "X2_B", "X1", "X1_B", "CV2", "CV2_A"));
-		State X2state5 = new State(Map.of("X2", "X2_A", "X1", "X1_A", "CV2", "CV2_B"));
-		State X2state6 = new State(Map.of("X2", "X2_B", "X1", "X1_A", "CV2", "CV2_B"));
-		State X2state7 = new State(Map.of("X2", "X2_A", "X1", "X1_B", "CV2", "CV2_B"));
-		State X2state8 = new State(Map.of("X2", "X2_B", "X1", "X1_B", "CV2", "CV2_B"));
-		State X2state9 = new State(Map.of("X2", "X2_A", "X1", "X1_C", "CV2", "CV2_A"));
-		State X2state10 = new State(Map.of("X2", "X2_B", "X1", "X1_C", "CV2", "CV2_A"));
-		State X2state11 = new State(Map.of("X2", "X2_A", "X1", "X1_C", "CV2", "CV2_B"));
-		State X2state12 = new State(Map.of("X2", "X2_B", "X1", "X1_C", "CV2", "CV2_B"));
+		State X2state1 = new State(Map.of("X2", "X2_A", "X1", "X1_A", "C2", "C2_A"));
+		State X2state2 = new State(Map.of("X2", "X2_B", "X1", "X1_A", "C2", "C2_A"));
+		State X2state3 = new State(Map.of("X2", "X2_A", "X1", "X1_B", "C2", "C2_A"));
+		State X2state4 = new State(Map.of("X2", "X2_B", "X1", "X1_B", "C2", "C2_A"));
+		State X2state5 = new State(Map.of("X2", "X2_A", "X1", "X1_A", "C2", "C2_B"));
+		State X2state6 = new State(Map.of("X2", "X2_B", "X1", "X1_A", "C2", "C2_B"));
+		State X2state7 = new State(Map.of("X2", "X2_A", "X1", "X1_B", "C2", "C2_B"));
+		State X2state8 = new State(Map.of("X2", "X2_B", "X1", "X1_B", "C2", "C2_B"));
+		State X2state9 = new State(Map.of("X2", "X2_A", "X1", "X1_C", "C2", "C2_A"));
+		State X2state10 = new State(Map.of("X2", "X2_B", "X1", "X1_C", "C2", "C2_A"));
+		State X2state11 = new State(Map.of("X2", "X2_A", "X1", "X1_C", "C2", "C2_B"));
+		State X2state12 = new State(Map.of("X2", "X2_B", "X1", "X1_C", "C2", "C2_B"));
 
 		State X2toA = new State(Map.of("X2", "X2_A"));
 		State X2toB = new State(Map.of("X2", "X2_B"));
@@ -147,47 +147,47 @@ class ClassificationTest {
 
 		List<String[]> dataSequence1 = new ArrayList<String[]>();
 		dataSequence1.add(new String[] { "Time", "X1", "X2", "C1", "C2" });
-		dataSequence1.add(new String[] { "0.0", "X1_A", "X2_B", "CV1_A", "CV2_A" });
-		dataSequence1.add(new String[] { "0.3", "X1_A", "X2_A", "CV1_A", "CV2_A" });
-		dataSequence1.add(new String[] { "0.31", "X1_B", "X2_A", "CV1_A", "CV2_A" });
-		dataSequence1.add(new String[] { "0.6", "X1_A", "X2_A", "CV1_A", "CV2_A" });
-		dataSequence1.add(new String[] { "0.9", "X1_B", "X2_A", "CV1_A", "CV2_A" });
-		dataSequence1.add(new String[] { "1.2", "X1_A", "X2_A", "CV1_A", "CV2_A" });
-		dataSequence1.add(new String[] { "1.5", "X1_B", "X2_A", "CV1_A", "CV2_A" });
-		dataSequence1.add(new String[] { "1.8", "X1_A", "X2_A", "CV1_A", "CV2_A" });
+		dataSequence1.add(new String[] { "0.0", "X1_A", "X2_B", "C1_A", "C2_A" });
+		dataSequence1.add(new String[] { "0.3", "X1_A", "X2_A", "C1_A", "C2_A" });
+		dataSequence1.add(new String[] { "0.31", "X1_B", "X2_A", "C1_A", "C2_A" });
+		dataSequence1.add(new String[] { "0.6", "X1_A", "X2_A", "C1_A", "C2_A" });
+		dataSequence1.add(new String[] { "0.9", "X1_B", "X2_A", "C1_A", "C2_A" });
+		dataSequence1.add(new String[] { "1.2", "X1_A", "X2_A", "C1_A", "C2_A" });
+		dataSequence1.add(new String[] { "1.5", "X1_B", "X2_A", "C1_A", "C2_A" });
+		dataSequence1.add(new String[] { "1.8", "X1_A", "X2_A", "C1_A", "C2_A" });
 
 		List<String[]> dataSequence2 = new ArrayList<String[]>();
 		dataSequence2.add(new String[] { "Time", "X1", "X2", "C1", "C2" });
-		dataSequence2.add(new String[] { "0.0", "X1_C", "X2_A", "CV1_B", "CV2_B" });
-		dataSequence2.add(new String[] { "0.3", "X1_B", "X2_A", "CV1_B", "CV2_B" });
-		dataSequence2.add(new String[] { "0.6", "X1_B", "X2_B", "CV1_B", "CV2_B" });
-		dataSequence2.add(new String[] { "0.61", "X1_C", "X2_B", "CV1_B", "CV2_B" });
-		dataSequence2.add(new String[] { "0.9", "X1_B", "X2_B", "CV1_B", "CV2_B" });
-		dataSequence2.add(new String[] { "1.2", "X1_C", "X2_B", "CV1_B", "CV2_B" });
-		dataSequence2.add(new String[] { "1.5", "X1_B", "X2_B", "CV1_B", "CV2_B" });
-		dataSequence2.add(new String[] { "1.8", "X1_C", "X2_B", "CV1_B", "CV2_B" });
+		dataSequence2.add(new String[] { "0.0", "X1_C", "X2_A", "C1_B", "C2_B" });
+		dataSequence2.add(new String[] { "0.3", "X1_B", "X2_A", "C1_B", "C2_B" });
+		dataSequence2.add(new String[] { "0.6", "X1_B", "X2_B", "C1_B", "C2_B" });
+		dataSequence2.add(new String[] { "0.61", "X1_C", "X2_B", "C1_B", "C2_B" });
+		dataSequence2.add(new String[] { "0.9", "X1_B", "X2_B", "C1_B", "C2_B" });
+		dataSequence2.add(new String[] { "1.2", "X1_C", "X2_B", "C1_B", "C2_B" });
+		dataSequence2.add(new String[] { "1.5", "X1_B", "X2_B", "C1_B", "C2_B" });
+		dataSequence2.add(new String[] { "1.8", "X1_C", "X2_B", "C1_B", "C2_B" });
 
 		List<String[]> dataSequence3 = new ArrayList<String[]>();
 		dataSequence3.add(new String[] { "Time", "X1", "X2", "C1", "C2" });
-		dataSequence3.add(new String[] { "0.0", "X1_B", "X2_A", "CV1_A", "CV2_B" });
-		dataSequence3.add(new String[] { "0.3", "X1_B", "X2_B", "CV1_A", "CV2_B" });
-		dataSequence3.add(new String[] { "0.31", "X1_A", "X2_B", "CV1_A", "CV2_B" });
-		dataSequence3.add(new String[] { "0.6", "X1_B", "X2_B", "CV1_A", "CV2_B" });
-		dataSequence3.add(new String[] { "0.9", "X1_A", "X2_B", "CV1_A", "CV2_B" });
-		dataSequence3.add(new String[] { "1.2", "X1_B", "X2_B", "CV1_A", "CV2_B" });
-		dataSequence3.add(new String[] { "1.5", "X1_A", "X2_B", "CV1_A", "CV2_B" });
-		dataSequence3.add(new String[] { "1.8", "X1_B", "X2_B", "CV1_A", "CV2_B" });
+		dataSequence3.add(new String[] { "0.0", "X1_B", "X2_A", "C1_A", "C2_B" });
+		dataSequence3.add(new String[] { "0.3", "X1_B", "X2_B", "C1_A", "C2_B" });
+		dataSequence3.add(new String[] { "0.31", "X1_A", "X2_B", "C1_A", "C2_B" });
+		dataSequence3.add(new String[] { "0.6", "X1_B", "X2_B", "C1_A", "C2_B" });
+		dataSequence3.add(new String[] { "0.9", "X1_A", "X2_B", "C1_A", "C2_B" });
+		dataSequence3.add(new String[] { "1.2", "X1_B", "X2_B", "C1_A", "C2_B" });
+		dataSequence3.add(new String[] { "1.5", "X1_A", "X2_B", "C1_A", "C2_B" });
+		dataSequence3.add(new String[] { "1.8", "X1_B", "X2_B", "C1_A", "C2_B" });
 
 		List<String[]> dataSequence4 = new ArrayList<String[]>();
 		dataSequence4.add(new String[] { "Time", "X1", "X2", "C1", "C2" });
-		dataSequence4.add(new String[] { "0.0", "X1_B", "X2_B", "CV1_B", "CV2_A" });
-		dataSequence4.add(new String[] { "0.3", "X1_C", "X2_B", "CV1_B", "CV2_A" });
-		dataSequence4.add(new String[] { "0.31", "X1_B", "X2_B", "CV1_B", "CV2_A" });
-		dataSequence4.add(new String[] { "0.6", "X1_C", "X2_B", "CV1_B", "CV2_A" });
-		dataSequence4.add(new String[] { "0.9", "X1_B", "X2_B", "CV1_B", "CV2_A" });
-		dataSequence4.add(new String[] { "1.2", "X1_C", "X2_B", "CV1_B", "CV2_A" });
-		dataSequence4.add(new String[] { "1.5", "X1_B", "X2_B", "CV1_B", "CV2_A" });
-		dataSequence4.add(new String[] { "1.8", "X1_C", "X2_B", "CV1_B", "CV2_A" });
+		dataSequence4.add(new String[] { "0.0", "X1_B", "X2_B", "C1_B", "C2_A" });
+		dataSequence4.add(new String[] { "0.3", "X1_C", "X2_B", "C1_B", "C2_A" });
+		dataSequence4.add(new String[] { "0.31", "X1_B", "X2_B", "C1_B", "C2_A" });
+		dataSequence4.add(new String[] { "0.6", "X1_C", "X2_B", "C1_B", "C2_A" });
+		dataSequence4.add(new String[] { "0.9", "X1_B", "X2_B", "C1_B", "C2_A" });
+		dataSequence4.add(new String[] { "1.2", "X1_C", "X2_B", "C1_B", "C2_A" });
+		dataSequence4.add(new String[] { "1.5", "X1_B", "X2_B", "C1_B", "C2_A" });
+		dataSequence4.add(new String[] { "1.8", "X1_C", "X2_B", "C1_B", "C2_A" });
 
 		dataset = new Dataset("Time", nameClassVariables);
 		dataset.addSequence(dataSequence1);
@@ -202,11 +202,11 @@ class ClassificationTest {
 
 		// Sequence 1
 		// Predict class configuration
-		State expectedClassConfiguration = new State(Map.of("CV1", "CV1_A", "CV2", "CV2_A"));
+		State expectedClassConfiguration = new State(Map.of("C1", "C1_A", "C2", "C2_A"));
 		State actualClassConfiguration = predictions[0].getPredictedClasses();
 		assertEquals(expectedClassConfiguration, actualClassConfiguration);
-		// Unnormalized log-a-posteriori probability for CV1 = CV1_A and CV2 = CV2_A
-		double ulpAA = // CV1, CV2
+		// Unnormalized log-a-posteriori probability for C1 = C1_A and C2 = C2_A
+		double ulpAA = // C1, C2
 				Math.log(0.6) + Math.log(0.2)
 				// X1
 						+ (-3.3 * (0.3)) + (-3.3 * (0.31 - 0.3) + Math.log(3.3 * 0.8))
@@ -217,7 +217,7 @@ class ClassificationTest {
 						+ (-3.3 * (0.3) + Math.log(3.3)) + (-0.03 * (0.31 - 0.3)) + (-0.01 * (0.6 - 0.31))
 						+ (-0.03 * (0.9 - 0.6)) + (-0.01 * (1.2 - 0.9)) + (-0.03 * (1.5 - 1.2)) + (-0.01 * (1.8 - 1.5));
 		double ulpAB =
-				// CV1, CV2
+				// C1, C2
 				Math.log(0.6) + Math.log(0.8)
 				// X1
 						+ (-3.3 * (0.3)) + (-3.3 * (0.31 - 0.3) + Math.log(3.3 * 0.8))
@@ -230,7 +230,7 @@ class ClassificationTest {
 						+ (-3.33 * (0.9 - 0.6)) + (-3.33 * (1.2 - 0.9)) + (-3.33 * (1.5 - 1.2)) + (-3.33 * (1.8 - 1.5));
 		;
 		double ulpBA =
-				// CV1, CV2
+				// C1, C2
 				Math.log(0.4) + Math.log(0.8)
 				// X1
 						+ (-10.0 * (0.3)) + (-10.0 * (0.31 - 0.3) + Math.log(10.0 * 0.5))
@@ -242,7 +242,7 @@ class ClassificationTest {
 						+ (-3.3 * (0.3) + Math.log(3.3)) + (-0.03 * (0.31 - 0.3)) + (-0.01 * (0.6 - 0.31))
 						+ (-0.03 * (0.9 - 0.6)) + (-0.01 * (1.2 - 0.9)) + (-0.03 * (1.5 - 1.2)) + (-0.01 * (1.8 - 1.5));
 		double ulpBB =
-				// CV1, CV2
+				// C1, C2
 				Math.log(0.4) + Math.log(0.2)
 				// X1
 						+ (-10.0 * (0.3)) + (-10.0 * (0.31 - 0.3) + Math.log(10.0 * 0.5))
@@ -263,27 +263,27 @@ class ClassificationTest {
 		double expectedProbabilityBB = Math.exp(ulpBB - mll);
 		assertEquals(expectedProbabilityAA, predictions[0].getProbabilityPrediction(), 0.001);
 		assertEquals(expectedProbabilityAB,
-				predictions[0].getProbabilities().get(new State(Map.of("CV1", "CV1_A", "CV2", "CV2_B"))), 0.001);
+				predictions[0].getProbabilities().get(new State(Map.of("C1", "C1_A", "C2", "C2_B"))), 0.001);
 		assertEquals(expectedProbabilityBA,
-				predictions[0].getProbabilities().get(new State(Map.of("CV1", "CV1_B", "CV2", "CV2_A"))), 0.001);
+				predictions[0].getProbabilities().get(new State(Map.of("C1", "C1_B", "C2", "C2_A"))), 0.001);
 		assertEquals(expectedProbabilityBB,
-				predictions[0].getProbabilities().get(new State(Map.of("CV1", "CV1_B", "CV2", "CV2_B"))), 0.001);
+				predictions[0].getProbabilities().get(new State(Map.of("C1", "C1_B", "C2", "C2_B"))), 0.001);
 
 		// Sequence 2
 		// Predict class configuration
-		expectedClassConfiguration = new State(Map.of("CV1", "CV1_B", "CV2", "CV2_B"));
+		expectedClassConfiguration = new State(Map.of("C1", "C1_B", "C2", "C2_B"));
 		actualClassConfiguration = predictions[1].getPredictedClasses();
 		assertEquals(expectedClassConfiguration, actualClassConfiguration);
 
 		// Sequence 3
 		// Predict class configuration
-		expectedClassConfiguration = new State(Map.of("CV1", "CV1_A", "CV2", "CV2_B"));
+		expectedClassConfiguration = new State(Map.of("C1", "C1_A", "C2", "C2_B"));
 		actualClassConfiguration = predictions[2].getPredictedClasses();
 		assertEquals(expectedClassConfiguration, actualClassConfiguration);
 
 		// Sequence 4
 		// Predict class configuration
-		expectedClassConfiguration = new State(Map.of("CV1", "CV1_B", "CV2", "CV2_A"));
+		expectedClassConfiguration = new State(Map.of("C1", "C1_B", "C2", "C2_A"));
 		actualClassConfiguration = predictions[3].getPredictedClasses();
 		assertEquals(expectedClassConfiguration, actualClassConfiguration);
 	}

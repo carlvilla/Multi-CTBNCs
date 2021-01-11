@@ -43,12 +43,12 @@ public class ClassifierFactory {
 		case "MCTNBC":
 			logger.info("Creating a multi-dimensional continuous naive Bayes classifier (MCTBNC)");
 			return new MCTNBC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
-		case "DAG-kDB MCTBNC":
+		case "DAG-maxK MCTBNC":
 			int maxK = Integer.valueOf(parameters.get("maxK"));
 			logger.info("Creating a DAG-{}DB multi-dimensional continuous Bayesian network classifier", maxK);
 			return new DAG_MaxK_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);
-		case "Empty-kDB MCTBNC":
+		case "Empty-maxK MCTBNC":
 			maxK = Integer.valueOf(parameters.get("maxK"));
 			logger.info("Creating a Empty-{}DB multi-dimensional continuous Bayesian network classifier", maxK);
 			return new EMPTY_MaxK_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
@@ -67,7 +67,7 @@ public class ClassifierFactory {
 	 * @return list of available classifiers
 	 */
 	public static List<String> getAvailableModels() {
-		return List.of("MCTBNC", "MCTNBC", "DAG-kDB MCTBNC", "Empty-kDB MCTBNC");
+		return List.of("MCTBNC", "MCTNBC", "DAG-maxK MCTBNC", "Empty-maxK MCTBNC");
 	}
 
 }

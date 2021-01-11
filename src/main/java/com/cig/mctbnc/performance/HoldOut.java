@@ -51,6 +51,7 @@ public class HoldOut extends ValidationMethod {
 		// Display results
 		System.out.println("--------------------Results hold-out validation--------------------");
 		displayResults(results);
+		displayModel(model);
 		System.out.println("-------------------------------------------------------------------");
 		// Display learned model
 		model.display();
@@ -116,15 +117,6 @@ public class HoldOut extends ValidationMethod {
 			logger.warn("The testing dataset was not generated.");
 		}
 		return testingDataset;
-	}
-
-	/**
-	 * Display the testing results.
-	 * 
-	 * @param results
-	 */
-	private void displayResults(Map<String, Double> results) {
-		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
 	}
 
 }

@@ -43,7 +43,6 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 	 * @param dataset
 	 */
 	private void setSufficientStatistics(List<? extends Node> nodes, Dataset dataset) {
-		// TODO PARALELLIZE
 		for (int i = 0; i < nodes.size(); i++) {
 			CTBNSufficientStatistics ssNode = getSufficientStatisticsNode(nodes.get(i), dataset);
 			nodes.get(i).setSufficientStatistics(ssNode);

@@ -104,9 +104,14 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 
 				// Train the model
 				model.learn(trainingDataset);
-				// model.display();
 				// Make predictions over the current fold
 				Prediction[] predictions = model.predict(testingDataset, true);
+
+				// Display learned model for current class variable
+				System.out.println(MessageFormat
+						.format("--------------------Model for class variable {0}--------------------", classVariable));
+				displayModel(model);
+				System.out.println("------------------------------------------------------");
 
 				// Merge predictions
 				if (predictionsFold == null) {
@@ -196,16 +201,6 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 	 */
 	private void displayResultsFold(Map<String, Double> results) {
 		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
-	}
-
-	/**
-	 * Display the results of the cross validation.
-	 * 
-	 * @param results
-	 */
-	private void displayResults(Map<String, Double> results) {
-		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
-		metricsWriter.write(results);
 	}
 
 }

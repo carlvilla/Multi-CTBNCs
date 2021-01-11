@@ -54,11 +54,12 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	 * @param bnPLA
 	 * @param ctbnPLA
 	 * @param penalizationFunction
+	 * @param initialStructure
 	 * 
 	 */
 	public ExcelExperimentsWriter(List<String> scoreFunctions, List<String> nameDatasets, List<String> nameModels,
 			List<String> nameFeatureVariables, List<String> nameClassVariables, BNParameterLearningAlgorithm bnPLA,
-			CTBNParameterLearningAlgorithm ctbnPLA, String penalizationFunction) {
+			CTBNParameterLearningAlgorithm ctbnPLA, String penalizationFunction, String initialStructure) {
 		// Set values global variables
 		numDatasets = nameDatasets.size();
 		numModels = nameModels.size();
@@ -74,7 +75,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 			e.printStackTrace();
 		}
 		// Conditions experiments
-		writeConditionsExperiment(bnPLA, ctbnPLA, nameFeatureVariables, penalizationFunction);
+		writeConditionsExperiment(bnPLA, ctbnPLA, nameFeatureVariables, penalizationFunction, initialStructure);
 		for (int i = 0; i < scoreFunctions.size(); i++) {
 			// Get initial row in the excel for score
 			int initialRow = getInitialRowScore(i);
@@ -109,7 +110,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 		// Get initial row in the excel for current score
 		int initialRow = getInitialRowScore(idxCurrentScoreFunction);
 		int numColumn = idxCurrentModel + (numModels * idxCurrentDataset) + 1;
-		// Evaluation metrics per dataset and model
+		// Evaluation metrics per dataset and model		
 		sheet.getRow(initialRow + 3).createCell(numColumn).setCellValue(ga);
 		sheet.getRow(initialRow + 4).createCell(numColumn).setCellValue(ma);
 		sheet.getRow(initialRow + 5).createCell(numColumn).setCellValue(map);
@@ -176,9 +177,10 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	 * @param ctbnPLA
 	 * @param nameFeatureVariables
 	 * @param penalizationFunction
+	 * @param initialStructure
 	 */
 	private void writeConditionsExperiment(BNParameterLearningAlgorithm bnPLA, CTBNParameterLearningAlgorithm ctbnPLA,
-			List<String> nameFeatureVariables, String penalizationFunction) {
+			List<String> nameFeatureVariables, String penalizationFunction, String initialStructure) {
 		// Enable newlines in cells
 		CellStyle newLineCS = workbook.createCellStyle();
 		newLineCS.setWrapText(true);
@@ -189,7 +191,8 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 				.setCellValue("- Feature variables: " + nameFeatureVariables + "\n - Class variables: "
 						+ nameClassVariables + " \n - Penalization: " + penalizationFunction
 						+ "\n - Parameter learning alg. class subgraph: " + bnPLA.getNameMethod()
-						+ "\n - Parameter learning alg. bridge and feature subgraphs: " + ctbnPLA.getNameMethod());
+						+ "\n - Parameter learning alg. bridge and feature subgraphs: " + ctbnPLA.getNameMethod()
+						+ "\n - Initial structure: " + initialStructure);
 	}
 
 	/**

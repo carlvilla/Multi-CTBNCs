@@ -41,7 +41,7 @@ public class DAG_MaxK_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node>
 
 	@Override
 	public String getType() {
-		return "Max-" + maxK + " multidimensional continuous time Bayesian network classifier";
+		return "DAG-Max" + maxK + " MCTBNC";
 	}
 
 }
