@@ -155,6 +155,16 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 			}
 		parameterLearningAlg.learn(node, dataset);
 	}
+	
+	/**
+	 * Return the nodes with the learned parameters. This can be, for example, a
+	 * list of CIMNode objects that store conditional intensity matrices.
+	 * 
+	 * @return nodes with learned parameters
+	 */
+	public List<NodeType> getLearnedNodes() {
+		return (List<NodeType>) nodes;
+	}
 
 	/**
 	 * Return the class subgraph (Bayesian network). This is necessary when the

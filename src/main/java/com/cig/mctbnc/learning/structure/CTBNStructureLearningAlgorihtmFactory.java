@@ -2,6 +2,7 @@ package com.cig.mctbnc.learning.structure;
 
 import com.cig.mctbnc.learning.structure.optimization.CTBNScoreFunction;
 import com.cig.mctbnc.learning.structure.optimization.hillclimbing.CTBNHillClimbing;
+import com.cig.mctbnc.learning.structure.optimization.hillclimbing.CTBNHillClimbingIndividual;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNBayesianScore;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNConditionalLogLikelihood;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNLogLikelihood;
@@ -28,7 +29,13 @@ public class CTBNStructureLearningAlgorihtmFactory {
 		default:
 			// Hill Climbing
 			CTBNScoreFunction score = getScoreFunction(scoreFunction, penalizationFunction);
-			return new CTBNHillClimbing(score);
+			if (scoreFunction.equals("Conditional log-likelihood"))
+				// Scores that cannot be optimized individually by node
+				return new CTBNHillClimbing(score);
+			else
+				// Scores that can be optimized individually by node
+				return new CTBNHillClimbingIndividual(score);
+
 		}
 	}
 

@@ -34,7 +34,7 @@ public class MainSampling {
 	 */
 	public static void main(String[] args) {
 		// Number of sequences to generate
-		int numSequences = 10000;
+		int numSequences = 1000;
 		// Duration of the sequences
 		int durationSequences = 10;
 		// Extreme probabilities
@@ -43,8 +43,8 @@ public class MainSampling {
 		int minIntensity = 0;
 		int maxIntensity = 10;
 		// Destination path for the generated dataset
-		String path = "C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D5";
 
+		String path = "C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D5";
 				
 //		// ------------------- Experiment 1 -------------------
 //		// Define class variables
@@ -253,11 +253,9 @@ public class MainSampling {
 
 		// ------------------- Experiment 8 -------------------
 
-
-
+		//CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
 		
-
-		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
+		
 
 		// Definition of the parameters of the continuous time Bayesian network (feature
 		// and bridge subgraph)
