@@ -18,7 +18,9 @@ import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
+import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.util.Util;
 
 /**
  * Implements the conditional log-likelihood score to perform a discriminative
