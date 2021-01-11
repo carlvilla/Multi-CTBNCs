@@ -1,4 +1,7 @@
 # MCTBNCs [![Build Status](https://travis-ci.com/carlvilla/MCTBNCs.svg?token=aJzHjLbR53QnhrMdqpW5&branch=master)](https://travis-ci.com/carlvilla/MCTBNCs)
+## Installation
+1. Install gradle: https://gradle.org/
+2. ...
 
 ## Supported datasets
 Datasets can be stored and presented in different formats. Currently, this software supports the following:
