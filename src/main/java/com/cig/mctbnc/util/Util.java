@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
 
 import com.cig.mctbnc.data.representation.State;
 import com.google.common.cache.Cache;
@@ -88,6 +91,18 @@ public final class Util {
 			largestIdx = array[i] > array[largestIdx] ? i : largestIdx;
 		}
 		return largestIdx;
+	}
+
+	/**
+	 * Returns entry with the largest value of a map.
+	 * 
+	 * @param map
+	 * @return entry of the largest value
+	 */
+	public static <k, v extends Comparable<v>> Entry<k, v> getEntryLargestValue(Map<k, v> map) {
+		Entry<k, v> maxEntry = Collections.max(map.entrySet(),
+				(Entry<k, v> e1, Entry<k, v> e2) -> e1.getValue().compareTo(e2.getValue()));
+		return maxEntry;
 	}
 
 	/**

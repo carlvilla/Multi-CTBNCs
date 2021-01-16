@@ -15,10 +15,10 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.structure.optimization.CTBNScoreFunction;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNBayesianScore;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNConditionalLogLikelihood;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNLogLikelihood;
+import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNScoreFunction;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
@@ -432,13 +432,9 @@ class ScoresCTBNTest {
 
 		double cllS1Expected = probCVs + llSequences;
 
-		System.out.println("Primero");
-
 		double cllS1Actual = scoreFunction.compute(ctbn);
 
-		//assertEquals(cllS1Expected, cllS1Actual, 0.001);
-
-		System.out.println("Después");
+		// assertEquals(cllS1Expected, cllS1Actual, 0.001);
 
 		// Penalized conditional log-likelihood
 
@@ -525,52 +521,52 @@ class ScoresCTBNTest {
 
 		// Log-likelihood
 		CTBNScoreFunction scoreFunction = new CTBNBayesianScore();
-		double bsS1Expected = Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 2) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 2) + Gamma.logGamma(mxyHP * 2 + 2 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
+		double bsS1Expected = Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 2) + Gamma.logGamma(mxyHP + 2)
+				- Gamma.logGamma(mxyHP) + Gamma.logGamma(mxyHP * 2 + 2 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 2 + 1) * Math.log(txHP + 1.2))
-				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 1) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP * 2 + 1 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
+				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 1) + Gamma.logGamma(mxyHP + 1)
+				- Gamma.logGamma(mxyHP) + Gamma.logGamma(mxyHP * 2 + 1 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 1 + 1) * Math.log(txHP + 0.7))
-				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 3) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 2)
+				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 3) + Gamma.logGamma(mxyHP + 1)
+				- Gamma.logGamma(mxyHP) + Gamma.logGamma(mxyHP + 2) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP * 2 + 3 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 3 + 1) * Math.log(txHP + 1.3))
-				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 3) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 3) + Gamma.logGamma(mxyHP * 2 + 3 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
+				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 3) + Gamma.logGamma(mxyHP + 3)
+				- Gamma.logGamma(mxyHP) + Gamma.logGamma(mxyHP * 2 + 3 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 3 + 1) * Math.log(txHP + 1.4))
 
-				+ Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 7) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 7)
+				+ Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 7) + Gamma.logGamma(mxyHP + 7) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 7 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 7 + 1) * Math.log(txHP + 0.7)) + Gamma.logGamma(mxyHP + 1)
 				+ (mxyHP + 1) * Math.log(txHP) - (Gamma.logGamma(mxyHP + 1) + (mxyHP + 1) * Math.log(txHP + 1.4))
 				+ Gamma.logGamma(mxyHP + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 1) * Math.log(txHP + 1.9)) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 6) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 6)
+				- Gamma.logGamma(mxyHP + 6) + Gamma.logGamma(mxyHP + 6) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 6 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 6 + 1) * Math.log(txHP + 0.6))
 
 				+ Gamma.logGamma(mxyHP + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 1) * Math.log(txHP + 0.2)) + Gamma.logGamma(mxyHP + 1)
 				+ (mxyHP + 1) * Math.log(txHP) - (Gamma.logGamma(mxyHP + 1) + (mxyHP + 1) * Math.log(txHP + 0.3))
-				+ Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 2) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 2)
+				+ Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 2) + Gamma.logGamma(mxyHP + 2) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 2 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 2 + 1) * Math.log(txHP + 0.2)) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 1)
+				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP + 1) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 1 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 1 + 1) * Math.log(txHP + 0.1)) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 1)
+				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP + 1) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 1 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 1 + 1) * Math.log(txHP + 0.1)) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 1)
+				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP + 1) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 1 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 1 + 1) * Math.log(txHP + 0.2)) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 1)
+				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP + 1) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 1 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 1 + 1) * Math.log(txHP + 0.1)) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 3) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 3)
+				- Gamma.logGamma(mxyHP + 3) + Gamma.logGamma(mxyHP + 3) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 3 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 3 + 1) * Math.log(txHP + 0.3)) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 1)
+				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP + 1) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 1 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 1 + 1) * Math.log(txHP + 0.1)) + Gamma.logGamma(mxyHP + 1)
 				+ (mxyHP + 1) * Math.log(txHP) - (Gamma.logGamma(mxyHP + 1) + (mxyHP + 1) * Math.log(txHP + 0.3))
@@ -609,24 +605,24 @@ class ScoresCTBNTest {
 
 		// Log-likelihood
 		scoreFunction = new CTBNBayesianScore();
-		double bsS2Expected = Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 1) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP * 2 + 1 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
+		double bsS2Expected = Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 1) + Gamma.logGamma(mxyHP + 1)
+				- Gamma.logGamma(mxyHP) + Gamma.logGamma(mxyHP * 2 + 1 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 1 + 1) * Math.log(txHP + 0.2))
-				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 2) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 2) + Gamma.logGamma(mxyHP * 2 + 2 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
+				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 2) + Gamma.logGamma(mxyHP + 2)
+				- Gamma.logGamma(mxyHP) + Gamma.logGamma(mxyHP * 2 + 2 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 2 + 1) * Math.log(txHP + 0.6))
-				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 1) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP * 2 + 1 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
+				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 1) + Gamma.logGamma(mxyHP + 1)
+				- Gamma.logGamma(mxyHP) + Gamma.logGamma(mxyHP * 2 + 1 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 1 + 1) * Math.log(txHP + 0.3))
-				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 3) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 2) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 1)
+				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 3) + Gamma.logGamma(mxyHP + 2)
+				- Gamma.logGamma(mxyHP) + Gamma.logGamma(mxyHP + 1) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP * 2 + 3 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 3 + 1) * Math.log(txHP + 0.7))
-				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 1) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP * 2 + 1 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
+				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 1) + Gamma.logGamma(mxyHP + 1)
+				- Gamma.logGamma(mxyHP) + Gamma.logGamma(mxyHP * 2 + 1 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 1 + 1) * Math.log(txHP + 0.3))
-				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 1) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 1) + Gamma.logGamma(mxyHP * 2 + 1 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
+				+ Gamma.logGamma(mxyHP * 2) - Gamma.logGamma(mxyHP * 2 + 1) + Gamma.logGamma(mxyHP + 1)
+				- Gamma.logGamma(mxyHP) + Gamma.logGamma(mxyHP * 2 + 1 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 1 + 1) * Math.log(txHP + 0.3))
 				+ Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 1) * Math.log(txHP + 0.1))
@@ -655,23 +651,23 @@ class ScoresCTBNTest {
 				+ Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP * 2 + 1) + (mxyHP * 2 + 1) * Math.log(txHP + 0.1))
 
-				+ Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 3) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 3)
+				+ Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 3) + Gamma.logGamma(mxyHP + 3) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 3 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 3 + 1) * Math.log(txHP + 1.2)) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 3) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 3)
+				- Gamma.logGamma(mxyHP + 3) + Gamma.logGamma(mxyHP + 3) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 3 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 3 + 1) * Math.log(txHP + 1)) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 4) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 4)
+				- Gamma.logGamma(mxyHP + 4) + Gamma.logGamma(mxyHP + 4) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 4 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 4 + 1) * Math.log(txHP + 0.9)) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 3) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 3)
+				- Gamma.logGamma(mxyHP + 3) + Gamma.logGamma(mxyHP + 3) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 3 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 3 + 1) * Math.log(txHP + 1.5))
 
-				+ Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 6) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 6)
+				+ Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 6) + Gamma.logGamma(mxyHP + 6) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 6 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 6 + 1) * Math.log(txHP + 2.6)) + Gamma.logGamma(mxyHP)
-				- Gamma.logGamma(mxyHP + 4) + Gamma.logGamma(mxyHP) - Gamma.logGamma(mxyHP + 4)
+				- Gamma.logGamma(mxyHP + 4) + Gamma.logGamma(mxyHP + 4) - Gamma.logGamma(mxyHP)
 				+ Gamma.logGamma(mxyHP + 4 + 1) + (mxyHP + 1) * Math.log(txHP)
 				- (Gamma.logGamma(mxyHP + 1) + (mxyHP + 4 + 1) * Math.log(txHP + 2));
 
@@ -680,7 +676,6 @@ class ScoresCTBNTest {
 
 		// Compare scores between structures.
 		assertTrue(bsS1Actual > bsS2Actual);
-
 	}
 
 	/**

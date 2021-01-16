@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.optimization.CTBNScoreFunction;
+import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNScoreFunction;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;

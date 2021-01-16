@@ -45,7 +45,7 @@ public class MainSampling {
 		// Destination path for the generated dataset
 
 		String path = "C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D5";
-				
+
 //		// ------------------- Experiment 1 -------------------
 //		// Define class variables
 //		CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
@@ -90,8 +90,7 @@ public class MainSampling {
 //		X4.setChild(X5);
 //		X5.setChild(X4);
 //		// ------------------- Experiment 1 -------------------
-		
-		
+
 		// ------------------- Experiment 2 -------------------
 		// Define class variables
 		CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
@@ -138,14 +137,7 @@ public class MainSampling {
 		X4.setChild(X5);
 		X5.setChild(X4);
 		// ------------------- Experiment 2 -------------------
-		
-		
-		
-		
-		
-		
-		
-		
+
 //		// ------------------- Experiment 14 (prueba) -------------------
 //
 //		// Define class variables
@@ -192,23 +184,7 @@ public class MainSampling {
 //		X5.setChild(X4);
 //
 //		// ------------------- Experiment 14 -------------------
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
 // ------------------- Experiment 11 -------------------
 
 //		// Define class variables
@@ -249,16 +225,10 @@ public class MainSampling {
 //		X4.setChild(X3);
 //		X4.setChild(X5);
 //		X5.setChild(X4);
-//		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
-
-		// ------------------- Experiment 8 -------------------
-
-		//CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
-		
-		
 
 		// Definition of the parameters of the continuous time Bayesian network (feature
 		// and bridge subgraph)
+		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
 		generateRandomCPD(FBS, minIntensity, maxIntensity);
 
 		// Define MCTBNC
@@ -279,7 +249,7 @@ public class MainSampling {
 		}
 
 		MultipleCSVWriter.write(dataset, path);
-		
+
 		System.out.println("Dataset generated!");
 	}
 

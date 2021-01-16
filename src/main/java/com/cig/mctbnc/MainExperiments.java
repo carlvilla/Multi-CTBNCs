@@ -1,8 +1,10 @@
 package com.cig.mctbnc;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.WeakHashMap;
 
 import com.cig.mctbnc.classification.ClassifierFactory;
@@ -35,19 +37,28 @@ import com.cig.mctbnc.performance.writers.MetricsWriter;
  */
 public class MainExperiments {
 
-	static List<String> datasets = List.of("/Users/carlosvillablanco/Desktop/Datasets/prueba/D1",
-			"/Users/carlosvillablanco/Desktop/Datasets/prueba/D2",
-			"/Users/carlosvillablanco/Desktop/Datasets/prueba/D3");
-
-	static String nameTimeVariable = "t";
-
-//	static List<String> nameClassVariables = List.of("CV1", "CV2", "CV3", "CV4", "CV5");
+//	static List<String> datasets = List.of("C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D1",
+//			"C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D2",
+//			"C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D3",
+//			"C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D4",
+//			"C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D5");
+//
+//	static String nameTimeVariable = "t";
+//
+//	static List<String> nameClassVariables = List.of("C1", "C2", "C3", "C4", "C5");
 //	static List<String> nameFeatureVariables = List.of("X1", "X2", "X3", "X4", "X5");
 
-	static List<String> nameClassVariables = List.of("CV1", "CV2");
+	static List<String> datasets = List
+			.of("C:\\Users\\Carlos\\Desktop\\Datasets\\Energy\\5_cycles\\bins_same_size\\D2");
+	static String nameTimeVariable = "timestamp";
+
+	// static List<String> nameClassVariables = List.of("M1", "M2", "M5",
+	// "M6", "M3", "Z12", "M4", "Z22", "W");
+	static List<String> nameClassVariables = List.of("M1", "M2", "M3");
+
 	static List<String> nameFeatureVariables = List.of("X1", "X2");
 
-	static List<String> models = List.of("CTBNCs", "Empty-kDB MCTBNC", "MCTBNC");
+	static List<String> models = List.of("CTBNCs", "DAG-maxK MCTBNC"); // "Empty-maxK MCTBNC",
 
 	// Get names learning algorithms
 	static String nameBnPLA = "Bayesian estimation";
@@ -65,11 +76,11 @@ public class MainExperiments {
 	// Get score function
 	static List<String> scoreFunctions = List.of("Log-likelihood", "Bayesian score"); // , "Conditional log-likelihood"
 	// Define penalization function (if any)
-	static String penalizationFunction = "BIC"; // "AIC", "No"
+	static String penalizationFunction = "BIC"; // "AIC", "No", "BIC"
 
-	static String maxK = "6";
+	static String maxK = "3";
 
-	static String initialStructure = "Empty";
+	static String initialStructure = "Empty"; // Empty, Naive Bayes
 
 	static String selectedValidationMethod = "Cross-validation";
 	static int folds = 5;
@@ -91,9 +102,13 @@ public class MainExperiments {
 		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, nxy,
 				tx);
 
+		// Parameters that could be necessary for the generation of the models
+		Map<String, String> parameters = new WeakHashMap<String, String>();
+		parameters.put("maxK", maxK);
+
 		// Define output to store the results of the experiments
 		metricsWriter = new ExcelExperimentsWriter(scoreFunctions, datasets, models, nameFeatureVariables,
-				nameClassVariables, bnPLA, ctbnPLA, penalizationFunction);
+				nameClassVariables, bnPLA, ctbnPLA, penalizationFunction, initialStructure);
 
 		for (String scoreFunction : scoreFunctions) {
 			System.out.printf("------------------------------ Score function: %s ------------------------------\n",
@@ -119,16 +134,12 @@ public class MainExperiments {
 					BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
 					CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 
-					// Parameters that could be necessary for the generation of the model
-					Map<String, String> parameters = new WeakHashMap<String, String>();
-					parameters.put("maxK", maxK);
-
 					// Generate selected model and validation method
 					MCTBNC<CPTNode, CIMNode> model;
 					ValidationMethod validationMethod;
 
 					if (selectedModel.equals("CTBNCs")) {
-						model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("MCTBNC", bnLearningAlgs,
+						model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("DAG-maxK MCTBNC", bnLearningAlgs,
 								ctbnLearningAlgs, parameters, CPTNode.class, CIMNode.class);
 						validationMethod = new CrossValidationSeveralModels(datasetReader, folds, shuffleSequences);
 					} else {

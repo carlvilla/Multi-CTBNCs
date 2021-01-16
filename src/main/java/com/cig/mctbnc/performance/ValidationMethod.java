@@ -32,7 +32,8 @@ public abstract class ValidationMethod {
 	 */
 	public void displayResults(Map<String, Double> results) {
 		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
-		metricsWriter.write(results);
+		if (metricsWriter != null)
+			metricsWriter.write(results);
 	}
 
 	/**

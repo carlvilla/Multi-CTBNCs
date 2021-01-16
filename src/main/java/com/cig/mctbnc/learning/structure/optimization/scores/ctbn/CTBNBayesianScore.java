@@ -4,7 +4,6 @@ import org.apache.commons.math3.special.Gamma;
 
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
-import com.cig.mctbnc.learning.structure.optimization.CTBNScoreFunction;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.Node;
@@ -43,7 +42,7 @@ public class CTBNBayesianScore implements CTBNScoreFunction {
 			for (State toState : node.getOxy().get(state).keySet()) {
 				// Number of times the variable transitions from "state" to "toState"
 				double mxy = ss.getMxy().get(state).get(toState);
-				bdeScore += Gamma.logGamma(mxyHP) - Gamma.logGamma(mxy);
+				bdeScore += Gamma.logGamma(mxy) - Gamma.logGamma(mxyHP);
 			}
 		}
 		return bdeScore;

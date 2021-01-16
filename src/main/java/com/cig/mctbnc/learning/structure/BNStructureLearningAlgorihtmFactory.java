@@ -1,9 +1,9 @@
 package com.cig.mctbnc.learning.structure;
 
-import com.cig.mctbnc.learning.structure.optimization.BNScoreFunction;
 import com.cig.mctbnc.learning.structure.optimization.hillclimbing.BNHillClimbing;
 import com.cig.mctbnc.learning.structure.optimization.scores.bn.BNBayesianScore;
 import com.cig.mctbnc.learning.structure.optimization.scores.bn.BNLogLikelihood;
+import com.cig.mctbnc.learning.structure.optimization.scores.bn.BNScoreFunction;
 
 /**
  * Builds the specified structure learning algorithm for a BN.

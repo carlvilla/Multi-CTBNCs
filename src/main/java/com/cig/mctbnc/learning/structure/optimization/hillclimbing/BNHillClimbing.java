@@ -1,7 +1,7 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
 import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.optimization.BNScoreFunction;
+import com.cig.mctbnc.learning.structure.optimization.scores.bn.BNScoreFunction;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.util.Util;
 

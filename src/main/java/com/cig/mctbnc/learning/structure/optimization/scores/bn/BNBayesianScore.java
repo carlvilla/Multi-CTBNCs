@@ -6,7 +6,6 @@ import java.util.Map;
 import org.apache.commons.math3.special.Gamma;
 
 import com.cig.mctbnc.data.representation.State;
-import com.cig.mctbnc.learning.structure.optimization.BNScoreFunction;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;

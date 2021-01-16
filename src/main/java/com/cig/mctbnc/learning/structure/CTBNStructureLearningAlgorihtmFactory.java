@@ -1,11 +1,11 @@
 package com.cig.mctbnc.learning.structure;
 
-import com.cig.mctbnc.learning.structure.optimization.CTBNScoreFunction;
 import com.cig.mctbnc.learning.structure.optimization.hillclimbing.CTBNHillClimbing;
 import com.cig.mctbnc.learning.structure.optimization.hillclimbing.CTBNHillClimbingIndividual;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNBayesianScore;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNConditionalLogLikelihood;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNLogLikelihood;
+import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNScoreFunction;
 
 /**
  * Builds the specified structure learning algorithm for a CTBN.

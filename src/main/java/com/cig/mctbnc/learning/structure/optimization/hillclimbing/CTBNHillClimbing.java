@@ -1,7 +1,7 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
 import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.optimization.CTBNScoreFunction;
+import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNScoreFunction;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.util.Util;
 
