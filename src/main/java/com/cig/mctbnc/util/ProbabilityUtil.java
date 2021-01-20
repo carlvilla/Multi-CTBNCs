@@ -124,10 +124,11 @@ public final class ProbabilityUtil {
 						Map<State, Double> Oxx = nodeCTBN.getOxy().get(fromState);
 						if (Oxx != null) {
 							Double oxy = Oxx.get(toState);
-							double qxy = 0;
-							if (oxy != null)
+							double qxy = 0;	
+							if (oxy != null) {
 								// Instantaneous probability of feature moving from "fromState" to "toState"
 								qxy = oxy * qx;
+							}
 							ll += qxy > 0 ? Math.log(qxy) : 0;
 						}
 					}

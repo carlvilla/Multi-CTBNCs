@@ -30,33 +30,26 @@ import com.cig.mctbnc.performance.writers.ExcelExperimentsWriter;
 import com.cig.mctbnc.performance.writers.MetricsWriter;
 
 /**
- * Class used to perform experiments.
+ * Class used to automate the execution of experiments.
  * 
  * @author Carlos Villa Blanco
  *
  */
 public class MainExperiments {
 
-//	static List<String> datasets = List.of("C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D1",
-//			"C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D2",
-//			"C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D3",
-//			"C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D4",
-//			"C:\\Users\\Carlos\\Desktop\\Datasets\\Experiment2\\D5");
-//
-//	static String nameTimeVariable = "t";
-//
-//	static List<String> nameClassVariables = List.of("C1", "C2", "C3", "C4", "C5");
-//	static List<String> nameFeatureVariables = List.of("X1", "X2", "X3", "X4", "X5");
 
 	static List<String> datasets = List
-			.of("C:\\Users\\Carlos\\Desktop\\Datasets\\Energy\\5_cycles\\bins_same_size\\D2");
+			.of("test");
+
 	static String nameTimeVariable = "timestamp";
-
-	// static List<String> nameClassVariables = List.of("M1", "M2", "M5",
-	// "M6", "M3", "Z12", "M4", "Z22", "W");
+	
 	static List<String> nameClassVariables = List.of("M1", "M2", "M3");
+	
+	static List<String> nameAllFeatureVariables = List.of("IA", "IB", "IC");
 
-	static List<String> nameFeatureVariables = List.of("X1", "X2");
+	static List<String> nameSelectedFeatureVariables = List.of("IA");
+	
+	static String optionFeaturesUsed = ""; //random
 
 	static List<String> models = List.of("CTBNCs", "DAG-maxK MCTBNC"); // "Empty-maxK MCTBNC",
 
@@ -74,7 +67,7 @@ public class MainExperiments {
 	static double tx = 0.001;
 
 	// Get score function
-	static List<String> scoreFunctions = List.of("Log-likelihood", "Bayesian score"); // , "Conditional log-likelihood"
+	static List<String> scoreFunctions = List.of("Conditional log-likelihood", "Log-likelihood", "Bayesian score");
 	// Define penalization function (if any)
 	static String penalizationFunction = "BIC"; // "AIC", "No", "BIC"
 
@@ -106,58 +99,103 @@ public class MainExperiments {
 		Map<String, String> parameters = new WeakHashMap<String, String>();
 		parameters.put("maxK", maxK);
 
-		// Define output to store the results of the experiments
-		metricsWriter = new ExcelExperimentsWriter(scoreFunctions, datasets, models, nameFeatureVariables,
-				nameClassVariables, bnPLA, ctbnPLA, penalizationFunction, initialStructure);
+		// Test over different sets of features
+		List<List<String>> setsFeatures = setFeatures(optionFeaturesUsed, nameAllFeatureVariables);
 
-		for (String scoreFunction : scoreFunctions) {
-			System.out.printf("------------------------------ Score function: %s ------------------------------\n",
-					scoreFunction);
+		for (List<String> nameSelectedFeatureVariables : setsFeatures) {
+			// Define output to store the results of the experiments
+			metricsWriter = new ExcelExperimentsWriter(scoreFunctions, datasets, models, nameSelectedFeatureVariables,
+					nameClassVariables, bnPLA, ctbnPLA, penalizationFunction, initialStructure);
 
-			for (String pathDataset : datasets) {
-				System.out.printf("############################## DATASET: %s ##############################\n",
-						pathDataset);
+			for (String scoreFunction : scoreFunctions) {
+				System.out.printf("------------------------------ Score function: %s ------------------------------\n",
+						scoreFunction);
 
-				DatasetReader datasetReader = new MultipleCSVReader(pathDataset);
-				// Set the variables that will be used
-				datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameFeatureVariables);
+				for (String pathDataset : datasets) {
+					System.out.printf("############################## DATASET: %s ##############################\n",
+							pathDataset);
 
-				for (String selectedModel : models) {
-					System.out.printf("****************************** MODEL: %s ******************************\n",
-							selectedModel);
+					DatasetReader datasetReader = new MultipleCSVReader(pathDataset);
+					// Set the variables that will be used
+					datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatureVariables);
 
-					// Define structure learning algorithms
-					BNStructureLearningAlgorithm bnSLA = BNStructureLearningAlgorihtmFactory.getAlgorithm(nameBnSLA,
-							scoreFunction, penalizationFunction);
-					CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory
-							.getAlgorithm(nameCtbnSLA, scoreFunction, penalizationFunction);
-					BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
-					CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
-
-					// Generate selected model and validation method
-					MCTBNC<CPTNode, CIMNode> model;
-					ValidationMethod validationMethod;
-
-					if (selectedModel.equals("CTBNCs")) {
-						model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("DAG-maxK MCTBNC", bnLearningAlgs,
-								ctbnLearningAlgs, parameters, CPTNode.class, CIMNode.class);
-						validationMethod = new CrossValidationSeveralModels(datasetReader, folds, shuffleSequences);
-					} else {
-						model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(selectedModel, bnLearningAlgs,
-								ctbnLearningAlgs, parameters, CPTNode.class, CIMNode.class);
-						validationMethod = ValidationMethodFactory.getValidationMethod(selectedValidationMethod,
-								datasetReader, shuffleSequences, trainingSize, folds);
+					for (String selectedModel : models) {
+						System.out.printf("****************************** MODEL: %s ******************************\n",
+								selectedModel);
+						performExperiment(datasetReader, bnPLA, ctbnPLA, selectedModel, scoreFunction, parameters);
 					}
-					// Set output to show results
-					validationMethod.setWriter(metricsWriter);
-					// Define initial structure
-					model.setIntialStructure(initialStructure);
-					// Evaluate the performance of the model
-					validationMethod.evaluate(model);
 				}
 			}
+			metricsWriter.close();
 		}
-		metricsWriter.close();
+
 	}
 
+	private static void performExperiment(DatasetReader datasetReader, BNParameterLearningAlgorithm bnPLA,
+			CTBNParameterLearningAlgorithm ctbnPLA, String selectedModel, String scoreFunction,
+			Map<String, String> parameters) {
+		// Define structure learning algorithms
+		BNStructureLearningAlgorithm bnSLA = BNStructureLearningAlgorihtmFactory.getAlgorithm(nameBnSLA, scoreFunction,
+				penalizationFunction);
+		CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory.getAlgorithm(nameCtbnSLA,
+				scoreFunction, penalizationFunction);
+		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
+		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
+
+		// Generate selected model and validation method
+		MCTBNC<CPTNode, CIMNode> model;
+		ValidationMethod validationMethod;
+
+		if (selectedModel.equals("CTBNCs")) {
+			model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("DAG-maxK MCTBNC", bnLearningAlgs, ctbnLearningAlgs,
+					parameters, CPTNode.class, CIMNode.class);
+			validationMethod = new CrossValidationSeveralModels(datasetReader, folds, shuffleSequences);
+		} else {
+			model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(selectedModel, bnLearningAlgs, ctbnLearningAlgs,
+					parameters, CPTNode.class, CIMNode.class);
+			validationMethod = ValidationMethodFactory.getValidationMethod(selectedValidationMethod, datasetReader,
+					shuffleSequences, trainingSize, folds);
+		}
+		// Set output to show results
+		validationMethod.setWriter(metricsWriter);
+		// Define initial structure
+		model.setIntialStructure(initialStructure);
+		// Evaluate the performance of the model
+		validationMethod.evaluate(model);
+	}
+
+	/**
+	 * Return a list with the different combination of features that are tested.
+	 * 
+	 * @param optionFeaturesUsed
+	 * @param nameAllFeatureVariables
+	 * 
+	 * @return list of features
+	 */
+	public static List<List<String>> setFeatures(String optionFeaturesUsed, List<String> nameAllFeatureVariables) {
+		List<List<String>> setFeatures = new ArrayList<List<String>>();
+		// Random set of features
+		if (optionFeaturesUsed.equals("random")) {
+			int trials = 5000;
+			for (int z = 0; z < trials; z++) {
+				Random rn = new Random();
+				int numFeatures = rn.nextInt(3 - 2 + 1) + 2;
+				List<Integer> indexes = new ArrayList<Integer>();
+				for (int i = 0; i < numFeatures; i++) {
+					int idx = rn.nextInt(nameAllFeatureVariables.size());
+					while (indexes.contains(idx)) {
+						idx = rn.nextInt(nameAllFeatureVariables.size());
+					}
+					indexes.add(idx);
+				}
+				List<String> nameFeatureVariables = new ArrayList<String>();
+				for (int idx : indexes)
+					nameFeatureVariables.add(nameAllFeatureVariables.get(idx));
+
+				setFeatures.add(nameFeatureVariables);
+			}
+		} else
+			return List.of(nameSelectedFeatureVariables);
+		return setFeatures;
+	}
 }
