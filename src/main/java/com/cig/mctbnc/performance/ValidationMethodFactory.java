@@ -1,6 +1,7 @@
 package com.cig.mctbnc.performance;
 
 import com.cig.mctbnc.data.reader.DatasetReader;
+import com.cig.mctbnc.exceptions.UnreadDatasetException;
 
 /**
  * Build validation methods.
@@ -19,9 +20,10 @@ public class ValidationMethodFactory {
 	 * @param trainingSize
 	 * @param folds
 	 * @return validation method
+	 * @throws UnreadDatasetException 
 	 */
 	public static ValidationMethod getValidationMethod(String nameValidationMethod, DatasetReader dR, boolean shuffle,
-			double trainingSize, int folds) {
+			double trainingSize, int folds) throws UnreadDatasetException {
 		ValidationMethod validationMethod;
 		switch (nameValidationMethod) {
 		case "Cross-validation":

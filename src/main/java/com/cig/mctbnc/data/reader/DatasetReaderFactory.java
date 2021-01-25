@@ -21,7 +21,6 @@ public abstract class DatasetReaderFactory {
 	 */
 	public static DatasetReader getDatasetReader(String datasetReader, String pathDataset, int sizeSequence)
 			throws FileNotFoundException {
-		// TODO new dataset readers and define how to determine which one to generate
 		switch (datasetReader) {
 		case ("Multiple CSV"):
 			return new MultipleCSVReader(pathDataset);

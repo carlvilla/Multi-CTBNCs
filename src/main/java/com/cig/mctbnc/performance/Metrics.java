@@ -258,28 +258,6 @@ public class Metrics {
 	}
 
 	/**
-	 * (Fernandes et al., 2013).
-	 * 
-	 * @param predicted
-	 * @param actualDataset
-	 * @return
-	 */
-	private static double meanBrierScore(Prediction[] predicted, Dataset actualDataset) {
-		return 0.0;
-	}
-
-	/**
-	 * (Fernandes et al., 2013).
-	 * 
-	 * @param predicted
-	 * @param actualDataset
-	 * @return
-	 */
-	private static double calibratedBrierScore(Prediction[] predicted, Dataset actualDataset) {
-		return 0.0;
-	}
-
-	/**
 	 * Compute the precision evaluation metric from a Map containing a confusion
 	 * matrix. The Map should contain, at least, the keys "tp" (true positive) and
 	 * "fp" (false positive).

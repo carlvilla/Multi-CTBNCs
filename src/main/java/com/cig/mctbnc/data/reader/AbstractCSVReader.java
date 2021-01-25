@@ -1,5 +1,6 @@
 package com.cig.mctbnc.data.reader;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -61,8 +62,9 @@ public abstract class AbstractCSVReader implements DatasetReader {
 				nameVariables = Arrays.asList(csvReader.readNext());
 			} catch (IOException e) {
 				e.printStackTrace();
+			} finally {
+				closeReader(csvReader);
 			}
-
 		} else {
 			throw new FileNotFoundException("Impossible to read CSV file");
 		}
@@ -75,12 +77,13 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	 * @param excludeVariables
 	 * @return list with the rows (lists of strings) of the CSV
 	 * @throws VariableNotFoundException
+	 * @throws FileNotFoundException 
 	 */
-	public List<String[]> readCSV(String pathFile, List<String> excludeVariables) throws VariableNotFoundException {
+	public List<String[]> readCSV(String pathFile, List<String> excludeVariables) throws VariableNotFoundException, FileNotFoundException {
 		List<String[]> list = new ArrayList<String[]>();
+		FileReader reader = new FileReader(pathFile);
+		CSVReader csvReader = new CSVReader(reader);
 		try {
-			FileReader reader = new FileReader(pathFile);
-			CSVReader csvReader = new CSVReader(reader);
 			// If it was specified variables to ignore
 			if (excludeVariables.size() > 0) {
 				// Obtain name of the variables
@@ -116,10 +119,10 @@ public abstract class AbstractCSVReader implements DatasetReader {
 			} else {
 				list = csvReader.readAll();
 			}
-			reader.close();
-			csvReader.close();
 		} catch (IOException e) {
 			logger.warn("Impossible to read file {}", pathFile);
+		} finally {
+			closeReader(csvReader);
 		}
 		return list;
 	}
@@ -148,6 +151,14 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	@Override
 	public boolean isDatasetOutdated() {
 		return outdatedDataset;
+	}
+
+	private void closeReader(Closeable reader) {
+		try {
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

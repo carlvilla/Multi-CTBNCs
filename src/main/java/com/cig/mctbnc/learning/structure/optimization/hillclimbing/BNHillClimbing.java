@@ -3,6 +3,7 @@ package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.optimization.scores.bn.BNScoreFunction;
 import com.cig.mctbnc.models.BN;
+import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
 
 /**
@@ -104,7 +105,7 @@ public class BNHillClimbing extends HillClimbing implements BNStructureLearningA
 						logger.trace("Studying new {} structure: {}", pgm.getType(), tempAdjacencyMatrix);
 						// Define PGM with the modified adjacency matrix
 						pgm.setStructure(tempAdjacencyMatrix);
-						double score = scoreFunction.compute((BN) pgm);
+						double score = scoreFunction.compute((BN<? extends Node>) pgm);
 						if (scores[idxOperation] < score) {
 							scores[idxOperation] = score;
 							adjacencyMatrices[idxOperation] = tempAdjacencyMatrix;

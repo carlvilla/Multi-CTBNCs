@@ -1,7 +1,6 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +9,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
 import com.cig.mctbnc.learning.structure.optimization.scores.AbstractLogLikelihood;

@@ -7,9 +7,13 @@ import java.util.Map;
 import java.util.Random;
 import java.util.WeakHashMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.cig.mctbnc.classification.ClassifierFactory;
 import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.reader.MultipleCSVReader;
+import com.cig.mctbnc.exceptions.UnreadDatasetException;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
@@ -37,19 +41,20 @@ import com.cig.mctbnc.performance.writers.MetricsWriter;
  */
 public class MainExperiments {
 
+	static List<String> datasets = List.of("C:\\Users\\Carlos\\Desktop\\datasets\\synthetic\\Experiment2\\D1",
+			"C:\\Users\\Carlos\\Desktop\\datasets\\synthetic\\Experiment2\\D2",
+			"C:\\Users\\Carlos\\Desktop\\datasets\\synthetic\\Experiment2\\D3",
+			"C:\\Users\\Carlos\\Desktop\\datasets\\synthetic\\Experiment2\\D4",
+			"C:\\Users\\Carlos\\Desktop\\datasets\\synthetic\\Experiment2\\D5");
 
-	static List<String> datasets = List
-			.of("test");
+	// ---------------------------- Synthetic dataset ----------------------------
+	static String nameTimeVariable = "t";
+	static List<String> nameClassVariables = List.of("C1", "C2", "C3", "C4", "C5");
+	static List<String> nameAllFeatureVariables = List.of("X1", "X2", "X3", "X4", "X5");
+	static List<String> nameSelectedFeatureVariables = List.of("X1", "X2", "X3", "X4", "X5");
+	// ---------------------------- Synthetic dataset ----------------------------
 
-	static String nameTimeVariable = "timestamp";
-	
-	static List<String> nameClassVariables = List.of("M1", "M2", "M3");
-	
-	static List<String> nameAllFeatureVariables = List.of("IA", "IB", "IC");
-
-	static List<String> nameSelectedFeatureVariables = List.of("IA");
-	
-	static String optionFeaturesUsed = ""; //random
+	static String optionFeaturesUsed = ""; // random
 
 	static List<String> models = List.of("CTBNCs", "DAG-maxK MCTBNC"); // "Empty-maxK MCTBNC",
 
@@ -67,11 +72,11 @@ public class MainExperiments {
 	static double tx = 0.001;
 
 	// Get score function
-	static List<String> scoreFunctions = List.of("Conditional log-likelihood", "Log-likelihood", "Bayesian score");
+	static List<String> scoreFunctions = List.of("Log-likelihood", "Bayesian score"); // "Conditional log-likelihood",
 	// Define penalization function (if any)
 	static String penalizationFunction = "BIC"; // "AIC", "No", "BIC"
 
-	static String maxK = "3";
+	static String maxK = "9";
 
 	static String initialStructure = "Empty"; // Empty, Naive Bayes
 
@@ -83,57 +88,60 @@ public class MainExperiments {
 
 	static MetricsWriter metricsWriter;
 
+	static Logger logger = LogManager.getLogger(MainExperiments.class);
+
 	/**
 	 * Class use to perform experiments.
 	 * 
 	 * @param args
 	 * @throws FileNotFoundException
 	 */
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) {
 		// Define parameter learning algorithms
 		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, alpha);
 		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, nxy,
 				tx);
-
 		// Parameters that could be necessary for the generation of the models
 		Map<String, String> parameters = new WeakHashMap<String, String>();
 		parameters.put("maxK", maxK);
-
 		// Test over different sets of features
 		List<List<String>> setsFeatures = setFeatures(optionFeaturesUsed, nameAllFeatureVariables);
-
+		// Iterate over each set of features that is evaluated
 		for (List<String> nameSelectedFeatureVariables : setsFeatures) {
 			// Define output to store the results of the experiments
 			metricsWriter = new ExcelExperimentsWriter(scoreFunctions, datasets, models, nameSelectedFeatureVariables,
 					nameClassVariables, bnPLA, ctbnPLA, penalizationFunction, initialStructure);
-
+			// Iterate over the score functions that are used
 			for (String scoreFunction : scoreFunctions) {
 				System.out.printf("------------------------------ Score function: %s ------------------------------\n",
 						scoreFunction);
-
+				// Iterate over the datasets that are evaluated
 				for (String pathDataset : datasets) {
-					System.out.printf("############################## DATASET: %s ##############################\n",
+					System.out.printf("############################# DATASET: %s #############################\n",
 							pathDataset);
-
-					DatasetReader datasetReader = new MultipleCSVReader(pathDataset);
-					// Set the variables that will be used
-					datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatureVariables);
-
-					for (String selectedModel : models) {
-						System.out.printf("****************************** MODEL: %s ******************************\n",
-								selectedModel);
-						performExperiment(datasetReader, bnPLA, ctbnPLA, selectedModel, scoreFunction, parameters);
+					try {
+						DatasetReader datasetReader = new MultipleCSVReader(pathDataset);
+						// Set the variables that will be used
+						datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatureVariables);
+						for (String selectedModel : models) {
+							System.out.printf("***************************** MODEL: %s *****************************\n",
+									selectedModel);
+							performExperiment(datasetReader, bnPLA, ctbnPLA, selectedModel, scoreFunction, parameters);
+						}
+					} catch (FileNotFoundException e) {
+						logger.error(e.getMessage());
+					} catch (UnreadDatasetException e) {
+						logger.error(e.getMessage());
 					}
 				}
 			}
 			metricsWriter.close();
 		}
-
 	}
 
 	private static void performExperiment(DatasetReader datasetReader, BNParameterLearningAlgorithm bnPLA,
 			CTBNParameterLearningAlgorithm ctbnPLA, String selectedModel, String scoreFunction,
-			Map<String, String> parameters) {
+			Map<String, String> parameters) throws UnreadDatasetException {
 		// Define structure learning algorithms
 		BNStructureLearningAlgorithm bnSLA = BNStructureLearningAlgorihtmFactory.getAlgorithm(nameBnSLA, scoreFunction,
 				penalizationFunction);

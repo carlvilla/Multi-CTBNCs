@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.CheckComboBox;
 
 import com.cig.mctbnc.classification.ClassifierFactory;
 import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.reader.DatasetReaderFactory;
+import com.cig.mctbnc.exceptions.UnreadDatasetException;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
@@ -125,6 +128,8 @@ public class Controller {
 	List<String> datasetReaders = DatasetReaderFactory.getAvailableDatasetReaders();
 	List<String> datasetReaderStrategies = DatasetReaderFactory.getAvailableStrategies();
 
+	Logger logger = LogManager.getLogger(Controller.class);
+
 	/**
 	 * Initialize the controller.
 	 */
@@ -178,12 +183,19 @@ public class Controller {
 		datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
 		// Define model
 		MCTBNC<CPTNode, CIMNode> model = defineModel();
-		// Define the validation method
-		ValidationMethod validationMethod = defineValidationMethod();
-		// Evaluate the performance of the model
-		status.setText("Evaluating model...");
-		validationMethod.evaluate(model);
-		status.setText("Idle");
+		try {
+			// Define the validation method
+			ValidationMethod validationMethod = defineValidationMethod();
+			// Evaluate the performance of the model
+			status.setText("Evaluating model...");
+			validationMethod.evaluate(model);
+			status.setText("Idle");
+		} catch (UnreadDatasetException e) {
+			// The dataset could not be read due to a problem with the provided files
+			logger.error(e.getMessage());
+			status.setText(e.getMessage());
+		}
+
 	}
 
 	/**
@@ -199,7 +211,7 @@ public class Controller {
 		cmbStrategy.setDisable(true);
 		// Initialize text fields with default values
 		fldSizeSequences.setText("30");
-		fldSizeSequences.setDisable(true);	
+		fldSizeSequences.setDisable(true);
 		// Add listeners to checkcomboboxes
 		ckcmbClassVariables.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
 			@Override
@@ -360,8 +372,9 @@ public class Controller {
 	 * 
 	 * @param selectedValidationMethod
 	 * @return
+	 * @throws UnreadDatasetException
 	 */
-	private ValidationMethod defineValidationMethod() {
+	private ValidationMethod defineValidationMethod() throws UnreadDatasetException {
 		// Get selected validation method
 		RadioButton rbValidationMethod = (RadioButton) validationMethod.getSelectedToggle();
 		String selectedValidationMethod = rbValidationMethod.getText();

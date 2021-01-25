@@ -8,11 +8,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.exceptions.UnreadDatasetException;
 import com.cig.mctbnc.exceptions.VariableNotFoundException;
 
 /**
- * Read time series data contained in a single CSV. It divide the dataset into
- * several sequences depeding on the selected strategy.
+ * Read time series data contained in a single CSV. It divides the dataset into
+ * several sequences depending on the selected strategy.
  * 
  * @author Carlos Villa Blanco
  *
@@ -45,7 +46,7 @@ public class SingleCSVReader extends AbstractCSVReader {
 	}
 
 	@Override
-	public Dataset readDataset() {
+	public Dataset readDataset() throws UnreadDatasetException {
 		if (isDatasetOutdated()) {
 			dataset = new Dataset(nameTimeVariable, nameClassVariables);
 			try {
@@ -57,8 +58,10 @@ public class SingleCSVReader extends AbstractCSVReader {
 				dataset.removeZeroVarianceFeatures();
 				// Save name of the file in the dataset
 				dataset.setNameFiles(List.of(file.getName()));
-				// Set the dataset as not out-of-date
+				// Set the dataset as not out-of-dates
 				setDatasetAsOutdated(false);
+			} catch (FileNotFoundException e) {
+				throw new UnreadDatasetException("There was an error reading the file of the dataset");
 			} catch (VariableNotFoundException e) {
 				logger.warn(e.getMessage());
 			}
@@ -80,11 +83,9 @@ public class SingleCSVReader extends AbstractCSVReader {
 	public Dataset extractFixedSequences(Dataset dataset, List<String[]> dataCSV) {
 		int numInstances = dataCSV.size();
 		String[] namesVariables = dataCSV.get(0);
-
 		// Obtain the indexes of the class variables in the CSV
 		int[] indexClassVariables = nameClassVariables.stream()
 				.mapToInt(nameClassVariable -> List.of(namesVariables).indexOf(nameClassVariable)).toArray();
-
 		// Store the class configuration of the first sequence.
 		String[] currentClassConfiguration = extractClassConfigurationObservation(indexClassVariables, dataCSV.get(1));
 		// Store the transitions for a sequence
@@ -93,23 +94,18 @@ public class SingleCSVReader extends AbstractCSVReader {
 		for (int i = 1; i < numInstances; i++) {
 			// Add observations to the sequence until the size limit is reached or the class
 			// variables transition
-
 			// Extract observation
 			String[] observation = dataCSV.get(i);
-
-			if (dataSequence.size() == 0) {
+			if (dataSequence.size() == 0)
 				// Add names of the variables
 				dataSequence.add(namesVariables);
-			}
-
 			// Check if any of the class variables transitioned to another state
 			boolean sameClassConfiguration = sameClassConfiguration(indexClassVariables, observation,
 					currentClassConfiguration);
-
-			if (dataSequence.size() < sizeSequence && sameClassConfiguration) {
+			if (dataSequence.size() < sizeSequence && sameClassConfiguration)
 				// Add transition
 				dataSequence.add(observation);
-			} else {
+			else {
 				// Add sequence to dataset
 				dataset.addSequence(dataSequence);
 				if (!sameClassConfiguration)
@@ -123,7 +119,6 @@ public class SingleCSVReader extends AbstractCSVReader {
 				dataSequence.add(observation);
 			}
 		}
-
 		return dataset;
 	}
 

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.Set;
 
 import com.cig.mctbnc.data.representation.State;
 import com.google.common.cache.Cache;

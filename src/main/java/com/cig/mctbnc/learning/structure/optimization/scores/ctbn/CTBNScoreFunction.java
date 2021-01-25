@@ -1,7 +1,6 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
 import com.cig.mctbnc.models.CTBN;
-import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.Node;
 
 public interface CTBNScoreFunction {

@@ -3,6 +3,7 @@ package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNScoreFunction;
 import com.cig.mctbnc.models.CTBN;
+import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
 
 /**
@@ -78,7 +79,7 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 		int numNodes = bestStructure.length;
 		for (int i = 0; i < numNodes; i++) {
 			for (int j = 0; j < numNodes; j++)
-				if (i != j) {
+				if (i != j && !(pgm.getNodeByIndex(i).isClassVariable() && pgm.getNodeByIndex(j).isClassVariable())) {
 					// Copy current best neighbor
 					boolean[][] tempAdjacencyMatrix = new boolean[numNodes][numNodes];
 					for (int r = 0; r < numNodes; r++)
@@ -107,7 +108,7 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 						logger.trace("Studying new {} structure: {}", pgm.getType(), tempAdjacencyMatrix);
 						// Define PGM with the modified adjacency matrix
 						pgm.setStructure(tempAdjacencyMatrix);
-						double score = scoreFunction.compute((CTBN) pgm);
+						double score = scoreFunction.compute((CTBN<? extends Node>) pgm);
 						if (scores[idxOperation] < score) {
 							scores[idxOperation] = score;
 							adjacencyMatrices[idxOperation] = tempAdjacencyMatrix;

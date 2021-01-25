@@ -39,6 +39,7 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+    testRuntimeOnly "org.junit.platform:junit-platform-commons:1.7.0"
     
     // GraphStream library. It is used to display graphs
 	implementation 'com.github.graphstream:gs-core:2.0'

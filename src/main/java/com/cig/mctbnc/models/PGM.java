@@ -2,8 +2,6 @@ package com.cig.mctbnc.models;
 
 import java.util.List;
 
-import org.graphstream.graph.Graph;
-
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.nodes.NodeIndexer;

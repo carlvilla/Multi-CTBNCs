@@ -11,6 +11,7 @@ import com.cig.mctbnc.classification.Prediction;
 import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
+import com.cig.mctbnc.exceptions.UnreadDatasetException;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.util.Util;
 
@@ -25,7 +26,7 @@ public class HoldOut extends ValidationMethod {
 	Dataset testingDataset;
 	Logger logger = LogManager.getLogger(HoldOut.class);
 
-	public HoldOut(DatasetReader datasetReader, double trainingSize, boolean shuffle) {
+	public HoldOut(DatasetReader datasetReader, double trainingSize, boolean shuffle) throws UnreadDatasetException {
 		logger.info("Generating training ({}%) and testing ({}%) datasets (Hold-out validation)", trainingSize * 100,
 				(1 - trainingSize) * 100);
 		generateTrainAndTest(datasetReader, trainingSize, shuffle);
@@ -64,8 +65,10 @@ public class HoldOut extends ValidationMethod {
 	 * @param trainingSize  size of the training dataset (percentage)
 	 * @param shuffle       determines if the data is shuffled before splitting into
 	 *                      training and testing
+	 * @throws UnreadDatasetException
 	 */
-	public void generateTrainAndTest(DatasetReader datasetReader, double trainingSize, boolean shuffle) {
+	public void generateTrainAndTest(DatasetReader datasetReader, double trainingSize, boolean shuffle)
+			throws UnreadDatasetException {
 		// Obtain entire dataset
 		Dataset dataset = datasetReader.readDataset();
 		// Obtain files names from which the dataset was read
@@ -89,9 +92,8 @@ public class HoldOut extends ValidationMethod {
 		// Set in the datasets the names of the files from which the data was extracted
 		this.trainingDataset.setNameFiles(fileNames.subList(0, lastIndexTraining));
 		this.testingDataset.setNameFiles(fileNames.subList(lastIndexTraining, sequences.size()));
-
-		// TODO This is only for categorical variables...
-		// Warn the training set about the possible states the variables can take
+		// Warn the training set about the possible states the variables can take (for
+		// now, categorical variable are assumed)
 		this.trainingDataset.setStatesVariables(dataset.getStatesVariables());
 	}
 

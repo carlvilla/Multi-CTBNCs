@@ -14,8 +14,8 @@ import com.cig.mctbnc.classification.Prediction;
 import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
+import com.cig.mctbnc.exceptions.UnreadDatasetException;
 import com.cig.mctbnc.models.MCTBNC;
-import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
 
 /**
@@ -30,7 +30,7 @@ public class CrossValidation extends ValidationMethod {
 	boolean shuffle;
 	Logger logger = LogManager.getLogger(CrossValidation.class);
 
-	public CrossValidation(DatasetReader datasetReader, int folds, boolean shuffle) {
+	public CrossValidation(DatasetReader datasetReader, int folds, boolean shuffle) throws UnreadDatasetException {
 		logger.info("Preparing {}-cross validation / Shuffle: {}", folds, shuffle);
 		// Obtain dataset and the number of sequence it contains
 		dataset = datasetReader.readDataset();
@@ -86,7 +86,7 @@ public class CrossValidation extends ValidationMethod {
 			Dataset testingDataset = extractTestingDataset(sequences, fileNames, fromIndex, toIndex);
 			// Train the model
 			model.learn(trainingDataset);
-			//model.display();
+			// model.display();
 			// Make predictions over the current fold
 			Prediction[] predictions = model.predict(testingDataset, true);
 			// Result of performance metrics when evaluating the model with the current fold

@@ -3,6 +3,7 @@ package com.cig.mctbnc.data.reader;
 import java.util.List;
 
 import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.exceptions.UnreadDatasetException;
 
 /**
  * Interface for classes that read datasets.
@@ -25,8 +26,9 @@ public interface DatasetReader {
 	 * Return a dataset.
 	 * 
 	 * @return dataset
+	 * @throws UnreadDatasetException
 	 */
-	public Dataset readDataset();
+	public Dataset readDataset() throws UnreadDatasetException;
 
 	/**
 	 * Return the names of all the variables of the dataset, included those are are

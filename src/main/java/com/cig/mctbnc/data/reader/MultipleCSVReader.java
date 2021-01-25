@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.cig.mctbnc.data.representation.Dataset;
+import com.cig.mctbnc.exceptions.UnreadDatasetException;
 import com.cig.mctbnc.exceptions.VariableNotFoundException;
 
 /**
@@ -44,7 +45,7 @@ public class MultipleCSVReader extends AbstractCSVReader {
 	}
 
 	@Override
-	public Dataset readDataset() {
+	public Dataset readDataset() throws UnreadDatasetException {
 		if (isDatasetOutdated()) {
 			dataset = new Dataset(nameTimeVariable, nameClassVariables);
 			// Names of the files from which the dataset was read. Some files could be
@@ -56,9 +57,11 @@ public class MultipleCSVReader extends AbstractCSVReader {
 					boolean sequenceAdded = dataset.addSequence(dataSequence);
 					if (sequenceAdded)
 						nameAcceptedFiles.add(file.getName());
+				}catch (FileNotFoundException e) {
+					throw new UnreadDatasetException("There was an error reading the files of the dataset");
 				} catch (VariableNotFoundException e) {
 					logger.warn(e.getMessage());
-				}
+				} 
 			}
 			// Remove variables with zero variance
 			dataset.removeZeroVarianceFeatures();
