@@ -26,8 +26,8 @@ This software provides the following algorithms for the learning of a MCTBNC.
 #### Available models by structure constraints
 * Multi-dimensional continuous time Bayesian network classifier (MCTBNC): no structure constraints.
 * Multi-dimensional continuous time naive Bayes classifier (MCTNBC): assumes independence between class variables and between features. The model is formed by a complete bridge subgraph, so each class variable is parent of all features.
-* DAG-k multi-dimensional continuous time Bayesian network classifier (DAG-k MCTBNC): feature nodes are limited to k maximum parents.
-* Empty-DAG multi-dimensional continuous time Bayesian network classifier (DAG-k MCTBNC): dependencies between class variables are ignored.
+* DAG-k multi-dimensional continuous time Bayesian network classifier (DAG-k MCTBNC): feature nodes have at most k parents (excluding class variables).
+* Empty-DAG multi-dimensional continuous time Bayesian network classifier (Empty-DAG MCTBNC): dependencies between class variables are ignored.
 
 ## Inference over MCTBNCs
 
