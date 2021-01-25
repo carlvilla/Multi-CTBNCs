@@ -5,7 +5,7 @@
 
 ## Supported datasets
 Datasets can be stored and presented in different formats. Currently, this software supports the following:
-* Single CSV: sequences of a maximum length are extracted from a single CSV file.
+* Single CSV: sequences of a predefined maximum length are extracted from a single CSV file.
 * Multiple CSVs: sequences are stored in individual CSV files (e.g., post-stroke rehabilitation dataset [REFERENCE])
 
 ## Learning MCTBNCs
