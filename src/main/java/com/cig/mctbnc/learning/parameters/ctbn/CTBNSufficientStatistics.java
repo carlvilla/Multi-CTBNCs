@@ -1,5 +1,6 @@
 package com.cig.mctbnc.learning.parameters.ctbn;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,14 +80,12 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 			for (int i = 1; i < sequence.getNumObservations(); i++) {
 				// State of the variables before the transition
 				Observation fromObservation = sequence.getObservations().get(i - 1);
-				State fromState = new State();
 				String fromValue = fromObservation.getValueVariable(nameVariable);
-				fromState.addEvent(nameVariable, fromValue);
+				State fromState = new State(nameVariable, fromValue);
 				// State of the variables after the transition
 				Observation toObservation = sequence.getObservations().get(i);
-				State toState = new State();
 				String toValue = toObservation.getValueVariable(nameVariable);
-				toState.addEvent(nameVariable, toValue);
+				State toState = new State(nameVariable, toValue);
 				// Check if the node is transitioning to a different state
 				boolean nodeIsTransitioning = !fromValue.equals(toValue);
 				// If the node has parents, their states are added to "fromState"
@@ -112,7 +111,6 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	private void initializeSufficientStatistics(Node node, Dataset dataset) {
 		// Retrieve state the variable can take
 		// TODO Instead of passing a node, the class should only accept DiscreteNode.
-		// Improve architecture
 		List<State> statesVariable = ((DiscreteNode) node).getStates();
 		// Hyperparameter MxPrior (number of transitions originating from certain state)
 		MxHP = MxyHP * (statesVariable.size() - 1);
@@ -144,7 +142,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 						// Initialize Mxy
 						updateOccurrencesMxy(fromState, toState, MxyHP);
 			}
-		}
+		}		
 	}
 
 	/**

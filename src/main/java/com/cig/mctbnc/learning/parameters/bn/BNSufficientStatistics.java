@@ -44,9 +44,8 @@ public class BNSufficientStatistics implements SufficientStatistics {
 					State stateParents = statesParents.get(j);
 					// Create State object where the variable has value k and its parents
 					// are in the state j
-					State query = new State();
+					State query = new State(stateVariable.getEvents());
 					query.addEvents(stateParents.getEvents());
-					query.addEvents(stateVariable.getEvents());
 					// Query the dataset with the state k for the variables and
 					// the state j for its parents
 					// TODO Instead of looking for the occurrences of each state, iterate the

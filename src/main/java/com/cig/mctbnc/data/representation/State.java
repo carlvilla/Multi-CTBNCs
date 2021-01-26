@@ -36,6 +36,17 @@ public class State {
 	}
 
 	/**
+	 * Create an State instance with one event.
+	 * 
+	 * @param nameVariable  name of the variable
+	 * @param valueVariable value of the variable
+	 */
+	public State(String nameVariable, String valueVariable) {
+		this.events = new LinkedHashMap<String, String>();
+		addEvent(nameVariable, valueVariable);
+	}
+
+	/**
 	 * Constructor to clone states;
 	 * 
 	 * @param state
@@ -152,9 +163,6 @@ public class State {
 			return false;
 		// The object is of State type
 		State otherState = (State) object;
-		// If there is a different number of events, the states cannot be equal
-		if (events.size() != otherState.getEvents().size())
-			return false;
 		// Check if both maps has the same variables and values
 		return events.equals(otherState.getEvents());
 	}

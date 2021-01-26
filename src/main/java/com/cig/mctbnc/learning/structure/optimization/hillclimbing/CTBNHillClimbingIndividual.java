@@ -57,7 +57,7 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 		if (!node.isClassVariable()) {
 			logger.info("Finding best parent set for node {}", node.getName());
 			// A cache is used to avoid recomputing the scores of structures
-			Cache<Integer, Double> cache = Util.createCache(50);
+			Cache<boolean[][], Double> cache = Util.createCache(50);
 			// Set as initial best score the one obtained with the initial structure
 			double bestScore = setStructure(indexNode, initialAdjacencyMatrix);
 			// Try to improve the current structure
@@ -87,12 +87,12 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 	 * @return
 	 */
 	private HillClimbingSolution findBestNeighbor(int indexNode, boolean[][] adjacencyMatrix,
-			Cache<Integer, Double> cache) {
+			Cache<boolean[][], Double> cache) {
 		HillClimbingSolution solution = new HillClimbingSolution();
 		int numNodes = adjacencyMatrix.length;
 		// Find the best neighbor structure at node 'indexNode'
 		for (int parentIndex = 0; parentIndex < numNodes; parentIndex++)
-			if (indexNode != parentIndex) {// && !adjacencyMatrix[parentIndex][indexNode]) {
+			if (indexNode != parentIndex) {
 				// Define a temporal adjacency matrix to try a new structure
 				boolean[][] tempAdjacencyMatrix = new boolean[numNodes][numNodes];
 				for (int r = 0; r < numNodes; r++)
@@ -123,13 +123,12 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 	 * @param cache
 	 * @return
 	 */
-	private double computeScore(int indexNode, boolean[][] adjacencyMatrix, Cache<Integer, Double> cache) {
+	private double computeScore(int indexNode, boolean[][] adjacencyMatrix, Cache<boolean[][], Double> cache) {
 		double obtainedScore = 0;
 		try {
 			// If the structure was already evaluated, its score is obtained from the cache.
-			// Otherwise, the score is saved. the adjacency matrix hashcode is used as key.
-			int hashCodeAdjacencyMatrix = Arrays.deepHashCode(adjacencyMatrix);
-			obtainedScore = cache.get(hashCodeAdjacencyMatrix, new Callable<Double>() {
+			// Otherwise, the score is saved
+			obtainedScore = cache.get(adjacencyMatrix, new Callable<Double>() {
 				@Override
 				public Double call() {
 					// Set structure and obtain local score at the node 'indexNode'

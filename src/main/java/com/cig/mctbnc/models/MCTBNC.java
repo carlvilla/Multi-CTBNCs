@@ -371,9 +371,8 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 			if (node.getParents().isEmpty())
 				sb.append("{}");
 			else
-				for (Node parent : node.getParents()) {
+				for (Node parent : node.getParents())
 					sb.append("(" + parent.getName() + ")");
-				}
 			sb.append(" => (" + node.getName() + ") \n");
 		}
 		return sb.toString();
