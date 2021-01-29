@@ -241,18 +241,26 @@ class ScoresCTBNTest {
 		// Conditional log-likelihood
 		CTBNScoreFunction scoreFunction = new CTBNConditionalLogLikelihood("No");
 
+//		double probCVs =
+//				// Evaluate C1
+//				1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0)
+//						+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0)
+//
+//						// Evaluate C2
+//						+ 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0)
+//						+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0)
+//
+//						// Evaluate C3
+//						+ 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0)
+//						+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0);
+
 		double probCVs =
-				// Evaluate X1
-				1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0)
+				// Evaluate C1
+				2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0)
+				// Evaluate C2
 						+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0)
-
-						// Evaluate X2
-						+ 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0)
-						+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0)
-
-						// Evaluate X3
-						+ 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0)
-						+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0);
+		// Evaluate C3 (log probability = 0)
+		;
 
 		double llSequences =
 				// X1
@@ -270,237 +278,203 @@ class ScoresCTBNTest {
 						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1
 
 		;
+		// To compute the log-marginal-likelihood of a sequence, it is necessary to
+		// extract for each possible class configuration the sum of their log prior
+		// probabilities and the posterior probability of sequences given the class
+		// configurations
+		double C1aC2aC3a =
+				// C1 = a / C2 = a / C3 = a
+				0.5 + 0.5 + 1
+				// X1
+				// X1 = a / C1 = a
+						+ 2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2
+						// X1 = b / C1 = a
+						+ 1 * Math.log(1 / 0.7) - (1 / 0.7) * 0.7
+						// X2
+						// X2 = a / X3 = a
+						+ 7 * Math.log(7 / 0.7) - (7 / 0.7) * 0.7
+						// X2 = b / X3 = b
+						+ 6 * Math.log(6 / 0.6) - (6 / 0.6) * 0.6
+						// X3
+						// X1 = a / X2 = a / X3 = b/ C2 = a
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1
+						// X1 = b / X2 = b / X3 = a / C2 = a
+						+ 2 * Math.log(2 / 0.2) - (2 / 0.2) * 0.2
+						// X1 = c / X2 = a / X3 = b / C2 = a
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
+		double C1aC2aC3b =
+				// C1 = a / C2 = a / C3 = b
+				0.5 + 0.5
+				// X1
+				// X1 = a / C1 = a
+						+ 2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2
+						// X1 = b / C1 = a
+						+ 1 * Math.log(1 / 0.7) - (1 / 0.7) * 0.7
+						// X2
+						// X2 = a / X3 = a
+						+ 7 * Math.log(7 / 0.7) - (7 / 0.7) * 0.7
+						// X2 = b / X3 = b
+						+ 6 * Math.log(6 / 0.6) - (6 / 0.6) * 0.6
+						// X3
+						// X1 = a / X2 = a / X3 = b/ C2 = a
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1
+						// X1 = b / X2 = b / X3 = a / C2 = a
+						+ 2 * Math.log(2 / 0.2) - (2 / 0.2) * 0.2
+						// X1 = c / X2 = a / X3 = b / C2 = a
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
+		double C1aC2bC3a =
+				// C1 = a / C2 = b / C3 = a
+				0.5 + 0.5 + 1
+				// X1
+				// X1 = a / C1 = a
+						+ 2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2
+						// X1 = b / C1 = a
+						+ 1 * Math.log(1 / 0.7) - (1 / 0.7) * 0.7
+						// X2
+						// X2 = a / X3 = a
+						+ 7 * Math.log(7 / 0.7) - (7 / 0.7) * 0.7
+						// X2 = b / X3 = b
+						+ 6 * Math.log(6 / 0.6) - (6 / 0.6) * 0.6
+						// X3
+						// X1 = a / X2 = a / X3 = b / C2 = b
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1
+						// X1 = a / X2 = b / X3 = a / C2 = b
+						+ 1 * Math.log(1 / 0.2) - (1 / 0.2) * 0.2
+						// X1 = b / X2 = b / X3 = a / C2 = b
+						+ 3 * Math.log(3 / 0.3) - (3 / 0.3) * 0.3
+						// X1 = c / X2 = a / X3 = b / C2 = b
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
+		double C1aC2bC3b =
+				// C1 = a / C2 = b / C3 = b
+				0.5 + 0.5
+				// X1
+				// X1 = a / C1 = a
+						+ 2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2
+						// X1 = b / C1 = a
+						+ 1 * Math.log(1 / 0.7) - (1 / 0.7) * 0.7
+						// X2
+						// X2 = a / X3 = a
+						+ 7 * Math.log(7 / 0.7) - (7 / 0.7) * 0.7
+						// X2 = b / X3 = b
+						+ 6 * Math.log(6 / 0.6) - (6 / 0.6) * 0.6
+						// X3
+						// X1 = a / X2 = a / X3 = b / C2 = b
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1
+						// X1 = a / X2 = b / X3 = a / C2 = b
+						+ 1 * Math.log(1 / 0.2) - (1 / 0.2) * 0.2
+						// X1 = b / X2 = b / X3 = a / C2 = b
+						+ 3 * Math.log(3 / 0.3) - (3 / 0.3) * 0.3
+						// X1 = c / X2 = a / X3 = b / C2 = b
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
+		double C1bC2aC3a =
+				// C1 = b / C2 = a / C3 = a
+				0.5 + 0.5 + 1
+				// X1
+				// X1 = b / C1 = b
+						+ 3 * Math.log(3 / 1.3) - (3 / 1.3) * 1.3 + 2 * Math.log(2 / 3.0) + Math.log(1 / 3.0)
+						// X1 = c / C1 = b
+						+ 3 * Math.log(3 / 1.4) - (3 / 1.4) * 1.4
+						// X2
+						// X2 = a / X3 = a
+						+ 7 * Math.log(7 / 0.7) - (7 / 0.7) * 0.7
+						// X2 = b / X3 = b
+						+ 6 * Math.log(6 / 0.6) - (6 / 0.6) * 0.6
+						// X3
+						// X1 = a / X2 = a / X3 = b/ C2 = a
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1
+						// X1 = b / X2 = b / X3 = a / C2 = a
+						+ 2 * Math.log(2 / 0.2) - (2 / 0.2) * 0.2
+						// X1 = c / X2 = a / X3 = b / C2 = a
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
+		double C1bC2aC3b =
+				// C1 = b / C2 = a / C3 = b
+				0.5 + 0.5
+				// X1
+				// X1 = b / C1 = b
+						+ 3 * Math.log(3 / 1.3) - (3 / 1.3) * 1.3 + 2 * Math.log(2 / 3.0) + 1 * Math.log(1 / 3.0)
+						// X1 = c / C1 = b
+						+ 3 * Math.log(3 / 1.4) - (3 / 1.4) * 1.4
+						// X2
+						// X2 = a / X3 = a
+						+ 7 * Math.log(7 / 0.7) - (7 / 0.7) * 0.7
+						// X2 = b / X3 = b
+						+ 6 * Math.log(6 / 0.6) - (6 / 0.6) * 0.6
+						// X3
+						// X1 = a / X2 = a / X3 = b/ C2 = a
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1
+						// X1 = b / X2 = b / X3 = a / C2 = a
+						+ 2 * Math.log(2 / 0.2) - (2 / 0.2) * 0.2
+						// X1 = c / X2 = a / X3 = b / C2 = a
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
+		double C1bC2bC3a =
+				// C1 = b / C2 = b / C3 = a
+				0.5 + 0.5
+				// X1
+				// X1 = b / C1 = b
+						+ 3 * Math.log(3 / 1.3) - (3 / 1.3) * 1.3 + 2 * Math.log(2 / 3.0) + 1 * Math.log(1 / 3.0)
+						// X1 = c / C1 = b
+						+ 3 * Math.log(3 / 1.4) - (3 / 1.4) * 1.4
+						// X2
+						// X2 = a / X3 = a
+						+ 7 * Math.log(7 / 0.7) - (7 / 0.7) * 0.7
+						// X2 = b / X3 = b
+						+ 6 * Math.log(6 / 0.6) - (6 / 0.6) * 0.6
+						// X3
+						// X1 = a / X2 = a / X3 = b / C2 = b
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1
+						// X1 = a / X2 = b / X3 = a / C2 = b
+						+ 1 * Math.log(1 / 0.2) - (1 / 0.2) * 0.2
+						// X1 = b / X2 = b / X3 = a / C2 = b
+						+ 3 * Math.log(3 / 0.3) - (3 / 0.3) * 0.3
+						// X1 = c / X2 = a / X3 = b / C2 = b
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
+		double C1bC2bC3b =
+				// C1 = b / C2 = b / C3 = b
+				0.5 + 0.5 + 1
+				// X1
+				// X1 = b / C1 = b
+						+ 3 * Math.log(3 / 1.3) - (3 / 1.3) * 1.3 + 2 * Math.log(2 / 3.0) + 1 * Math.log(1 / 3.0)
+						// X1 = c / C1 = b
+						+ 3 * Math.log(3 / 1.4) - (3 / 1.4) * 1.4
+						// X2
+						// X2 = a / X3 = a
+						+ 7 * Math.log(7 / 0.7) - (7 / 0.7) * 0.7
+						// X2 = b / X3 = b
+						+ 6 * Math.log(6 / 0.6) - (6 / 0.6) * 0.6
+						// X3
+						// X1 = a / X2 = a / X3 = b / C2 = b
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1
+						// X1 = a / X2 = b / X3 = a / C2 = b
+						+ 1 * Math.log(1 / 0.2) - (1 / 0.2) * 0.2
+						// X1 = b / X2 = b / X3 = a / C2 = b
+						+ 3 * Math.log(3 / 0.3) - (3 / 0.3) * 0.3
+						// X1 = c / X2 = a / X3 = b / C2 = b
+						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
 
-//		//M * Math.log(M/T) - (M/T)* T
-//		
-//		double mll = Math.log(
-//				
-//				//Math.pow(Mx/Tx, Mx) * Math.exp((Mx/Tx) * Tx)
-//				
-//				//  C1, C2, C3 = a, a, a
-//				0.5 * 0.5 * 1
-//				
-//				// X1 = a
-//				* Math.pow(2/1.2, 2) * Math.exp(- (2/1.2) * 1.2)		
-//		
-//				// X1 = b
-//				* Math.pow(1/0.7, 1) * Math.exp(- (1/0.7) * 0.7)
-//				
-//				// X1 = c - No cuando C1 = a
-//	
-//				
-//				
-//				// X2 = a - X3 = a
-//				//* Math.pow(7/0.7, 7) * Math.exp(- (7/0.7) * 0.7)		
-//		
-//				// X2 = a - X3 = b
-//				
-//				// X2 = b - X3 = a
-//		
-//				// X2 = b - X3 = b
-//				//* Math.pow(6/0.6, 6) * Math.exp(- (6/0.6) * 0.6)
-//	
-//				
-//				
-//				// X3 = a - X1 = a / X2 = a / C2 = a
-//				// X3 = a - X1 = a / X2 = b / C2 = a
-//				// X3 = a - X1 = b / X2 = b / C2 = a
-//				// X3 = a - X1 = b / X2 = b / C2 = a
-//				// X3 = a - X1 = c / X2 = a / C2 = a
-//				// X3 = a - X1 = c / X2 = b / C2 = a
-//				
-//				
-//				// X3 = b - X1 = b / X2 = b / C2 = a
-//				// X3 = b - X1 = b / X2 = a / C2 = a
-//				// X3 = b - X1 = a / X2 = a / C2 = a
-//				// X3 = b - X1 = c / X2 = a / C2 = a
-//				
-//				
-//				
-//				// C1, C2, C3 = a, a, b
-//				+ 0.5 * 0.5 * 1
-//				
-//				// X1 = a
-//				* Math.pow(2/1.2, 2) * Math.exp(- (2/1.2) * 1.2)		
-//		
-//				// X1 = b
-//				* Math.pow(1/0.7, 1) * Math.exp(- (1/0.7) * 0.7)
-//				
-//				// X1 = c - No cuando C1 = a
-//				
-//				
-//				
-//				
-//				// C1, C2, C3 = a, b, a
-//				+ 0.5 * 0.5 * 1
-//				
-//				// X1 = a
-//				* Math.pow(2/1.2, 2) * Math.exp(- (2/1.2) * 1.2)		
-//		
-//				// X1 = b
-//				* Math.pow(1/0.7, 1) * Math.exp(- (1/0.7) * 0.7)
-//				
-//				// X1 = c - No cuando C1 = a
-//				
-//				
-//				
-//				// C1, C2, C3 = a, b, b
-//				+ 0.5 * 0.5 * 1
-//				
-//				// X1 = a
-//				* Math.pow(2/1.2, 2) * Math.exp(- (2/1.2) * 1.2)		
-//		
-//				// X1 = b
-//				* Math.pow(1/0.7, 1) * Math.exp(- (1/0.7) * 0.7)
-//				
-//				// X1 = c - No cuando C1 = a
-//				
-//				
-//				
-//				// C1, C2, C3 = b, a, a
-//				+ 0.5 * 0.5 * 1
-//				
-//				// X1 = a - No cuando C1 = b
-//				
-//				// X1 = b
-//				* Math.pow(3/1.3, 3) * Math.exp(- (3/1.3) * 1.3) 
-//				// a 'a'
-//				* Math.pow(1 / 3.0, 1)	
-//				// a 'c'
-//				* Math.pow(2 / 3.0, 2)	
-//				
-//				// X1 = c
-//				* Math.pow(3/1.4, 3) * Math.exp(- (3/1.4) * 1.4)
-//				
-//				
-//				
-//				// C1, C2, C3 = b, a, b
-//				+ 0.5 * 0.5 * 1
-//				
-//				// X1 = a - No cuando C1 = b
-//				
-//				// X1 = b
-//				* Math.pow(3/1.3, 3) * Math.exp(- (3/1.3) * 1.3) 
-//				// a 'a'
-//				* Math.pow(1 / 3.0, 1)	
-//				// a 'c'
-//				* Math.pow(2 / 3.0, 2)	
-//				
-//				// X1 = c
-//				* Math.pow(3/1.4, 3) * Math.exp(- (3/1.4) * 1.4)
-//				
-//				
-//				
-//				// C1, C2, C3 = b, b, a
-//				+ 0.5 * 0.5 * 1
-//				
-//				// X1 = a - No cuando C1 = b
-//				
-//				// X1 = b
-//				* Math.pow(3/1.3, 3) * Math.exp(- (3/1.3) * 1.3) 
-//				// a 'a'
-//				* Math.pow(1 / 3.0, 1)	
-//				// a 'c'
-//				* Math.pow(2 / 3.0, 2)	
-//				
-//				// X1 = c
-//				* Math.pow(3/1.4, 3) * Math.exp(- (3/1.4) * 1.4)
-//				
-//				
-//				
-//				// C1, C2, C3 = b, b, b
-//				+ 0.5 * 0.5 * 1
-//				
-//				// X1 = a - No cuando C1 = b
-//				
-//				// X1 = b
-//				* Math.pow(3/1.3, 3) * Math.exp(- (3/1.3) * 1.3) 
-//				// a 'a'
-//				* Math.pow(1 / 3.0, 1)	
-//				// a 'c'
-//				* Math.pow(2 / 3.0, 2)	
-//				
-//				// X1 = c
-//				* Math.pow(3/1.4, 3) * Math.exp(- (3/1.4) * 1.4)
-//				
-//				
-//				);
-//		
-//		// (Mx/Tx) ^ (Mx) * Math.exp((Mx/Tx) * Tx)
-//		
-//		double cllS1Expected = probCVs + llSequences - mll;
+		// The log-sum-exp trick is used to avoid overflows and underflows
+		double largest = C1aC2bC3a;
+		double sum = Math.exp(C1aC2aC3a - largest) + Math.exp(C1aC2aC3b - largest) + Math.exp(C1aC2bC3a - largest)
+				+ Math.exp(C1aC2bC3b - largest) + Math.exp(C1bC2aC3a - largest) + Math.exp(C1bC2aC3b - largest)
+				+ Math.exp(C1bC2bC3a - largest) + Math.exp(C1bC2bC3b - largest);
+		// Log-marginal-likelihood
+		double mll = largest + Math.log(sum);
 
-		double cllS1Expected = probCVs + llSequences;
-
+		double cllS1Expected = probCVs + llSequences - mll;
 		double cllS1Actual = scoreFunction.compute(ctbn);
+		assertEquals(cllS1Expected, cllS1Actual, 0.001);
 
-		// assertEquals(cllS1Expected, cllS1Actual, 0.001);
+		// Penalized conditional log-likelihood with BIC
+		scoreFunction = new CTBNConditionalLogLikelihood("BIC");
+		double cllS1BICExpected = cllS1Expected
+				- ((2 * (3 - 1) * 3 + 2 * (2 - 1) * 2 + 12 * (2 - 1) * 2) / 2) * Math.log(4);
+		double cllS1BICActual = scoreFunction.compute(ctbn);
+		assertEquals(cllS1BICExpected, cllS1BICActual, 0.001);
 
-		// Penalized conditional log-likelihood
-
-		// Test with structure X3 -> X1 <- X2 <- C1 <- C2 -> X1 (a feature has no
-		// parents)
-		// Remove previous structure (except class subgraph)
-		resetStructure(nodesFs);
-		// New structure
-		nodesFs.get(0).setParent(nodesCVs.get(1));
-		nodesFs.get(1).setParent(nodesCVs.get(0));
-		nodesFs.get(0).setParent(nodesFs.get(1));
-		nodesFs.get(0).setParent(nodesFs.get(2));
-		ctbn = new CTBN<CIMNode>(nodesFs, bnClassSubgraph, dataset);
-		ctbn.setParameterLearningAlgorithm(new CTBNMaximumLikelihoodEstimation());
-		ctbn.learnParameters();
-
-		// Conditional log-likelihood
-		scoreFunction = new CTBNConditionalLogLikelihood("No");
-		// double cllS2Actual = scoreFunction.compute(ctbn);
-		double cllS2Expected = 0;
-
-		// assertEquals(cllS2Expected, cllS2Actual, 0.001);
-
-		// Penalized conditional log-likelihood
-
-		// Compare scores between structures.
-
-		// CHECK EFFECT OF ARCS IN CLASS SUBGRAPH ON CONDITIONAL LOG-LIKELIHOOD
-
-		resetStructure(nodesFs);
-
-		nodesCVs.get(0).setParent(nodesCVs.get(2));
-
-		// Test with structure X3 <- C2 -> C1 -> X1 -> X3 <-> X2
-		bnClassSubgraph = new BN<CPTNode>(nodesCVs, dataset);
-		bnClassSubgraph.setParameterLearningAlgorithm(new BNMaximumLikelihoodEstimation());
-		bnClassSubgraph.learnParameters();
-
-		nodesFs.get(0).setParent(nodesCVs.get(0));
-		nodesFs.get(2).setParent(nodesCVs.get(1));
-		nodesFs.get(1).setParent(nodesFs.get(2));
-		nodesFs.get(2).setParent(nodesFs.get(0));
-		nodesFs.get(2).setParent(nodesFs.get(1));
-		ctbn = new CTBN<CIMNode>(nodesFs, bnClassSubgraph, dataset);
-		ctbn.setParameterLearningAlgorithm(new CTBNMaximumLikelihoodEstimation());
-		ctbn.learnParameters();
-
-		scoreFunction = new CTBNConditionalLogLikelihood("No");
-
-		// Test with structure X3 <- C2 C1 -> X1 -> X3 <-> X2
-		resetStructure(nodesCVs);
-		nodesFs.get(0).setParent(nodesCVs.get(0));
-		nodesFs.get(2).setParent(nodesCVs.get(1));
-
-		bnClassSubgraph = new BN<CPTNode>(nodesCVs, dataset);
-		bnClassSubgraph.setParameterLearningAlgorithm(new BNMaximumLikelihoodEstimation());
-		bnClassSubgraph.learnParameters();
-
-		ctbn = new CTBN<CIMNode>(nodesFs, bnClassSubgraph, dataset);
-		ctbn.setParameterLearningAlgorithm(new CTBNMaximumLikelihoodEstimation());
-		ctbn.learnParameters();
-
-		scoreFunction = new CTBNConditionalLogLikelihood("No");
-
-		// CHECK EFFECT OF ARCS IN CLASS SUBGRAPH ON CONDITIONAL LOG-LIKELIHOOD
-
+		// Penalized conditional log-likelihood with AIC
+		scoreFunction = new CTBNConditionalLogLikelihood("AIC");
+		double cllS1AICExpected = cllS1Expected - ((2 * (3 - 1) * 3 + 2 * (2 - 1) * 2 + 12 * (2 - 1) * 2) / 2) * 2;
+		double cllS1AICActual = scoreFunction.compute(ctbn);
+		assertEquals(cllS1AICExpected, cllS1AICActual, 0.001);
 	}
 
 	@Test

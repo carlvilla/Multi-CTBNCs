@@ -31,18 +31,28 @@ public class CTBNBayesianScore implements CTBNScoreFunction {
 		double mxyHP = ss.getMxyHyperparameter();
 		double mxHP = ss.getMxHyperparameter();
 		double txHP = ss.getTxHyperparameter();
+		// Number of states of the node and its parents
+		int numStates = node.getNumStates();
+		int numStatesParents = node.getNumStatesParents();
 		// Estimate score
 		double bdeScore = 0.0;
-		for (State state : node.getQx().keySet()) {
-			double mx = ss.getMx().get(state);
-			double tx = ss.getTx().get(state);
-			bdeScore += Gamma.logGamma(mx + 1) + (mxHP + 1) * Math.log(txHP);
-			bdeScore -= Gamma.logGamma(mxHP + 1) + (mx + 1) * Math.log(tx);
-			bdeScore += Gamma.logGamma(mxHP) - Gamma.logGamma(mx);
-			for (State toState : node.getOxy().get(state).keySet()) {
-				// Number of times the variable transitions from "state" to "toState"
-				double mxy = ss.getMxy().get(state).get(toState);
-				bdeScore += Gamma.logGamma(mxy) - Gamma.logGamma(mxyHP);
+		// Iterate over all states of the node (from where a transition begins)
+		for (int idxFromState = 0; idxFromState < numStates; idxFromState++) {
+			// Iterate over all states of the node's parents
+			for (int idxStateParents = 0; idxStateParents < numStatesParents; idxStateParents++) {
+				// Establish state of the node and its parents
+				double mx = ss.getMx()[idxStateParents][idxFromState];
+				double tx = ss.getTx()[idxStateParents][idxFromState];
+				bdeScore += Gamma.logGamma(mx + 1) + (mxHP + 1) * Math.log(txHP);
+				bdeScore -= Gamma.logGamma(mxHP + 1) + (mx + 1) * Math.log(tx);
+				bdeScore += Gamma.logGamma(mxHP) - Gamma.logGamma(mx);
+				// Iterate over all the states of the node (where a transition ends)
+				for (int idxToState = 0; idxToState < numStates; idxToState++) {
+					if (idxToState != idxFromState) {
+						double mxy = ss.getMxy()[idxStateParents][idxFromState][idxToState];
+						bdeScore += Gamma.logGamma(mxy) - Gamma.logGamma(mxyHP);
+					}
+				}
 			}
 		}
 		return bdeScore;

@@ -172,61 +172,67 @@ class LearnParametersBNTest {
 
 	@Test
 	public void testMLESufficientStatistics() {
-		// Sufficient statistics C1
-		Map<State, Double> nxC1 = nodes.get(0).getSufficientStatistics().getNx();
-		// Sufficient statistics C2
-		Map<State, Double> nxC2 = nodes.get(1).getSufficientStatistics().getNx();
-		// Sufficient statistics C3
-		Map<State, Double> nxC3 = nodes.get(2).getSufficientStatistics().getNx();
+		// Retrieve nodes
+		CPTNode nodeC1 = nodes.get(0);
+		CPTNode nodeC2 = nodes.get(1);
+		CPTNode nodeC3 = nodes.get(2);
+		// Sufficient statistics node C1
+		double[][] nxC1 = nodeC1.getSufficientStatistics().getNx();
+		// Sufficient statistics node C2
+		double[][] nxC2 = nodeC2.getSufficientStatistics().getNx();
+		// Sufficient statistics node C3
+		double[][] nxC3 = nodeC3.getSufficientStatistics().getNx();
 
-		// Sufficient statistics C1
-		State state = new State();
-		state.addEvent("C1", "a");
-		state.addEvent("C2", "b");
-		state.addEvent("C3", "b");
-		assertEquals(3, nxC1.get(state));
+		// Check sufficient statistics C1
+		nodeC1.setState("a");
+		nodeC2.setState("b");
+		nodeC3.setState("b");
+		Integer idxStateNode = nodeC1.getStateIdx();
+		Integer idxStateParents = nodeC1.getIdxStateParents();
+		assertEquals(3, nxC1[idxStateParents][idxStateNode]);
 
-		state = new State();
-		state.addEvent("C1", "b");
-		state.addEvent("C2", "a");
-		state.addEvent("C3", "b");
-		assertEquals(0, nxC1.get(state));
+		nodeC1.setState("a");
+		nodeC2.setState("a");
+		nodeC3.setState("b");
+		idxStateNode = nodeC1.getStateIdx();
+		idxStateParents = nodeC1.getIdxStateParents();
+		assertEquals(0, nxC1[idxStateParents][idxStateNode]);
 
-		state = new State();
-		state.addEvent("C1", "c");
-		state.addEvent("C2", "b");
-		state.addEvent("C3", "b");
-		assertEquals(2, nxC1.get(state));
+		nodeC1.setState("c");
+		nodeC2.setState("b");
+		nodeC3.setState("b");
+		idxStateNode = nodeC1.getStateIdx();
+		idxStateParents = nodeC1.getIdxStateParents();
+		assertEquals(2, nxC1[idxStateParents][idxStateNode]);
 
-		// Sufficient statistics C2
-		state = new State();
-		state.addEvent("C2", "b");
-		state.addEvent("C3", "b");
-		assertEquals(6, nxC2.get(state));
+		// Check sufficient statistics C2
+		nodeC2.setState("b");
+		nodeC3.setState("b");
+		idxStateNode = nodeC2.getStateIdx();
+		idxStateParents = nodeC2.getIdxStateParents();
+		assertEquals(6, nxC2[idxStateParents][idxStateNode]);
 
-		state = new State();
-		state.addEvent("C2", "a");
-		state.addEvent("C3", "a");
-		assertEquals(1, nxC2.get(state));
+		nodeC2.setState("a");
+		nodeC3.setState("a");
+		idxStateNode = nodeC2.getStateIdx();
+		idxStateParents = nodeC2.getIdxStateParents();
+		assertEquals(1, nxC2[idxStateParents][idxStateNode]);
+
+		// Check sufficient statistics C3
+		nodeC3.setState("a");
+		idxStateParents = nodeC3.getIdxStateParents();
+		idxStateNode = nodeC3.getStateIdx();
+		assertEquals(1, nxC3[idxStateParents][idxStateNode]);
+
+		nodeC3.setState("b");
+		idxStateParents = nodeC3.getIdxStateParents();
+		idxStateNode = nodeC3.getStateIdx();
+		assertEquals(6, nxC3[idxStateParents][idxStateNode]);
 
 		// Never seen state
-		state = new State();
-		state.addEvent("C2", "b");
-		state.addEvent("C3", "c");
-		assertEquals(null, nxC2.get(state));
-
-		// Sufficient statistics C3
-		state = new State();
-		state.addEvent("C3", "a");
-		assertEquals(1, nxC3.get(state));
-
-		state = new State();
-		state.addEvent("C3", "b");
-		assertEquals(6, nxC3.get(state));
-
-		state = new State();
-		state.addEvent("C3", "c");
-		assertEquals(null, nxC3.get(state));
+		nodeC2.setState("b");
+		idxStateNode = nodeC3.setState("c");
+		assertEquals(null, idxStateNode);
 	}
 
 	/**
@@ -330,61 +336,67 @@ class LearnParametersBNTest {
 	 * hyperparameters.
 	 */
 	public void testBESufficientStatistic() {
-		// Sufficient statistics C1
-		Map<State, Double> nxC1 = nodes.get(0).getSufficientStatistics().getNx();
-		// Sufficient statistics C2
-		Map<State, Double> nxC2 = nodes.get(1).getSufficientStatistics().getNx();
-		// Sufficient statistics C3
-		Map<State, Double> nxC3 = nodes.get(2).getSufficientStatistics().getNx();
+		// Retrieve nodes
+		CPTNode nodeC1 = nodes.get(0);
+		CPTNode nodeC2 = nodes.get(1);
+		CPTNode nodeC3 = nodes.get(2);
+		// Sufficient statistics node C1
+		double[][] nxC1 = nodeC1.getSufficientStatistics().getNx();
+		// Sufficient statistics node C2
+		double[][] nxC2 = nodeC2.getSufficientStatistics().getNx();
+		// Sufficient statistics node C3
+		double[][] nxC3 = nodeC3.getSufficientStatistics().getNx();
 
-		// Sufficient statistics C1
-		State state = new State();
-		state.addEvent("C1", "a");
-		state.addEvent("C2", "b");
-		state.addEvent("C3", "b");
-		assertEquals(6, nxC1.get(state));
+		// Check sufficient statistics C1
+		nodeC1.setState("a");
+		nodeC2.setState("b");
+		nodeC3.setState("b");
+		Integer idxStateNode = nodeC1.getStateIdx();
+		Integer idxStateParents = nodeC1.getIdxStateParents();
+		assertEquals(6, nxC1[idxStateParents][idxStateNode]);
 
-		state = new State();
-		state.addEvent("C1", "b");
-		state.addEvent("C2", "a");
-		state.addEvent("C3", "b");
-		assertEquals(3, nxC1.get(state));
+		nodeC1.setState("a");
+		nodeC2.setState("a");
+		nodeC3.setState("b");
+		idxStateNode = nodeC1.getStateIdx();
+		idxStateParents = nodeC1.getIdxStateParents();
+		assertEquals(3, nxC1[idxStateParents][idxStateNode]);
 
-		state = new State();
-		state.addEvent("C1", "c");
-		state.addEvent("C2", "b");
-		state.addEvent("C3", "b");
-		assertEquals(5, nxC1.get(state));
+		nodeC1.setState("c");
+		nodeC2.setState("b");
+		nodeC3.setState("b");
+		idxStateNode = nodeC1.getStateIdx();
+		idxStateParents = nodeC1.getIdxStateParents();
+		assertEquals(5, nxC1[idxStateParents][idxStateNode]);
 
-		// Sufficient statistics C2
-		state = new State();
-		state.addEvent("C2", "b");
-		state.addEvent("C3", "b");
-		assertEquals(9, nxC2.get(state));
+		// Check sufficient statistics C2
+		nodeC2.setState("b");
+		nodeC3.setState("b");
+		idxStateNode = nodeC2.getStateIdx();
+		idxStateParents = nodeC2.getIdxStateParents();
+		assertEquals(9, nxC2[idxStateParents][idxStateNode]);
 
-		state = new State();
-		state.addEvent("C2", "a");
-		state.addEvent("C3", "a");
-		assertEquals(4, nxC2.get(state));
+		nodeC2.setState("a");
+		nodeC3.setState("a");
+		idxStateNode = nodeC2.getStateIdx();
+		idxStateParents = nodeC2.getIdxStateParents();
+		assertEquals(4, nxC2[idxStateParents][idxStateNode]);
+
+		// Check sufficient statistics C3
+		nodeC3.setState("a");
+		idxStateParents = nodeC3.getIdxStateParents();
+		idxStateNode = nodeC3.getStateIdx();
+		assertEquals(4, nxC3[idxStateParents][idxStateNode]);
+
+		nodeC3.setState("b");
+		idxStateParents = nodeC3.getIdxStateParents();
+		idxStateNode = nodeC3.getStateIdx();
+		assertEquals(9, nxC3[idxStateParents][idxStateNode]);
 
 		// Never seen state
-		state = new State();
-		state.addEvent("C2", "b");
-		state.addEvent("C3", "c");
-		assertEquals(null, nxC2.get(state));
-
-		// Sufficient statistics C3
-		state = new State();
-		state.addEvent("C3", "a");
-		assertEquals(4, nxC3.get(state));
-
-		state = new State();
-		state.addEvent("C3", "b");
-		assertEquals(9, nxC3.get(state));
-
-		state = new State();
-		state.addEvent("C3", "c");
-		assertEquals(null, nxC3.get(state));
+		nodeC2.setState("b");
+		idxStateNode = nodeC3.setState("c");
+		assertEquals(null, idxStateNode);
 	}
 
 }

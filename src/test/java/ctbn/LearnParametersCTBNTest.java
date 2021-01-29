@@ -17,6 +17,7 @@ import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
 import com.cig.mctbnc.nodes.CIMNode;
+import com.cig.mctbnc.nodes.CPTNode;
 
 /**
  * Test the estimation of sufficient statistics and parameters of a CTBN.
@@ -113,7 +114,7 @@ class LearnParametersCTBNTest {
 		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNMaximumLikelihoodEstimation();
 		ctbnParameterLearning.learn(nodes, dataset);
 		// Sufficient statistics
-		testMLESufficientStatisticMxx();
+		testMLESufficientStatisticMxy();
 		testMLESufficientStatisticMx();
 		testMLESufficientStatisticTx();
 		// Parameters
@@ -122,73 +123,67 @@ class LearnParametersCTBNTest {
 	}
 
 	/**
-	 * Check the computation of the sufficient statistic Mxx for a certain CTBN and
+	 * Check the computation of the sufficient statistic Mxy for a certain CTBN and
 	 * dataset when using maximum likelihood estimation.
 	 */
-	public void testMLESufficientStatisticMxx() {
-		// Sufficient statistics V1
-		Map<State, Map<State, Double>> ssV1 = nodes.get(0).getSufficientStatistics().getMxy();
+	public void testMLESufficientStatisticMxy() {
+		// Retrieve nodes
+		CIMNode nodeV1 = nodes.get(0);
+		CIMNode nodeV2 = nodes.get(1);
+		CIMNode nodeV3 = nodes.get(2);
+		// Sufficient statistics Mxy of node V1
+		double[][][] mxyV1 = nodeV1.getSufficientStatistics().getMxy();
+		// Sufficient statistics Mxy of node V2
+		double[][][] mxyV2 = nodeV2.getSufficientStatistics().getMxy();
+		// Sufficient statistics Mxy of node V3
+		double[][][] mxyV3 = nodeV3.getSufficientStatistics().getMxy();
+
+		// Check sufficient statistics V1
+		Integer idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("b");
+		nodeV3.setState("b");
+		Integer idxStateParents = nodeV1.getIdxStateParents();
+		Integer idxToStateNode = nodeV1.setState("b");
+		assertEquals(2, mxyV1[idxStateParents][idxFromStateNode][idxToStateNode]);
+		idxToStateNode = nodeV1.setState("c");
+		assertEquals(1, mxyV1[idxStateParents][idxFromStateNode][idxToStateNode]);
+
+		idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV1.getIdxStateParents();
+		idxToStateNode = nodeV1.setState("b");
+		assertEquals(0, mxyV1[idxStateParents][idxFromStateNode][idxToStateNode]);
+		idxToStateNode = nodeV1.setState("c");
+		assertEquals(1, mxyV1[idxStateParents][idxFromStateNode][idxToStateNode]);
+
 		// Sufficient statistics V2
-		Map<State, Map<State, Double>> ssV2 = nodes.get(1).getSufficientStatistics().getMxy();
-		// Sufficient statistics V3
-		Map<State, Map<State, Double>> ssV3 = nodes.get(2).getSufficientStatistics().getMxy();
+		idxFromStateNode = nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV2.getIdxStateParents();
+		idxToStateNode = nodeV2.setState("b");
+		assertEquals(0, mxyV2[idxStateParents][idxFromStateNode][idxToStateNode]);
 
-		// Sufficient statistics V1
-		State fromState = new State();
-		fromState.addEvent("V1", "a");
-		fromState.addEvent("V2", "b");
-		fromState.addEvent("V3", "b");
-		State toState = new State();
-		toState.addEvent("V1", "b");
-		assertEquals(2, ssV1.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent("V1", "c");
-		assertEquals(1, ssV1.get(fromState).get(toState));
-
-		fromState = new State();
-		fromState.addEvent("V1", "a");
-		fromState.addEvent("V2", "a");
-		fromState.addEvent("V3", "a");
-		toState = new State();
-		toState.addEvent("V1", "b");
-		assertEquals(0, ssV1.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent("V1", "c");
-		assertEquals(1, ssV1.get(fromState).get(toState));
-
-		// Sufficient statistics V2
-		fromState = new State();
-		fromState.addEvent("V2", "a");
-		fromState.addEvent("V3", "a");
-		toState = new State();
-		toState.addEvent("V2", "b");
-		assertEquals(0, ssV2.get(fromState).get(toState));
-
-		fromState = new State();
-		fromState.addEvent("V2", "b");
-		fromState.addEvent("V3", "b");
-		toState = new State();
-		toState.addEvent("V2", "a");
-		assertEquals(1, ssV2.get(fromState).get(toState));
+		idxFromStateNode = nodeV2.setState("b");
+		nodeV3.setState("b");
+		idxStateParents = nodeV2.getIdxStateParents();
+		idxToStateNode = nodeV2.setState("a");
+		assertEquals(1, mxyV2[idxStateParents][idxFromStateNode][idxToStateNode]);
 
 		// Sufficient statistics V3
-		fromState = new State();
-		fromState.addEvent("V3", "a");
-		toState = new State();
-		toState.addEvent("V3", "b");
-		assertEquals(0, ssV3.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent("V3", "c");
-		assertEquals(1, ssV3.get(fromState).get(toState));
+		idxFromStateNode = nodeV3.setState("a");
+		idxStateParents = nodeV3.getIdxStateParents();
+		idxToStateNode = nodeV3.setState("b");
+		assertEquals(0, mxyV3[idxStateParents][idxFromStateNode][idxToStateNode]);
+		idxToStateNode = nodeV3.setState("c");
+		assertEquals(1, mxyV3[idxStateParents][idxFromStateNode][idxToStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V3", "b");
-		toState = new State();
-		toState.addEvent("V3", "a");
-		assertEquals(3, ssV3.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent("V3", "c");
-		assertEquals(0, ssV3.get(fromState).get(toState));
+		idxFromStateNode = nodeV3.setState("b");
+		idxStateParents = nodeV3.getIdxStateParents();
+		idxToStateNode = nodeV3.setState("a");
+		assertEquals(3, mxyV3[idxStateParents][idxFromStateNode][idxToStateNode]);
+		idxToStateNode = nodeV3.setState("c");
+		assertEquals(0, mxyV3[idxStateParents][idxFromStateNode][idxToStateNode]);
 	}
 
 	/**
@@ -196,59 +191,63 @@ class LearnParametersCTBNTest {
 	 * dataset when using maximum likelihood estimation.
 	 */
 	public void testMLESufficientStatisticMx() {
-		// Sufficient statistics V1
-		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getMx();
-		// Sufficient statistics V2
-		Map<State, Double> ssV2 = nodes.get(1).getSufficientStatistics().getMx();
-		// Sufficient statistics V3
-		Map<State, Double> ssV3 = nodes.get(2).getSufficientStatistics().getMx();
+		// Retrieve nodes
+		CIMNode nodeV1 = nodes.get(0);
+		CIMNode nodeV2 = nodes.get(1);
+		CIMNode nodeV3 = nodes.get(2);
+		// Sufficient statistics Mxy of node V1
+		double[][] mxV1 = nodeV1.getSufficientStatistics().getMx();
+		// Sufficient statistics Mxy of node V2
+		double[][] mxV2 = nodeV2.getSufficientStatistics().getMx();
+		// Sufficient statistics Mxy of node V3
+		double[][] mxV3 = nodeV3.getSufficientStatistics().getMx();
 
-		// Sufficient statistics V1
-		State fromState = new State();
-		fromState.addEvent("V1", "a");
-		fromState.addEvent("V2", "b");
-		fromState.addEvent("V3", "b");
-		assertEquals(3, ssV1.get(fromState));
+		// Check sufficient statistics V1
+		Integer idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("b");
+		nodeV3.setState("b");
+		Integer idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(3, mxV1[idxStateParents][idxFromStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V1", "a");
-		fromState.addEvent("V2", "a");
-		fromState.addEvent("V3", "a");
-		assertEquals(1, ssV1.get(fromState));
+		idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(1, mxV1[idxStateParents][idxFromStateNode]);
 
-		// Sufficient statistics V2
-		fromState = new State();
-		fromState.addEvent("V2", "a");
-		fromState.addEvent("V3", "a");
-		assertEquals(0, ssV2.get(fromState));
+		// Check sufficient statistics V2
+		idxFromStateNode = nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(0, mxV2[idxStateParents][idxFromStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V2", "a");
-		fromState.addEvent("V3", "b");
-		assertEquals(1, ssV2.get(fromState));
+		idxFromStateNode = nodeV2.setState("a");
+		nodeV3.setState("b");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(1, mxV2[idxStateParents][idxFromStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V2", "b");
-		fromState.addEvent("V3", "a");
-		assertEquals(0, ssV2.get(fromState));
+		idxFromStateNode = nodeV2.setState("b");
+		nodeV3.setState("a");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(0, mxV2[idxStateParents][idxFromStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V2", "b");
-		fromState.addEvent("V3", "b");
-		assertEquals(1, ssV2.get(fromState));
+		idxFromStateNode = nodeV2.setState("b");
+		nodeV3.setState("b");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(1, mxV2[idxStateParents][idxFromStateNode]);
 
-		// Sufficient statistics V3
-		fromState = new State();
-		fromState.addEvent("V3", "a");
-		assertEquals(1, ssV3.get(fromState));
+		// Check sufficient statistics V3
+		idxFromStateNode = nodeV3.setState("a");
+		idxStateParents = nodeV3.getIdxStateParents();
+		assertEquals(1, mxV3[idxStateParents][idxFromStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V3", "b");
-		assertEquals(3, ssV3.get(fromState));
+		idxFromStateNode = nodeV3.setState("b");
+		idxStateParents = nodeV3.getIdxStateParents();
+		assertEquals(3, mxV3[idxStateParents][idxFromStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V3", "c");
-		assertEquals(0, ssV3.get(fromState));
+		idxFromStateNode = nodeV3.setState("c");
+		idxStateParents = nodeV3.getIdxStateParents();
+		assertEquals(0, mxV3[idxStateParents][idxFromStateNode]);
 	}
 
 	/**
@@ -257,83 +256,86 @@ class LearnParametersCTBNTest {
 	 * likelihood estimation.
 	 */
 	public void testMLESufficientStatisticTx() {
-		// Test the sufficient parameters for certain combinations of states
-		// Sufficient statistics V1
-		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getTx();
-		// Sufficient statistics V2
-		Map<State, Double> ssV2 = nodes.get(1).getSufficientStatistics().getTx();
-		// Sufficient statistics V3
-		Map<State, Double> ssV3 = nodes.get(2).getSufficientStatistics().getTx();
+		// Retrieve nodes
+		CIMNode nodeV1 = nodes.get(0);
+		CIMNode nodeV2 = nodes.get(1);
+		CIMNode nodeV3 = nodes.get(2);
+		// Sufficient statistics Mxy of node V1
+		double[][] txV1 = nodeV1.getSufficientStatistics().getTx();
+		// Sufficient statistics Mxy of node V2
+		double[][] txV2 = nodeV2.getSufficientStatistics().getTx();
+		// Sufficient statistics Mxy of node V3
+		double[][] txV3 = nodeV3.getSufficientStatistics().getTx();
 
-		// Sufficient statistics V1
-		State state = new State();
-		state.addEvent("V1", "a");
-		state.addEvent("V2", "a");
-		state.addEvent("V3", "a");
-		assertEquals(0.5, ssV1.get(state), 0.01);
+		// Check sufficient statistics V1
+		Integer idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("a");
+		nodeV3.setState("a");
+		Integer idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(0.5, txV1[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V1", "c");
-		state.addEvent("V2", "a");
-		state.addEvent("V3", "c"); // Last observation of a sequence. It never changes, so the
-									// duration is unknown.
-		assertEquals(0, ssV1.get(state), 0.01);
+		// Last observation of a sequence. It never changes, so the duration is unknown.
+		idxFromStateNode = nodeV1.setState("c");
+		nodeV2.setState("a");
+		nodeV3.setState("c");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(0, txV1[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V1", "a");
-		state.addEvent("V2", "b");
-		state.addEvent("V3", "b");
-		assertEquals(1.0, ssV1.get(state), 0.01);
+		idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("b");
+		nodeV3.setState("b");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(1.0, txV1[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V1", "a");
-		state.addEvent("V2", "b");
-		state.addEvent("V3", "c"); // State that never occurs
-		assertEquals(0, ssV1.get(state), 0.01);
+		idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("b");
+		nodeV3.setState("c");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(0, txV1[idxStateParents][idxFromStateNode], 0.01);
 
-		// Sufficient statistics V2
-		state = new State();
-		state.addEvent("V2", "a");
-		state.addEvent("V3", "a");
-		assertEquals(0.5, ssV2.get(state), 0.01);
+		// Check sufficient statistics V2
+		idxFromStateNode = nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(0.5, txV2[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V2", "a");
-		state.addEvent("V3", "b");
-		assertEquals(0.4, ssV2.get(state), 0.01);
+		idxFromStateNode = nodeV2.setState("a");
+		nodeV3.setState("b");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(0.4, txV2[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V2", "a");
-		state.addEvent("V3", "c");
-		assertEquals(0, ssV2.get(state), 0.01);
+		idxFromStateNode = nodeV2.setState("a");
+		nodeV3.setState("c");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(0, txV2[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V2", "b");
-		state.addEvent("V3", "a");
-		assertEquals(0, ssV2.get(state), 0.01);
+		idxFromStateNode = nodeV2.setState("b");
+		nodeV3.setState("a");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(0, txV2[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V2", "b");
-		state.addEvent("V3", "b");
-		assertEquals(1.7, ssV2.get(state), 0.01);
+		idxFromStateNode = nodeV2.setState("b");
+		nodeV3.setState("b");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(1.7, txV2[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V2", "b");
-		state.addEvent("V3", "c");
-		assertEquals(0, ssV2.get(state), 0.01);
+		idxFromStateNode = nodeV2.setState("b");
+		nodeV3.setState("c");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(0, txV2[idxStateParents][idxFromStateNode], 0.01);
 
-		// Sufficient statistics V3
-		state = new State();
-		state.addEvent("V3", "a");
-		assertEquals(0.5, ssV3.get(state), 0.01);
+		// Check sufficient statistics V3
+		idxFromStateNode = nodeV3.setState("a");
+		idxStateParents = nodeV3.getIdxStateParents();
+		assertEquals(0.5, txV3[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V3", "b");
-		assertEquals(2.1, ssV3.get(state), 0.01);
+		idxFromStateNode = nodeV3.setState("b");
+		idxStateParents = nodeV3.getIdxStateParents();
+		assertEquals(2.1, txV3[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V3", "c");
-		assertEquals(0, ssV3.get(state), 0.01);
+		idxFromStateNode = nodeV3.setState("c");
+		idxStateParents = nodeV3.getIdxStateParents();
+		assertEquals(0, txV3[idxStateParents][idxFromStateNode], 0.01);
 	}
 
 	/**
@@ -531,7 +533,7 @@ class LearnParametersCTBNTest {
 		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(MxyPrior, TxPrior);
 		ctbnParameterLearning.learn(nodes, dataset);
 		// Sufficient statistics
-		testMLESufficientStatisticMxx();
+		testMLESufficientStatisticMxy();
 		testMLESufficientStatisticMx();
 		testMLESufficientStatisticTx();
 		// Parameters
@@ -551,7 +553,7 @@ class LearnParametersCTBNTest {
 		CTBNParameterLearningAlgorithm ctbnParameterLearning = new CTBNBayesianEstimation(MxyPrior, TxPrior);
 		ctbnParameterLearning.learn(nodes, dataset);
 		// Sufficient statistics
-		testBESufficientStatisticMxx();
+		testBESufficientStatisticMxy();
 		testBESufficientStatisticMx();
 		testBESufficientStatisticTx();
 		// Parameters
@@ -560,73 +562,67 @@ class LearnParametersCTBNTest {
 	}
 
 	/**
-	 * Check the computation of the sufficient statistic Mxx for a certain CTBN and
+	 * Check the computation of the sufficient statistic Mxy for a certain CTBN and
 	 * dataset when using Bayesian estimation.
 	 */
-	public void testBESufficientStatisticMxx() {
-		// Sufficient statistics V1
-		Map<State, Map<State, Double>> ssV1 = nodes.get(0).getSufficientStatistics().getMxy();
+	public void testBESufficientStatisticMxy() {
+		// Retrieve nodes
+		CIMNode nodeV1 = nodes.get(0);
+		CIMNode nodeV2 = nodes.get(1);
+		CIMNode nodeV3 = nodes.get(2);
+		// Sufficient statistics Mxy of node V1
+		double[][][] mxyV1 = nodeV1.getSufficientStatistics().getMxy();
+		// Sufficient statistics Mxy of node V2
+		double[][][] mxyV2 = nodeV2.getSufficientStatistics().getMxy();
+		// Sufficient statistics Mxy of node V3
+		double[][][] mxyV3 = nodeV3.getSufficientStatistics().getMxy();
+
+		// Check sufficient statistics V1
+		Integer idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("b");
+		nodeV3.setState("b");
+		Integer idxStateParents = nodeV1.getIdxStateParents();
+		Integer idxToStateNode = nodeV1.setState("b");
+		assertEquals(3, mxyV1[idxStateParents][idxFromStateNode][idxToStateNode]);
+		idxToStateNode = nodeV1.setState("c");
+		assertEquals(2, mxyV1[idxStateParents][idxFromStateNode][idxToStateNode]);
+
+		idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV1.getIdxStateParents();
+		idxToStateNode = nodeV1.setState("b");
+		assertEquals(1, mxyV1[idxStateParents][idxFromStateNode][idxToStateNode]);
+		idxToStateNode = nodeV1.setState("c");
+		assertEquals(2, mxyV1[idxStateParents][idxFromStateNode][idxToStateNode]);
+
 		// Sufficient statistics V2
-		Map<State, Map<State, Double>> ssV2 = nodes.get(1).getSufficientStatistics().getMxy();
-		// Sufficient statistics V3
-		Map<State, Map<State, Double>> ssV3 = nodes.get(2).getSufficientStatistics().getMxy();
+		idxFromStateNode = nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV2.getIdxStateParents();
+		idxToStateNode = nodeV2.setState("b");
+		assertEquals(1, mxyV2[idxStateParents][idxFromStateNode][idxToStateNode]);
 
-		// Sufficient statistics V1
-		State fromState = new State();
-		fromState.addEvent("V1", "a");
-		fromState.addEvent("V2", "b");
-		fromState.addEvent("V3", "b");
-		State toState = new State();
-		toState.addEvent("V1", "b");
-		assertEquals(3, ssV1.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent("V1", "c");
-		assertEquals(2, ssV1.get(fromState).get(toState));
-
-		fromState = new State();
-		fromState.addEvent("V1", "a");
-		fromState.addEvent("V2", "a");
-		fromState.addEvent("V3", "a");
-		toState = new State();
-		toState.addEvent("V1", "b");
-		assertEquals(1, ssV1.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent("V1", "c");
-		assertEquals(2, ssV1.get(fromState).get(toState));
-
-		// Sufficient statistics V2
-		fromState = new State();
-		fromState.addEvent("V2", "a");
-		fromState.addEvent("V3", "a");
-		toState = new State();
-		toState.addEvent("V2", "b");
-		assertEquals(1, ssV2.get(fromState).get(toState));
-
-		fromState = new State();
-		fromState.addEvent("V2", "b");
-		fromState.addEvent("V3", "b");
-		toState = new State();
-		toState.addEvent("V2", "a");
-		assertEquals(2, ssV2.get(fromState).get(toState));
+		idxFromStateNode = nodeV2.setState("b");
+		nodeV3.setState("b");
+		idxStateParents = nodeV2.getIdxStateParents();
+		idxToStateNode = nodeV2.setState("a");
+		assertEquals(2, mxyV2[idxStateParents][idxFromStateNode][idxToStateNode]);
 
 		// Sufficient statistics V3
-		fromState = new State();
-		fromState.addEvent("V3", "a");
-		toState = new State();
-		toState.addEvent("V3", "b");
-		assertEquals(1, ssV3.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent("V3", "c");
-		assertEquals(2, ssV3.get(fromState).get(toState));
+		idxFromStateNode = nodeV3.setState("a");
+		idxStateParents = nodeV3.getIdxStateParents();
+		idxToStateNode = nodeV3.setState("b");
+		assertEquals(1, mxyV3[idxStateParents][idxFromStateNode][idxToStateNode]);
+		idxToStateNode = nodeV3.setState("c");
+		assertEquals(2, mxyV3[idxStateParents][idxFromStateNode][idxToStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V3", "b");
-		toState = new State();
-		toState.addEvent("V3", "a");
-		assertEquals(4, ssV3.get(fromState).get(toState));
-		toState = new State();
-		toState.addEvent("V3", "c");
-		assertEquals(1, ssV3.get(fromState).get(toState));
+		idxFromStateNode = nodeV3.setState("b");
+		idxStateParents = nodeV3.getIdxStateParents();
+		idxToStateNode = nodeV3.setState("a");
+		assertEquals(4, mxyV3[idxStateParents][idxFromStateNode][idxToStateNode]);
+		idxToStateNode = nodeV3.setState("c");
+		assertEquals(1, mxyV3[idxStateParents][idxFromStateNode][idxToStateNode]);
 	}
 
 	/**
@@ -634,59 +630,63 @@ class LearnParametersCTBNTest {
 	 * dataset when using Bayesian estimation.
 	 */
 	public void testBESufficientStatisticMx() {
-		// Sufficient statistics V1
-		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getMx();
-		// Sufficient statistics V2
-		Map<State, Double> ssV2 = nodes.get(1).getSufficientStatistics().getMx();
-		// Sufficient statistics V3
-		Map<State, Double> ssV3 = nodes.get(2).getSufficientStatistics().getMx();
+		// Retrieve nodes
+		CIMNode nodeV1 = nodes.get(0);
+		CIMNode nodeV2 = nodes.get(1);
+		CIMNode nodeV3 = nodes.get(2);
+		// Sufficient statistics Mxy of node V1
+		double[][] mxV1 = nodeV1.getSufficientStatistics().getMx();
+		// Sufficient statistics Mxy of node V2
+		double[][] mxV2 = nodeV2.getSufficientStatistics().getMx();
+		// Sufficient statistics Mxy of node V3
+		double[][] mxV3 = nodeV3.getSufficientStatistics().getMx();
 
-		// Sufficient statistics V1
-		State fromState = new State();
-		fromState.addEvent("V1", "a");
-		fromState.addEvent("V2", "b");
-		fromState.addEvent("V3", "b");
-		assertEquals(5, ssV1.get(fromState));
+		// Check sufficient statistics V1
+		Integer idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("b");
+		nodeV3.setState("b");
+		Integer idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(5, mxV1[idxStateParents][idxFromStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V1", "a");
-		fromState.addEvent("V2", "a");
-		fromState.addEvent("V3", "a");
-		assertEquals(3, ssV1.get(fromState));
+		idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(3, mxV1[idxStateParents][idxFromStateNode]);
 
-		// Sufficient statistics V2
-		fromState = new State();
-		fromState.addEvent("V2", "a");
-		fromState.addEvent("V3", "a");
-		assertEquals(1, ssV2.get(fromState));
+		// Check sufficient statistics V2
+		idxFromStateNode = nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(1, mxV2[idxStateParents][idxFromStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V2", "a");
-		fromState.addEvent("V3", "b");
-		assertEquals(2, ssV2.get(fromState));
+		idxFromStateNode = nodeV2.setState("a");
+		nodeV3.setState("b");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(2, mxV2[idxStateParents][idxFromStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V2", "b");
-		fromState.addEvent("V3", "a");
-		assertEquals(1, ssV2.get(fromState));
+		idxFromStateNode = nodeV2.setState("b");
+		nodeV3.setState("a");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(1, mxV2[idxStateParents][idxFromStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V2", "b");
-		fromState.addEvent("V3", "b");
-		assertEquals(2, ssV2.get(fromState));
+		idxFromStateNode = nodeV2.setState("b");
+		nodeV3.setState("b");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(2, mxV2[idxStateParents][idxFromStateNode]);
 
-		// Sufficient statistics V3
-		fromState = new State();
-		fromState.addEvent("V3", "a");
-		assertEquals(3, ssV3.get(fromState));
+		// Check sufficient statistics V3
+		idxFromStateNode = nodeV3.setState("a");
+		idxStateParents = nodeV3.getIdxStateParents();
+		assertEquals(3, mxV3[idxStateParents][idxFromStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V3", "b");
-		assertEquals(5, ssV3.get(fromState));
+		idxFromStateNode = nodeV3.setState("b");
+		idxStateParents = nodeV3.getIdxStateParents();
+		assertEquals(5, mxV3[idxStateParents][idxFromStateNode]);
 
-		fromState = new State();
-		fromState.addEvent("V3", "c");
-		assertEquals(2, ssV3.get(fromState));
+		idxFromStateNode = nodeV3.setState("c");
+		idxStateParents = nodeV3.getIdxStateParents();
+		assertEquals(2, mxV3[idxStateParents][idxFromStateNode]);
 	}
 
 	/**
@@ -695,83 +695,86 @@ class LearnParametersCTBNTest {
 	 * estimation.
 	 */
 	public void testBESufficientStatisticTx() {
-		// Test the sufficient parameters for certain combinations of states
-		// Sufficient statistics V1
-		Map<State, Double> ssV1 = nodes.get(0).getSufficientStatistics().getTx();
-		// Sufficient statistics V2
-		Map<State, Double> ssV2 = nodes.get(1).getSufficientStatistics().getTx();
-		// Sufficient statistics V3
-		Map<State, Double> ssV3 = nodes.get(2).getSufficientStatistics().getTx();
+		// Retrieve nodes
+		CIMNode nodeV1 = nodes.get(0);
+		CIMNode nodeV2 = nodes.get(1);
+		CIMNode nodeV3 = nodes.get(2);
+		// Sufficient statistics Mxy of node V1
+		double[][] txV1 = nodeV1.getSufficientStatistics().getTx();
+		// Sufficient statistics Mxy of node V2
+		double[][] txV2 = nodeV2.getSufficientStatistics().getTx();
+		// Sufficient statistics Mxy of node V3
+		double[][] txV3 = nodeV3.getSufficientStatistics().getTx();
 
-		// Sufficient statistics V1
-		State state = new State();
-		state.addEvent("V1", "a");
-		state.addEvent("V2", "a");
-		state.addEvent("V3", "a");
-		assertEquals(2.5, ssV1.get(state), 0.01);
+		// Check sufficient statistics V1
+		Integer idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("a");
+		nodeV3.setState("a");
+		Integer idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(2.5, txV1[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V1", "c");
-		state.addEvent("V2", "a");
-		state.addEvent("V3", "c"); // Last observation of a sequence. It never changes, so the
-									// duration is unknown.
-		assertEquals(2, ssV1.get(state), 0.01);
+		// Last observation of a sequence. It never changes, so the duration is unknown.
+		idxFromStateNode = nodeV1.setState("c");
+		nodeV2.setState("a");
+		nodeV3.setState("c");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(2, txV1[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V1", "a");
-		state.addEvent("V2", "b");
-		state.addEvent("V3", "b");
-		assertEquals(3.0, ssV1.get(state), 0.01);
+		idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("b");
+		nodeV3.setState("b");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(3, txV1[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V1", "a");
-		state.addEvent("V2", "b");
-		state.addEvent("V3", "c"); // State that never occurs
-		assertEquals(2, ssV1.get(state), 0.01);
+		idxFromStateNode = nodeV1.setState("a");
+		nodeV2.setState("b");
+		nodeV3.setState("c"); // State that never occurs
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(2, txV1[idxStateParents][idxFromStateNode], 0.01);
 
-		// Sufficient statistics V2
-		state = new State();
-		state.addEvent("V2", "a");
-		state.addEvent("V3", "a");
-		assertEquals(2.5, ssV2.get(state), 0.01);
+		// Check sufficient statistics V2
+		idxFromStateNode = nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(2.5, txV2[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V2", "a");
-		state.addEvent("V3", "b");
-		assertEquals(2.4, ssV2.get(state), 0.01);
+		idxFromStateNode = nodeV2.setState("a");
+		nodeV3.setState("b");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(2.4, txV2[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V2", "a");
-		state.addEvent("V3", "c");
-		assertEquals(2, ssV2.get(state), 0.01);
+		idxFromStateNode = nodeV2.setState("a");
+		nodeV3.setState("c");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(2, txV2[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V2", "b");
-		state.addEvent("V3", "a");
-		assertEquals(2, ssV2.get(state), 0.01);
+		idxFromStateNode = nodeV2.setState("b");
+		nodeV3.setState("a");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(2, txV2[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V2", "b");
-		state.addEvent("V3", "b");
-		assertEquals(3.7, ssV2.get(state), 0.01);
+		idxFromStateNode = nodeV2.setState("b");
+		nodeV3.setState("b");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(3.7, txV2[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V2", "b");
-		state.addEvent("V3", "c");
-		assertEquals(2, ssV2.get(state), 0.01);
+		idxFromStateNode = nodeV2.setState("b");
+		nodeV3.setState("c");
+		idxStateParents = nodeV2.getIdxStateParents();
+		assertEquals(2, txV2[idxStateParents][idxFromStateNode], 0.01);
 
-		// Sufficient statistics V3
-		state = new State();
-		state.addEvent("V3", "a");
-		assertEquals(2.5, ssV3.get(state), 0.01);
+		// Check sufficient statistics V3
+		idxFromStateNode = nodeV3.setState("a");
+		idxStateParents = nodeV3.getIdxStateParents();
+		assertEquals(2.5, txV3[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V3", "b");
-		assertEquals(4.1, ssV3.get(state), 0.01);
+		idxFromStateNode = nodeV3.setState("b");
+		idxStateParents = nodeV3.getIdxStateParents();
+		assertEquals(4.1, txV3[idxStateParents][idxFromStateNode], 0.01);
 
-		state = new State();
-		state.addEvent("V3", "c");
-		assertEquals(2, ssV3.get(state), 0.01);
+		idxFromStateNode = nodeV3.setState("c");
+		idxStateParents = nodeV3.getIdxStateParents();
+		assertEquals(2, txV3[idxStateParents][idxFromStateNode], 0.01);
 	}
 
 	/**

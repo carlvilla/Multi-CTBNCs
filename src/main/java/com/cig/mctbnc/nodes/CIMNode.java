@@ -16,7 +16,6 @@ import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
  *
  */
 public class CIMNode extends DiscreteNode {
-
 	// The conditional intensity matrix can be summarized by two types of parameters
 	// (Nodelman et al., 2012): (1) instantaneous probability of the variable
 	// leaving a certain state while its parents take a certain value
@@ -178,6 +177,11 @@ public class CIMNode extends DiscreteNode {
 	 */
 	public Map<State, Map<State, Double>> getOxy() {
 		return Oxy;
+	}
+	
+	@Override
+	public boolean areParametersEstimated() {
+		return !(Qx == null || Oxy == null || Qx.isEmpty() || Oxy.isEmpty());
 	}
 
 	public String toString() {

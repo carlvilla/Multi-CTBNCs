@@ -1,6 +1,5 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
-import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -129,8 +128,8 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 	 * Compute the score of a structure given an adjacency matrix. A cache is used
 	 * to avoid recomputing a score.
 	 * 
-	 * @param indexNode
 	 * @param adjacencyMatrix
+	 * @param modifiedNodes
 	 * @param cache
 	 * @return
 	 */
@@ -143,7 +142,7 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 				@Override
 				public Double call() {
 					// Set structure and obtain local score at the node 'indexNode'
-					pgm.setStructure(adjacencyMatrix);
+					pgm.setStructureModifiedNodes(adjacencyMatrix);
 					return scoreFunction.compute((CTBN<? extends Node>) pgm);
 				}
 			});
@@ -152,17 +151,5 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 		}
 		return obtainedScore;
 	}
-
-//	/**
-//	 * Establish the structure defined in an adjacency matrix and return its score.
-//	 * 
-//	 * @param indexNode
-//	 * @param adjacencyMatrix
-//	 * @return
-//	 */
-//	private double setStructure(boolean[][] adjacencyMatrix) {
-//		pgm.setStructure(adjacencyMatrix);
-//		return scoreFunction.compute((CTBN<? extends Node>) pgm);
-//	}
 
 }

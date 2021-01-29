@@ -39,17 +39,19 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 			// Obtain an array with the values that the studied variable can take
 			String[] possibleValuesStudiedVariable = node.getStates().stream()
 					.map(stateAux -> stateAux.getValueVariable(node.getName())).toArray(String[]::new);
-			// All the possible states between the studied variable and its parents
-			Set<State> states = node.getSufficientStatistics().getNx().keySet();
-			for (State state : states)
-				llScore += classProbability(node, state);
+			// Number of states of the node and its parents
+			int numStates = node.getNumStates();
+			int numStatesParents = node.getNumStatesParents();
+			// Iterate over all states of the node (from where a transition begins)
+			for (int idxState = 0; idxState < numStates; idxState++)
+				// Iterate over all states of the node's parents
+				for (int idxStateParents = 0; idxStateParents < numStatesParents; idxStateParents++)
+					llScore += classProbability(node, idxState, idxStateParents);
 			// If the specified penalization function is available, it is applied
 			if (penalizationFunctionMap.containsKey(penalizationFunction)) {
 				// Overfitting is avoid by penalizing the complexity of the network
 				// Number of possible states of the parents of the currently studied variable
-				int numPossibleStatesParents = node.getParents().stream().map(parent -> (DiscreteNode) parent)
-						.map(parent -> parent.getStates()).map(listStates -> listStates.size())
-						.reduce(1, (a, b) -> a * b);
+				int numPossibleStatesParents = node.getNumStatesParents();
 				// Number of possible states of the currently studied variable
 				int numPossibleStatesStudiedVariable = possibleValuesStudiedVariable.length;
 				// Compute network complexity
@@ -66,15 +68,19 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 	}
 
 	/**
-	 * Estimate the probability of a class variable taking a certain value.
+	 * Estimate the probability of a class variable taking a certain state.
 	 * 
-	 * @param node  class variable node
-	 * @param state state of the class variable node and its parents
+	 * @param node            class variable node
+	 * @param idxState        index of the state of the class variable node
+	 * @param idxStateParents index of the states of the parents of the node
 	 * @return
 	 */
-	private double classProbability(CPTNode node, State state) {
-		// Number of times the studied variable and its parents take a certain value
-		double Nijk = node.getSufficientStatistics().getNx().get(state);
+	private double classProbability(CPTNode node, int idxState, int idxStateParents) {
+		// Number of times the studied variable and its parents take a certain state
+		double Nijk = node.getSufficientStatistics().getNx()[idxStateParents][idxState];
+		node.setState(idxState);
+		node.setStateParents(idxStateParents);
+		State state = node.getStateNodeAndParents();
 		double classProbability = 0.0;
 		if (Nijk != 0)
 			classProbability = Nijk * Math.log(node.getCPT().get(state));

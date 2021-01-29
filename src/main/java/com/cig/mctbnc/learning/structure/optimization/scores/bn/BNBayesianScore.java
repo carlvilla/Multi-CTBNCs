@@ -1,11 +1,9 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.bn;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.math3.special.Gamma;
 
-import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
@@ -25,23 +23,21 @@ public class BNBayesianScore implements BNScoreFunction {
 		double nxHP = nodes.get(0).getSufficientStatistics().getNxHyperparameter();
 		double bdeScore = 0.0;
 		for (CPTNode node : nodes) {
-			// Retrieve sufficient statistics of the node. They already include the
-			// hyperparameters
-			Map<State, Double> nx = node.getSufficientStatistics().getNx();
-			// All possible states of the node's parents
-			List<State> statesParents = node.getStatesParents();
-			for (State stateParents : statesParents) {
-				// Number of states of the node
-				int numStatesNode = node.getStates().size();
+			// Retrieve sufficient statistics of the node. They include the hyperparameters
+			double[][] Nx = node.getSufficientStatistics().getNx();
+			// Number of states of the node and its parents
+			int numStates = node.getNumStates();
+			int numStatesParents = node.getNumStatesParents();
+			// Iterate over all states of the node's parents
+			for (int idxStateParents = 0; idxStateParents < numStatesParents; idxStateParents++) {
 				// Number of times the parents have a certain state independently of the node
-				double n = 0;
-				for (State stateNode : node.getStates()) {
-					State query = new State(stateParents.getEvents());
-					query.addEvents(stateNode.getEvents());
-					n += nx.get(query);
-					bdeScore += Gamma.logGamma(nx.get(query)) - Gamma.logGamma(nxHP);
+				double NState = 0;
+				// Iterate over all states of the node (from where a transition begins)
+				for (int idxFromStateNode = 0; idxFromStateNode < numStates; idxFromStateNode++) {
+					NState += Nx[idxStateParents][idxFromStateNode];
+					bdeScore += Gamma.logGamma(Nx[idxStateParents][idxFromStateNode]) - Gamma.logGamma(nxHP);
 				}
-				bdeScore += Gamma.logGamma(nxHP * numStatesNode) - Gamma.logGamma(n);
+				bdeScore += Gamma.logGamma(nxHP * numStates) - Gamma.logGamma(NState);
 			}
 		}
 		return bdeScore;

@@ -49,12 +49,21 @@ public interface PGM<NodeType extends Node> {
 	public void removeAllNodes();
 
 	/**
-	 * Modify the structure of the PGM by modifying the parents of the nodes and
+	 * Modify the structure of the PGM by changing the parents of the nodes and
 	 * their CPD.
 	 * 
-	 * @param adjacencyMatrix
+	 * @param newAdjacencyMatrix
 	 */
-	public void setStructure(boolean[][] adjacencyMatrix);
+	public void setStructure(boolean[][] newAdjacencyMatrix);
+
+	/**
+	 * Modify the structure of the PGM by changing the parents and CPDs of those
+	 * nodes which have different parents between the current adjacency matrix and
+	 * the new one.
+	 * 
+	 * @param newAdjacencyMatrix
+	 */
+	void setStructureModifiedNodes(boolean[][] newAdjacencyMatrix);
 
 	/**
 	 * Check if a structure is legal for the PGM.
@@ -69,6 +78,13 @@ public interface PGM<NodeType extends Node> {
 	 * Learn the parameters of the PGM.
 	 */
 	public void learnParameters();
+
+	/**
+	 * Learn the parameters of the nodes whose indexes are specified.
+	 * 
+	 * @param idxsNodes indexes of the nodes whose parameters should be learned
+	 */
+	public void learnParameters(List<Integer> idxsNodes);
 
 	/**
 	 * Displays the probabilistic graphical model.
@@ -147,5 +163,12 @@ public interface PGM<NodeType extends Node> {
 	 * @return node indexer
 	 */
 	public NodeIndexer<NodeType> getNodeIndexer();
+
+	/**
+	 * Returns true if all the parameters were estimated.
+	 * 
+	 * @return true if all the parameters were estimated
+	 */
+	public boolean areParametersEstimated();
 
 }

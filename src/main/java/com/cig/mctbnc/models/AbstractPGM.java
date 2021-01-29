@@ -88,13 +88,67 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 					node.setChild(childNode);
 				}
 		}
+		// Learn the parameters of the model
 		learnParameters();
+	}
+
+	@Override
+	public void setStructureModifiedNodes(boolean[][] newAdjacencyMatrix) {
+		if (areParametersEstimated()) {
+			boolean[][] currentAdjacencyMatrix = getAdjacencyMatrix();
+			// Get nodes whose parents changed
+			List<Integer> modifiedNodes = getModifiedNodes(currentAdjacencyMatrix, newAdjacencyMatrix);
+			// Modify structure of the model
+			for (int idx : modifiedNodes) {
+				Node node = nodeIndexer.getNodeByIndex(idx);
+				// Current edges of selected nodes are removed
+				node.removeParents();
+				// Establish parents of selected nodes
+				for (int i = 0; i < newAdjacencyMatrix.length; i++) {
+					if (newAdjacencyMatrix[i][idx])
+						node.setParent(nodeIndexer.getNodeByIndex(i));
+				}
+			}
+			// Learn the parameters of the modified nodes
+			learnParameters(modifiedNodes);
+		} else {
+			// It is necessary that all nodes have their parameters estimated
+			setStructure(newAdjacencyMatrix);
+		}
+	}
+
+	/**
+	 * Return those nodes which have different parents in the provided adjacency
+	 * matrices.
+	 * 
+	 * @param adjacencyMatrix1
+	 * @param adjacencyMatrix2
+	 * @param modifiedNodes
+	 */
+	private List<Integer> getModifiedNodes(boolean[][] adjacencyMatrix1, boolean[][] adjacencyMatrix2) {
+		List<Integer> modifiedNodes = new ArrayList<Integer>();
+		for (int j = 0; j < getNumNodes(); j++) {
+			for (int i = 0; i < getNumNodes(); i++) {
+				if (adjacencyMatrix1[j][i] != adjacencyMatrix2[j][i])
+					modifiedNodes.add(i);
+			}
+		}
+		return modifiedNodes;
 	}
 
 	@Override
 	public void learnParameters() {
 		// Learn the sufficient statistics and parameters for each node
 		parameterLearningAlg.learn(nodes, dataset);
+	}
+
+	@Override
+	public void learnParameters(List<Integer> idxsNodes) {
+		// Learn the sufficient statistics and parameters for each node
+		for (int idx : idxsNodes) {
+			Node node = nodeIndexer.getNodeByIndex(idx);
+			parameterLearningAlg.learn(node, dataset);
+		}
 	}
 
 	/**
@@ -262,6 +316,15 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 */
 	public StructureConstraints getStructureConstraints() {
 		return structureConstraints;
+	}
+
+	@Override
+	public boolean areParametersEstimated() {
+		for (Node node : nodes) {
+			if (!node.areParametersEstimated())
+				return false;
+		}
+		return true;
 	}
 
 	/**

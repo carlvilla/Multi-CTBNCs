@@ -3,7 +3,6 @@ package com.cig.mctbnc.learning.parameters.bn;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +30,8 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 
 	@Override
 	public void learn(Node node, Dataset dataset) {
+		setSufficientStatistics(node, dataset);
+		setCPTs((CPTNode) node);
 	}
 
 	/**
@@ -45,6 +46,17 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 			BNSufficientStatistics ssNode = getSufficientStatisticsNode(nodes.get(i), dataset);
 			nodes.get(i).setSufficientStatistics(ssNode);
 		}
+	}
+
+	/**
+	 * Obtain the sufficient statistics of a CTBN node.
+	 * 
+	 * @param nodes
+	 * @param dataset
+	 */
+	private void setSufficientStatistics(Node node, Dataset dataset) {
+		BNSufficientStatistics ssNode = getSufficientStatisticsNode(node, dataset);
+		node.setSufficientStatistics(ssNode);
 	}
 
 	/**
@@ -66,6 +78,19 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	}
 
 	/**
+	 * Given a node whose sufficient statistics where estimated, compute its
+	 * conditional probability tables (CPT).
+	 * 
+	 * @param nodes
+	 */
+	public void setCPTs(CPTNode node) {
+		// Compute the parameters for the current node with its sufficient statistics
+		Map<State, Double> CPT = estimateCPT(node);
+		// CPTNode stores the computed CPT
+		node.setCPT(CPT);
+	}
+
+	/**
 	 * Estimate the parameters for a certain node from its previously computed
 	 * sufficient statistics.
 	 * 
@@ -78,32 +103,35 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 		logger.trace("Learning parameters of BN node {} with maximum likelihood estimation", node.getName());
 		Map<State, Double> CPT = new HashMap<State, Double>();
 		// Retrieve sufficient statistics
-		Map<State, Double> Nx = node.getSufficientStatistics().getNx();
-		// Obtain an array with the values that the studied variable can take
-		String[] possibleValuesStudiedNode = node.getStates().stream()
-				.map(stateAux -> stateAux.getValueVariable(node.getName())).toArray(String[]::new);
-		// All the possible states between the studied variable and its parents
-		Set<State> states = Nx.keySet();
-		for (State state : states) {
-			// Number of times the studied variable and its parents take a certain value
-			double Nijk = Nx.get(state);
-			// Number of times the parents of the studied variable have a certain
-			// state independently of the studied variable
-			double Nij = 0;
-			for (String k : possibleValuesStudiedNode) {
-				State query = new State(state.getEvents());
-				query.modifyEventValue(node.getName(), k);
-				Nij += Nx.get(query);
+		double[][] Nx = node.getSufficientStatistics().getNx();
+		int numStates = node.getNumStates();
+		int numStatesParents = node.getNumStatesParents();
+		// Iterate over states of the node and its parents
+		for (int idxState = 0; idxState < numStates; idxState++) {
+			for (int idxStateParents = 0; idxStateParents < numStatesParents; idxStateParents++) {
+				// Number of sequences where the node and its parents take the given states
+				double NxState = Nx[idxStateParents][idxState];
+				// Number of sequences where the parents take the given states
+				double NState = 0;
+				// Iterate over states of the node to get number of times parents take given
+				// state independently of node state
+				for (int idxAnyState = 0; idxAnyState < numStates; idxAnyState++)
+					NState += Nx[idxStateParents][idxAnyState];
+				// Probability that the studied variable has the state 'idxState' given the
+				// state 'idxStateParents' of the parents
+				double prob = NxState / NState;
+				// Establish state of the node and its parents
+				node.setStateParents(idxStateParents);
+				node.setState(idxState);
+				// Get state from node and parents
+				State state = node.getStateNodeAndParents();
+				// The state may not occur in the training dataset. In that case the probability
+				// is set to 0.
+				if (Double.isNaN(prob))
+					prob = 0;
+				// Save the probability of the state
+				CPT.put(state, prob);
 			}
-			// Probability that the studied variable has a state k given that
-			// its parents have a state j.
-			double prob = Nijk / Nij;
-			// The state may not occur in the training dataset. In that case the probability
-			// is set to 0.
-			if (Double.isNaN(prob))
-				prob = 0;
-			// Save the probability of the state
-			CPT.put(state, prob);
 		}
 		return CPT;
 	}

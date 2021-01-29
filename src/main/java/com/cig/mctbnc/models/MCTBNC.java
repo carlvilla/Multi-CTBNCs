@@ -362,6 +362,11 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		}
 		return predictions;
 	}
+	
+	@Override
+	public boolean areParametersEstimated() {
+		return bn.areParametersEstimated() && ctbn.areParametersEstimated();
+	}
 
 	@Override
 	public String toString() {

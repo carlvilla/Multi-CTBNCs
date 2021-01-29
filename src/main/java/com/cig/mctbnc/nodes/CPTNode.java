@@ -32,9 +32,10 @@ public class CPTNode extends DiscreteNode {
 	/**
 	 * Constructor that receives the name of the variable, a list of strings with
 	 * its possible states and if it is a class variable.
-	 * @param name 
-	 * @param states 
-	 * @param isClassVariable 
+	 * 
+	 * @param name
+	 * @param states
+	 * @param isClassVariable
 	 * 
 	 */
 	public CPTNode(String name, boolean isClassVariable, List<String> states) {
@@ -121,6 +122,11 @@ public class CPTNode extends DiscreteNode {
 	 */
 	public BNSufficientStatistics getSufficientStatistics() {
 		return sufficientStatistics;
+	}
+
+	@Override
+	public boolean areParametersEstimated() {
+		return !(CPT == null || CPT.isEmpty());
 	}
 
 	public String toString() {

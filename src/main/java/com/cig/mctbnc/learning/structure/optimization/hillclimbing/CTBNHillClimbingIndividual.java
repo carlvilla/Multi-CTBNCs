@@ -1,6 +1,5 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
-import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
@@ -73,6 +72,7 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 				}
 			} while (improvement);
 			logger.debug("New structure: {}", (Object) bestAdjacencyMatrix);
+			logger.trace("Score new structure: {}", bestScore);
 		}
 		return bestAdjacencyMatrix;
 	}

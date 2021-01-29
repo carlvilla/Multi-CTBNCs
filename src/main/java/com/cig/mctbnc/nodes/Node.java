@@ -122,4 +122,11 @@ public interface Node {
 	 */
 	public void setSufficientStatistics(SufficientStatistics ss);
 
+	/**
+	 * Return true if the parameters of the node were estimated.
+	 * 
+	 * @return true if the parameters of the node were estimated
+	 */
+	public boolean areParametersEstimated();
+
 }

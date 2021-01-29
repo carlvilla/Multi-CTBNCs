@@ -1,21 +1,15 @@
 package com.cig.mctbnc.learning.parameters.ctbn;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Observation;
 import com.cig.mctbnc.data.representation.Sequence;
-import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.SufficientStatistics;
 import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.util.Util;
 
 /**
  * Compute and store the sufficient statistics of a discrete CTBN node. The
@@ -35,14 +29,14 @@ import com.cig.mctbnc.nodes.Node;
  */
 public class CTBNSufficientStatistics implements SufficientStatistics {
 	// Sufficient statistics
-	private Map<State, Map<State, Double>> Mxy;
-	private Map<State, Double> Mx;
-	private Map<State, Double> Tx;
-	static Logger logger = LogManager.getLogger(CTBNSufficientStatistics.class);
+	private double[][][] Mxy;
+	private double[][] Mx;
+	private double[][] Tx;
 	// Hyperparameters of the Dirichlet prior distribution (zero if MLE is used)
 	private double MxyHP;
 	private double MxHP; // defined with MxyHP and the number of states of the variable
 	private double TxHP;
+	static Logger logger = LogManager.getLogger(CTBNSufficientStatistics.class);
 
 	/**
 	 * Receives the hyperparameters of the Dirichlet prior distribution over the
@@ -52,9 +46,6 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @param TxHP
 	 */
 	public CTBNSufficientStatistics(double MxyHP, double TxHP) {
-		Mxy = new HashMap<State, Map<State, Double>>();
-		Mx = new HashMap<State, Double>();
-		Tx = new HashMap<State, Double>();
 		this.MxyHP = MxyHP;
 		this.TxHP = TxHP;
 	}
@@ -65,126 +56,56 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @param dataset dataset from which sufficient statistics are extracted
 	 */
 	public void computeSufficientStatistics(Node node, Dataset dataset) {
+
 		// TODO The node has to be discrete. Improve code to be able to easily include
 		// sufficient statistics for other types of nodes
+		DiscreteNode nodeD = (DiscreteNode) node;
+
 		String nameVariable = node.getName();
 		logger.trace("Computing sufficient statistics CTBN for node {}", nameVariable);
-		// Variables that are only used if the node has parents
-		List<Node> parents = node.getParents();
-		List<String> nameParents = parents.stream().map(Node::getName).collect(Collectors.toList());
 		// Initialize sufficient statistics
-		initializeSufficientStatistics(node, dataset);
-		// Iterate over all the sequences and their observations to calculate the
-		// sufficient statistics
-		for (Sequence sequence : dataset.getSequences())
+		initializeSufficientStatistics(nodeD, dataset);
+		// Iterate over all sequences and observations to extract sufficient statistics
+		for (Sequence sequence : dataset.getSequences()) {
 			for (int i = 1; i < sequence.getNumObservations(); i++) {
-				// State of the variables before the transition
+				// State of the variable before the transition
 				Observation fromObservation = sequence.getObservations().get(i - 1);
-				String fromValue = fromObservation.getValueVariable(nameVariable);
-				State fromState = new State(nameVariable, fromValue);
-				// State of the variables after the transition
+				String fromState = fromObservation.getValueVariable(nameVariable);
+				int idxFromState = nodeD.setState(fromState);
+				// State of the parents before the transition
+				for (int j = 0; j < node.getNumParents(); j++) {
+					DiscreteNode nodeParent = (DiscreteNode) node.getParents().get(j);
+					String stateParent = fromObservation.getValueVariable(nodeParent.getName());
+					nodeParent.setState(stateParent);
+				}
+				int idxStateParents = nodeD.getIdxStateParents();
+				// State of the variable after the transition
 				Observation toObservation = sequence.getObservations().get(i);
-				String toValue = toObservation.getValueVariable(nameVariable);
-				State toState = new State(nameVariable, toValue);
-				// Check if the node is transitioning to a different state
-				boolean nodeIsTransitioning = !fromValue.equals(toValue);
-				// If the node has parents, their states are added to "fromState"
-				for (String nameParent : nameParents)
-					fromState.addEvent(nameParent, fromObservation.getValueVariable(nameParent));
-				// If the node is transitioning to a different state, the sufficient statistics
-				// Mxy and Mx have to be updated
-				if (nodeIsTransitioning) {
-					updateOccurrencesMxy(fromState, toState, 1);
-					updateOccurrencesMx(fromState, 1);
+				String toState = toObservation.getValueVariable(nameVariable);
+				int idxtoState = nodeD.setState(toState);
+				// If the node is transitioning to a different state, Mxy and Mx are updated
+				if (idxFromState != idxtoState) {
+					updateMxy(idxStateParents, idxFromState, idxtoState, 1);
+					updateMx(idxStateParents, idxFromState, 1);
 				}
 				// Increase the time the node and its parents are in a certain state
 				double transitionTime = toObservation.getTimeValue() - fromObservation.getTimeValue();
-				updateOccurrencesTx(fromState, transitionTime);
+				updateTx(idxStateParents, idxFromState, transitionTime);
 			}
+		}
+
 	}
 
 	/**
-	 * Initialize the structures to store the sufficient statistics of the node.
+	 * Return the sufficient statistic with the number of times the variable leaves
+	 * every state (i.e., the state changes) while its parents have certain values.
 	 * 
-	 * @param dataset dataset used to compute the sufficient statistics
+	 * @return number of times the variable leaves every state
 	 */
-	private void initializeSufficientStatistics(Node node, Dataset dataset) {
-		// Retrieve state the variable can take
-		// TODO Instead of passing a node, the class should only accept DiscreteNode.
-		List<State> statesVariable = ((DiscreteNode) node).getStates();
-		// Hyperparameter MxPrior (number of transitions originating from certain state)
-		MxHP = MxyHP * (statesVariable.size() - 1);
-		if (node.hasParents()) {
-			List<State> statesParents = ((DiscreteNode) node).getStatesParents();
-			for (State stateParents : statesParents)
-				for (State fromState : statesVariable) {
-					State fromStateWithParents = new State(fromState.getEvents());
-					fromStateWithParents.addEvents(stateParents.getEvents());
-					// Initialize Mx
-					Mx.put(fromStateWithParents, MxHP);
-					// Initialize Tx
-					Tx.put(fromStateWithParents, TxHP);
-					for (State toState : statesVariable)
-						// if (!fromState.equals(toState))
-						if (!fromState.getValues()[0].equals(toState.getValues()[0]))
-							// Initialize Mxy
-							updateOccurrencesMxy(fromStateWithParents, toState, MxyHP);
-				}
-		} else {
-			for (State fromState : statesVariable) {
-				// Initialize Mx
-				Mx.put(fromState, MxHP);
-				// Initialize Tx
-				Tx.put(fromState, TxHP);
-				for (State toState : statesVariable)
-					// if (!fromState.equals(toState))
-					if (!fromState.getValues()[0].equals(toState.getValues()[0]))
-						// Initialize Mxy
-						updateOccurrencesMxy(fromState, toState, MxyHP);
-			}
-		}		
-	}
-
-	/**
-	 * Update the number of occurrences where the node transitions from "fromState"
-	 * (with the parents taking a certain value) to "toState".
-	 * 
-	 * @param fromState      current state
-	 * @param toState        next state
-	 * @param numOccurrences number of occurrences
-	 */
-	private void updateOccurrencesMxy(State fromState, State toState, double numOccurrences) {
-		Map<State, Double> mapFromState = Mxy.get(fromState);
-		if (mapFromState == null) {
-			// If the state 'fromState' was never seen before, it is created a map to
-			// contain all the occurrences of its transitions to other states
-			mapFromState = new HashMap<State, Double>();
-			mapFromState.put(toState, numOccurrences);
-			Mxy.put(fromState, mapFromState);
-		} else
-			mapFromState.merge(toState, numOccurrences, Double::sum);
-	}
-
-	/**
-	 * Update the number of occurrences where the node transitions from "fromState"
-	 * (with the parents taking a certain value) to any other state.
-	 * 
-	 * @param fromState      current state
-	 * @param numOccurrences number of occurrences
-	 */
-	private void updateOccurrencesMx(State fromState, double numOccurrences) {
-		Mx.merge(fromState, numOccurrences, Double::sum);
-	}
-
-	/**
-	 * Update the time the node spends in state "state" while its parents are in
-	 * certain state (information also included in "state").
-	 * 
-	 * @param state current state of the node and its parents
-	 * @param time  time
-	 */
-	private void updateOccurrencesTx(State state, double time) {
-		Tx.merge(state, time, Double::sum);
+	public double[][] getMx() {
+		if (Mx == null)
+			logger.warn("Sufficient statistic mx was not computed");
+		return Mx;
 	}
 
 	/**
@@ -194,23 +115,10 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * 
 	 * @return number of occurrences of every transition
 	 */
-	public Map<State, Map<State, Double>> getMxy() {
-		// It is possible that Mxy is empty if the variable do not have any transition
-		if (Mxy.isEmpty() && !Mx.isEmpty() && !Tx.isEmpty())
-			logger.warn("Sufficient statistic Mxy was not computed");
+	public double[][][] getMxy() {
+		if (Mxy == null)
+			logger.warn("Sufficient statistic mxy was not computed");
 		return Mxy;
-	}
-
-	/**
-	 * Return the sufficient statistic with the number of times the variable leaves
-	 * every state (i.e., the state changes) while its parents have certain values.
-	 * 
-	 * @return number of times the variable leaves every state
-	 */
-	public Map<State, Double> getMx() {
-		if (Mx.isEmpty())
-			logger.warn("Sufficient statistic Mx was not computed");
-		return Mx;
 	}
 
 	/**
@@ -219,9 +127,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * 
 	 * @return time that the variable stay for every state
 	 */
-	public Map<State, Double> getTx() {
-		if (Tx.isEmpty())
-			logger.warn("Sufficient statistic Tx was not computed");
+	public double[][] getTx() {
+		if (Tx == null)
+			logger.warn("Sufficient statistic tx was not computed");
 		return Tx;
 	}
 
@@ -257,6 +165,59 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 */
 	public double getTxHyperparameter() {
 		return TxHP;
+	}
+
+	/**
+	 * Initialize the structures to store the sufficient statistics of the node.
+	 * 
+	 * @param dataset dataset used to compute the sufficient statistics
+	 */
+	private void initializeSufficientStatistics(DiscreteNode node, Dataset dataset) {
+		// Hyperparameter MxPrior (number of transitions originating from certain state)
+		MxHP = MxyHP * (node.getNumStates() - 1);
+		Mxy = new double[node.getNumStatesParents()][node.getNumStates()][node.getNumStates()];
+		Mx = new double[node.getNumStatesParents()][node.getNumStates()];
+		Tx = new double[node.getNumStatesParents()][node.getNumStates()];
+		// Adds the imaginary counts (hyperparameters) to the sufficient statistics
+		Util.fill3dArray(Mxy, MxyHP);
+		Util.fill2dArray(Mx, MxyHP * (node.getNumStates() - 1));
+		Util.fill2dArray(Tx, TxHP);
+	}
+
+	/**
+	 * Update the number of occurrences where the node transitions from "fromState"
+	 * (with the parents taking a certain value) to "toState".
+	 * 
+	 * @param fromState      current state
+	 * @param toState        next state
+	 * @param numOccurrences number of occurrences
+	 */
+	private void updateMxy(int stateParents, int fromState, int toState, double numOccurrences) {
+		Mxy[stateParents][fromState][toState] += numOccurrences;
+	}
+
+	/**
+	 * Update the number of occurrences where the node transitions from "fromState"
+	 * (with the parents taking a certain value) to any other state.
+	 * 
+	 * @param fromState      current state
+	 * @param numOccurrences number of occurrences
+	 */
+	private void updateMx(int stateParents, int fromState, double numOccurrences) {
+		// Mx.merge(fromState, numOccurrences, Double::sum);
+		Mx[stateParents][fromState] += numOccurrences;
+
+	}
+
+	/**
+	 * Update the time the node spends in state "state" while its parents are in
+	 * certain state (information also included in "state").
+	 * 
+	 * @param state current state of the node and its parents
+	 * @param time  time
+	 */
+	private void updateTx(int stateParents, int fromState, double time) {
+		Tx[stateParents][fromState] += time;
 	}
 
 }

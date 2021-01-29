@@ -1,13 +1,11 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
-import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.optimization.scores.bn.BNScoreFunction;
 import com.cig.mctbnc.models.BN;
-import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
 import com.google.common.cache.Cache;
@@ -71,7 +69,7 @@ public class BNHillClimbing extends HillClimbing implements BNStructureLearningA
 	 * @param bestStructure
 	 * @param scores
 	 * @param adjacencyMatrices
-	 * @param cache 
+	 * @param cache
 	 * @param operation         Possible operations to perform over the adjacency
 	 *                          matrix. These are addition, deletion or reversal of
 	 *                          arcs.
@@ -111,9 +109,9 @@ public class BNHillClimbing extends HillClimbing implements BNStructureLearningA
 						tempAdjacencyMatrix[j][i] = true;
 					}
 					if (pgm.isStructureLegal(tempAdjacencyMatrix)) {
-						logger.trace("Studying new {} structure: {}", pgm.getType(), tempAdjacencyMatrix);	
-						// Retrieve score BN with the modified adjacency matrix						
-						double score = computeScore(tempAdjacencyMatrix, cache); 
+						logger.trace("Studying new {} structure: {}", pgm.getType(), tempAdjacencyMatrix);
+						// Retrieve score BN with the modified adjacency matrix
+						double score = computeScore(tempAdjacencyMatrix, cache);
 						if (scores[idxOperation] < score) {
 							scores[idxOperation] = score;
 							adjacencyMatrices[idxOperation] = tempAdjacencyMatrix;
@@ -122,7 +120,7 @@ public class BNHillClimbing extends HillClimbing implements BNStructureLearningA
 				}
 		}
 	}
-	
+
 	/**
 	 * Compute the score of a structure given an adjacency matrix. A cache is used
 	 * to avoid recomputing a score.
@@ -140,26 +138,15 @@ public class BNHillClimbing extends HillClimbing implements BNStructureLearningA
 			obtainedScore = cache.get(adjacencyMatrix, new Callable<Double>() {
 				@Override
 				public Double call() {
-					// Set structure and obtain local score at the node 'indexNode'
-					return setStructure(adjacencyMatrix);
+					// Establish the structure defined in an adjacency matrix and return its score
+					pgm.setStructureModifiedNodes(adjacencyMatrix);
+					return scoreFunction.compute((BN<? extends Node>) pgm);
 				}
 			});
 		} catch (ExecutionException e) {
 			logger.error("An error occured using the cache");
 		}
 		return obtainedScore;
-	}
-
-	/**
-	 * Establish the structure defined in an adjacency matrix and return its score.
-	 * 
-	 * @param indexNode
-	 * @param adjacencyMatrix
-	 * @return
-	 */
-	private double setStructure(boolean[][] adjacencyMatrix) {
-		pgm.setStructure(adjacencyMatrix);
-		return scoreFunction.compute((BN<? extends Node>) pgm);
 	}
 
 }

@@ -89,6 +89,15 @@ public class State {
 	}
 
 	/**
+	 * Remove specified event.
+	 * 
+	 * @param nameVariables names of the variable whose event is removed.
+	 */
+	public void removeEvents(String nameVariable) {
+		events.keySet().remove(nameVariable);
+	}
+
+	/**
 	 * Remove all events except those whose variable name is specified.
 	 * 
 	 * @param nameVariables names of the variables whose events should not be

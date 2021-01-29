@@ -1,26 +1,33 @@
 package com.cig.mctbnc.learning.parameters.bn;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.data.representation.Observation;
+import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.learning.parameters.SufficientStatistics;
 import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.util.Util;
 
+/**
+ * Compute and store the sufficient statistics of a discrete BN node. The
+ * sufficient statistics are:
+ * 
+ * (1) Nx: number of times a variable takes a certain state.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 public class BNSufficientStatistics implements SufficientStatistics {
-	private Map<State, Double> Nx;
+	// Sufficient statistics
+	private double[][] Nx;
 	// Hyperparameters of the Dirichlet prior distribution (zero if MLE is used)
 	private double NxHP;
 	static Logger logger = LogManager.getLogger(BNSufficientStatistics.class);
 
 	public BNSufficientStatistics(double NxHP) {
-		Nx = new HashMap<State, Double>();
 		this.NxHP = NxHP;
 	}
 
@@ -33,32 +40,27 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	 */
 	public void computeSufficientStatistics(Node node, Dataset dataset) {
 		logger.trace("Computing sufficient statistics BN for node {}", node.getName());
-		List<State> statesVariable = ((DiscreteNode) node).getStates();
-		if (node.hasParents()) {
-			List<State> statesParents = ((DiscreteNode) node).getStatesParents();
-			for (int j = 0; j < statesParents.size(); j++)
-				for (int k = 0; k < statesVariable.size(); k++) {
-					// Get number of times variable "nameVariable" has value statesVariable[k]
-					// while its parents have values statesParents[j]
-					State stateVariable = statesVariable.get(k);
-					State stateParents = statesParents.get(j);
-					// Create State object where the variable has value k and its parents
-					// are in the state j
-					State query = new State(stateVariable.getEvents());
-					query.addEvents(stateParents.getEvents());
-					// Query the dataset with the state k for the variables and
-					// the state j for its parents
-					// TODO Instead of looking for the occurrences of each state, iterate the
-					// observations just once
-					double Nijk = dataset.getNumOccurrences(query);
-					Nx.put(query, this.NxHP + Nijk);
-				}
 
-		} else {
-			for (int k = 0; k < statesVariable.size(); k++) {
-				State stateVariable = statesVariable.get(k);
-				Nx.put(stateVariable, this.NxHP + dataset.getNumOccurrences(stateVariable));
+		DiscreteNode nodeD = (DiscreteNode) node;
+
+		String nameVariable = node.getName();
+		// Initialize sufficient statistics
+		initializeSufficientStatistics(nodeD, dataset);
+		// Iterate over all sequences to extract sufficient statistics
+		for (Sequence sequence : dataset.getSequences()) {
+			// As the class variables should have the same states during a sequence, only
+			// the first observation is analyzed
+			Observation observation = sequence.getObservations().get(0);
+			String state = observation.getValueVariable(nameVariable);
+			int idxState = nodeD.setState(state);
+			for (int j = 0; j < node.getNumParents(); j++) {
+				DiscreteNode nodeParent = (DiscreteNode) node.getParents().get(j);
+				String stateParent = observation.getValueVariable(nodeParent.getName());
+				nodeParent.setState(stateParent);
 			}
+			int idxStateParents = nodeD.getIdxStateParents();
+			// Update the sufficient statistic for a given state of the node and its parents
+			updateNx(idxStateParents, idxState, 1);
 		}
 	}
 
@@ -66,15 +68,32 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	 * Return the sufficient statistics of the node. This is the number of the
 	 * variable is in a certain state while its parents take a certain value.
 	 * 
-	 * @return Map object that relates the states of a node with the number of
-	 *         appearances in a dataset.
+	 * @return array with the number of appearances of each state of the node given
+	 *         an instantiation of the parents
 	 */
-	public Map<State, Double> getNx() {
+	public double[][] getNx() {
 		return Nx;
 	}
 
 	public double getNxHyperparameter() {
 		return NxHP;
+	}
+
+	private void updateNx(int idxStateParents, int idxState, int numOccurrences) {
+		Nx[idxStateParents][idxState] += numOccurrences;
+	}
+
+	/**
+	 * Initialize the sufficient statistics.
+	 * 
+	 * @param node
+	 * @param dataset
+	 */
+	private void initializeSufficientStatistics(DiscreteNode node, Dataset dataset) {
+		Nx = new double[node.getNumStatesParents()][node.getNumStates()];
+		// Adds the imaginary counts (hyperparameters) to the sufficient statistics
+		Util.fill2dArray(Nx, NxHP);
+
 	}
 
 }

@@ -209,4 +209,26 @@ public final class Util {
 			result += array[row][i];
 		return result;
 	}
+
+	/**
+	 * Fill a double 2d array with the provided double.
+	 * 
+	 * @param mxy
+	 * @param mxyHP
+	 */
+	public static void fill2dArray(double[][] array, double value) {
+		for (double[] row : array)
+			Arrays.fill(row, value);
+	}
+
+	/**
+	 * Fill a double 3d array with the provided double.
+	 * 
+	 * @param mxy
+	 * @param mxyHP
+	 */
+	public static void fill3dArray(double[][][] array, double value) {
+		for (double[][] matrix : array)
+			fill2dArray(matrix, value);
+	}
 }
