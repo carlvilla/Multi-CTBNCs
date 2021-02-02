@@ -1,13 +1,9 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
-import java.util.Map;
-
-import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
 import com.cig.mctbnc.learning.structure.optimization.scores.AbstractLogLikelihood;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
-import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
 public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScoreFunction {
@@ -69,38 +65,37 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 	 * @param node
 	 * @return log likelihood
 	 */
-	private double logLikelihoodScore(CIMNode node) {		
+	private double logLikelihoodScore(CIMNode node) {
 		// Retrieve sufficient statistics of the node
 		CTBNSufficientStatistics ss = node.getSufficientStatistics();
 		// Obtain parameters of the node
-		Map<State, Map<State, Double>> Oxx = node.getOxy();
-		Map<State, Double> Qx = node.getQx();
+		double[][][] Oxx = node.getOxy();
+		double[][] Qx = node.getQx();
+		// Number of states of the node and its parents
+		int numStates = node.getNumStates();
+		int numStatesParents = node.getNumStatesParents();
 		// Store marginal log likelihood
 		double ll = 0.0;
-		for (State state : Qx.keySet()) {
-			double qx = Qx.get(state);
-			for(int i=0;i<node.getNumParents();i++) {
-				DiscreteNode parentNode = (DiscreteNode) node.getParents().get(i);
-				parentNode.setState(state.getValueVariable(parentNode.getName()));
-			}
-			node.setState(state.getValueVariable(node.getName()));	
-			int idxParents = node.getIdxStateParents();
-			int idxFromState = node.getStateIdx();
-			double nx = ss.getMx()[idxParents][idxFromState]; 
-			double tx = ss.getTx()[idxParents][idxFromState];
-			// Probability density function of the exponential distribution. If it is 0,
-			// there are no transitions from this state
-			if (qx != 0) {
-				ll += nx * Math.log(qx) - qx * tx;								
-				Map<State, Double> fromStateOxx = Oxx.get(state);
-				for (State toState : fromStateOxx.keySet()) {
-					// Probability of transitioning from "state" to "toState"
-					double oxx = fromStateOxx.get(toState);					
-					// Number of times the variable transitions from "state" to "toState"
-					int idxToState = node.setState(toState.getValueVariable(node.getName()));
-					double nxx = ss.getMxy()[idxParents][idxFromState][idxToState];
-					if (oxx != 0)
-						ll += nxx * Math.log(oxx);
+		for (int idxStateParents = 0; idxStateParents < numStatesParents; idxStateParents++) {
+			for (int idxFromState = 0; idxFromState < numStates; idxFromState++) {
+				double qx = Qx[idxStateParents][idxFromState];
+				// Probability density function of the exponential distribution. If it is 0,
+				// there are no transitions from this state
+				if (qx != 0) {
+					double nx = ss.getMx()[idxStateParents][idxFromState];
+					double tx = ss.getTx()[idxStateParents][idxFromState];
+					ll += nx * Math.log(qx) - qx * tx;
+					for (int idxToState = 0; idxToState < numStates; idxToState++) {
+						if (idxToState != idxFromState) {
+							// Probability of transitioning from "state" to "toState"
+							double oxx = Oxx[idxStateParents][idxFromState][idxToState];
+							if (oxx != 0) {
+								// Number of times the variable transitions from "idxFromState" to "idxToState"
+								double nxx = ss.getMxy()[idxStateParents][idxFromState][idxToState];
+								ll += nxx * Math.log(oxx);
+							}
+						}
+					}
 				}
 			}
 		}

@@ -71,8 +71,6 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	 */
 	private double logPriorProbabilityClassVariables(List<CPTNode> nodesCVs, List<State> statesCVs) {
 		double lpp = 0;
-		// Save the log prior probability for each possible class configuration
-		Map<State, Double> lpps = new HashMap<State, Double>();
 		// Obtain log prior probabilities of every class variable
 		for (CPTNode nodeCV : nodesCVs) {
 			// Retrieve sufficient statistics of the node
@@ -81,18 +79,14 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			for (int idxStateParents = 0; idxStateParents < nodeCV.getNumStatesParents(); idxStateParents++) {
 				for (int idxState = 0; idxState < nodeCV.getNumStates(); idxState++) {
 					// Counts for class variable taking the state given the states of parents
-					nodeCV.setState(idxState);
-					nodeCV.setStateParents(idxStateParents);
 					double nx = ss.getNx()[idxStateParents][idxState];
 					// Probability class variable takes the state given the states of parents
-					State state = nodeCV.getStateNodeAndParents();
-					double ox = nodeCV.getCPT().get(state);
+					double ox = nodeCV.getCPT()[idxStateParents][idxState];
 					double prob = 0;
 					if (nx > 0) {
 						prob = nx * Math.log(ox);
 						lpp += prob;
 					}
-					lpps.put(state, prob);
 				}
 			}
 		}
@@ -119,28 +113,21 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			for (int idxFromStateNode = 0; idxFromStateNode < numNodeStates; idxFromStateNode++) {
 				// Iterate over all states of the node's parents
 				for (int idxStateParents = 0; idxStateParents < numParentsStates; idxStateParents++) {
-					node.setState(idxFromStateNode);
-					node.setStateParents(idxStateParents);
-					State fromState = node.getStateNodeAndParents();
 					// Retrieve parameters and sufficient statistics for evaluated states
-					double qx = node.getQx().get(fromState);
-					double mx = ss.getMx()[idxStateParents][idxFromStateNode];
-					double tx = ss.getTx()[idxStateParents][idxFromStateNode];
+					double qx = node.getQx()[idxStateParents][idxFromStateNode];
 					if (qx > 0) {
+						double mx = ss.getMx()[idxStateParents][idxFromStateNode];
+						double tx = ss.getTx()[idxStateParents][idxFromStateNode];
 						lls += mx * Math.log(qx) - qx * tx;
-						// Maps with probabilities (ox_) and number of occurrences (nx_) of transitions
-						// from "fromState" to any other possible state of the feature node
-						Map<State, Double> ox_ = node.getOxy().get(fromState);
-						// Iterate over all states of the feature node (except its state in "fromState")
+						// Iterate over all states of the feature node (except "idxFromState")
 						for (int idxToStateNode = 0; idxToStateNode < numNodeStates; idxToStateNode++) {
 							if (idxToStateNode != idxFromStateNode) {
-								node.setState(idxStateParents);
-								State toState = node.indexToState(idxToStateNode);
 								// Retrieve parameters and sufficient statistics for evaluated states
-								double oxx = ox_.get(toState);
-								double mxy = ss.getMxy()[idxStateParents][idxFromStateNode][idxToStateNode];
-								if (oxx > 0)
+								double oxx = node.getOxy()[idxStateParents][idxFromStateNode][idxToStateNode];
+								if (oxx > 0) {
+									double mxy = ss.getMxy()[idxStateParents][idxFromStateNode][idxToStateNode];
 									lls += mxy * Math.log(oxx);
+								}
 							}
 						}
 					}
@@ -193,16 +180,20 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			// Estimate the probabilities of each class variable of taking the states
 			// defined in the class configuration
 			for (CPTNode nodeCV : nodesCVs) {
-				List<String> namesParentsCV = nodeCV.getNameParents();
-				State query = new State();
+				
 				String stateCV = stateCVs.getValueVariable(nodeCV.getName());
-				query.addEvent(nodeCV.getName(), stateCV);
-				for (String nameParentCV : namesParentsCV) {
-					String statesParentCV = stateCVs.getValueVariable(nameParentCV);
-					query.addEvent(nameParentCV, statesParentCV);
+				nodeCV.setState(stateCV);
+				for (Node nodeParent : nodeCV.getParents()) {
+					String stateParentCV = stateCVs.getValueVariable(nodeParent.getName());
+					((DiscreteNode) nodeParent).setState(stateParentCV);
 				}
-				lpcc += nodeCV.getCPT().get(query);
+				
+				int idxState = nodeCV.getIdxState();
+				int idxStateParents = nodeCV.getIdxStateParents();
+
+				lpcc += nodeCV.getCPT()[idxStateParents][idxState];
 			}
+
 			uPs.put(stateCVs, lpcc);
 		}
 	}
@@ -227,10 +218,10 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 				int numNodeStates = node.getNumStates();
 				int numParentsStates = node.getNumStatesParents();
 				// Iterate over all states of the node (from where a transition begins)
-				for (int idxFromStateNode = 0; idxFromStateNode < numNodeStates; idxFromStateNode++) {
+				for (int idxFromState = 0; idxFromState < numNodeStates; idxFromState++) {
 					// Iterate over all states of the node's parents
 					stateParents: for (int idxStateParents = 0; idxStateParents < numParentsStates; idxStateParents++) {
-						node.setState(idxFromStateNode);
+						node.setState(idxFromState);
 						node.setStateParents(idxStateParents);
 						// Consider configurations where parent class variables take the states in the
 						// currently evaluated class configuration
@@ -242,24 +233,21 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 									continue stateParents;
 							}
 						}
-						State fromState = node.getStateNodeAndParents();
-						double qx = node.getQx().get(fromState);
-						double mx = ss.getMx()[idxStateParents][idxFromStateNode];
-						double tx = ss.getTx()[idxStateParents][idxFromStateNode];
+						// Retrieve parameters and sufficient statistics for evaluated states
+						double qx = node.getQx()[idxStateParents][idxFromState];
 						if (qx > 0) {
+							double mx = ss.getMx()[idxStateParents][idxFromState];
+							double tx = ss.getTx()[idxStateParents][idxFromState];
 							llsCC += (mx * Math.log(qx)) + (-qx * tx);
-							// Maps with probabilities (ox_) and number of occurrences (nx_) of transitions
-							// from "fromState" to any other possible state of the feature node
-							Map<State, Double> ox_ = node.getOxy().get(fromState);
-							// Iterate over all states of the feature node (except its state in "fromState")
-							for (int idxToStateNode = 0; idxToStateNode < numNodeStates; idxToStateNode++) {
-								if (idxToStateNode != idxFromStateNode) {
-									node.setState(idxStateParents);
-									State toState = node.getStates().get(idxToStateNode);
-									double oxx = ox_.get(toState);
-									double mxy = ss.getMxy()[idxStateParents][idxFromStateNode][idxToStateNode];
-									if (oxx > 0)
+							// Iterate over all states of the feature node (except "idxFromState")
+							for (int idxToState = 0; idxToState < numNodeStates; idxToState++) {
+								if (idxToState != idxFromState) {
+									// Retrieve parameters and sufficient statistics for evaluated states
+									double oxx = node.getOxy()[idxStateParents][idxFromState][idxToState];
+									if (oxx > 0) {
+										double mxy = ss.getMxy()[idxStateParents][idxFromState][idxToState];
 										llsCC += (mxy * Math.log(oxx));
+									}
 								}
 							}
 						}

@@ -1,20 +1,19 @@
 package com.cig.mctbnc.learning.parameters.bn;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.nodes.CPTNode;
+import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
 /**
- * Define methods for parameter learning algorithms of Bayesian networks.
+ * Define methods for parameter learning algorithms of discrete Bayesian
+ * networks.
  * 
  * @author Carlos Villa Blanco
  *
@@ -30,7 +29,7 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 
 	@Override
 	public void learn(Node node, Dataset dataset) {
-		setSufficientStatistics(node, dataset);
+		setSufficientStatistics((CPTNode) node, dataset);
 		setCPTs((CPTNode) node);
 	}
 
@@ -43,7 +42,7 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	 */
 	public void setSufficientStatistics(List<? extends Node> nodes, Dataset dataset) {
 		for (int i = 0; i < nodes.size(); i++) {
-			BNSufficientStatistics ssNode = getSufficientStatisticsNode(nodes.get(i), dataset);
+			BNSufficientStatistics ssNode = getSufficientStatisticsNode((CPTNode) nodes.get(i), dataset);
 			nodes.get(i).setSufficientStatistics(ssNode);
 		}
 	}
@@ -54,7 +53,7 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	 * @param nodes
 	 * @param dataset
 	 */
-	private void setSufficientStatistics(Node node, Dataset dataset) {
+	private void setSufficientStatistics(DiscreteNode node, Dataset dataset) {
 		BNSufficientStatistics ssNode = getSufficientStatisticsNode(node, dataset);
 		node.setSufficientStatistics(ssNode);
 	}
@@ -71,7 +70,7 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 			// The node has to have a CPT
 			CPTNode node = (CPTNode) nodes.get(i);
 			// Compute the parameters for the current node with its sufficient statistics
-			Map<State, Double> CPT = estimateCPT(node);
+			double[][] CPT = estimateCPT(node);
 			// CPTNode stores the computed CPT
 			node.setCPT(CPT);
 		}
@@ -85,7 +84,7 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	 */
 	public void setCPTs(CPTNode node) {
 		// Compute the parameters for the current node with its sufficient statistics
-		Map<State, Double> CPT = estimateCPT(node);
+		double[][] CPT = estimateCPT(node);
 		// CPTNode stores the computed CPT
 		node.setCPT(CPT);
 	}
@@ -99,13 +98,14 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	 * @return a Map object with the probabilities of each possible state of a
 	 *         variable and its parents
 	 */
-	public Map<State, Double> estimateCPT(CPTNode node) {
+	public double[][] estimateCPT(CPTNode node) {
 		logger.trace("Learning parameters of BN node {} with maximum likelihood estimation", node.getName());
-		Map<State, Double> CPT = new HashMap<State, Double>();
 		// Retrieve sufficient statistics
 		double[][] Nx = node.getSufficientStatistics().getNx();
 		int numStates = node.getNumStates();
 		int numStatesParents = node.getNumStatesParents();
+		// Define CPT
+		double[][] CPT = new double[numStatesParents][numStates];
 		// Iterate over states of the node and its parents
 		for (int idxState = 0; idxState < numStates; idxState++) {
 			for (int idxStateParents = 0; idxStateParents < numStatesParents; idxStateParents++) {
@@ -120,21 +120,16 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 				// Probability that the studied variable has the state 'idxState' given the
 				// state 'idxStateParents' of the parents
 				double prob = NxState / NState;
-				// Establish state of the node and its parents
-				node.setStateParents(idxStateParents);
-				node.setState(idxState);
-				// Get state from node and parents
-				State state = node.getStateNodeAndParents();
 				// The state may not occur in the training dataset. In that case the probability
 				// is set to 0.
 				if (Double.isNaN(prob))
 					prob = 0;
 				// Save the probability of the state
-				CPT.put(state, prob);
+				CPT[idxStateParents][idxState] = prob;
 			}
 		}
 		return CPT;
 	}
 
-	protected abstract BNSufficientStatistics getSufficientStatisticsNode(Node node, Dataset dataset);
+	protected abstract BNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset);
 }

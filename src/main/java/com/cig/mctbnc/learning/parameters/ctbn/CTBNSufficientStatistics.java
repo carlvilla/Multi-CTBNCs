@@ -8,7 +8,6 @@ import com.cig.mctbnc.data.representation.Observation;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.learning.parameters.SufficientStatistics;
 import com.cig.mctbnc.nodes.DiscreteNode;
-import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
 
 /**
@@ -55,34 +54,29 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * 
 	 * @param dataset dataset from which sufficient statistics are extracted
 	 */
-	public void computeSufficientStatistics(Node node, Dataset dataset) {
-
-		// TODO The node has to be discrete. Improve code to be able to easily include
-		// sufficient statistics for other types of nodes
-		DiscreteNode nodeD = (DiscreteNode) node;
-
+	public void computeSufficientStatistics(DiscreteNode node, Dataset dataset) {
 		String nameVariable = node.getName();
 		logger.trace("Computing sufficient statistics CTBN for node {}", nameVariable);
 		// Initialize sufficient statistics
-		initializeSufficientStatistics(nodeD, dataset);
+		initializeSufficientStatistics(node, dataset);
 		// Iterate over all sequences and observations to extract sufficient statistics
 		for (Sequence sequence : dataset.getSequences()) {
 			for (int i = 1; i < sequence.getNumObservations(); i++) {
 				// State of the variable before the transition
 				Observation fromObservation = sequence.getObservations().get(i - 1);
 				String fromState = fromObservation.getValueVariable(nameVariable);
-				int idxFromState = nodeD.setState(fromState);
+				int idxFromState = node.setState(fromState);
 				// State of the parents before the transition
 				for (int j = 0; j < node.getNumParents(); j++) {
 					DiscreteNode nodeParent = (DiscreteNode) node.getParents().get(j);
 					String stateParent = fromObservation.getValueVariable(nodeParent.getName());
 					nodeParent.setState(stateParent);
 				}
-				int idxStateParents = nodeD.getIdxStateParents();
+				int idxStateParents = node.getIdxStateParents();
 				// State of the variable after the transition
 				Observation toObservation = sequence.getObservations().get(i);
 				String toState = toObservation.getValueVariable(nameVariable);
-				int idxtoState = nodeD.setState(toState);
+				int idxtoState = node.setState(toState);
 				// If the node is transitioning to a different state, Mxy and Mx are updated
 				if (idxFromState != idxtoState) {
 					updateMxy(idxStateParents, idxFromState, idxtoState, 1);

@@ -1,16 +1,14 @@
 package com.cig.mctbnc.learning.parameters.ctbn;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.nodes.CIMNode;
+import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
 /**
@@ -32,7 +30,7 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 
 	@Override
 	public void learn(Node node, Dataset dataset) {
-		setSufficientStatistics(node, dataset);
+		setSufficientStatistics((CIMNode) node, dataset);
 		setCIM((CIMNode) node);
 	}
 
@@ -44,7 +42,7 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 	 */
 	private void setSufficientStatistics(List<? extends Node> nodes, Dataset dataset) {
 		for (int i = 0; i < nodes.size(); i++) {
-			CTBNSufficientStatistics ssNode = getSufficientStatisticsNode(nodes.get(i), dataset);
+			CTBNSufficientStatistics ssNode = getSufficientStatisticsNode((CIMNode) nodes.get(i), dataset);
 			nodes.get(i).setSufficientStatistics(ssNode);
 		}
 	}
@@ -55,7 +53,7 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 	 * @param nodes
 	 * @param dataset
 	 */
-	private void setSufficientStatistics(Node node, Dataset dataset) {
+	private void setSufficientStatistics(DiscreteNode node, Dataset dataset) {
 		CTBNSufficientStatistics ssNode = getSufficientStatisticsNode(node, dataset);
 		node.setSufficientStatistics(ssNode);
 	}
@@ -98,15 +96,17 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 	protected void estimateParameters(CIMNode node) {
 		logger.trace("Learning parameters of CTBN node {}", node.getName());
 		// Initialize structures to store the parameters
-		Map<State, Double> Qx = new HashMap<State, Double>();
-		Map<State, Map<State, Double>> Oxx = new HashMap<State, Map<State, Double>>();
+		int numStates = node.getNumStates();
+		int numStatesParents = node.getNumStatesParents();
+		double[][] Qx = new double[numStatesParents][numStates];
+		double[][][] Oxx = new double[numStatesParents][numStates][numStates];
 		// Retrieve sufficient statistics
 		double[][][] Mxy = node.getSufficientStatistics().getMxy();
 		double[][] Mx = node.getSufficientStatistics().getMx();
 		double[][] Tx = node.getSufficientStatistics().getTx();
 		// Iterate over number of states of the node and its parents
-		for (int idxStateParents = 0; idxStateParents < node.getNumStatesParents(); idxStateParents++)
-			for (int idxFromState = 0; idxFromState < node.getNumStates(); idxFromState++) {
+		for (int idxStateParents = 0; idxStateParents < numStatesParents; idxStateParents++)
+			for (int idxFromState = 0; idxFromState < numStates; idxFromState++) {
 				// Number of transitions from this state
 				double MxFromState = Mx[idxStateParents][idxFromState];
 				double TxFromState = Tx[idxStateParents][idxFromState];
@@ -115,29 +115,23 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 				// qx can be undefined if the priors are 0 (maximum likelihood estimation)
 				if (Double.isNaN(qx))
 					qx = 0;
-				// Establish state of the node and its parents
-				node.setStateParents(idxStateParents);
-				node.setState(idxFromState);
-				// Get state from node and parents
-				State fromState = node.getStateNodeAndParents();
-				// Save the estimated instantaneous probability
-				Qx.put(fromState, qx);
-				for (int idxToState = 0; idxToState < node.getNumStates(); idxToState++) {
-					double oxx = Mxy[idxStateParents][idxFromState][idxToState] / MxFromState;
-					// The previous operation can be undefined if the priors are 0
-					if (Double.isNaN(oxx))
-						oxx = 0;
-					if (!Oxx.containsKey(fromState))
-						Oxx.put(fromState, new HashMap<State, Double>());
-					// Save the probability of transitioning from "fromState" to "toState"
-					State toState = node.indexToState(idxToState);
-					Oxx.get(fromState).put(toState, oxx);
+				// Save the estimated intensity
+				Qx[idxStateParents][idxFromState] = qx;
+				for (int idxToState = 0; idxToState < numStates; idxToState++) {
+					if (idxFromState != idxToState) {
+						double oxx = Mxy[idxStateParents][idxFromState][idxToState] / MxFromState;
+						// The previous operation can be undefined if the priors are 0
+						if (Double.isNaN(oxx))
+							oxx = 0;
+						// Save the probability of transitioning from "fromState" to "toState"
+						Oxx[idxStateParents][idxFromState][idxToState] = oxx;
+					}
 				}
 			}
 		// Set parameters in the CIMNode object
 		node.setParameters(Qx, Oxx);
 	}
 
-	protected abstract CTBNSufficientStatistics getSufficientStatisticsNode(Node node, Dataset dataset);
+	protected abstract CTBNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset);
 
 }

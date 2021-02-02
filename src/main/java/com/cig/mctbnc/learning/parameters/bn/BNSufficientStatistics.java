@@ -38,27 +38,24 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	 * 
 	 * @param dataset
 	 */
-	public void computeSufficientStatistics(Node node, Dataset dataset) {
+	public void computeSufficientStatistics(DiscreteNode node, Dataset dataset) {
 		logger.trace("Computing sufficient statistics BN for node {}", node.getName());
-
-		DiscreteNode nodeD = (DiscreteNode) node;
-
 		String nameVariable = node.getName();
 		// Initialize sufficient statistics
-		initializeSufficientStatistics(nodeD, dataset);
+		initializeSufficientStatistics(node, dataset);
 		// Iterate over all sequences to extract sufficient statistics
 		for (Sequence sequence : dataset.getSequences()) {
 			// As the class variables should have the same states during a sequence, only
 			// the first observation is analyzed
 			Observation observation = sequence.getObservations().get(0);
 			String state = observation.getValueVariable(nameVariable);
-			int idxState = nodeD.setState(state);
+			int idxState = node.setState(state);
 			for (int j = 0; j < node.getNumParents(); j++) {
 				DiscreteNode nodeParent = (DiscreteNode) node.getParents().get(j);
 				String stateParent = observation.getValueVariable(nodeParent.getName());
 				nodeParent.setState(stateParent);
 			}
-			int idxStateParents = nodeD.getIdxStateParents();
+			int idxStateParents = node.getIdxStateParents();
 			// Update the sufficient statistic for a given state of the node and its parents
 			updateNx(idxStateParents, idxState, 1);
 		}

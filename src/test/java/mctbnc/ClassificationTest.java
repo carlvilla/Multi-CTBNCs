@@ -3,7 +3,6 @@ package mctbnc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +17,7 @@ import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
+import com.cig.mctbnc.nodes.DiscreteNode;
 
 class ClassificationTest {
 	static MCTBNC<CPTNode, CIMNode> mctbnc;
@@ -34,22 +34,16 @@ class ClassificationTest {
 		// Definition of the structure of the class subgraph
 		C1.setChild(C2);
 
-		Map<State, Double> CPTC1 = new HashMap<State, Double>();
-		State C1state1 = new State(Map.of("C1", "C1_A"));
-		State C1state2 = new State(Map.of("C1", "C1_B"));
-		CPTC1.put(C1state1, 0.6);
-		CPTC1.put(C1state2, 0.4);
+		double[][] CPTC1 = new double[1][2];
+		CPTC1[0][0] = 0.6; // Probability C1 = C1_A
+		CPTC1[0][1] = 0.4; // Probability C1 = C1_B
 		C1.setCPT(CPTC1);
 
-		Map<State, Double> CPTC2 = new HashMap<State, Double>();
-		State C2state1 = new State(Map.of("C2", "C2_A", "C1", "C1_A"));
-		State C2state2 = new State(Map.of("C2", "C2_B", "C1", "C1_A"));
-		State C2state3 = new State(Map.of("C2", "C2_A", "C1", "C1_B"));
-		State C2state4 = new State(Map.of("C2", "C2_B", "C1", "C1_B"));
-		CPTC2.put(C2state1, 0.2);
-		CPTC2.put(C2state2, 0.8);
-		CPTC2.put(C2state3, 0.8);
-		CPTC2.put(C2state4, 0.2);
+		double[][] CPTC2 = new double[2][2];
+		CPTC2[0][0] = 0.2; // Probability C2 = C2_A given C1 = C1_A
+		CPTC2[0][1] = 0.8; // Probability C2 = C2_B given C1 = C1_A
+		CPTC2[1][0] = 0.8; // Probability C2 = C2_A given C1 = C1_B
+		CPTC2[1][1] = 0.2; // Probability C2 = C2_B given C1 = C1_B
 		C2.setCPT(CPTC2);
 
 		BN<CPTNode> bn = new BN<CPTNode>(List.of(C1, C2));
@@ -63,80 +57,59 @@ class ClassificationTest {
 		C2.setChild(X2);
 		X1.setChild(X2);
 
-		State X1state1 = new State(Map.of("X1", "X1_A", "C1", "C1_A"));
-		State X1state2 = new State(Map.of("X1", "X1_B", "C1", "C1_A"));
-		State X1state3 = new State(Map.of("X1", "X1_C", "C1", "C1_A"));
-		State X1state4 = new State(Map.of("X1", "X1_A", "C1", "C1_B"));
-		State X1state5 = new State(Map.of("X1", "X1_B", "C1", "C1_B"));
-		State X1state6 = new State(Map.of("X1", "X1_C", "C1", "C1_B"));
+		double[][] QxX1 = new double[2][3];
+		QxX1[0][0] = 3.3; // Intensity X1 = X1_A given C1 = C1_A
+		QxX1[0][1] = 3.3; // Intensity X1 = X1_B given C1 = C1_A
+		QxX1[0][2] = 10.0; // Intensity X1 = X1_C given C1 = C1_A
+		QxX1[1][0] = 10.0; // Intensity X1 = X1_A given C1 = C1_B
+		QxX1[1][1] = 3.3; // Intensity X1 = X1_B given C1 = C1_B
+		QxX1[1][2] = 3.3; // Intensity X1 = X1_C given C1 = C1_B
 
-		State X1toA = new State(Map.of("X1", "X1_A"));
-		State X1toB = new State(Map.of("X1", "X1_B"));
-		State X1toC = new State(Map.of("X1", "X1_C"));
+		double[][][] OxyX1 = new double[2][3][3];
+		OxyX1[0][0][1] = 0.8; // Probability X1 = X1_A to X1 = X1_B given C1 = C1_A
+		OxyX1[0][0][2] = 0.2; // Probability X1 = X1_A to X1 = X1_C given C1 = C1_A
+		OxyX1[0][1][0] = 0.7; // Probability X1 = X1_B to X1 = X1_A given C1 = C1_A
+		OxyX1[0][1][2] = 0.3; // Probability X1 = X1_B to X1 = X1_C given C1 = C1_A
+		OxyX1[0][2][0] = 0.6; // Probability X1 = X1_C to X1 = X1_A given C1 = C1_A
+		OxyX1[0][2][1] = 0.4; // Probability X1 = X1_C to X1 = X1_B given C1 = C1_A
+		OxyX1[1][0][1] = 0.5; // Probability X1 = X1_A to X1 = X1_B given C1 = C1_B
+		OxyX1[1][0][2] = 0.5; // Probability X1 = X1_A to X1 = X1_C given C1 = C1_B
+		OxyX1[1][1][0] = 0.2; // Probability X1 = X1_B to X1 = X1_A given C1 = C1_B
+		OxyX1[1][1][2] = 0.8; // Probability X1 = X1_B to X1 = X1_C given C1 = C1_B
+		OxyX1[1][2][0] = 0.3; // Probability X1 = X1_C to X1 = X1_A given C1 = C1_B
+		OxyX1[1][2][1] = 0.7; // Probability X1 = X1_C to X1 = X1_B given C1 = C1_B
 
-		Map<State, Double> Qx = new HashMap<State, Double>();
-		Qx.put(X1state1, 3.3);
-		Qx.put(X1state2, 3.3);
-		Qx.put(X1state3, 10.0);
-		Qx.put(X1state4, 10.0);
-		Qx.put(X1state5, 3.3);
-		Qx.put(X1state6, 3.3);
+		X1.setParameters(QxX1, OxyX1);
 
-		Map<State, Map<State, Double>> Oxy = new HashMap<State, Map<State, Double>>();
-		Oxy.put(X1state1, Map.of(X1toB, 0.8, X1toC, 0.2));
-		Oxy.put(X1state2, Map.of(X1toA, 0.7, X1toC, 0.3));
-		Oxy.put(X1state3, Map.of(X1toA, 0.6, X1toB, 0.4));
-		Oxy.put(X1state4, Map.of(X1toB, 0.5, X1toC, 0.5));
-		Oxy.put(X1state5, Map.of(X1toA, 0.2, X1toC, 0.8));
-		Oxy.put(X1state6, Map.of(X1toA, 0.3, X1toB, 0.7));
+		double[][] QxX2 = new double[6][2];
+		QxX2[0][0] = 0.03; // Intensity X2 = X2_A given X1 = X1_A and C2 = C2_A
+		QxX2[1][0] = 3.33; // Intensity X2 = X2_A given X1 = X1_A and C2 = C2_B
+		QxX2[2][0] = 0.01; // Intensity X2 = X2_A given X1 = X1_B and C2 = C2_A
+		QxX2[3][0] = 3.33; // Intensity X2 = X2_A given X1 = X1_B and C2 = C2_B
+		QxX2[4][0] = 0.05; // Intensity X2 = X2_A given X1 = X1_C and C2 = C2_A
+		QxX2[5][0] = 0.5; // Intensity X2 = X2_A given X1 = X1_C and C2 = C2_B
+		QxX2[0][1] = 3.33; // Intensity X2 = X2_B given X1 = X1_A and C2 = C2_A
+		QxX2[1][1] = 0.03; // Intensity X2 = X2_B given X1 = X1_A and C2 = C2_B
+		QxX2[2][1] = 0.5; // Intensity X2 = X2_B given X1 = X1_B and C2 = C2_A
+		QxX2[3][1] = 0.03; // Intensity X2 = X2_B given X1 = X1_B and C2 = C2_B
+		QxX2[4][1] = 0.05; // Intensity X2 = X2_B given X1 = X1_C and C2 = C2_A
+		QxX2[5][1] = 3.33; // Intensity X2 = X2_B given X1 = X1_C and C2 = C2_B
 
-		X1.setParameters(Qx, Oxy);
+		double[][][] OxyX2 = new double[6][2][2];
+		OxyX2[0][0][1] = 1; // Probability X2 = X2_A to X2 = X2_B given X1 = X1_A and C2 = C2_A
+		OxyX2[0][1][0] = 1; // Probability X2 = X2_B to X2 = X2_A given X1 = X1_A and C2 = C2_A
+		OxyX2[1][0][1] = 1; // Probability X2 = X2_A to X2 = X2_B given X1 = X1_B and C2 = C2_A
+		OxyX2[1][1][0] = 1; // Probability X2 = X2_B to X2 = X2_A given X1 = X1_B and C2 = C2_A
+		OxyX2[2][0][1] = 1; // Probability X2 = X2_A to X2 = X2_B given X1 = X1_C and C2 = C2_A
+		OxyX2[2][1][0] = 1; // Probability X2 = X2_B to X2 = X2_A given X1 = X1_C and C2 = C2_A
+		OxyX2[3][0][1] = 1; // Probability X2 = X2_A to X2 = X2_B given X1 = X1_A and C2 = C2_B
+		OxyX2[3][1][0] = 1; // Probability X2 = X2_B to X2 = X2_A given X1 = X1_A and C2 = C2_B
+		OxyX2[4][0][1] = 1; // Probability X2 = X2_A to X2 = X2_B given X1 = X1_B and C2 = C2_B
+		OxyX2[4][1][0] = 1; // Probability X2 = X2_B to X2 = X2_A given X1 = X1_B and C2 = C2_B
+		OxyX2[5][0][1] = 1; // Probability X2 = X2_A to X2 = X2_B given X1 = X1_C and C2 = C2_B
+		OxyX2[5][1][0] = 1; // Probability X2 = X2_B to X2 = X2_A given X1 = X1_C and C2 = C2_B
 
-		State X2state1 = new State(Map.of("X2", "X2_A", "X1", "X1_A", "C2", "C2_A"));
-		State X2state2 = new State(Map.of("X2", "X2_B", "X1", "X1_A", "C2", "C2_A"));
-		State X2state3 = new State(Map.of("X2", "X2_A", "X1", "X1_B", "C2", "C2_A"));
-		State X2state4 = new State(Map.of("X2", "X2_B", "X1", "X1_B", "C2", "C2_A"));
-		State X2state5 = new State(Map.of("X2", "X2_A", "X1", "X1_A", "C2", "C2_B"));
-		State X2state6 = new State(Map.of("X2", "X2_B", "X1", "X1_A", "C2", "C2_B"));
-		State X2state7 = new State(Map.of("X2", "X2_A", "X1", "X1_B", "C2", "C2_B"));
-		State X2state8 = new State(Map.of("X2", "X2_B", "X1", "X1_B", "C2", "C2_B"));
-		State X2state9 = new State(Map.of("X2", "X2_A", "X1", "X1_C", "C2", "C2_A"));
-		State X2state10 = new State(Map.of("X2", "X2_B", "X1", "X1_C", "C2", "C2_A"));
-		State X2state11 = new State(Map.of("X2", "X2_A", "X1", "X1_C", "C2", "C2_B"));
-		State X2state12 = new State(Map.of("X2", "X2_B", "X1", "X1_C", "C2", "C2_B"));
-
-		State X2toA = new State(Map.of("X2", "X2_A"));
-		State X2toB = new State(Map.of("X2", "X2_B"));
-
-		Map<State, Double> X2Qx = new HashMap<State, Double>();
-		X2Qx.put(X2state1, 0.03);
-		X2Qx.put(X2state2, 3.33);
-		X2Qx.put(X2state3, 0.01);
-		X2Qx.put(X2state4, 0.5);
-		X2Qx.put(X2state5, 3.33);
-		X2Qx.put(X2state6, 0.03);
-		X2Qx.put(X2state7, 3.33);
-		X2Qx.put(X2state8, 0.03);
-		X2Qx.put(X2state9, 0.05);
-		X2Qx.put(X2state10, 0.05);
-		X2Qx.put(X2state11, 1.5);
-		X2Qx.put(X2state12, 3.33);
-
-		Map<State, Map<State, Double>> X2Oxy = new HashMap<State, Map<State, Double>>();
-		X2Oxy.put(X2state1, Map.of(X2toB, 1.0));
-		X2Oxy.put(X2state2, Map.of(X2toA, 1.0));
-		X2Oxy.put(X2state3, Map.of(X2toB, 1.0));
-		X2Oxy.put(X2state4, Map.of(X2toA, 1.0));
-		X2Oxy.put(X2state5, Map.of(X2toB, 1.0));
-		X2Oxy.put(X2state6, Map.of(X2toA, 1.0));
-		X2Oxy.put(X2state7, Map.of(X2toB, 1.0));
-		X2Oxy.put(X2state8, Map.of(X2toA, 1.0));
-		X2Oxy.put(X2state9, Map.of(X2toB, 1.0));
-		X2Oxy.put(X2state10, Map.of(X2toA, 1.0));
-		X2Oxy.put(X2state11, Map.of(X2toB, 1.0));
-		X2Oxy.put(X2state12, Map.of(X2toA, 1.0));
-
-		X2.setParameters(X2Qx, X2Oxy);
+		X2.setParameters(QxX2, OxyX2);
 
 		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(List.of(X1, X2), bn);
 
@@ -209,10 +182,12 @@ class ClassificationTest {
 		double ulpAA = // C1, C2
 				Math.log(0.6) + Math.log(0.2)
 				// X1
-						+ (-3.3 * (0.3)) + (-3.3 * (0.31 - 0.3) + Math.log(3.3 * 0.8))
-						+ (-3.3 * (0.6 - 0.31) + Math.log(3.3 * 0.7)) + (-3.3 * (0.9 - 0.6) + Math.log(3.3 * 0.8))
-						+ (-3.3 * (1.2 - 0.9) + Math.log(3.3 * 0.7)) + (-3.3 * (1.5 - 1.2) + Math.log(3.3 * 0.8))
-						+ (-3.3 * (1.8 - 1.5) + Math.log(3.3 * 0.7))
+						+ (-3.3 * (0.3)) + (-3.3 * (0.31 - 0.3) + Math.log(1 - Math.exp(-3.3 * 0.8 * 0.00001)))
+						+ (-3.3 * (0.6 - 0.31) + Math.log(1 - Math.exp(-3.3 * 0.7 * 0.00001)))
+						+ (-3.3 * (0.9 - 0.6) + Math.log(1 - Math.exp(-3.3 * 0.8 * 0.00001)))
+						+ (-3.3 * (1.2 - 0.9) + Math.log(1 - Math.exp(-3.3 * 0.7 * 0.00001)))
+						+ (-3.3 * (1.5 - 1.2) + Math.log(1 - Math.exp(-3.3 * 0.8 * 0.00001)))
+						+ (-3.3 * (1.8 - 1.5) + Math.log(1 - Math.exp(-3.3 * 0.7 * 0.00001)))
 						// X2
 						+ (-3.3 * (0.3) + Math.log(3.3)) + (-0.03 * (0.31 - 0.3)) + (-0.01 * (0.6 - 0.31))
 						+ (-0.03 * (0.9 - 0.6)) + (-0.01 * (1.2 - 0.9)) + (-0.03 * (1.5 - 1.2)) + (-0.01 * (1.8 - 1.5));
@@ -220,24 +195,25 @@ class ClassificationTest {
 				// C1, C2
 				Math.log(0.6) + Math.log(0.8)
 				// X1
-						+ (-3.3 * (0.3)) + (-3.3 * (0.31 - 0.3) + Math.log(3.3 * 0.8))
-						+ (-3.3 * (0.6 - 0.31) + Math.log(3.3 * 0.7)) + (-3.3 * (0.9 - 0.6) + Math.log(3.3 * 0.8))
-						+ (-3.3 * (1.2 - 0.9) + Math.log(3.3 * 0.7)) + (-3.3 * (1.5 - 1.2) + Math.log(3.3 * 0.8))
-						+ (-3.3 * (1.8 - 1.5) + Math.log(3.3 * 0.7))
-
+						+ (-3.3 * (0.3)) + (-3.3 * (0.31 - 0.3) + Math.log(1 - Math.exp(-3.3 * 0.8 * 0.00001)))
+						+ (-3.3 * (0.6 - 0.31) + Math.log(1 - Math.exp(-3.3 * 0.7 * 0.00001)))
+						+ (-3.3 * (0.9 - 0.6) + Math.log(1 - Math.exp(-3.3 * 0.8 * 0.00001)))
+						+ (-3.3 * (1.2 - 0.9) + Math.log(1 - Math.exp(-3.3 * 0.7 * 0.00001)))
+						+ (-3.3 * (1.5 - 1.2) + Math.log(1 - Math.exp(-3.3 * 0.8 * 0.00001)))
+						+ (-3.3 * (1.8 - 1.5) + Math.log(1 - Math.exp(-3.3 * 0.7 * 0.00001)))
 						// X2
 						+ (-0.03 * (0.3) + Math.log(0.03)) + (-3.33 * (0.31 - 0.3)) + (-3.33 * (0.6 - 0.31))
 						+ (-3.33 * (0.9 - 0.6)) + (-3.33 * (1.2 - 0.9)) + (-3.33 * (1.5 - 1.2)) + (-3.33 * (1.8 - 1.5));
-		;
 		double ulpBA =
 				// C1, C2
-				Math.log(0.4) + Math.log(0.8)
+				Math.log(0.4) + Math.log(0.8) +
 				// X1
-						+ (-10.0 * (0.3)) + (-10.0 * (0.31 - 0.3) + Math.log(10.0 * 0.5))
-						+ (-3.3 * (0.6 - 0.31) + Math.log(3.3 * 0.2)) + (-10.0 * (0.9 - 0.6) + Math.log(10.0 * 0.5))
-						+ (-3.3 * (1.2 - 0.9) + Math.log(3.3 * 0.2)) + (-10.0 * (1.5 - 1.2) + Math.log(10.0 * 0.5))
-						+ (-3.3 * (1.8 - 1.5) + Math.log(3.3 * 0.2))
-
+						+(-10.0 * (0.3)) + (-10.0 * (0.31 - 0.3) + Math.log(1 - Math.exp(-10.0 * 0.5 * 0.00001)))
+						+ (-3.3 * (0.6 - 0.31) + Math.log(1 - Math.exp(-3.3 * 0.2 * 0.00001)))
+						+ (-10.0 * (0.9 - 0.6) + Math.log(1 - Math.exp(-10.0 * 0.5 * 0.00001)))
+						+ (-3.3 * (1.2 - 0.9) + Math.log(1 - Math.exp(-3.3 * 0.2 * 0.00001)))
+						+ (-10.0 * (1.5 - 1.2) + Math.log(1 - Math.exp(-10.0 * 0.5 * 0.00001)))
+						+ (-3.3 * (1.8 - 1.5) + Math.log(1 - Math.exp(-3.3 * 0.2 * 0.00001)))
 						// X2
 						+ (-3.3 * (0.3) + Math.log(3.3)) + (-0.03 * (0.31 - 0.3)) + (-0.01 * (0.6 - 0.31))
 						+ (-0.03 * (0.9 - 0.6)) + (-0.01 * (1.2 - 0.9)) + (-0.03 * (1.5 - 1.2)) + (-0.01 * (1.8 - 1.5));
@@ -245,11 +221,12 @@ class ClassificationTest {
 				// C1, C2
 				Math.log(0.4) + Math.log(0.2)
 				// X1
-						+ (-10.0 * (0.3)) + (-10.0 * (0.31 - 0.3) + Math.log(10.0 * 0.5))
-						+ (-3.3 * (0.6 - 0.31) + Math.log(3.3 * 0.2)) + (-10.0 * (0.9 - 0.6) + Math.log(10.0 * 0.5))
-						+ (-3.3 * (1.2 - 0.9) + Math.log(3.3 * 0.2)) + (-10.0 * (1.5 - 1.2) + Math.log(10.0 * 0.5))
-						+ (-3.3 * (1.8 - 1.5) + Math.log(3.3 * 0.2))
-
+						+ (-10.0 * (0.3)) + (-10.0 * (0.31 - 0.3) + Math.log(1 - Math.exp(-10.0 * 0.5 * 0.00001)))
+						+ (-3.3 * (0.6 - 0.31) + Math.log(1 - Math.exp(-3.3 * 0.2 * 0.00001)))
+						+ (-10.0 * (0.9 - 0.6) + Math.log(1 - Math.exp(-10.0 * 0.5 * 0.00001)))
+						+ (-3.3 * (1.2 - 0.9) + Math.log(1 - Math.exp(-3.3 * 0.2 * 0.00001)))
+						+ (-10.0 * (1.5 - 1.2) + Math.log(1 - Math.exp(-10.0 * 0.5 * 0.00001)))
+						+ (-3.3 * (1.8 - 1.5) + Math.log(1 - Math.exp(-3.3 * 0.2 * 0.00001)))
 						// X2
 						+ (-0.03 * (0.3) + Math.log(0.03)) + (-3.33 * (0.31 - 0.3)) + (-3.33 * (0.6 - 0.31))
 						+ (-3.33 * (0.9 - 0.6)) + (-3.33 * (1.2 - 0.9)) + (-3.33 * (1.5 - 1.2)) + (-3.33 * (1.8 - 1.5));

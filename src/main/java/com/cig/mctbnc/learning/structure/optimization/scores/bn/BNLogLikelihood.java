@@ -36,9 +36,6 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 		List<CPTNode> nodes = (List<CPTNode>) bn.getLearnedNodes();
 		double llScore = 0.0;
 		for (CPTNode node : nodes) {
-			// Obtain an array with the values that the studied variable can take
-			String[] possibleValuesStudiedVariable = node.getStates().stream()
-					.map(stateAux -> stateAux.getValueVariable(node.getName())).toArray(String[]::new);
 			// Number of states of the node and its parents
 			int numStates = node.getNumStates();
 			int numStatesParents = node.getNumStatesParents();
@@ -50,12 +47,8 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 			// If the specified penalization function is available, it is applied
 			if (penalizationFunctionMap.containsKey(penalizationFunction)) {
 				// Overfitting is avoid by penalizing the complexity of the network
-				// Number of possible states of the parents of the currently studied variable
-				int numPossibleStatesParents = node.getNumStatesParents();
-				// Number of possible states of the currently studied variable
-				int numPossibleStatesStudiedVariable = possibleValuesStudiedVariable.length;
 				// Compute network complexity
-				double networkComplexity = numPossibleStatesParents * (numPossibleStatesStudiedVariable - 1);
+				double networkComplexity = numStatesParents * (numStates - 1);
 				// Compute non-negative penalization (For now it is performing a BIC
 				// penalization)
 				int sampleSize = bn.getDataset().getNumDataPoints();
@@ -78,12 +71,9 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 	private double classProbability(CPTNode node, int idxState, int idxStateParents) {
 		// Number of times the studied variable and its parents take a certain state
 		double Nijk = node.getSufficientStatistics().getNx()[idxStateParents][idxState];
-		node.setState(idxState);
-		node.setStateParents(idxStateParents);
-		State state = node.getStateNodeAndParents();
 		double classProbability = 0.0;
 		if (Nijk != 0)
-			classProbability = Nijk * Math.log(node.getCPT().get(state));
+			classProbability = Nijk * Math.log(node.getCPT()[idxStateParents][idxState]);
 		return classProbability;
 	}
 }

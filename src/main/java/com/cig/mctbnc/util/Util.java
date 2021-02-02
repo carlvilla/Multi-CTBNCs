@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import com.cig.mctbnc.data.representation.State;
+import com.cig.mctbnc.nodes.DiscreteNode;
+import com.cig.mctbnc.nodes.Node;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -230,5 +232,22 @@ public final class Util {
 	public static void fill3dArray(double[][][] array, double value) {
 		for (double[][] matrix : array)
 			fill2dArray(matrix, value);
+	}
+
+	/**
+	 * Set the state of a given node and its parents from a State object.
+	 * 
+	 * @param node
+	 * @param observation
+	 */
+	public static void setStateNodeAndParents(DiscreteNode node, State statesNodes) {
+		// Set state node
+		String state = statesNodes.getValueVariable(node.getName());
+		node.setState(state);
+		// Set state parents node
+		for (Node nodeParent : node.getParents()) {
+			String stateParent = statesNodes.getValueVariable(nodeParent.getName());
+			((DiscreteNode) nodeParent).setState(stateParent);
+		}
 	}
 }

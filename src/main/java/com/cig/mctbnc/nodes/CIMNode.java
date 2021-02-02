@@ -19,10 +19,10 @@ public class CIMNode extends DiscreteNode {
 	// The conditional intensity matrix can be summarized by two types of parameters
 	// (Nodelman et al., 2012): (1) instantaneous probability of the variable
 	// leaving a certain state while its parents take a certain value
-	Map<State, Double> Qx;
+	double[][] Qx;
 	// (2) probability of the variable leaving a certain state for another one while
 	// its parents take a certain value
-	Map<State, Map<State, Double>> Oxy;
+	double[][][] Oxy;
 
 	CTBNSufficientStatistics sufficientStatistics;
 
@@ -73,33 +73,24 @@ public class CIMNode extends DiscreteNode {
 	 * @param Qx
 	 * @param Oxy
 	 */
-	public void setParameters(Map<State, Double> Qx, Map<State, Map<State, Double>> Oxy) {
+	public void setParameters(double[][] Qx, double[][][] Oxy) {
 		this.Qx = Qx;
 		this.Oxy = Oxy;
 	}
 
 	/**
-	 * Sample the time that the node stays in a certain state given the state of its
-	 * parents. Returns -1 if not all the states of the parents were provided.
+	 * Sample the time that the node stays in its current state given the state of
+	 * its parents.
 	 * 
-	 * @param evidence contains the state of the node and its parents
 	 * @return sampled time
 	 */
-	public double sampleTimeState(State evidence) {
-		// Query object to retrieve intensity that the node transits given the evidence
-		State query = new State(evidence.getEvents());
-		// Ignore nodes in the evidence that are not parents or the node itself
-		List<String> requiredNodes = getParents().stream().map(parent -> parent.getName()).collect(Collectors.toList());
-		requiredNodes.add(getName());
-		query.removeAllEventsExcept(requiredNodes);
+	public double sampleTimeState() {
+		// Get indexes states node and parents
+		int idxState = getIdxState();
+		int idxStateParents = getIdxStateParents();
 		// Intensity of the node of transitioning from the state specified in "evidence"
 		// (parameter exponential distribution)
-		double q = 0.0;
-		try {
-			q = getQx().get(query);
-		} catch (NullPointerException e) {
-			return -1;
-		}
+		double q = getQx()[idxStateParents][idxState];
 		// If the parameter is 0, the node is in an absorbing state that cannot be left
 		if (q == 0)
 			return Double.POSITIVE_INFINITY;
@@ -117,35 +108,30 @@ public class CIMNode extends DiscreteNode {
 	 * Sample the next state of the node given the current one and that of its
 	 * parents. Returns null if not all the parents were instantiated.
 	 * 
-	 * @param evidence
 	 * @return sampled state
 	 * 
 	 */
-	public State sampleNextState(State evidence) {
-		// Query object to retrieve the probability of transiting to each possible state
-		State query = new State(evidence.getEvents());
-		// Ignore nodes in the evidence that are not parents or the node itself
-		List<String> requiredNodes = getParents().stream().map(parent -> parent.getName()).collect(Collectors.toList());
-		requiredNodes.add(getName());
-		query.removeAllEventsExcept(requiredNodes);
+	public State sampleNextState() {
+		// Get indexes states node and parents
+		int idxFromState = getIdxState();
+		int idxStateParents = getIdxStateParents();
 		// Sample from uniform distribution
 		double probUniform = Math.random();
 		// Accumulated probability
 		double accProb = 0;
 		// Sampled state
 		State sampledState = null;
-		try {
-			for (State nextState : getOxy().get(query).keySet()) {
-				// Probability of transitioning to "nextState"
-				accProb += getOxy().get(query).get(nextState);
+		for (int idxToState = 0; idxToState < getNumStates(); idxToState++) {
+			if (idxToState != idxFromState) {
+				// Probability of transitioning to "idxToState"
+				accProb += getOxy()[idxStateParents][idxFromState][idxToState];
 				if (probUniform <= accProb) {
 					// Generated state for the node
-					sampledState = nextState;
+					setState(idxToState);
+					sampledState = new State(getName(), getState());
 					break;
 				}
 			}
-		} catch (NullPointerException e) {
-			return null;
 		}
 		return sampledState;
 	}
@@ -165,7 +151,7 @@ public class CIMNode extends DiscreteNode {
 	 * 
 	 * @return parameter Qx
 	 */
-	public Map<State, Double> getQx() {
+	public double[][] getQx() {
 		return Qx;
 	}
 
@@ -175,13 +161,13 @@ public class CIMNode extends DiscreteNode {
 	 * 
 	 * @return parameter Oxy
 	 */
-	public Map<State, Map<State, Double>> getOxy() {
+	public double[][][] getOxy() {
 		return Oxy;
 	}
-	
+
 	@Override
 	public boolean areParametersEstimated() {
-		return !(Qx == null || Oxy == null || Qx.isEmpty() || Oxy.isEmpty());
+		return !(Qx == null || Oxy == null);
 	}
 
 	public String toString() {

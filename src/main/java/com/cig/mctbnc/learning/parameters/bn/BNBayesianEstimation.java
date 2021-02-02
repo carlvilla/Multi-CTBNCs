@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.nodes.DiscreteNode;
 
 /**
  * Implements the Bayesian estimation to estimate the parameters of a BN. It is
@@ -34,7 +34,7 @@ public class BNBayesianEstimation extends BNParameterLearningAlgorithm {
 	}
 
 	@Override
-	protected BNSufficientStatistics getSufficientStatisticsNode(Node node, Dataset dataset) {
+	protected BNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset) {
 		BNSufficientStatistics ssNode = new BNSufficientStatistics(NxHP);
 		ssNode.computeSufficientStatistics(node, dataset);
 		return ssNode;

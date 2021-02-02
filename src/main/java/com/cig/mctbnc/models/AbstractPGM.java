@@ -371,7 +371,6 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		FxViewer viewer = new FxViewer(graph, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
 		viewer.enableAutoLayout();
 		FxViewPanel panel = (FxViewPanel) viewer.addDefaultView(false, new FxGraphRenderer());
-
 		// Create stage and scene to visualize the graph
 		Stage stage = new Stage();
 		Scene scene = new Scene(panel);

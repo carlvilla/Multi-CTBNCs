@@ -1,10 +1,10 @@
 package com.cig.mctbnc.learning.parameters.ctbn;
 
 import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.nodes.DiscreteNode;
 
 /**
- * Bayesian parameter estimation for CTBN. It is assumed all of the
+ * Bayesian parameter estimation for a discrete CTBN. It is assumed all of the
  * hyperparameters to be equal to "MxyHP" or "TxHP" (Lindstone rule).
  * 
  * @author Carlos Villa Blanco
@@ -29,9 +29,9 @@ public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 	}
 
 	@Override
-	protected CTBNSufficientStatistics getSufficientStatisticsNode(Node node, Dataset dataset) {
+	protected CTBNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset) {
 		CTBNSufficientStatistics ssNode = new CTBNSufficientStatistics(MxyHP, TxHP);
-		ssNode.computeSufficientStatistics(node, dataset);
+		ssNode.computeSufficientStatistics((DiscreteNode) node, dataset);
 		return ssNode;
 	}
 

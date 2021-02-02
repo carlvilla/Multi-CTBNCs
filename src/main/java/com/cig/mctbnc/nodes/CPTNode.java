@@ -1,8 +1,6 @@
 package com.cig.mctbnc.nodes;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.SufficientStatistics;
@@ -16,7 +14,7 @@ import com.cig.mctbnc.learning.parameters.bn.BNSufficientStatistics;
  *
  */
 public class CPTNode extends DiscreteNode {
-	Map<State, Double> CPT;
+	double[][] CPT;
 	BNSufficientStatistics sufficientStatistics;
 
 	/**
@@ -57,7 +55,7 @@ public class CPTNode extends DiscreteNode {
 	 * 
 	 * @param CPT
 	 */
-	public void setCPT(Map<State, Double> CPT) {
+	public void setCPT(double[][] CPT) {
 		this.CPT = CPT;
 	}
 
@@ -68,42 +66,26 @@ public class CPTNode extends DiscreteNode {
 	 * accumulated probability is more than the sampled value from the uniform
 	 * distribution, the current state under study is returned.
 	 * 
-	 * @param evidence
 	 * @return sampled state of the node. Null is returned if the state could not be
 	 *         sampled
 	 */
-	public State sampleState(State evidence) {
+	public State sampleState() {
 		// Sample from uniform distribution
 		double probUniform = Math.random();
 		// Accumulated probability
 		double accProb = 0;
-		// Sampled state
-		State sampledState = null;
-		// Iterate over all the states of the node
-		for (State state : getStates()) {
-			// Get names of the parents of the node
-			List<String> nameParents = getParents().stream().map(parent -> parent.getName())
-					.collect(Collectors.toList());
-			// Define a query object to retrieve probabilities
-			State query = new State(evidence.getEvents());
-			// Ignore nodes in the evidence that are not parents of this node
-			query.removeAllEventsExcept(nameParents);
-			// Include the current state under evaluation of the node
-			query.addEvents(state.getEvents());
-			try {
-				// Retrieve probability given the evidence and certain state of the node
-				accProb += getCPT().get(query);
-			} catch (NullPointerException e) {
-				// The evidence does not contain all data
-				return sampledState;
-			}
+		// Iterate over all the states of the node and its parents
+		for (int idxState = 0; idxState < getNumStates(); idxState++) {
+			int idxStateParents = getIdxStateParents();
+			// Retrieve probability given the state of the node and its parents
+			accProb += getCPT()[idxStateParents][idxState];
 			if (probUniform <= accProb) {
 				// Generated state for the node
-				sampledState = state;
+				setState(idxState);
 				break;
 			}
 		}
-		return sampledState;
+		return new State(getName(), getState());
 	}
 
 	/**
@@ -111,7 +93,7 @@ public class CPTNode extends DiscreteNode {
 	 * 
 	 * @return CPT
 	 */
-	public Map<State, Double> getCPT() {
+	public double[][] getCPT() {
 		return CPT;
 	}
 
@@ -126,7 +108,7 @@ public class CPTNode extends DiscreteNode {
 
 	@Override
 	public boolean areParametersEstimated() {
-		return !(CPT == null || CPT.isEmpty());
+		return !(CPT == null);
 	}
 
 	public String toString() {
