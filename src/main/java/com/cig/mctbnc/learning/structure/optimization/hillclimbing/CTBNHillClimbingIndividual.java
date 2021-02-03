@@ -1,7 +1,5 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,8 +9,6 @@ import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNScoreFunction;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.Node;
-import com.cig.mctbnc.util.Util;
-import com.google.common.cache.Cache;
 
 /**
  * Implements hill climbing algorithm for CTBNs.
@@ -31,6 +27,7 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 		this.scoreFunction = scoreFunction;
 	}
 
+	@Override
 	public boolean[][] findStructure() {
 		// Store adjacency matrix of the best structure found
 		boolean[][] bestAdjacencyMatrix = initialAdjacencyMatrix.clone();
@@ -55,16 +52,14 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 		// cannot have parents
 		if (!node.isClassVariable()) {
 			logger.info("Finding best parent set for node {}", node.getName());
-			// A cache is used to avoid recomputing the scores of structures
-			Cache<boolean[][], Double> cache = Util.createCache(50);
 			// Set as initial best score the one obtained with the initial structure
-			double bestScore = setStructure(indexNode, initialAdjacencyMatrix);
+			double bestScore = computeScore(indexNode, initialAdjacencyMatrix);
 			// Try to improve the current structure
 			boolean improvement = false;
 			do {
 				// Store adjacency matrix of the current iteration
 				boolean[][] iterationAdjacencyMatrix = bestAdjacencyMatrix.clone();
-				HillClimbingSolution bestNeighbor = findBestNeighbor(indexNode, iterationAdjacencyMatrix, cache);
+				HillClimbingSolution bestNeighbor = findBestNeighbor(indexNode, iterationAdjacencyMatrix);
 				improvement = bestNeighbor.getScore() > bestScore;
 				if (improvement) {
 					bestScore = bestNeighbor.getScore();
@@ -86,8 +81,7 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 	 * @param adjacencyMatrix
 	 * @return
 	 */
-	private HillClimbingSolution findBestNeighbor(int indexNode, boolean[][] adjacencyMatrix,
-			Cache<boolean[][], Double> cache) {
+	private HillClimbingSolution findBestNeighbor(int indexNode, boolean[][] adjacencyMatrix) {
 		HillClimbingSolution solution = new HillClimbingSolution();
 		int numNodes = adjacencyMatrix.length;
 		// Find the best neighbor structure at node 'indexNode'
@@ -103,7 +97,7 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 				// Check if the structure is legal
 				if (pgm.isStructureLegal(tempAdjacencyMatrix)) {
 					// Obtain score at the node 'indexNode'
-					double obtainedScore = computeScore(indexNode, tempAdjacencyMatrix, cache);
+					double obtainedScore = computeScore(indexNode, tempAdjacencyMatrix);
 					if (obtainedScore > solution.getScore()) {
 						// Set the obtained score and adjacency matrix as the best ones so far
 						solution.setAdjacencyMatrix(tempAdjacencyMatrix);
@@ -123,34 +117,7 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 	 * @param cache
 	 * @return
 	 */
-	private double computeScore(int indexNode, boolean[][] adjacencyMatrix, Cache<boolean[][], Double> cache) {
-		double obtainedScore = 0;
-		try {
-			// If the structure was already evaluated, its score is obtained from the cache.
-			// Otherwise, the score is saved
-			obtainedScore = cache.get(adjacencyMatrix, new Callable<Double>() {
-				@Override
-				public Double call() {
-					// Set structure and obtain local score at the node 'indexNode'
-					return setStructure(indexNode, adjacencyMatrix);
-				}
-			});
-		} catch (ExecutionException e) {
-			logger.error("An error occured using the cache");
-		}
-		return obtainedScore;
-	}
-
-	/**
-	 * Establish for the indicated node (in the CTBN) the parent set defined in an
-	 * adjacency matrix and return the score for the new structure.
-	 * 
-	 * @param indexNode
-	 * @param adjacencyMatrix
-	 * @return
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private double setStructure(int indexNode, boolean[][] adjacencyMatrix) {
+	private double computeScore(int indexNode, boolean[][] adjacencyMatrix) {
 		// Clone model to avoid inconsistencies between threads
 		CTBN ctbn = new CTBN(((CTBN) pgm));
 		// Establish the parent set of the node 'indexNode'
@@ -158,5 +125,4 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 		// Obtain local score at the node 'indexNode'
 		return scoreFunction.compute(ctbn, indexNode);
 	}
-
 }

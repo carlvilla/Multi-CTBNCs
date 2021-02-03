@@ -159,28 +159,21 @@ public final class Util {
 		// If it is given an empty list, the result is a empty list too
 		if (statesVariables.isEmpty())
 			return result;
-		else {
-			// Recursion is used to calculate the product.
-			List<State> statesHead = statesVariables.get(0);
-			List<State> statesTail = cartesianProduct(statesVariables.subList(1, statesVariables.size()));
-			// If "statesTail" is empty, we are obtaining the possible combinations of
-			// states for a unique list (statesHead). In that case, the list itself is the
-			// solution (despite the fact that the Cartesian product would be the empty
-			// list).
-			if (statesTail.isEmpty()) {
-				return statesHead;
-			}
-			// If "statesTail" is not empty, we are obtaining the possible combinations of
-			// states between two lists
-			else {
-				for (State stateHead : statesHead) {
-					for (State stateTail : statesTail) {
-						State tmpState = new State();
-						tmpState.addEvents(stateHead.getEvents());
-						tmpState.addEvents(stateTail.getEvents());
-						result.add(tmpState);
-					}
-				}
+		// Recursion is used to calculate the product.
+		List<State> statesHead = statesVariables.get(0);
+		List<State> statesTail = cartesianProduct(statesVariables.subList(1, statesVariables.size()));
+		// If "statesTail" is empty, we are obtaining the possible combinations of
+		// states for a unique list (statesHead). In that case, the list itself is the
+		// solution (despite the fact that the Cartesian product would be the empty
+		// list).
+		if (statesTail.isEmpty())
+			return statesHead;
+		for (State stateHead : statesHead) {
+			for (State stateTail : statesTail) {
+				State tmpState = new State();
+				tmpState.addEvents(stateHead.getEvents());
+				tmpState.addEvents(stateTail.getEvents());
+				result.add(tmpState);
 			}
 		}
 		return result;
