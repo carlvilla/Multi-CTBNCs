@@ -1,10 +1,10 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.bn.BNSufficientStatistics;
@@ -23,6 +23,8 @@ import com.cig.mctbnc.util.Util;
  * training.
  */
 public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implements CTBNScoreFunction {
+	// Store class configurations
+	List<State> statesCVs;
 
 	/**
 	 * Receives the name of the penalization function used for the structure
@@ -48,10 +50,8 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 		// Parameters of class variables are in the BN, their nodes are retrieved
 		BN<CPTNode> bnClassSubgraph = (BN<CPTNode>) ctbn.getBnClassSubgraph();
 		List<CPTNode> nodesCVs = bnClassSubgraph.getLearnedNodes();
-		// All possible class configurations
-		List<List<State>> statesEachCV = nodesCVs.stream().map(nodeCV -> ((DiscreteNode) nodeCV).getStates())
-				.collect(Collectors.toList());
-		List<State> statesCVs = Util.cartesianProduct(statesEachCV);
+		// Retrieve all class configurations
+		List<State> statesCVs = getClassConfigurations(nodesCVs);
 		// Class probability term
 		cll += logPriorProbabilityClassVariables(nodesCVs, statesCVs);
 		// Log-likelihood of the sequences given the class configuration
@@ -61,6 +61,32 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 		// Apply the specified penalization function (if available)
 		cll -= getPenalization(ctbn);
 		return cll;
+	}
+
+	@Override
+	public double compute(CTBN<? extends Node> ctbn, int nodeIndex) {
+		return 0;
+	}
+
+	/**
+	 * Return State objects with all class configurations. They are saved as a
+	 * global variable to avoid recomputing them.
+	 * 
+	 * @param nodesCVs
+	 * @return
+	 */
+	private List<State> getClassConfigurations(List<CPTNode> nodesCVs) {
+		if (statesCVs == null) {
+			List<List<State>> statesEachCV = new ArrayList<List<State>>();
+			for (CPTNode nodeCV : nodesCVs) {
+				List<State> statesNode = new ArrayList<State>();
+				for (String valueState : nodeCV.getStates())
+					statesNode.add(new State(Map.of(nodeCV.getName(), valueState)));
+				statesEachCV.add(statesNode);
+			}
+			statesCVs = Util.cartesianProduct(statesEachCV);
+		}
+		return statesCVs;
 	}
 
 	/**
@@ -286,11 +312,6 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			}
 		}
 		return totalPenalization;
-	}
-
-	@Override
-	public double compute(CTBN<? extends Node> ctbn, int nodeIndex) {
-		return 0;
 	}
 
 }

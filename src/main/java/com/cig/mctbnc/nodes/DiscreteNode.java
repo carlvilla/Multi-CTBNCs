@@ -1,9 +1,7 @@
 package com.cig.mctbnc.nodes;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,9 +17,6 @@ public abstract class DiscreteNode extends AbstractNode {
 	private int stateIdx;
 	// Keep the number of possible states of the parents
 	private int numStatesParents = 1;
-
-	private List<State> states;
-
 	static Logger logger = LogManager.getLogger(DiscreteNode.class);
 
 	/**
@@ -31,16 +26,10 @@ public abstract class DiscreteNode extends AbstractNode {
 	 * @param states
 	 * 
 	 */
-	public DiscreteNode(String name, List<State> states) {
+	public DiscreteNode(String name, List<String> states) {
 		super(name);
-		this.states = states;
-
 		// Define HashBiMap to access the state of the node by index and vice versa
-		indexerStates = HashBiMap.create();
-		for (int i = 0; i < states.size(); i++) {
-			indexerStates.put(states.get(i).getValueVariable(name), i);
-		}
-
+		initializeIndexerStates(states);
 	}
 
 	/**
@@ -52,40 +41,9 @@ public abstract class DiscreteNode extends AbstractNode {
 	 * @param isClassVariable
 	 * 
 	 */
-	public DiscreteNode(String name, List<State> states, boolean isClassVariable) {
+	public DiscreteNode(String name, List<String> states, boolean isClassVariable) {
 		super(name, isClassVariable);
-		this.states = (List<State>) states;
-
-		// Define HashBiMap to access the state of the node by index and vice versa
-		indexerStates = HashBiMap.create();
-		for (int i = 0; i < states.size(); i++) {
-			indexerStates.put(states.get(i).getValueVariable(name), i);
-		}
-
-	}
-
-	/**
-	 * Initialize a discrete node given a list of strings with its states. The order
-	 * of parameters is changed with respect to the other constructor to avoid both
-	 * of them having the same erasure.
-	 * 
-	 * @param name
-	 * @param isClassVariable
-	 * @param states
-	 * 
-	 */
-	public DiscreteNode(String name, boolean isClassVariable, List<String> states) {
-		super(name, isClassVariable);
-		this.states = new ArrayList<State>();
-		for (String valueState : states)
-			this.states.add(new State(Map.of(name, valueState)));
-
-		// Define HashBiMap to access the state of the node by index and vice versa
-		indexerStates = HashBiMap.create();
-		for (int i = 0; i < states.size(); i++) {
-			indexerStates.put(states.get(i), i);
-		}
-
+		initializeIndexerStates(states);
 	}
 
 	@Override
@@ -109,8 +67,8 @@ public abstract class DiscreteNode extends AbstractNode {
 	 * 
 	 * @return list of State objects
 	 */
-	public List<State> getStates() {
-		return states;
+	public List<String> getStates() {
+		return new ArrayList<String>(indexerStates.keySet());
 	}
 
 	/**
@@ -216,28 +174,27 @@ public abstract class DiscreteNode extends AbstractNode {
 		return numStatesParents;
 	}
 
-	/**
-	 * Get an State object with the current state of the node and its parents.
-	 * 
-	 * @return
-	 */
-	public State getStateNodeAndParents() {
-		String stateValueNode = indexerStates.inverse().get(stateIdx);
-		State state = new State(getName(), stateValueNode);
-		for (int i = 0; i < getNumParents(); i++) {
-			DiscreteNode parentNode = (DiscreteNode) getParents().get(i);
-			String stateValueParent = parentNode.getState();
-			state.addEvent(parentNode.getName(), stateValueParent);
-		}
-		return state;
-	}
-
+	@Override
 	public String toString() {
 		String commonDescription = super.toString();
 		StringBuilder sb = new StringBuilder();
 		sb.append(commonDescription);
 		sb.append("Possible states: " + indexerStates);
 		return sb.toString();
+	}
+
+	/**
+	 * Receive the states of the node and create a HashBiMap to store them with
+	 * their indexes.
+	 * 
+	 * @param states
+	 */
+	private void initializeIndexerStates(List<String> states) {
+		// Define HashBiMap to access the state of the node by index and vice versa
+		indexerStates = HashBiMap.create();
+		for (int i = 0; i < states.size(); i++) {
+			indexerStates.put(states.get(i), i);
+		}
 	}
 
 }

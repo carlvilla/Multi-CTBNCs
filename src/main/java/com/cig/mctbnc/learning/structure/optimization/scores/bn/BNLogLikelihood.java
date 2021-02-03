@@ -1,13 +1,10 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.bn;
 
 import java.util.List;
-import java.util.Set;
 
-import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.structure.optimization.scores.AbstractLogLikelihood;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
-import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
 public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFunction {

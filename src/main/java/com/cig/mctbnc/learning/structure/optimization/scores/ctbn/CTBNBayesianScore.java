@@ -2,7 +2,6 @@ package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
 import org.apache.commons.math3.special.Gamma;
 
-import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;

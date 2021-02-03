@@ -441,10 +441,10 @@ public class MainSampling {
 
 		// ------------------- Experiment 10 -------------------
 		// Define class variables
-		CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
-		CPTNode C2 = new CPTNode("C2", true, List.of("C2_A", "C2_B"));
-		CPTNode C3 = new CPTNode("C3", true, List.of("C3_A", "C3_B"));
-		CPTNode C4 = new CPTNode("C4", true, List.of("C4_A", "C4_B"));
+		CPTNode C1 = new CPTNode("C1", List.of("C1_A", "C1_B"), true);
+		CPTNode C2 = new CPTNode("C2", List.of("C2_A", "C2_B"), true);
+		CPTNode C3 = new CPTNode("C3", List.of("C3_A", "C3_B"), true);
+		CPTNode C4 = new CPTNode("C4", List.of("C4_A", "C4_B"), true);
 
 		// Definition of the structure of the class subgraph
 		C2.setChild(C1);
@@ -458,11 +458,11 @@ public class MainSampling {
 		generateRandomCPD(CS, forceExtremeProb);
 
 		// Define features
-		CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
-		CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));
-		CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));
-		CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));
-		CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));
+		CIMNode X1 = new CIMNode("X1", List.of("X1_A", "X1_B", "X1_C"), false);
+		CIMNode X2 = new CIMNode("X2", List.of("X2_A", "X2_B", "X2_C"), false);
+		CIMNode X3 = new CIMNode("X3", List.of("X3_A", "X3_B", "X3_C"), false);
+		CIMNode X4 = new CIMNode("X4", List.of("X4_A", "X4_B", "X4_C"), false);
+		CIMNode X5 = new CIMNode("X5", List.of("X5_A", "X5_B", "X5_C"), false);
 
 		// Definition of the structure of the bridge and feature subgraphs
 		C1.setChild(X1);

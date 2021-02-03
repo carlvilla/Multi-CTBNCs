@@ -1,15 +1,10 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
-import java.util.Arrays;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-
 import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNScoreFunction;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
-import com.google.common.cache.Cache;
 
 /**
  * Implements hill climbing algorithm for CTBNs. This class is used with scores
@@ -131,7 +126,7 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 	 * @return
 	 */
 	private double computeScore(boolean[][] adjacencyMatrix) {
-		// Set structure and obtain local score at the node 'indexNode'
+		// Set structure and obtain its score
 		pgm.setStructureModifiedNodes(adjacencyMatrix);
 		return scoreFunction.compute((CTBN<? extends Node>) pgm);
 	}

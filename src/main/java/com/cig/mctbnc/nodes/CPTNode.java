@@ -23,7 +23,7 @@ public class CPTNode extends DiscreteNode {
 	 * @param nameVariable
 	 * @param statesVariable
 	 */
-	public CPTNode(String name, List<State> states) {
+	public CPTNode(String name, List<String> states) {
 		super(name, states);
 	}
 
@@ -36,8 +36,8 @@ public class CPTNode extends DiscreteNode {
 	 * @param isClassVariable
 	 * 
 	 */
-	public CPTNode(String name, boolean isClassVariable, List<String> states) {
-		super(name, isClassVariable, states);
+	public CPTNode(String name, List<String> states, boolean isClassVariable) {
+		super(name, states, isClassVariable);
 	}
 
 	/**
@@ -45,6 +45,7 @@ public class CPTNode extends DiscreteNode {
 	 * 
 	 * @param CPT
 	 */
+	@Override
 	public void setSufficientStatistics(SufficientStatistics sufficientStatistics) {
 		this.sufficientStatistics = (BNSufficientStatistics) sufficientStatistics;
 
@@ -111,6 +112,7 @@ public class CPTNode extends DiscreteNode {
 		return !(CPT == null);
 	}
 
+	@Override
 	public String toString() {
 		String discreteNodeDescription = super.toString();
 		StringBuilder sb = new StringBuilder();

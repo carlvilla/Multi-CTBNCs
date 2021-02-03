@@ -17,7 +17,6 @@ import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
-import com.cig.mctbnc.nodes.DiscreteNode;
 
 class ClassificationTest {
 	static MCTBNC<CPTNode, CIMNode> mctbnc;
@@ -28,8 +27,8 @@ class ClassificationTest {
 		// Definition of the model
 
 		// Define class variables
-		CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
-		CPTNode C2 = new CPTNode("C2", true, List.of("C2_A", "C2_B"));
+		CPTNode C1 = new CPTNode("C1", List.of("C1_A", "C1_B"), true);
+		CPTNode C2 = new CPTNode("C2", List.of("C2_A", "C2_B"), true);
 
 		// Definition of the structure of the class subgraph
 		C1.setChild(C2);
@@ -49,8 +48,8 @@ class ClassificationTest {
 		BN<CPTNode> bn = new BN<CPTNode>(List.of(C1, C2));
 
 		// Define features
-		CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
-		CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B"));
+		CIMNode X1 = new CIMNode("X1", List.of("X1_A", "X1_B", "X1_C"), false);
+		CIMNode X2 = new CIMNode("X2", List.of("X2_A", "X2_B"), false);
 
 		// Definition of the structure of the bridge and feature subgraphs
 		C1.setChild(X1);

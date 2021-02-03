@@ -1,15 +1,10 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
-import java.util.Arrays;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-
 import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.optimization.scores.bn.BNScoreFunction;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
-import com.google.common.cache.Cache;
 
 /**
  * Implements hill climbing algorithm for BNs.

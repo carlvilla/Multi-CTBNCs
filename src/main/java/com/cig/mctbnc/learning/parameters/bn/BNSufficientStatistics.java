@@ -8,7 +8,6 @@ import com.cig.mctbnc.data.representation.Observation;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.learning.parameters.SufficientStatistics;
 import com.cig.mctbnc.nodes.DiscreteNode;
-import com.cig.mctbnc.nodes.Node;
 import com.cig.mctbnc.util.Util;
 
 /**

@@ -30,7 +30,7 @@ public class CIMNode extends DiscreteNode {
 	 * @param name
 	 * @param states
 	 */
-	public CIMNode(String name, List<State> states) {
+	public CIMNode(String name, List<String> states) {
 		super(name, states);
 	}
 
@@ -42,22 +42,8 @@ public class CIMNode extends DiscreteNode {
 	 * @param states
 	 * @param isClassVariable
 	 */
-	public CIMNode(String name, List<State> states, boolean isClassVariable) {
+	public CIMNode(String name, List<String> states, boolean isClassVariable) {
 		super(name, states, isClassVariable);
-	}
-
-	/**
-	 * Initialize a CIMNode node given a list of strings with its states. The order
-	 * of parameters is changed with respect to the other constructor to avoid both
-	 * of them having the same erasure.
-	 * 
-	 * @param name
-	 * @param isClassVariable
-	 * @param states
-	 * 
-	 */
-	public CIMNode(String name, boolean isClassVariable, List<String> states) {
-		super(name, isClassVariable, states);
 	}
 
 	@Override

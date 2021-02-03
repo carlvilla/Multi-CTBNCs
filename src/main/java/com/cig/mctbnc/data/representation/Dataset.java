@@ -13,7 +13,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cig.mctbnc.exceptions.ErroneousSequenceException;
-import com.cig.mctbnc.util.Util;
 
 /**
  * Represents a time series dataset, which stores sequences and provides methods
@@ -31,9 +30,7 @@ public class Dataset {
 	// A list of class variables that should be ignored
 	private List<String> ignoredClassVariables;
 	// Store the possible states of a variable to avoid recomputations
-	private Map<String, List<State>> statesVariables;
-	// Store combinations of states of different variables to avoid recomputations
-	private Map<List<String>, List<State>> statesCombinationVariables;
+	private Map<String, List<String>> statesVariables;
 	static Logger logger = LogManager.getLogger(Dataset.class);
 
 	/**
@@ -64,8 +61,7 @@ public class Dataset {
 	}
 
 	private void initialiazeStructures() {
-		statesVariables = new HashMap<String, List<State>>();
-		statesCombinationVariables = new HashMap<List<String>, List<State>>();
+		statesVariables = new HashMap<String, List<String>>();
 	}
 
 	/**
@@ -152,7 +148,8 @@ public class Dataset {
 
 	/**
 	 * Set the class variables that should be ignored.
-	 * @param ignoredClassVariables 
+	 * 
+	 * @param ignoredClassVariables
 	 * 
 	 * @param remove
 	 */
@@ -292,7 +289,7 @@ public class Dataset {
 	 * @param statesVariables
 	 * 
 	 */
-	public void setStatesVariables(Map<String, List<State>> statesVariables) {
+	public void setStatesVariables(Map<String, List<String>> statesVariables) {
 		this.statesVariables = statesVariables;
 	}
 
@@ -301,7 +298,7 @@ public class Dataset {
 	 * 
 	 * @return array of State objects
 	 */
-	public Map<String, List<State>> getStatesVariables() {
+	public Map<String, List<String>> getStatesVariables() {
 		return statesVariables;
 	}
 
@@ -314,56 +311,22 @@ public class Dataset {
 	 * @param nameVariable
 	 * @return states of the variable
 	 */
-	public List<State> getPossibleStatesVariable(String nameVariable) {
+	public List<String> getPossibleStatesVariable(String nameVariable) {
 		// Extract states from the Map (if previously obtained)
-		List<State> states = statesVariables.get(nameVariable);
+		List<String> states = statesVariables.get(nameVariable);
 		if (states == null) {
 			// Use a HashSet to save each state just once
-			Set<State> statesSet = new HashSet<State>();
+			Set<String> statesSet = new HashSet<String>();
 			for (Sequence sequence : getSequences()) {
 				String[] statesSequence = sequence.getStates(nameVariable);
 				for (int i = 0; i < statesSequence.length; i++) {
-					// For every possible value of the variable it is created a State.
-					State state = new State();
-					state.addEvent(nameVariable, statesSequence[i]);
-					statesSet.add(state);
+					statesSet.add(statesSequence[i]);
 				}
 			}
-			states = new ArrayList<State>(statesSet);
+			states = new ArrayList<String>(statesSet);
 			statesVariables.put(nameVariable, states);
 		}
-		// Create a copy of the states
-		return copyStateList(states);
-	}
-
-	/**
-	 * Get all the possible states of the specified variables together. It is
-	 * obtained all the combinations between the states of the variables. The
-	 * combination of states are obtained once and stored in a map to avoid
-	 * recomputations. In order to not return always a reference to the same State
-	 * list, the State objects from the map are copied.
-	 * 
-	 * @param nameVariables name of the variables whose possible combinations of
-	 *                      states we want to know
-	 * @return a list of as many objects State as possible combinations between the
-	 *         specified variables
-	 */
-	public List<State> getPossibleStatesVariables(List<String> nameVariables) {
-		if (nameVariables.size() == 1)
-			return getPossibleStatesVariable(nameVariables.get(0));
-		// Get all possible states for each variable
-		List<State> states = statesCombinationVariables.get(nameVariables);
-		if (states == null) {
-			List<List<State>> listStatesEachVariable = new ArrayList<List<State>>();
-			for (String nameVariable : nameVariables) {
-				List<State> statesVariable = getPossibleStatesVariable(nameVariable);
-				listStatesEachVariable.add(statesVariable);
-			}
-			states = Util.cartesianProduct(listStatesEachVariable);
-			statesCombinationVariables.put(nameVariables, states);
-		}
-		// Create a copy of the states
-		return copyStateList(states);
+		return states;
 	}
 
 	/**

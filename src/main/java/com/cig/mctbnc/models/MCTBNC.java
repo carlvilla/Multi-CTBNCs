@@ -5,9 +5,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -245,16 +245,13 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		Instant start = Instant.now();
 		int numSequences = dataset.getNumDataPoints();
 		Prediction[] predictions = new Prediction[numSequences];
-		// Obtain possible states of each class variables
-		List<List<State>> statesEachClassVariable = bn.getNodes().stream()
-				.map(node -> ((DiscreteNode) node).getStates()).collect(Collectors.toList());
-		// Obtain all possible class configurations
-		List<State> statesClassVariables = Util.cartesianProduct(statesEachClassVariable);
+		// Obtain class configurations
+		List<State> statesCVs = getClassConfigurations(bn.getNodes());
 		// Make predictions on all the sequences
 		for (int i = 0; i < numSequences; i++) {
 			logger.trace("Performing prediction over sequence {}/{}", i, dataset.getNumDataPoints());
 			Sequence evidenceSequence = dataset.getSequences().get(i);
-			predictions[i] = predict(evidenceSequence, statesClassVariables, estimateProbabilities);
+			predictions[i] = predict(evidenceSequence, statesCVs, estimateProbabilities);
 		}
 		Instant end = Instant.now();
 		logger.info("Sequences predicted in {}", Duration.between(start, end));
@@ -390,6 +387,23 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// Add the initial observation and the time when it occurred
 		State initialObservation = new State(evidence.getEvents());
 		return initialObservation;
+	}
+
+	/**
+	 * Return State objects with all class configurations.
+	 * 
+	 * @param nodesCVs
+	 * @return
+	 */
+	private List<State> getClassConfigurations(List<NodeTypeBN> nodesCVs) {
+		List<List<State>> statesEachCV = new ArrayList<List<State>>();
+		for (Node nodeCV : nodesCVs) {
+			List<State> statesNode = new ArrayList<State>();
+			for (String valueState : ((DiscreteNode) nodeCV).getStates())
+				statesNode.add(new State(Map.of(nodeCV.getName(), valueState)));
+			statesEachCV.add(statesNode);
+		}
+		return Util.cartesianProduct(statesEachCV);
 	}
 
 	/**
