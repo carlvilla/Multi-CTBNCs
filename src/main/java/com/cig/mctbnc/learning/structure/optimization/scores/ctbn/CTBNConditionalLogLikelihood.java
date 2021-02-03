@@ -41,6 +41,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	 * 
 	 * @param ctbn continuous time Bayesian network
 	 */
+	@Override
 	public double compute(CTBN<? extends Node> ctbn) {
 		// Store the conditional log-likelihood score
 		double cll = 0.0;
@@ -110,22 +111,22 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			int numNodeStates = node.getNumStates();
 			int numParentsStates = node.getNumStatesParents();
 			// Iterate over all states of the node (from where a transition begins)
-			for (int idxFromStateNode = 0; idxFromStateNode < numNodeStates; idxFromStateNode++) {
+			for (int idxFromState = 0; idxFromState < numNodeStates; idxFromState++) {
 				// Iterate over all states of the node's parents
 				for (int idxStateParents = 0; idxStateParents < numParentsStates; idxStateParents++) {
 					// Retrieve parameters and sufficient statistics for evaluated states
-					double qx = node.getQx()[idxStateParents][idxFromStateNode];
+					double qx = node.getQx(idxStateParents, idxFromState);
 					if (qx > 0) {
-						double mx = ss.getMx()[idxStateParents][idxFromStateNode];
-						double tx = ss.getTx()[idxStateParents][idxFromStateNode];
+						double mx = ss.getMx()[idxStateParents][idxFromState];
+						double tx = ss.getTx()[idxStateParents][idxFromState];
 						lls += mx * Math.log(qx) - qx * tx;
 						// Iterate over all states of the feature node (except "idxFromState")
-						for (int idxToStateNode = 0; idxToStateNode < numNodeStates; idxToStateNode++) {
-							if (idxToStateNode != idxFromStateNode) {
+						for (int idxToState = 0; idxToState < numNodeStates; idxToState++) {
+							if (idxToState != idxFromState) {
 								// Retrieve parameters and sufficient statistics for evaluated states
-								double oxx = node.getOxy()[idxStateParents][idxFromStateNode][idxToStateNode];
+								double oxx = node.getOxy(idxStateParents, idxFromState, idxToState);
 								if (oxx > 0) {
-									double mxy = ss.getMxy()[idxStateParents][idxFromStateNode][idxToStateNode];
+									double mxy = ss.getMxy()[idxStateParents][idxFromState][idxToState];
 									lls += mxy * Math.log(oxx);
 								}
 							}
@@ -180,14 +181,14 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			// Estimate the probabilities of each class variable of taking the states
 			// defined in the class configuration
 			for (CPTNode nodeCV : nodesCVs) {
-				
+
 				String stateCV = stateCVs.getValueVariable(nodeCV.getName());
 				nodeCV.setState(stateCV);
 				for (Node nodeParent : nodeCV.getParents()) {
 					String stateParentCV = stateCVs.getValueVariable(nodeParent.getName());
 					((DiscreteNode) nodeParent).setState(stateParentCV);
 				}
-				
+
 				int idxState = nodeCV.getIdxState();
 				int idxStateParents = nodeCV.getIdxStateParents();
 
@@ -234,7 +235,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 							}
 						}
 						// Retrieve parameters and sufficient statistics for evaluated states
-						double qx = node.getQx()[idxStateParents][idxFromState];
+						double qx = node.getQx(idxStateParents, idxFromState);
 						if (qx > 0) {
 							double mx = ss.getMx()[idxStateParents][idxFromState];
 							double tx = ss.getTx()[idxStateParents][idxFromState];
@@ -243,7 +244,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 							for (int idxToState = 0; idxToState < numNodeStates; idxToState++) {
 								if (idxToState != idxFromState) {
 									// Retrieve parameters and sufficient statistics for evaluated states
-									double oxx = node.getOxy()[idxStateParents][idxFromState][idxToState];
+									double oxx = node.getOxy(idxStateParents, idxFromState, idxToState);
 									if (oxx > 0) {
 										double mxy = ss.getMxy()[idxStateParents][idxFromState][idxToState];
 										llsCC += (mxy * Math.log(oxx));
@@ -281,12 +282,13 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 				int sampleSize = ctbn.getDataset().getNumDataPoints();
 				// Non-negative penalization
 				double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
-				totalPenalization += (double) networkComplexity * penalization;
+				totalPenalization += networkComplexity * penalization;
 			}
 		}
 		return totalPenalization;
 	}
 
+	@Override
 	public double compute(CTBN<? extends Node> ctbn, int nodeIndex) {
 		return 0;
 	}

@@ -1,8 +1,6 @@
 package com.cig.mctbnc.nodes;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.SufficientStatistics;
@@ -90,18 +88,16 @@ public class CIMNode extends DiscreteNode {
 		int idxStateParents = getIdxStateParents();
 		// Intensity of the node of transitioning from the state specified in "evidence"
 		// (parameter exponential distribution)
-		double q = getQx()[idxStateParents][idxState];
+		double q = getQx(idxStateParents, idxState);
 		// If the parameter is 0, the node is in an absorbing state that cannot be left
 		if (q == 0)
 			return Double.POSITIVE_INFINITY;
-		else {
-			// Sample from uniform distribution to obtain the probability of the time that
-			// will be sampled
-			double prob = Math.random();
-			// Use the quantile function of the exponential distribution with parameter 'q'
-			// to sample the time with the previous obtained probability
-			return -Math.log(1 - prob) / q;
-		}
+		// Sample from uniform distribution to obtain the probability of the time that
+		// will be sampled
+		double prob = Math.random();
+		// Use the quantile function of the exponential distribution with parameter 'q'
+		// to sample the time with the previous obtained probability
+		return -Math.log(1 - prob) / q;
 	}
 
 	/**
@@ -124,7 +120,7 @@ public class CIMNode extends DiscreteNode {
 		for (int idxToState = 0; idxToState < getNumStates(); idxToState++) {
 			if (idxToState != idxFromState) {
 				// Probability of transitioning to "idxToState"
-				accProb += getOxy()[idxStateParents][idxFromState][idxToState];
+				accProb += getOxy(idxStateParents, idxFromState, idxToState);
 				if (probUniform <= accProb) {
 					// Generated state for the node
 					setState(idxToState);
@@ -151,8 +147,18 @@ public class CIMNode extends DiscreteNode {
 	 * 
 	 * @return parameter Qx
 	 */
-	public double[][] getQx() {
-		return Qx;
+	public double getQx(int idxStateParents, int idxStateNode) {
+		try {
+			return Qx[idxStateParents][idxStateNode];
+		} catch (IndexOutOfBoundsException e) {
+			// One of the index state was never seen. Report value given by the
+			// hyperparameters or 0
+			double MxHP = getSufficientStatistics().getMxHyperparameter();
+			double TxHP = getSufficientStatistics().getTxHyperparameter();
+			if (MxHP == 0 || TxHP == 0)
+				return 0;
+			return MxHP / TxHP;
+		}
 	}
 
 	/**
@@ -161,8 +167,18 @@ public class CIMNode extends DiscreteNode {
 	 * 
 	 * @return parameter Oxy
 	 */
-	public double[][][] getOxy() {
-		return Oxy;
+	public double getOxy(int idxStateParents, int idxToStateNode, int idxFromStateNode) {
+		try {
+			return Oxy[idxStateParents][idxToStateNode][idxFromStateNode];
+		} catch (IndexOutOfBoundsException e) {
+			// One of the index state was never seen. Report value given by the
+			// hyperparameters or 0
+			double MxHP = getSufficientStatistics().getMxHyperparameter();
+			double MxyHP = getSufficientStatistics().getMxyHyperparameter();
+			if (MxHP == 0 || MxyHP == 0)
+				return 0;
+			return MxyHP / MxHP;
+		}
 	}
 
 	@Override
@@ -170,6 +186,7 @@ public class CIMNode extends DiscreteNode {
 		return !(Qx == null || Oxy == null);
 	}
 
+	@Override
 	public String toString() {
 		String discreteNodeDescription = super.toString();
 		StringBuilder sb = new StringBuilder();

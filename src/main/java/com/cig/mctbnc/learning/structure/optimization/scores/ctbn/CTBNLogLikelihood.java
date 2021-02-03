@@ -68,9 +68,6 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 	private double logLikelihoodScore(CIMNode node) {
 		// Retrieve sufficient statistics of the node
 		CTBNSufficientStatistics ss = node.getSufficientStatistics();
-		// Obtain parameters of the node
-		double[][][] Oxx = node.getOxy();
-		double[][] Qx = node.getQx();
 		// Number of states of the node and its parents
 		int numStates = node.getNumStates();
 		int numStatesParents = node.getNumStatesParents();
@@ -78,7 +75,7 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 		double ll = 0.0;
 		for (int idxStateParents = 0; idxStateParents < numStatesParents; idxStateParents++) {
 			for (int idxFromState = 0; idxFromState < numStates; idxFromState++) {
-				double qx = Qx[idxStateParents][idxFromState];
+				double qx = node.getQx(idxStateParents, idxFromState);
 				// Probability density function of the exponential distribution. If it is 0,
 				// there are no transitions from this state
 				if (qx != 0) {
@@ -88,7 +85,7 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 					for (int idxToState = 0; idxToState < numStates; idxToState++) {
 						if (idxToState != idxFromState) {
 							// Probability of transitioning from "state" to "toState"
-							double oxx = Oxx[idxStateParents][idxFromState][idxToState];
+							double oxx = node.getOxy(idxStateParents, idxFromState, idxToState);
 							if (oxx != 0) {
 								// Number of times the variable transitions from "idxFromState" to "idxToState"
 								double nxx = ss.getMxy()[idxStateParents][idxFromState][idxToState];

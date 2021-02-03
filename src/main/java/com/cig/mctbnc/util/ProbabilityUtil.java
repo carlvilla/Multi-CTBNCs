@@ -99,7 +99,7 @@ public final class ProbabilityUtil {
 					// Obtain instantaneous probability of the feature leaving its current state
 					// while its parents are in a certain state. NOTE: new feature states, which
 					// were not considered during model training, could be found in the test dataset
-					Double qx = nodeCTBN.getQx()[idxStateParents][idxState];
+					Double qx = nodeCTBN.getQx(idxStateParents, idxState);
 					qx = qx != null ? qx : 0;
 					// Probability of the feature staying in a certain state (while its parent have
 					// a particular state) for an amount of time 'deltaTime' is exponentially
@@ -116,7 +116,7 @@ public final class ProbabilityUtil {
 						// Probability that the feature transitions from one state to another while its
 						// parents have a certain state. NOTE: the probability would be zero if either
 						// the departure or arrival state was not considered during model training
-						Double oxy = nodeCTBN.getOxy()[idxStateParents][idxState][idxToState];
+						Double oxy = nodeCTBN.getOxy(idxStateParents, idxState, idxToState);
 						// Probability of the feature transition
 						double qxy = 1 - Math.exp((-(oxy * qx)) * 0.00001);
 						ll += qxy > 0 ? Math.log(qxy) : 0;

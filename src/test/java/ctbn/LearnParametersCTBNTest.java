@@ -344,81 +344,97 @@ class LearnParametersCTBNTest {
 		CIMNode nodeV1 = nodes.get(0);
 		CIMNode nodeV2 = nodes.get(1);
 		CIMNode nodeV3 = nodes.get(2);
-		// Parameter qx V1
-		double[][] qxV1 = nodeV1.getQx();
-		// Parameter qx V2
-		double[][] qxV2 = nodeV2.getQx();
-		// Parameter qx V3
-		double[][] qxV3 = nodeV3.getQx();
 
 		// Check parameters V1
 		Integer idxFromState = nodeV1.setState("a");
 		nodeV2.setState("a");
 		nodeV3.setState("a");
 		Integer idxStateParents = nodeV1.getIdxStateParents();
-		assertEquals(2, qxV1[idxStateParents][idxFromState], 0.01);
+		assertEquals(2, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV1.setState("a");
 		nodeV2.setState("b");
 		nodeV3.setState("b");
 		idxStateParents = nodeV1.getIdxStateParents();
-		assertEquals(3, qxV1[idxStateParents][idxFromState], 0.01);
+		assertEquals(3, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV1.setState("b");
 		nodeV2.setState("a");
 		nodeV3.setState("a");
 		idxStateParents = nodeV1.getIdxStateParents();
-		assertEquals(0, qxV1[idxStateParents][idxFromState], 0.01);
+		assertEquals(0, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV1.setState("c");
 		nodeV2.setState("a");
 		nodeV3.setState("c");
 		idxStateParents = nodeV1.getIdxStateParents();
-		assertEquals(0, qxV1[idxStateParents][idxFromState], 0.01);
+		assertEquals(0, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
 
 		// Check parameters V2
 		idxFromState = nodeV2.setState("a");
 		nodeV3.setState("a");
 		idxStateParents = nodeV2.getIdxStateParents();
-		assertEquals(0, qxV2[idxStateParents][idxFromState], 0.01);
+		assertEquals(0, nodeV2.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV2.setState("a");
 		nodeV3.setState("b");
 		idxStateParents = nodeV2.getIdxStateParents();
-		assertEquals(2.5, qxV2[idxStateParents][idxFromState], 0.01);
+		assertEquals(2.5, nodeV2.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV2.setState("a");
 		nodeV3.setState("c");
 		idxStateParents = nodeV2.getIdxStateParents();
-		assertEquals(0, qxV2[idxStateParents][idxFromState], 0.01);
+		assertEquals(0, nodeV2.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV2.setState("b");
 		nodeV3.setState("a");
 		idxStateParents = nodeV2.getIdxStateParents();
-		assertEquals(0, qxV2[idxStateParents][idxFromState], 0.01);
+		assertEquals(0, nodeV2.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV2.setState("b");
 		nodeV3.setState("b");
 		idxStateParents = nodeV2.getIdxStateParents();
-		assertEquals(0.58, qxV2[idxStateParents][idxFromState], 0.01);
+		assertEquals(0.58, nodeV2.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV2.setState("b");
 		nodeV3.setState("c");
 		idxStateParents = nodeV2.getIdxStateParents();
-		assertEquals(0, qxV2[idxStateParents][idxFromState], 0.01);
+		assertEquals(0, nodeV2.getQx(idxStateParents, idxFromState), 0.01);
 
 		// Check parameters V3
 		idxFromState = nodeV3.setState("a");
 		idxStateParents = nodeV3.getIdxStateParents();
-		assertEquals(2, qxV3[idxStateParents][idxFromState], 0.01);
+		assertEquals(2, nodeV3.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV3.setState("b");
 		idxStateParents = nodeV3.getIdxStateParents();
-		assertEquals(1.42, qxV3[idxStateParents][idxFromState], 0.01);
+		assertEquals(1.42, nodeV3.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV3.setState("c");
 		idxStateParents = nodeV3.getIdxStateParents();
-		assertEquals(0, qxV3[idxStateParents][idxFromState], 0.01);
+		assertEquals(0, nodeV3.getQx(idxStateParents, idxFromState), 0.01);
+
+		// States not seen before
+		// Never seen state of the node
+		idxFromState = nodeV1.setState("d");
+		nodeV2.setState("a");
+		nodeV3.setState("c");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(0, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
+
+		// Never seen state of the parents
+		idxFromState = nodeV1.setState("c");
+		nodeV2.setState("d");
+		nodeV3.setState("e");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(0, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
+
+		// Never seen state of the node and its parents
+		idxFromState = nodeV1.setState("d");
+		nodeV2.setState("d");
+		nodeV3.setState("e");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(0, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
 	}
 
 	/**
@@ -430,12 +446,6 @@ class LearnParametersCTBNTest {
 		CIMNode nodeV1 = nodes.get(0);
 		CIMNode nodeV2 = nodes.get(1);
 		CIMNode nodeV3 = nodes.get(2);
-		// Parameter qx V1
-		double[][][] oxyV1 = nodeV1.getOxy();
-		// Parameter qx V2
-		double[][][] oxyV2 = nodeV2.getOxy();
-		// Parameter qx V3
-		double[][][] oxyV3 = nodeV3.getOxy();
 
 		// Check parameters V1
 		int idxFromState = nodeV1.setState("a");
@@ -443,59 +453,126 @@ class LearnParametersCTBNTest {
 		nodeV3.setState("a");
 		int idxStateParents = nodeV1.getIdxStateParents();
 		int idxToState = nodeV1.setState("b");
-		assertEquals(0, oxyV1[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 		idxToState = nodeV1.setState("c");
-		assertEquals(1, oxyV1[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(1, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		idxFromState = nodeV1.setState("a");
 		nodeV2.setState("b");
 		nodeV3.setState("b");
 		idxStateParents = nodeV1.getIdxStateParents();
 		idxToState = nodeV1.setState("b");
-		assertEquals(0.66, oxyV1[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0.66, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 		idxToState = nodeV1.setState("c");
-		assertEquals(0.33, oxyV1[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0.33, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		// Check parameters V2
 		idxFromState = nodeV2.setState("a");
 		nodeV3.setState("a");
 		idxStateParents = nodeV2.getIdxStateParents();
 		idxToState = nodeV2.setState("b");
-		assertEquals(0, oxyV2[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0, nodeV2.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		idxFromState = nodeV2.setState("b");
 		nodeV3.setState("b");
 		idxStateParents = nodeV2.getIdxStateParents();
 		idxToState = nodeV2.setState("a");
-		assertEquals(1, oxyV2[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(1, nodeV2.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		idxFromState = nodeV2.setState("b");
 		nodeV3.setState("c");
 		idxStateParents = nodeV2.getIdxStateParents();
 		idxToState = nodeV2.setState("a");
-		assertEquals(0, oxyV2[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0, nodeV2.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		// Check parameters V3
 		idxFromState = nodeV3.setState("a");
 		idxStateParents = nodeV3.getIdxStateParents();
 		idxToState = nodeV3.setState("b");
-		assertEquals(0, oxyV3[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0, nodeV3.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 		idxToState = nodeV3.setState("c");
-		assertEquals(1, oxyV3[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(1, nodeV3.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		idxFromState = nodeV3.setState("b");
 		idxStateParents = nodeV3.getIdxStateParents();
 		idxToState = nodeV3.setState("a");
-		assertEquals(1, oxyV3[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(1, nodeV3.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 		idxToState = nodeV3.setState("c");
-		assertEquals(0, oxyV3[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0, nodeV3.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		idxFromState = nodeV3.setState("c");
 		idxStateParents = nodeV3.getIdxStateParents();
 		idxToState = nodeV3.setState("a");
-		assertEquals(0, oxyV3[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0, nodeV3.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 		idxToState = nodeV3.setState("b");
-		assertEquals(0, oxyV3[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0, nodeV3.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+
+		// States not seen before
+		// Never seen state of the node
+		idxFromState = nodeV1.setState("d");
+		nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV1.getIdxStateParents();
+		idxToState = nodeV1.setState("b");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+		idxToState = nodeV1.setState("c");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+
+		idxFromState = nodeV1.setState("a");
+		nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV1.getIdxStateParents();
+		idxToState = nodeV1.setState("d");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+		idxToState = nodeV1.setState("e");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+
+		idxFromState = nodeV1.setState("f");
+		nodeV2.setState("a");
+		nodeV3.setState("a");
+		idxStateParents = nodeV1.getIdxStateParents();
+		idxToState = nodeV1.setState("d");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+		idxToState = nodeV1.setState("e");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+
+		// Never seen state of the parents
+		idxFromState = nodeV1.setState("a");
+		nodeV2.setState("d");
+		nodeV3.setState("e");
+		idxStateParents = nodeV1.getIdxStateParents();
+		idxToState = nodeV1.setState("b");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+		idxToState = nodeV1.setState("c");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+
+		// Never seen state of the node and its parents
+		idxFromState = nodeV1.setState("d");
+		nodeV2.setState("d");
+		nodeV3.setState("e");
+		idxStateParents = nodeV1.getIdxStateParents();
+		idxToState = nodeV1.setState("b");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+		idxToState = nodeV1.setState("c");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+
+		idxFromState = nodeV1.setState("a");
+		nodeV2.setState("d");
+		nodeV3.setState("e");
+		idxStateParents = nodeV1.getIdxStateParents();
+		idxToState = nodeV1.setState("d");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+		idxToState = nodeV1.setState("e");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+
+		idxFromState = nodeV1.setState("f");
+		nodeV2.setState("d");
+		nodeV3.setState("e");
+		idxStateParents = nodeV1.getIdxStateParents();
+		idxToState = nodeV1.setState("d");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
+		idxToState = nodeV1.setState("e");
+		assertEquals(0, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 	}
 
 	/**
@@ -764,81 +841,97 @@ class LearnParametersCTBNTest {
 		CIMNode nodeV1 = nodes.get(0);
 		CIMNode nodeV2 = nodes.get(1);
 		CIMNode nodeV3 = nodes.get(2);
-		// Parameter qx V1
-		double[][] qxV1 = nodeV1.getQx();
-		// Parameter qx V2
-		double[][] qxV2 = nodeV2.getQx();
-		// Parameter qx V3
-		double[][] qxV3 = nodeV3.getQx();
 
 		// Check parameters V1
 		Integer idxFromState = nodeV1.setState("a");
 		nodeV2.setState("a");
 		nodeV3.setState("a");
 		Integer idxStateParents = nodeV1.getIdxStateParents();
-		assertEquals(1.2, qxV1[idxStateParents][idxFromState], 0.01);
+		assertEquals(1.2, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV1.setState("a");
 		nodeV2.setState("b");
 		nodeV3.setState("b");
 		idxStateParents = nodeV1.getIdxStateParents();
-		assertEquals(1.66, qxV1[idxStateParents][idxFromState], 0.01);
+		assertEquals(1.66, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV1.setState("b");
 		nodeV2.setState("a");
 		nodeV3.setState("a");
 		idxStateParents = nodeV1.getIdxStateParents();
-		assertEquals(1, qxV1[idxStateParents][idxFromState], 0.01);
+		assertEquals(1, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV1.setState("c");
 		nodeV2.setState("a");
 		nodeV3.setState("c");
 		idxStateParents = nodeV1.getIdxStateParents();
-		assertEquals(1, qxV1[idxStateParents][idxFromState], 0.01);
+		assertEquals(1, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
 
 		// Check parameters V2
 		idxFromState = nodeV2.setState("a");
 		nodeV3.setState("a");
 		idxStateParents = nodeV2.getIdxStateParents();
-		assertEquals(0.4, qxV2[idxStateParents][idxFromState], 0.01);
+		assertEquals(0.4, nodeV2.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV2.setState("a");
 		nodeV3.setState("b");
 		idxStateParents = nodeV2.getIdxStateParents();
-		assertEquals(0.83, qxV2[idxStateParents][idxFromState], 0.01);
+		assertEquals(0.83, nodeV2.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV2.setState("a");
 		nodeV3.setState("c");
 		idxStateParents = nodeV2.getIdxStateParents();
-		assertEquals(0.5, qxV2[idxStateParents][idxFromState], 0.01);
+		assertEquals(0.5, nodeV2.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV2.setState("b");
 		nodeV3.setState("a");
 		idxStateParents = nodeV2.getIdxStateParents();
-		assertEquals(0.5, qxV2[idxStateParents][idxFromState], 0.01);
+		assertEquals(0.5, nodeV2.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV2.setState("b");
 		nodeV3.setState("b");
 		idxStateParents = nodeV2.getIdxStateParents();
-		assertEquals(0.54, qxV2[idxStateParents][idxFromState], 0.01);
+		assertEquals(0.54, nodeV2.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV2.setState("b");
 		nodeV3.setState("c");
 		idxStateParents = nodeV2.getIdxStateParents();
-		assertEquals(0.5, qxV2[idxStateParents][idxFromState], 0.01);
+		assertEquals(0.5, nodeV2.getQx(idxStateParents, idxFromState), 0.01);
 
 		// Check parameters V3
 		idxFromState = nodeV3.setState("a");
 		idxStateParents = nodeV3.getIdxStateParents();
-		assertEquals(1.2, qxV3[idxStateParents][idxFromState], 0.01);
+		assertEquals(1.2, nodeV3.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV3.setState("b");
 		idxStateParents = nodeV3.getIdxStateParents();
-		assertEquals(1.21, qxV3[idxStateParents][idxFromState], 0.01);
+		assertEquals(1.21, nodeV3.getQx(idxStateParents, idxFromState), 0.01);
 
 		idxFromState = nodeV3.setState("c");
 		idxStateParents = nodeV3.getIdxStateParents();
-		assertEquals(1, qxV3[idxStateParents][idxFromState], 0.01);
+		assertEquals(1, nodeV3.getQx(idxStateParents, idxFromState), 0.01);
+
+		// States not seen before
+		// Never seen state of the node
+		idxFromState = nodeV1.setState("d");
+		nodeV2.setState("a");
+		nodeV3.setState("c");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(1, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
+
+		// Never seen state of the parents
+		idxFromState = nodeV1.setState("c");
+		nodeV2.setState("d");
+		nodeV3.setState("e");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(1, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
+
+		// Never seen state of the node and its parents
+		idxFromState = nodeV1.setState("d");
+		nodeV2.setState("d");
+		nodeV3.setState("e");
+		idxStateParents = nodeV1.getIdxStateParents();
+		assertEquals(1, nodeV1.getQx(idxStateParents, idxFromState), 0.01);
 	}
 
 	/**
@@ -850,12 +943,6 @@ class LearnParametersCTBNTest {
 		CIMNode nodeV1 = nodes.get(0);
 		CIMNode nodeV2 = nodes.get(1);
 		CIMNode nodeV3 = nodes.get(2);
-		// Parameter qx V1
-		double[][][] oxyV1 = nodeV1.getOxy();
-		// Parameter qx V2
-		double[][][] oxyV2 = nodeV2.getOxy();
-		// Parameter qx V3
-		double[][][] oxyV3 = nodeV3.getOxy();
 
 		// Check parameters V1
 		int idxFromState = nodeV1.setState("a");
@@ -863,59 +950,59 @@ class LearnParametersCTBNTest {
 		nodeV3.setState("a");
 		int idxStateParents = nodeV1.getIdxStateParents();
 		int idxToState = nodeV1.setState("b");
-		assertEquals(0.33, oxyV1[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0.33, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 		idxToState = nodeV1.setState("c");
-		assertEquals(0.66, oxyV1[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0.66, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		idxFromState = nodeV1.setState("a");
 		nodeV2.setState("b");
 		nodeV3.setState("b");
 		idxStateParents = nodeV1.getIdxStateParents();
 		idxToState = nodeV1.setState("b");
-		assertEquals(0.6, oxyV1[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0.6, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 		idxToState = nodeV1.setState("c");
-		assertEquals(0.4, oxyV1[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0.4, nodeV1.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		// Check parameters V2
 		idxFromState = nodeV2.setState("a");
 		nodeV3.setState("a");
 		idxStateParents = nodeV2.getIdxStateParents();
 		idxToState = nodeV2.setState("b");
-		assertEquals(1, oxyV2[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(1, nodeV2.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		idxFromState = nodeV2.setState("b");
 		nodeV3.setState("b");
 		idxStateParents = nodeV2.getIdxStateParents();
 		idxToState = nodeV2.setState("a");
-		assertEquals(1, oxyV2[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(1, nodeV2.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		idxFromState = nodeV2.setState("b");
 		nodeV3.setState("c");
 		idxStateParents = nodeV2.getIdxStateParents();
 		idxToState = nodeV2.setState("a");
-		assertEquals(1, oxyV2[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(1, nodeV2.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		// Check parameters V3
 		idxFromState = nodeV3.setState("a");
 		idxStateParents = nodeV3.getIdxStateParents();
 		idxToState = nodeV3.setState("b");
-		assertEquals(0.33, oxyV3[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0.33, nodeV3.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 		idxToState = nodeV3.setState("c");
-		assertEquals(0.66, oxyV3[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0.66, nodeV3.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		idxFromState = nodeV3.setState("b");
 		idxStateParents = nodeV3.getIdxStateParents();
 		idxToState = nodeV3.setState("a");
-		assertEquals(0.8, oxyV3[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0.8, nodeV3.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 		idxToState = nodeV3.setState("c");
-		assertEquals(0.2, oxyV3[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0.2, nodeV3.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 
 		idxFromState = nodeV3.setState("c");
 		idxStateParents = nodeV3.getIdxStateParents();
 		idxToState = nodeV3.setState("a");
-		assertEquals(0.5, oxyV3[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0.5, nodeV3.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 		idxToState = nodeV3.setState("b");
-		assertEquals(0.5, oxyV3[idxStateParents][idxFromState][idxToState], 0.01);
+		assertEquals(0.5, nodeV3.getOxy(idxStateParents, idxFromState, idxToState), 0.01);
 	}
 
 }
