@@ -70,7 +70,7 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 		double Nijk = node.getSufficientStatistics().getNx()[idxStateParents][idxState];
 		double classProbability = 0.0;
 		if (Nijk != 0)
-			classProbability = Nijk * Math.log(node.getCPT()[idxStateParents][idxState]);
+			classProbability = Nijk * Math.log(node.getCP(idxStateParents, idxState));
 		return classProbability;
 	}
 }

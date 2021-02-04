@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.cig.mctbnc.data.representation.State;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
@@ -145,6 +144,7 @@ public abstract class DiscreteNode extends AbstractNode {
 
 	/**
 	 * Get the index that represents the current state of the parents of the node.
+	 * Return -1 if the state of one parent was not seen during training.
 	 * 
 	 * @return
 	 */
@@ -158,7 +158,11 @@ public abstract class DiscreteNode extends AbstractNode {
 		// parents state is equal to their number of combinations minus 1.
 		for (int i = 0; i < getNumParents(); i++) {
 			DiscreteNode nodeParent = (DiscreteNode) getParents().get(i);
-			idxStateParents += nodeParent.getIdxState() * numStatesParents;
+			int idxStateParent = nodeParent.getIdxState();
+			if (idxStateParent == -1)
+				// The state of the parent was not seen during training.
+				return -1;
+			idxStateParents += idxStateParent * numStatesParents;
 			// Increase the number of states by considering the current parent
 			numStatesParents *= nodeParent.getNumStates();
 		}

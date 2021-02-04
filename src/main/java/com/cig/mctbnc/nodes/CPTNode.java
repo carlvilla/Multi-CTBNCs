@@ -61,6 +61,34 @@ public class CPTNode extends DiscreteNode {
 	}
 
 	/**
+	 * Return the conditional probability of a state of the node given the state of
+	 * the parents.
+	 * 
+	 * @param idxStateParents index of the parents state
+	 * @param idxStateNode    index of the node state
+	 * @return conditional probability of a state of the node given the state of the
+	 *         parent
+	 */
+	public double getCP(int idxStateParents, int idxStateNode) {
+		try {
+			return CPT[idxStateParents][idxStateNode];
+		} catch (IndexOutOfBoundsException e) {
+			// One of the index state was never seen during prediction. The model will not
+			// be retrain, so 0 is reported.
+			return 0;
+		}
+	}
+
+	/**
+	 * Return sufficient statistics of the node.
+	 * 
+	 * @return sufficient statistics
+	 */
+	public BNSufficientStatistics getSufficientStatistics() {
+		return sufficientStatistics;
+	}
+
+	/**
 	 * Sample the state of the node given an evidence using forward sampling. First
 	 * it is sampled from a uniform distribution, then it is iterated over the state
 	 * of the nodes and accumulated the probability of each of them. Once this
@@ -79,7 +107,7 @@ public class CPTNode extends DiscreteNode {
 		for (int idxState = 0; idxState < getNumStates(); idxState++) {
 			int idxStateParents = getIdxStateParents();
 			// Retrieve probability given the state of the node and its parents
-			accProb += getCPT()[idxStateParents][idxState];
+			accProb += getCP(idxStateParents, idxState);
 			if (probUniform <= accProb) {
 				// Generated state for the node
 				setState(idxState);
@@ -87,24 +115,6 @@ public class CPTNode extends DiscreteNode {
 			}
 		}
 		return new State(getName(), getState());
-	}
-
-	/**
-	 * Return CPT of the node.
-	 * 
-	 * @return CPT
-	 */
-	public double[][] getCPT() {
-		return CPT;
-	}
-
-	/**
-	 * Return sufficient statistics of the node.
-	 * 
-	 * @return sufficient statistics
-	 */
-	public BNSufficientStatistics getSufficientStatistics() {
-		return sufficientStatistics;
 	}
 
 	@Override

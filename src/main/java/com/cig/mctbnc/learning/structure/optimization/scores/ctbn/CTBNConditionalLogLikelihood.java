@@ -108,7 +108,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 					// Counts for class variable taking the state given the states of parents
 					double nx = ss.getNx()[idxStateParents][idxState];
 					// Probability class variable takes the state given the states of parents
-					double ox = nodeCV.getCPT()[idxStateParents][idxState];
+					double ox = nodeCV.getCP(idxStateParents, idxState);
 					double prob = 0;
 					if (nx > 0) {
 						prob = nx * Math.log(ox);
@@ -207,20 +207,16 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			// Estimate the probabilities of each class variable of taking the states
 			// defined in the class configuration
 			for (CPTNode nodeCV : nodesCVs) {
-
 				String stateCV = stateCVs.getValueVariable(nodeCV.getName());
 				nodeCV.setState(stateCV);
 				for (Node nodeParent : nodeCV.getParents()) {
 					String stateParentCV = stateCVs.getValueVariable(nodeParent.getName());
 					((DiscreteNode) nodeParent).setState(stateParentCV);
 				}
-
 				int idxState = nodeCV.getIdxState();
 				int idxStateParents = nodeCV.getIdxStateParents();
-
-				lpcc += nodeCV.getCPT()[idxStateParents][idxState];
+				lpcc += nodeCV.getCP(idxStateParents, idxState);
 			}
-
 			uPs.put(stateCVs, lpcc);
 		}
 	}

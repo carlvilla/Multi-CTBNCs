@@ -41,8 +41,8 @@ public final class ProbabilityUtil {
 			int idxState = nodeBN.getIdxState();
 			int idxStateParents = nodeBN.getIdxStateParents();
 			// Probability of the class variable and its parents having a certain state
-			Double Ox = nodeBN.getCPT()[idxStateParents][idxState];
-			lpriorProbability += Ox != null && Ox > 0 ? Math.log(Ox) : 0;
+			double Ox = nodeBN.getCP(idxStateParents, idxState);
+			lpriorProbability += Ox > 0 ? Math.log(Ox) : 0;
 		}
 		return lpriorProbability;
 	}
@@ -99,8 +99,7 @@ public final class ProbabilityUtil {
 					// Obtain instantaneous probability of the feature leaving its current state
 					// while its parents are in a certain state. NOTE: new feature states, which
 					// were not considered during model training, could be found in the test dataset
-					Double qx = nodeCTBN.getQx(idxStateParents, idxState);
-					qx = qx != null ? qx : 0;
+					double qx = nodeCTBN.getQx(idxStateParents, idxState);
 					// Probability of the feature staying in a certain state (while its parent have
 					// a particular state) for an amount of time 'deltaTime' is exponentially
 					// distributed with parameter 'qx'

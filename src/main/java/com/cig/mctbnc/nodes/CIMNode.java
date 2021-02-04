@@ -137,13 +137,9 @@ public class CIMNode extends DiscreteNode {
 		try {
 			return Qx[idxStateParents][idxStateNode];
 		} catch (IndexOutOfBoundsException e) {
-			// One of the index state was never seen. Report value given by the
-			// hyperparameters or 0
-			double MxHP = getSufficientStatistics().getMxHyperparameter();
-			double TxHP = getSufficientStatistics().getTxHyperparameter();
-			if (MxHP == 0 || TxHP == 0)
-				return 0;
-			return MxHP / TxHP;
+			// One of the index state was never seen during prediction. The model will not
+			// be retrain, so 0 is reported.
+			return 0;
 		}
 	}
 
@@ -157,13 +153,9 @@ public class CIMNode extends DiscreteNode {
 		try {
 			return Oxy[idxStateParents][idxToStateNode][idxFromStateNode];
 		} catch (IndexOutOfBoundsException e) {
-			// One of the index state was never seen. Report value given by the
-			// hyperparameters or 0
-			double MxHP = getSufficientStatistics().getMxHyperparameter();
-			double MxyHP = getSufficientStatistics().getMxyHyperparameter();
-			if (MxHP == 0 || MxyHP == 0)
-				return 0;
-			return MxyHP / MxHP;
+			// One of the index state was never seen during prediction. The model will not
+			// be retrain, so 0 is reported.
+			return 0;
 		}
 	}
 
