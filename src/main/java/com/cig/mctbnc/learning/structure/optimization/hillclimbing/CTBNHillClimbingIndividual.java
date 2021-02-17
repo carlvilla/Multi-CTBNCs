@@ -1,5 +1,6 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.LogManager;

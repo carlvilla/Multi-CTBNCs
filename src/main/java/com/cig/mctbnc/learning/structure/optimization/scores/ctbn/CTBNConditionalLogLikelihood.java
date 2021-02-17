@@ -54,10 +54,10 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 		List<State> statesCVs = getClassConfigurations(nodesCVs);
 		// Class probability term
 		cll += logPriorProbabilityClassVariables(nodesCVs, statesCVs);
-		// Log-likelihood of the sequences given the class configuration
-		cll += logLikelihoodSequences(ctbn, statesCVs);
+		// Log-likelihood of the sequences
+		cll += logLikelihoodSequences(ctbn);
 		// Log-marginal-likelihood of sequences (denominator/normalizing term)
-		cll -= logMarginalLikelihoodSequences(nodesCVs, ctbn, statesCVs);
+		cll -= logMarginalLikelihoodSequences(nodesCVs, ctbn, statesCVs);		
 		// Apply the specified penalization function (if available)
 		cll -= getPenalization(ctbn);
 		return cll;
@@ -76,7 +76,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	 * @return
 	 */
 	private List<State> getClassConfigurations(List<CPTNode> nodesCVs) {
-		if (statesCVs == null) {
+		if (!checkValidityCCs(nodesCVs)) {
 			List<List<State>> statesEachCV = new ArrayList<List<State>>();
 			for (CPTNode nodeCV : nodesCVs) {
 				List<State> statesNode = new ArrayList<State>();
@@ -87,6 +87,23 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			statesCVs = Util.cartesianProduct(statesEachCV);
 		}
 		return statesCVs;
+	}
+
+	/**
+	 * Check if the saved class configurations are still valid.
+	 * 
+	 * @return true if the currently saved class configurations are still valid
+	 */
+	private boolean checkValidityCCs(List<CPTNode> nodesCVs) {
+		// Check if the class configurations were previously obtained
+		if (statesCVs == null)
+			return false;
+		// Check if it contains the currently studied class variables
+		for (CPTNode nodeCV : nodesCVs) {
+			if (statesCVs.get(0).getValueVariable(nodeCV.getName()) == null)
+				return false;
+		}
+		return true;
 	}
 
 	/**
@@ -121,14 +138,14 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	}
 
 	/**
-	 * Compute the log-likelihood of sequences given the class variables. Only class
-	 * variables that are parents of each node are relevant.
+	 * Compute the log-likelihood of the sequences at each feature node. Only
+	 * features and class variables that are parents of each node are relevant.
 	 * 
 	 * @param ctbn
 	 * @param statesCVs
 	 * @return
 	 */
-	private double logLikelihoodSequences(CTBN<? extends Node> ctbn, List<State> statesCVs) {
+	private double logLikelihoodSequences(CTBN<? extends Node> ctbn) {
 		double lls = 0.0;
 		// Compute log-likelihood of the sequences given the class variables
 		for (CIMNode node : (List<CIMNode>) ctbn.getNodes()) {
@@ -222,8 +239,8 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	}
 
 	/**
-	 * Compute the log-likelihood of the sequences given each possible class
-	 * configuration and stored them in Map 'uPs'.
+	 * Compute the log-likelihood of the sequences at the feature nodes given each
+	 * possible class configuration and stored them in Map 'uPs'.
 	 * 
 	 * @param ctbn
 	 * @param statesCVs

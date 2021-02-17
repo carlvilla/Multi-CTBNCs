@@ -103,7 +103,7 @@
                                           <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
                                              <children>
                                                 <Label alignment="CENTER" text="Mxy hyperparameter:" />
-                                                <TextField fx:id="fldNxy" prefHeight="27.0" prefWidth="60.0">
+                                                <TextField fx:id="fldMxy" prefHeight="27.0" prefWidth="60.0">
                                                    <HBox.margin>
                                                       <Insets />
                                                    </HBox.margin>
@@ -143,7 +143,7 @@
                                     <HBox alignment="CENTER" prefHeight="36.0" prefWidth="200.0" spacing="5.0" style="-fx-background-color: #e6e6e6#e6e6e6 #e6e6e6#e6e6e6;" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                                        <children>
                                           <Label text="Nx hyperparameter:" />
-                                          <TextField fx:id="fldMxBN" prefHeight="27.0" prefWidth="60.0" />
+                                          <TextField fx:id="fldNxBN" prefHeight="27.0" prefWidth="60.0" />
                                        </children>
                                     </HBox>
                                     <Label text="Compute probabilities" GridPane.rowIndex="10" />

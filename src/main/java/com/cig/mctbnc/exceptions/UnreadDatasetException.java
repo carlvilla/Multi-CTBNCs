@@ -5,6 +5,6 @@ public class UnreadDatasetException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	public UnreadDatasetException(String msg) {
-		super(msg);
+		super("Dataset not created - " + msg);
 	}
 }

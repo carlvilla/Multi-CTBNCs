@@ -20,8 +20,8 @@ public class CPTNode extends DiscreteNode {
 	/**
 	 * Constructor that receives the name of the variable and its possible states.
 	 * 
-	 * @param nameVariable
-	 * @param statesVariable
+	 * @param name
+	 * @param states
 	 */
 	public CPTNode(String name, List<String> states) {
 		super(name, states);

@@ -62,13 +62,13 @@ public class MainExperiments {
 	static String nameBnPLA = "Bayesian estimation";
 	static String nameBnSLA = "Hill climbing";
 	// Get hyperparameters
-	static double alpha = 1;
+	static double nx = 1;
 
 	// Get names learning algorithms
 	static String nameCtbnPLA = "Bayesian estimation";
 	static String nameCtbnSLA = "Hill climbing";
 	// Get hyperparameters
-	static double nxy = 1;
+	static double mxy = 1;
 	static double tx = 0.001;
 
 	// Get score function
@@ -98,8 +98,8 @@ public class MainExperiments {
 	 */
 	public static void main(String[] args) {
 		// Define parameter learning algorithms
-		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, alpha);
-		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, nxy,
+		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, nx);
+		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, mxy,
 				tx);
 		// Parameters that could be necessary for the generation of the models
 		Map<String, String> parameters = new WeakHashMap<String, String>();
@@ -149,12 +149,14 @@ public class MainExperiments {
 				scoreFunction, penalizationFunction);
 		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
 		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
-
 		// Generate selected model and validation method
 		MCTBNC<CPTNode, CIMNode> model;
 		ValidationMethod validationMethod;
-
 		if (selectedModel.equals("CTBNCs")) {
+			model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("MCTBNC", bnLearningAlgs, ctbnLearningAlgs,
+					parameters, CPTNode.class, CIMNode.class);
+			validationMethod = new CrossValidationSeveralModels(datasetReader, folds, shuffleSequences);
+		} else if (selectedModel.equals("maxK CTBNCs")) {
 			model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("DAG-maxK MCTBNC", bnLearningAlgs, ctbnLearningAlgs,
 					parameters, CPTNode.class, CIMNode.class);
 			validationMethod = new CrossValidationSeveralModels(datasetReader, folds, shuffleSequences);

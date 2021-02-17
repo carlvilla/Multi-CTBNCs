@@ -95,6 +95,19 @@ public final class Util {
 	}
 
 	/**
+	 * Create a deep copy of a 2D boolean array.
+	 * 
+	 * @param array array to copy
+	 * @return copy of the array
+	 */
+	public static boolean[][] clone2DArray(boolean[][] array) {
+		boolean[][] copy = new boolean[array.length][];
+		for (int r = 0; r < array.length; r++)
+			copy[r] = array[r].clone();
+		return copy;
+	}
+
+	/**
 	 * Returns entry with the largest value of a map.
 	 * 
 	 * @param map

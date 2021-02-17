@@ -510,7 +510,7 @@ public class MainSampling {
 
 	/**
 	 * Generate uniformly distributed random conditional probability tables for a
-	 * Bayesian network. Variables are assumed binary.
+	 * Bayesian network. Variables are assumed binary for simplicity.
 	 * 
 	 * @param bn               Bayesian network
 	 * @param forceExtremeProb force the probabilities to be extreme (0 to 0.3 or

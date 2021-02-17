@@ -15,6 +15,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFConditionalFormattingRule;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFSheetConditionalFormatting;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -110,7 +111,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 		// Get initial row in the excel for current score
 		int initialRow = getInitialRowScore(idxCurrentScoreFunction);
 		int numColumn = idxCurrentModel + (numModels * idxCurrentDataset) + 1;
-		// Evaluation metrics per dataset and model		
+		// Evaluation metrics per dataset and model
 		sheet.getRow(initialRow + 3).createCell(numColumn).setCellValue(ga);
 		sheet.getRow(initialRow + 4).createCell(numColumn).setCellValue(ma);
 		sheet.getRow(initialRow + 5).createCell(numColumn).setCellValue(map);
@@ -185,14 +186,17 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 		CellStyle newLineCS = workbook.createCellStyle();
 		newLineCS.setWrapText(true);
 		// Conditions experiments
-		sheet.addMergedRegion(new CellRangeAddress(3, 8, 1, 10));
+		XSSFRichTextString rts = new XSSFRichTextString();
+		XSSFFont fontBold = workbook.createFont();
+		fontBold.setBold(true);
+		rts.append("Experiment conditions\n", fontBold);
+		rts.append("Feature variables: " + nameFeatureVariables + "\nClass variables: " + nameClassVariables
+				+ " \nPenalization: " + penalizationFunction + "\nParameter learning alg. class subgraph: "
+				+ bnPLA.getNameMethod() + "\nParameter learning alg. bridge and feature subgraphs: "
+				+ ctbnPLA.getNameMethod() + "\nInitial structure: " + initialStructure);
+		sheet.addMergedRegion(new CellRangeAddress(3, 9, 1, 10));
 		sheet.createRow(3).createCell(1).setCellStyle(newLineCS);
-		sheet.getRow(3).getCell(1)
-				.setCellValue("- Feature variables: " + nameFeatureVariables + "\n - Class variables: "
-						+ nameClassVariables + " \n - Penalization: " + penalizationFunction
-						+ "\n - Parameter learning alg. class subgraph: " + bnPLA.getNameMethod()
-						+ "\n - Parameter learning alg. bridge and feature subgraphs: " + ctbnPLA.getNameMethod()
-						+ "\n - Initial structure: " + initialStructure);
+		sheet.getRow(3).getCell(1).setCellValue(rts);
 	}
 
 	/**

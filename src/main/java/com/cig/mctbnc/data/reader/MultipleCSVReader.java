@@ -53,6 +53,9 @@ public class MultipleCSVReader extends AbstractCSVReader {
 			List<String> nameAcceptedFiles = new ArrayList<String>();
 			for (File file : files)
 				readCSV(file, nameAcceptedFiles);
+			// Check if any sequence was added to the dataset
+			if (dataset.getNumDataPoints() == 0)
+				throw new UnreadDatasetException("Any sequence was succesfully processed");
 			// Remove variables with zero variance
 			dataset.removeZeroVarianceFeatures();
 			// Save in the dataset the files used to extract its sequences

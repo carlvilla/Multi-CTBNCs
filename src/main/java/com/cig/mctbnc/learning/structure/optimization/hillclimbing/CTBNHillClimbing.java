@@ -80,26 +80,30 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 		int numNodes = bestStructure.length;
 		for (int i = 0; i < numNodes; i++) {
 			for (int j = 0; j < numNodes; j++)
-				if (i != j && !(pgm.getNodeByIndex(i).isClassVariable() && pgm.getNodeByIndex(j).isClassVariable())) {
+				if (checkModificationAdjacencyMatrix(i, j, idxOperation)) {
 					// Copy current best neighbor
-					boolean[][] tempAdjacencyMatrix = new boolean[numNodes][numNodes];
-					for (int r = 0; r < numNodes; r++)
+					boolean[][] tempAdjacencyMatrix = new boolean[bestStructure.length][];
+					for (int r = 0; r < bestStructure.length; r++)
 						tempAdjacencyMatrix[r] = bestStructure[r].clone();
 					if (operation == "addition") {
+						// An arc is added
 						if (tempAdjacencyMatrix[i][j])
 							// If there is already an arc, the operation is not performed
 							continue;
 						// Arc is added
 						tempAdjacencyMatrix[i][j] = true;
 					} else if (operation == "deletion") {
+						// An arc is removed
 						if (!tempAdjacencyMatrix[i][j])
 							// If there is no arc, the operation cannot be performed
 							continue;
 						// Arc is removed
 						tempAdjacencyMatrix[i][j] = false;
 					} else {
-						if (!tempAdjacencyMatrix[i][j])
-							// If there is no arc, the operation cannot be performed
+						// An arc is reversed
+						if (!tempAdjacencyMatrix[i][j] || pgm.getNodeByIndex(i).isClassVariable())
+							// If there is no arc, the operation cannot be performed. An arc from a class
+							// variable to a feature cannot be reversed
 							continue;
 						// Arc is reversed
 						tempAdjacencyMatrix[i][j] = false;
@@ -116,6 +120,20 @@ public class CTBNHillClimbing extends HillClimbing implements CTBNStructureLearn
 					}
 				}
 		}
+	}
+
+	/**
+	 * Check if an arc between two nodes can be added. Arcs from any node to a class
+	 * variable cannot be added, removed or reversed, and self-loops are also
+	 * avoided.
+	 * 
+	 * @param i
+	 * @param j
+	 * @param idxOperation
+	 * @return
+	 */
+	private boolean checkModificationAdjacencyMatrix(int i, int j, int idxOperation) {
+		return i != j && !pgm.getNodeByIndex(j).isClassVariable();
 	}
 
 	/**

@@ -60,8 +60,8 @@ public abstract class AbstractCSVReader implements DatasetReader {
 			CSVReader csvReader = new CSVReader(reader);
 			try {
 				nameVariables = Arrays.asList(csvReader.readNext());
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (NullPointerException | IOException e) {
+				throw new FileNotFoundException("Impossible to read CSV file");
 			} finally {
 				closeReader(csvReader);
 			}
@@ -119,7 +119,7 @@ public abstract class AbstractCSVReader implements DatasetReader {
 			} else {
 				list = csvReader.readAll();
 			}
-		} catch (IOException e) {
+		} catch (NullPointerException | IOException e) {
 			logger.warn("Impossible to read file {}", pathFile);
 		} finally {
 			closeReader(csvReader);

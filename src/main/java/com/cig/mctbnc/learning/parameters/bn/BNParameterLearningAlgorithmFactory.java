@@ -12,13 +12,13 @@ public class BNParameterLearningAlgorithmFactory {
 	 * Build the specified parameter learning algorithm.
 	 * 
 	 * @param algorithm
-	 * @param alpha
+	 * @param NxHP
 	 * @return parameter learning algorithm
 	 */
-	public static BNParameterLearningAlgorithm getAlgorithm(String algorithm, Double alpha) {
+	public static BNParameterLearningAlgorithm getAlgorithm(String algorithm, Double NxHP) {
 		switch (algorithm) {
 		case ("Bayesian estimation"):
-			return new BNBayesianEstimation(alpha);
+			return new BNBayesianEstimation(NxHP);
 		default:
 			// Maximum likelihood estimation
 			return new BNMaximumLikelihoodEstimation();

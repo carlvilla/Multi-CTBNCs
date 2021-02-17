@@ -12,7 +12,7 @@ import com.cig.mctbnc.nodes.DiscreteNode;
  * of the variables, given the state of their parents, with all of its
  * hyperparameters being equal to "NxHP". Thus, the posterior distribution will
  * be Dirichlet with hyperameters equal to the frequency of each state of the
- * variables plus "alpha" (Lindstone rule).
+ * variables plus "NxHP" (Lindstone rule).
  * 
  * @author Carlos Villa Blanco
  *

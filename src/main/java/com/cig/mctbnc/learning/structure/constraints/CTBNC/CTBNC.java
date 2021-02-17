@@ -21,13 +21,12 @@ public class CTBNC extends AbstractStructureConstraints {
 	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix, NodeIndexer<? extends Node> nodeIndexer) {
 		int numNodes = adjacencyMatrix.length;
-		// The class variables cannot have parents
 		for (int i = 0; i < numNodes; i++) {
-			for (int j = 0; j < numNodes; j++) { // If there is an arc
-				if (adjacencyMatrix[i][j]) { // If the arc is from a feature to a class variable, the structure is
-												// illegal
+			for (int j = 0; j < numNodes; j++) {
+				if (adjacencyMatrix[i][j]) { 
 					Node nodeI = nodeIndexer.getNodeByIndex(i);
 					Node nodeJ = nodeIndexer.getNodeByIndex(j);
+					// No arcs from features to class variables
 					if (!nodeI.isClassVariable() && nodeJ.isClassVariable()) {
 						logger.trace("Illegal structure - A feature cannot be a parent of a class variable");
 						return false;

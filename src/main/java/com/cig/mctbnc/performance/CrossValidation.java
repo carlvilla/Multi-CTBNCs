@@ -64,7 +64,6 @@ public class CrossValidation extends ValidationMethod {
 			Util.shuffle(fileNames, seed);
 			logger.info("Sequences shuffled");
 		}
-		// TODO Stratification
 		// Obtain size of each fold
 		int[] sizeFolds = new int[folds];
 		Arrays.fill(sizeFolds, numSequences / folds);

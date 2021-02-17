@@ -337,11 +337,10 @@ public class Metrics {
 			} else {
 				// Binary variable
 				String positiveClass = getPositiveClass(possibleClassesCV);
-				logger.info("Using {} as positive class of '{}'", positiveClass, nameCV);
+				logger.trace("Using {} as positive class of '{}'", positiveClass, nameCV);
 				Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, positiveClass);
 				metricResultCV = metric.compute(cm);
-
-				System.out.println(nameCV + ": " + metricResultCV);
+				System.out.println(nameCV + ": " + metricResultCV + " (Positive class: " + positiveClass + ")");
 
 			}
 			metricResult += metricResultCV;
@@ -392,7 +391,7 @@ public class Metrics {
 			else {
 				// Binary variable
 				String positiveClass = getPositiveClass(possibleClassesCV);
-				logger.info("Using {} as positive class of '{}'", positiveClass, nameCV);
+				logger.trace("Using {} as positive class of '{}'", positiveClass, nameCV);
 				Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, positiveClass);
 				tp += cm.get("tp");
 				fp += cm.get("fp");

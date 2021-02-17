@@ -500,7 +500,7 @@ public class Dataset {
 			String message = String.format("Time variable '%s' not specified", nameTimeVariable);
 			throw new ErroneousSequenceException(message);
 		} else if (!nameVariablesSequence.containsAll(nameClassVariables)) {
-			String message = "One or more class variables were not specified";
+			String message = "One or more specified class variables are not present in the sequence";
 			throw new ErroneousSequenceException(message);
 		} else if (getNumDataPoints() > 0 && (!nameVariablesSequence.containsAll(getNameAllVariables())
 				|| !getNameAllVariables().containsAll(nameVariablesSequence))) {

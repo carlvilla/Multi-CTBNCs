@@ -92,9 +92,9 @@ public class Controller {
 	@FXML
 	private TextField fldKParents;
 	@FXML
-	private TextField fldMxBN;
+	private TextField fldNxBN;
 	@FXML
-	private TextField fldNxy;
+	private TextField fldMxy;
 	@FXML
 	private TextField fldTx;
 	@FXML
@@ -251,12 +251,12 @@ public class Controller {
 		cmbScoreFunction.getSelectionModel().selectFirst();
 		// Initialize text fields with default values
 		fldKParents.setText("2");
-		fldMxBN.setText("1");
-		fldNxy.setText("1");
+		fldNxBN.setText("1");
+		fldMxy.setText("1");
 		fldTx.setText("0.001");
 		fldKParents.setDisable(true);
-		fldMxBN.setDisable(true);
-		fldNxy.setDisable(true);
+		fldNxBN.setDisable(true);
+		fldMxy.setDisable(true);
 		fldTx.setDisable(true);
 		// Text fields are restricted to certain values
 		ControllerUtil.onlyPositiveInteger(fldKParents);
@@ -333,13 +333,13 @@ public class Controller {
 		String nameBnPLA = cmbParameterBN.getValue();
 		String nameBnSLA = cmbStructure.getValue();
 		// Get hyperparameters
-		double alpha = Double.valueOf(fldMxBN.getText());
+		double nx = Double.valueOf(fldNxBN.getText());
 		// Get score function
 		String scoreFunction = cmbScoreFunction.getValue();
 		// Define penalization function (if any)
 		String penalizationFunction = cmbPenalization.getValue();
 		// Define learning algorithms for the class subgraph (Bayesian network)
-		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, alpha);
+		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, nx);
 		BNStructureLearningAlgorithm bnSLA = BNStructureLearningAlgorihtmFactory.getAlgorithm(nameBnSLA, scoreFunction,
 				penalizationFunction);
 		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
@@ -351,7 +351,7 @@ public class Controller {
 		String nameCtbnPLA = cmbParameterCTBN.getValue();
 		String nameCtbnSLA = cmbStructure.getValue();
 		// Get hyperparameters
-		double nxy = Double.valueOf(fldNxy.getText());
+		double mxy = Double.valueOf(fldMxy.getText());
 		double tx = Double.valueOf(fldTx.getText());
 		// Get score function
 		String scoreFunction = cmbScoreFunction.getValue();
@@ -359,7 +359,7 @@ public class Controller {
 		String penalizationFunction = cmbPenalization.getValue();
 		// Define learning algorithms for the feature and class subgraph (Continuous
 		// time Bayesian network)
-		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, nxy,
+		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, mxy,
 				tx);
 		CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory.getAlgorithm(nameCtbnSLA,
 				scoreFunction, penalizationFunction);
@@ -475,9 +475,9 @@ public class Controller {
 	 */
 	public void changeParameterLearningAlgBN() {
 		if (cmbParameterBN.getValue().equals("Bayesian estimation"))
-			fldMxBN.setDisable(false);
+			fldNxBN.setDisable(false);
 		else
-			fldMxBN.setDisable(true);
+			fldNxBN.setDisable(true);
 	}
 
 	/**
@@ -486,10 +486,10 @@ public class Controller {
 	 */
 	public void changeParameterLearningAlgCTBN() {
 		if (cmbParameterCTBN.getValue().equals("Bayesian estimation")) {
-			fldNxy.setDisable(false);
+			fldMxy.setDisable(false);
 			fldTx.setDisable(false);
 		} else {
-			fldNxy.setDisable(true);
+			fldMxy.setDisable(true);
 			fldTx.setDisable(true);
 		}
 	}

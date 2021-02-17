@@ -144,17 +144,19 @@ public class State {
 	}
 
 	/**
-	 * Return the value for a specific variable.
+	 * Return the value for a specific variable. Null is returned if the variable is
+	 * not present.
 	 * 
 	 * @param nameVariable name of the variable
 	 * @return value of the specified node for this state
 	 */
 	public String getValueVariable(String nameVariable) {
-		return events.get(nameVariable);
+		return events.getOrDefault(nameVariable, null);
 	}
 
 	/**
-	 * Return the values for some specific variables.
+	 * Return the values for some specific variables. Null is returned if the
+	 * variable is not present.
 	 * 
 	 * @param nameVariables names of the variables
 	 * @return values of the specified variables for this state
@@ -162,7 +164,7 @@ public class State {
 	public String[] getValueVariables(List<String> nameVariables) {
 		String[] values = new String[nameVariables.size()];
 		for (int i = 0; i < nameVariables.size(); i++)
-			values[i] = events.get(nameVariables.get(i));
+			values[i] = getValueVariable(nameVariables.get(i));
 		return values;
 	}
 
