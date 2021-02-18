@@ -95,7 +95,7 @@ public class Dataset {
 			sequences.add(sequence);
 			return true;
 		} catch (ErroneousSequenceException e) {
-			logger.warn(e.getMessage());
+			logger.trace(e.getMessage());
 			return false;
 		}
 	}

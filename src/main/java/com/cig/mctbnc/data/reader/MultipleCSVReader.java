@@ -56,6 +56,8 @@ public class MultipleCSVReader extends AbstractCSVReader {
 			// Check if any sequence was added to the dataset
 			if (dataset.getNumDataPoints() == 0)
 				throw new UnreadDatasetException("Any sequence was succesfully processed");
+			if (dataset.getNumDataPoints() < files.length)
+				logger.warn("Some sequences not added. They may not have valid variables or enough observations");
 			// Remove variables with zero variance
 			dataset.removeZeroVarianceFeatures();
 			// Save in the dataset the files used to extract its sequences

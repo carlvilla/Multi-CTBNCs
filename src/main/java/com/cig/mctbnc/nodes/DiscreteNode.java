@@ -80,7 +80,7 @@ public abstract class DiscreteNode extends AbstractNode {
 	public Integer setState(String state) {
 		stateIdx = indexerStates.getOrDefault(state, -1);
 		if (stateIdx == -1)
-			logger.warn("State {} was never seen for variable {}", state, getName());
+			logger.trace("State {} was never seen for variable {}", state, getName());
 		return stateIdx;
 	}
 
