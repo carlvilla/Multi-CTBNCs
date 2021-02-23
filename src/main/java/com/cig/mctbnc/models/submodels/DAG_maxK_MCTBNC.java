@@ -19,11 +19,11 @@ import com.cig.mctbnc.nodes.Node;
  * @param <NodeTypeCTBN>
  *
  */
-public class DAG_MaxK_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node>
+public class DAG_maxK_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node>
 		extends MCTBNC<NodeTypeBN, NodeTypeCTBN> {
 	int maxK;
 
-	public DAG_MaxK_MCTBNC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnlearningAlgs, int maxK,
+	public DAG_maxK_MCTBNC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnlearningAlgs, int maxK,
 			Class bnNodeClass, Class ctbnNodeClass) {
 		super(bnLearningAlgs, ctbnlearningAlgs, bnNodeClass, ctbnNodeClass);
 		this.maxK = maxK;
@@ -36,12 +36,12 @@ public class DAG_MaxK_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node>
 
 	@Override
 	public StructureConstraints getStructureConstraintsCTBN() {
-		return new MaxKCTBNC(maxK);
+		return new MaxKCTBNC(this.maxK);
 	}
 
 	@Override
 	public String getType() {
-		return "DAG-Max" + maxK + " MCTBNC";
+		return String.format("DAG-max%d multidimensional continuous time Bayesian network classifier", this.maxK);
 	}
 
 }

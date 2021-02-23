@@ -9,8 +9,9 @@ import org.apache.logging.log4j.Logger;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.models.MCTBNC;
-import com.cig.mctbnc.models.submodels.DAG_MaxK_MCTBNC;
-import com.cig.mctbnc.models.submodels.EMPTY_MaxK_MCTBNC;
+import com.cig.mctbnc.models.submodels.DAG_maxK_MCTBNC;
+import com.cig.mctbnc.models.submodels.Empty_maxK_MCTBNC;
+import com.cig.mctbnc.models.submodels.Empty_digraph_MCTBNC;
 import com.cig.mctbnc.models.submodels.MCTNBC;
 import com.cig.mctbnc.nodes.Node;
 
@@ -46,12 +47,16 @@ public class ClassifierFactory {
 		case "DAG-maxK MCTBNC":
 			int maxK = Integer.valueOf(parameters.get("maxK"));
 			logger.info("Creating a DAG-{}DB multi-dimensional continuous Bayesian network classifier", maxK);
-			return new DAG_MaxK_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
+			return new DAG_maxK_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);
 		case "Empty-maxK MCTBNC":
 			maxK = Integer.valueOf(parameters.get("maxK"));
 			logger.info("Creating a Empty-{}DB multi-dimensional continuous Bayesian network classifier", maxK);
-			return new EMPTY_MaxK_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
+			return new Empty_maxK_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
+					ctbnNodeClass);
+		case "Empty-digraph MCTBNC":
+			logger.info("Creating a Empty-digraph multi-dimensional continuous Bayesian network classifier");
+			return new Empty_digraph_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass,
 					ctbnNodeClass);
 		default:
 			// If the specified classifier is not found, a MCTBNC is created
@@ -67,7 +72,7 @@ public class ClassifierFactory {
 	 * @return list of available classifiers
 	 */
 	public static List<String> getAvailableModels() {
-		return List.of("MCTBNC", "MCTNBC", "DAG-maxK MCTBNC", "Empty-maxK MCTBNC");
+		return List.of("MCTBNC", "MCTNBC", "DAG-maxK MCTBNC", "Empty-maxK MCTBNC", "Empty-digraph MCTBNC");
 	}
 
 }

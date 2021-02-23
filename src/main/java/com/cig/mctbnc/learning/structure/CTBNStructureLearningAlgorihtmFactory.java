@@ -43,7 +43,7 @@ public class CTBNStructureLearningAlgorihtmFactory {
 		switch (scoreFunction) {
 		case ("Conditional log-likelihood"):
 			return new CTBNConditionalLogLikelihood(penalizationFunction);
-		case ("Bayesian score"):
+		case ("Bayesian Dirichlet equivalent"):
 			return new CTBNBayesianScore();
 		default:
 			return new CTBNLogLikelihood(penalizationFunction);

@@ -163,7 +163,7 @@ public class Dataset {
 	 * @return list with the sequences of the dataset
 	 */
 	public List<Sequence> getSequences() {
-		return sequences;
+		return new ArrayList<Sequence>(sequences);
 	}
 
 	/**

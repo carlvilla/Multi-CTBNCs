@@ -33,7 +33,7 @@ public class BNStructureLearningAlgorihtmFactory {
 
 	private static BNScoreFunction getScoreFunction(String scoreFunction, String penalizationFunction) {
 		switch (scoreFunction) {
-		case ("Bayesian score"):
+		case ("Bayesian Dirichlet equivalent"):
 			return new BNBayesianScore();
 		default:
 			return new BNLogLikelihood(penalizationFunction);

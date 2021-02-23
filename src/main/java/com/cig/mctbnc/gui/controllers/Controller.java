@@ -122,7 +122,7 @@ public class Controller {
 	List<String> parameterLearningAlgs = List.of("Maximum likelihood estimation", "Bayesian estimation");
 	List<String> structureLearningAlgs = List.of("Hill climbing");
 	List<String> initialStructures = List.of("Empty", "Naive Bayes");
-	List<String> scores = List.of("Log-likelihood", "Conditional log-likelihood", "Bayesian score");
+	List<String> scores = List.of("Log-likelihood", "Conditional log-likelihood", "Bayesian Dirichlet equivalent");
 	List<String> penalizations = List.of("No", "BIC", "AIC");
 	// -------------------- AVAILABLE DATASET READERS --------------------
 	List<String> datasetReaders = DatasetReaderFactory.getAvailableDatasetReaders();
