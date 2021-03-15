@@ -254,7 +254,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 				int idxStateParents = nodeCV.getIdxStateParents();
 				double ox = nodeCV.getCP(idxStateParents, idxState);
 				if (ox > 0)
-					lpcc += Math.log(nodeCV.getCP(idxStateParents, idxState));
+					lpcc += Math.log(ox);
 			}
 			uPs.put(stateCVs, lpcc);
 		}

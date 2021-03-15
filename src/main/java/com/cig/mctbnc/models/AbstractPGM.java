@@ -369,7 +369,6 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		graph.setAttribute("ui.stylesheet", "url(src/main/resources/css/graph-style.css);");
 		// Define viewer
 		FxViewer viewer = new FxViewer(graph, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-		viewer.enableAutoLayout();
 		FxViewPanel panel = (FxViewPanel) viewer.addDefaultView(false, new FxGraphRenderer());
 		// Create stage and scene to visualize the graph
 		Stage stage = new Stage();
@@ -386,9 +385,26 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * @param nodes
 	 */
 	private void addNodes(Graph graph, List<NodeType> nodes) {
-		for (Node node : nodes) {
+		// Variables used to determine position of the node in the graph
+		int numClassVariables = 0;
+		int numFeatures = 0;
+		for (int i = 0; i < nodes.size(); i++) {
+			// Retrieve node from the model
+			Node node = nodes.get(i);
 			String nameNode = node.getName();
-			graph.addNode(nameNode).setAttribute("ui.label", nameNode);
+			// Create a node for the graph
+			org.graphstream.graph.Node nodeGraph = graph.addNode(nameNode);
+			nodeGraph.setAttribute("ui.label", nameNode);
+			// Display node differently depending on if it is a class variable or not
+			if (node.isClassVariable()) {
+				nodeGraph.setAttribute("y", 1);
+				nodeGraph.setAttribute("x", numClassVariables);
+				numClassVariables++;
+			} else {
+				nodeGraph.setAttribute("y", 0);
+				nodeGraph.setAttribute("x", numFeatures);
+				numFeatures++;
+			}
 		}
 	}
 
