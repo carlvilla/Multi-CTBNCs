@@ -97,12 +97,14 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		removeAllNodes();
 		// Save dataset used for training
 		this.dataset = dataset;
+		// Extract name variables
+		List<String> nameClassVariables = dataset.getNameClassVariables();
+		List<String> nameVariables = dataset.getNameVariables();
 		// Measure execution time
 		Instant start = Instant.now();
 		// ------------------ Class subgraph ------------------
 		// Learn structure and parameters of class subgraph (Bayesian network)
 		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
-		List<String> nameClassVariables = dataset.getNameClassVariables();
 		bn = new BN<NodeTypeBN>(dataset, nameClassVariables, bnLearningAlgs, getStructureConstraintsBN(), bnNodeClass);
 		bn.learn();
 		logger.info("Class subgraph established!");
@@ -113,7 +115,6 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// features is extended to more class variables
 		logger.info("Defining structure and parameters of the feature and bridge subgraphs (Continuous time "
 				+ "Bayesian network)");
-		List<String> nameVariables = dataset.getNameVariables();
 		ctbn = new CTBN<NodeTypeCTBN>(dataset, nameVariables, ctbnLearningAlgs, getStructureConstraintsCTBN(), bn,
 				ctbnNodeClass);
 		setInitialStructure(ctbn);
