@@ -38,6 +38,7 @@ public class BNHillClimbing implements HillClimbingImplementation {
 		int numNodes = currentStructure.length;
 		// Define object to store final solution
 		HillClimbingSolution solution = new HillClimbingSolution();
+		solution.setAdjacencyMatrix(currentStructure);
 		solution.setScore(Double.NEGATIVE_INFINITY);
 		boolean improvement;
 		do {
