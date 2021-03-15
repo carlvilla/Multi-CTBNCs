@@ -24,6 +24,7 @@ import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
+import com.cig.mctbnc.util.Util;
 
 /**
  * Tests over the score functions for CTBNs. Some structures are built and their
@@ -241,19 +242,6 @@ class ScoresCTBNTest {
 		// Conditional log-likelihood
 		CTBNScoreFunction scoreFunction = new CTBNConditionalLogLikelihood("No");
 
-//		double probCVs =
-//				// Evaluate C1
-//				1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0)
-//						+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0)
-//
-//						// Evaluate C2
-//						+ 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0)
-//						+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0)
-//
-//						// Evaluate C3
-//						+ 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0) + 1 * Math.log(1 / 2.0)
-//						+ 2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0);
-
 		double probCVs =
 				// Evaluate C1
 				2 * Math.log(2 / 4.0) + 2 * Math.log(2 / 4.0)
@@ -278,13 +266,14 @@ class ScoresCTBNTest {
 						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1
 
 		;
+
 		// To compute the log-marginal-likelihood of a sequence, it is necessary to
 		// extract for each possible class configuration the sum of their log prior
 		// probabilities and the posterior probability of sequences given the class
 		// configurations
 		double C1aC2aC3a =
 				// C1 = a / C2 = a / C3 = a
-				0.5 + 0.5 + 1
+				Math.log(0.5) + Math.log(0.5) + Math.log(1)
 				// X1
 				// X1 = a / C1 = a
 						+ 2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2
@@ -304,7 +293,7 @@ class ScoresCTBNTest {
 						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
 		double C1aC2aC3b =
 				// C1 = a / C2 = a / C3 = b
-				0.5 + 0.5
+				Math.log(0.5) + Math.log(0.5)
 				// X1
 				// X1 = a / C1 = a
 						+ 2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2
@@ -324,7 +313,7 @@ class ScoresCTBNTest {
 						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
 		double C1aC2bC3a =
 				// C1 = a / C2 = b / C3 = a
-				0.5 + 0.5 + 1
+				Math.log(0.5) + Math.log(0.5) + Math.log(1)
 				// X1
 				// X1 = a / C1 = a
 						+ 2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2
@@ -346,7 +335,7 @@ class ScoresCTBNTest {
 						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
 		double C1aC2bC3b =
 				// C1 = a / C2 = b / C3 = b
-				0.5 + 0.5
+				Math.log(0.5) + Math.log(0.5)
 				// X1
 				// X1 = a / C1 = a
 						+ 2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2
@@ -368,7 +357,7 @@ class ScoresCTBNTest {
 						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
 		double C1bC2aC3a =
 				// C1 = b / C2 = a / C3 = a
-				0.5 + 0.5 + 1
+				Math.log(0.5) + Math.log(0.5) + Math.log(1)
 				// X1
 				// X1 = b / C1 = b
 						+ 3 * Math.log(3 / 1.3) - (3 / 1.3) * 1.3 + 2 * Math.log(2 / 3.0) + Math.log(1 / 3.0)
@@ -388,7 +377,7 @@ class ScoresCTBNTest {
 						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
 		double C1bC2aC3b =
 				// C1 = b / C2 = a / C3 = b
-				0.5 + 0.5
+				Math.log(0.5) + Math.log(0.5)
 				// X1
 				// X1 = b / C1 = b
 						+ 3 * Math.log(3 / 1.3) - (3 / 1.3) * 1.3 + 2 * Math.log(2 / 3.0) + 1 * Math.log(1 / 3.0)
@@ -408,7 +397,7 @@ class ScoresCTBNTest {
 						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
 		double C1bC2bC3a =
 				// C1 = b / C2 = b / C3 = a
-				0.5 + 0.5
+				Math.log(0.5) + Math.log(0.5)
 				// X1
 				// X1 = b / C1 = b
 						+ 3 * Math.log(3 / 1.3) - (3 / 1.3) * 1.3 + 2 * Math.log(2 / 3.0) + 1 * Math.log(1 / 3.0)
@@ -430,7 +419,7 @@ class ScoresCTBNTest {
 						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
 		double C1bC2bC3b =
 				// C1 = b / C2 = b / C3 = b
-				0.5 + 0.5 + 1
+				Math.log(0.5) + Math.log(0.5) + Math.log(1)
 				// X1
 				// X1 = b / C1 = b
 						+ 3 * Math.log(3 / 1.3) - (3 / 1.3) * 1.3 + 2 * Math.log(2 / 3.0) + 1 * Math.log(1 / 3.0)
@@ -452,29 +441,40 @@ class ScoresCTBNTest {
 						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
 
 		// The log-sum-exp trick is used to avoid overflows and underflows
-		double largest = C1aC2bC3a;
+		double largest = Util.getMaxValue(C1aC2aC3a, C1aC2aC3b, C1aC2bC3a, C1aC2bC3b, C1bC2aC3a, C1bC2aC3b, C1bC2bC3a,
+				C1bC2bC3b);
 		double sum = Math.exp(C1aC2aC3a - largest) + Math.exp(C1aC2aC3b - largest) + Math.exp(C1aC2bC3a - largest)
 				+ Math.exp(C1aC2bC3b - largest) + Math.exp(C1bC2aC3a - largest) + Math.exp(C1bC2aC3b - largest)
 				+ Math.exp(C1bC2bC3a - largest) + Math.exp(C1bC2bC3b - largest);
 		// Log-marginal-likelihood
 		double mll = largest + Math.log(sum);
 
-		double cllS1Expected = probCVs + llSequences - mll;
-		double cllS1Actual = scoreFunction.compute(ctbn);
-		assertEquals(cllS1Expected, cllS1Actual, 0.001);
+		double cllExpected = probCVs + llSequences - mll;
+		double cllActual = scoreFunction.compute(ctbn);
+		assertEquals(cllExpected, cllActual, 0.001);
 
 		// Penalized conditional log-likelihood with BIC
 		scoreFunction = new CTBNConditionalLogLikelihood("BIC");
-		double cllS1BICExpected = cllS1Expected
+		double cllBICExpected = cllExpected
 				- ((2 * (3 - 1) * 3 + 2 * (2 - 1) * 2 + 12 * (2 - 1) * 2) / 2) * Math.log(4);
-		double cllS1BICActual = scoreFunction.compute(ctbn);
-		assertEquals(cllS1BICExpected, cllS1BICActual, 0.001);
+		double cllBICActual = scoreFunction.compute(ctbn);
+		assertEquals(cllBICExpected, cllBICActual, 0.001);
 
 		// Penalized conditional log-likelihood with AIC
 		scoreFunction = new CTBNConditionalLogLikelihood("AIC");
-		double cllS1AICExpected = cllS1Expected - ((2 * (3 - 1) * 3 + 2 * (2 - 1) * 2 + 12 * (2 - 1) * 2) / 2) * 2;
-		double cllS1AICActual = scoreFunction.compute(ctbn);
-		assertEquals(cllS1AICExpected, cllS1AICActual, 0.001);
+		double cllAICExpected = cllExpected - ((2 * (3 - 1) * 3 + 2 * (2 - 1) * 2 + 12 * (2 - 1) * 2) / 2) * 2;
+		double cllAICActual = scoreFunction.compute(ctbn);
+		assertEquals(cllAICExpected, cllAICActual, 0.001);
+
+		// Compare CLL when the previous structure has and not an empty bridge subgraph
+		// Make bridge subgraph to be empty
+		ctbn.getNodes().get(0).removeParent(nodesCVs.get(0));
+		ctbn.getNodes().get(2).removeParent(nodesCVs.get(1));
+		ctbn.learnParameters();
+
+		// Get CLL score when empty subgraph is empty
+		double cllEmptyBridgeActual = scoreFunction.compute(ctbn);
+		assertTrue(cllActual > cllEmptyBridgeActual);
 	}
 
 	@Test

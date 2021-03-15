@@ -1,14 +1,10 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
-import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
+import com.cig.mctbnc.learning.structure.optimization.hillclimbing.implementation.HillClimbingImplementation;
 import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.Node;
 
@@ -20,29 +16,15 @@ import com.cig.mctbnc.nodes.Node;
  */
 public abstract class HillClimbing implements StructureLearningAlgorithm {
 	PGM<? extends Node> pgm;
-	List<? extends Node> nodes;
-	Dataset trainingDataset;
-	ParameterLearningAlgorithm parameterLearning;
-	StructureConstraints structureConstraints;
-	boolean[][] initialAdjacencyMatrix;
+	// Implementation of the hill climbing
+	HillClimbingImplementation hcImplementation;
 	static Logger logger = LogManager.getLogger(HillClimbing.class);
 
 	@Override
-	public void learn(PGM<? extends Node> pgm, Dataset trainingDataset, ParameterLearningAlgorithm parameterLearning,
-			StructureConstraints structureConstraints) {
+	public void learn(PGM<? extends Node> pgm) {
 		logger.info("Learning {} using Hill Climbing", pgm.getType());
 		// Define model
 		this.pgm = pgm;
-		// Define nodes of the PGM
-		this.nodes = pgm.getNodes();
-		// Define parameter learning algorithm
-		this.parameterLearning = parameterLearning;
-		// Define the structure constraints
-		this.structureConstraints = structureConstraints;
-		// Get initial structure
-		this.initialAdjacencyMatrix = pgm.getAdjacencyMatrix();
-		// Define training dataset
-		this.trainingDataset = trainingDataset;
 		// Optimize structure. Obtain a better one than the initial
 		boolean[][] structureFound = findStructure();
 		pgm.setStructure(structureFound);

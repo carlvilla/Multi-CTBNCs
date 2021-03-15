@@ -20,10 +20,8 @@ import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithmFactory;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithmFactory;
-import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorihtmFactory;
-import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorihtmFactory;
-import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.StructureLearningAlgorithmFactory;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
@@ -120,7 +118,7 @@ public class Controller {
 	List<String> models = ClassifierFactory.getAvailableModels();
 	// ----------------------- AVAILABLE ALGORITHMS -----------------------
 	List<String> parameterLearningAlgs = List.of("Maximum likelihood estimation", "Bayesian estimation");
-	List<String> structureLearningAlgs = List.of("Hill climbing");
+	List<String> structureLearningAlgs = StructureLearningAlgorithmFactory.getAvailableOptimizationMethods();
 	List<String> initialStructures = List.of("Empty", "Naive Bayes");
 	List<String> scores = List.of("Log-likelihood", "Conditional log-likelihood", "Bayesian Dirichlet equivalent");
 	List<String> penalizations = List.of("No", "BIC", "AIC");
@@ -340,7 +338,7 @@ public class Controller {
 		String penalizationFunction = cmbPenalization.getValue();
 		// Define learning algorithms for the class subgraph (Bayesian network)
 		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, nx);
-		BNStructureLearningAlgorithm bnSLA = BNStructureLearningAlgorihtmFactory.getAlgorithm(nameBnSLA, scoreFunction,
+		StructureLearningAlgorithm bnSLA = StructureLearningAlgorithmFactory.getAlgorithmBN(nameBnSLA, scoreFunction,
 				penalizationFunction);
 		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
 		return bnLearningAlgs;
@@ -361,7 +359,7 @@ public class Controller {
 		// time Bayesian network)
 		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, mxy,
 				tx);
-		CTBNStructureLearningAlgorithm ctbnSLA = CTBNStructureLearningAlgorihtmFactory.getAlgorithm(nameCtbnSLA,
+		StructureLearningAlgorithm ctbnSLA = StructureLearningAlgorithmFactory.getAlgorithmCTBN(nameCtbnSLA,
 				scoreFunction, penalizationFunction);
 		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 		return ctbnLearningAlgs;

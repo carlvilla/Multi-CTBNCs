@@ -40,9 +40,9 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	int idxCurrentDataset = 0;
 	int idxCurrentModel = 0;
 	int idxCurrentScoreFunction = 0;
-	List<String> metrics = List.of("Global accuracy", "Mean accuracy", "Macro-average precision",
-			"Macro-average recall", "Macro-average f1 score", "Micro-average precision", "Micro-average recall",
-			"Micro-average f1 score", "Globar Brier score");
+	List<String> metrics = List.of("Global accuracy", "Mean accuracy", "Macro-averaged precision",
+			"Macro-averaged recall", "Macro-averaged f1 score", "Micro-averaged precision", "Micro-averaged recall",
+			"Micro-averaged f1 score", "Globar Brier score");
 
 	/**
 	 * Initialize the writer.
@@ -101,12 +101,12 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	public void write(Map<String, Double> results) {
 		double ga = results.get("Global accuracy");
 		double ma = results.get("Mean accuracy");
-		double map = results.get("Macro-average precision");
-		double mar = results.get("Macro-average recall");
-		double maf1 = results.get("Macro-average f1 score");
-		double mip = results.get("Micro-average precision");
-		double mir = results.get("Micro-average recall");
-		double mif1 = results.get("Micro-average f1 score");
+		double map = results.get("Macro-averaged precision");
+		double mar = results.get("Macro-averaged recall");
+		double maf1 = results.get("Macro-averaged f1 score");
+		double mip = results.get("Micro-averaged precision");
+		double mir = results.get("Micro-averaged recall");
+		double mif1 = results.get("Micro-averaged f1 score");
 		Double gb = results.getOrDefault("Global Brier score", null);
 		// Get initial row in the excel for current score
 		int initialRow = getInitialRowScore(idxCurrentScoreFunction);

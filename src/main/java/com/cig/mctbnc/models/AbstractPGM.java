@@ -206,7 +206,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 				learnParameters();
 			} else
 				// Learn structure and parameters with the specified algorithms
-				structureLearningAlg.learn(this, dataset, parameterLearningAlg, structureConstraints);
+				structureLearningAlg.learn(this);
 		} else {
 			logger.warn("Training dataset was not established");
 		}
@@ -373,6 +373,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		FxViewPanel panel = (FxViewPanel) viewer.addDefaultView(false, new FxGraphRenderer());
 		// Create stage and scene to visualize the graph
 		Stage stage = new Stage();
+		stage.setTitle(getType());
 		Scene scene = new Scene(panel);
 		stage.setScene(scene);
 		stage.show();

@@ -57,4 +57,9 @@ public class CTBNBayesianScore implements CTBNScoreFunction {
 		return bdeScore;
 	}
 
+	@Override
+	public boolean isDecomposable() {
+		return true;
+	}
+
 }

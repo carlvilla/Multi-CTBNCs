@@ -11,8 +11,8 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithmFactory;
-import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorihtmFactory;
-import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.StructureLearningAlgorithmFactory;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
 import com.cig.mctbnc.models.BN;
@@ -62,7 +62,7 @@ class LearnStructureBNTest {
 		BNParameterLearningAlgorithm plAlg = BNParameterLearningAlgorithmFactory
 				.getAlgorithm("Maximum likelihood estimation", 0.0);
 		// Algorithm to learn structure
-		BNStructureLearningAlgorithm slAlg = BNStructureLearningAlgorihtmFactory.getAlgorithm("Hill climbing",
+		StructureLearningAlgorithm slAlg = StructureLearningAlgorithmFactory.getAlgorithmBN("Hill climbing",
 				"Log-likelihood", "No");
 
 		// Define object containing the learning algorithms

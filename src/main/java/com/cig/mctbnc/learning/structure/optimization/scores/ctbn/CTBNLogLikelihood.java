@@ -59,6 +59,11 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 		return ll;
 	}
 
+	@Override
+	public boolean isDecomposable() {
+		return true;
+	}
+
 	/**
 	 * Compute the log-likelihood for a certain CIM node.
 	 * 
@@ -76,20 +81,21 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 		for (int idxStateParents = 0; idxStateParents < numStatesParents; idxStateParents++) {
 			for (int idxFromState = 0; idxFromState < numStates; idxFromState++) {
 				double qx = node.getQx(idxStateParents, idxFromState);
-				// Probability density function of the exponential distribution. If it is 0,
-				// there are no transitions from this state
-				if (qx != 0) {
-					double nx = ss.getMx()[idxStateParents][idxFromState];
+				// Cases where there are no transitions are ignored to avoid NaNs
+				if (qx > 0) {
+					double mx = ss.getMx()[idxStateParents][idxFromState];
 					double tx = ss.getTx()[idxStateParents][idxFromState];
-					ll += nx * Math.log(qx) - qx * tx;
+					// Log probability density function of the exponential distribution
+					ll += mx * Math.log(qx) - qx * tx;
 					for (int idxToState = 0; idxToState < numStates; idxToState++) {
 						if (idxToState != idxFromState) {
 							// Probability of transitioning from "state" to "toState"
 							double oxx = node.getOxy(idxStateParents, idxFromState, idxToState);
+							// Cases without transitions between the states are ignored to avoid NaNs
 							if (oxx != 0) {
 								// Number of times the variable transitions from "idxFromState" to "idxToState"
-								double nxx = ss.getMxy()[idxStateParents][idxFromState][idxToState];
-								ll += nxx * Math.log(oxx);
+								double mxx = ss.getMxy()[idxStateParents][idxFromState][idxToState];
+								ll += mxx * Math.log(oxx);
 							}
 						}
 					}

@@ -1,7 +1,7 @@
 package com.cig.mctbnc.learning;
 
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 
 /**
  * Store the parameter and structure learning algorithms for a Continuous time
@@ -12,7 +12,7 @@ import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
  */
 public class CTBNLearningAlgorithms {
 	CTBNParameterLearningAlgorithm parameterLearningAlg;
-	CTBNStructureLearningAlgorithm structureLearningAlg;
+	StructureLearningAlgorithm structureLearningAlg;
 
 	/**
 	 * Receive the learning algorithms for the parameters and the structure.
@@ -21,7 +21,7 @@ public class CTBNLearningAlgorithms {
 	 * @param structureLearningAlg
 	 */
 	public CTBNLearningAlgorithms(CTBNParameterLearningAlgorithm parameterLearningAlg,
-			CTBNStructureLearningAlgorithm structureLearningAlg) {
+			StructureLearningAlgorithm structureLearningAlg) {
 		this.parameterLearningAlg = parameterLearningAlg;
 		this.structureLearningAlg = structureLearningAlg;
 	}
@@ -40,7 +40,7 @@ public class CTBNLearningAlgorithms {
 	 * 
 	 * @return structure learning algorithm
 	 */
-	public CTBNStructureLearningAlgorithm getStructureLearningAlgorithm() {
+	public StructureLearningAlgorithm getStructureLearningAlgorithm() {
 		return structureLearningAlg;
 	}
 

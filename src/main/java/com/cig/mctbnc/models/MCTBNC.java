@@ -364,9 +364,9 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Sample the initial state of the sequence (first observation). Theoretically,
-	 * it would be sampled from a multi-dimensional Bayesian network classifier.
-	 * However, it will be used a uniform distribution for simplicity.
+	 * Sample the initial state of the sequence (first observation). Although,
+	 * theoretically, it should be sampled from a multi-dimensional Bayesian network
+	 * classifier, a uniform distribution is used for simplicity.
 	 * 
 	 * @param sampledCVs
 	 * @return State object with the initial observation of a sequence

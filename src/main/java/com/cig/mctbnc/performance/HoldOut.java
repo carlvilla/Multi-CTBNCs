@@ -1,5 +1,6 @@
 package com.cig.mctbnc.performance;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +28,9 @@ public class HoldOut extends ValidationMethod {
 	Logger logger = LogManager.getLogger(HoldOut.class);
 
 	public HoldOut(DatasetReader datasetReader, double trainingSize, boolean shuffle) throws UnreadDatasetException {
-		logger.info("Generating training ({}%) and testing ({}%) datasets (Hold-out validation)", trainingSize * 100,
-				(1 - trainingSize) * 100);
+		DecimalFormat df = new DecimalFormat("##.00");
+		logger.info("Generating training ({}%) and testing ({}%) datasets (Hold-out validation)",
+				df.format(trainingSize * 100), df.format((1 - trainingSize) * 100));
 		generateTrainAndTest(datasetReader, trainingSize, shuffle);
 		logger.info("Time variable: {}", trainingDataset.getNameTimeVariable());
 		logger.info("Features: {}", trainingDataset.getNameFeatures());

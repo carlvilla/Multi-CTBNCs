@@ -69,6 +69,8 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 		// Number of times the studied variable and its parents take a certain state
 		double Nijk = node.getSufficientStatistics().getNx()[idxStateParents][idxState];
 		double classProbability = 0.0;
+		// The zero count problem occurs if the class variable never takes the evaluated
+		// state given the parents. This case is ignored to avoid NaNs
 		if (Nijk != 0)
 			classProbability = Nijk * Math.log(node.getCP(idxStateParents, idxState));
 		return classProbability;

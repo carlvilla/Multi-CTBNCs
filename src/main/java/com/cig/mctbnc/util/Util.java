@@ -62,7 +62,7 @@ public final class Util {
 	}
 
 	/**
-	 * Returns the index of a String in an array.
+	 * Return the index of a String in an array.
 	 * 
 	 * @param array
 	 * @param element
@@ -77,7 +77,7 @@ public final class Util {
 	}
 
 	/**
-	 * Returns the index of the largest value in an array.
+	 * Return the index of the largest value in an array.
 	 * 
 	 * @param array
 	 * @return index of the largest value
@@ -95,6 +95,20 @@ public final class Util {
 	}
 
 	/**
+	 * Returns the maximum value between those passed as parameters
+	 * 
+	 * @param values
+	 * @return maximum value
+	 */
+	public static double getMaxValue(double... values) {
+		double max = values[0];
+		for (double value : values)
+			if (max < value)
+				max = value;
+		return max;
+	}
+
+	/**
 	 * Create a deep copy of a 2D boolean array.
 	 * 
 	 * @param array array to copy
@@ -108,7 +122,7 @@ public final class Util {
 	}
 
 	/**
-	 * Returns entry with the largest value of a map.
+	 * Return entry with the largest value of a map.
 	 * 
 	 * @param map
 	 * @return entry of the largest value

@@ -8,5 +8,7 @@ public interface CTBNScoreFunction {
 	public double compute(CTBN<? extends Node> ctbn);
 
 	public double compute(CTBN<? extends Node> ctbn, int nodeIndex);
+	
+	public boolean isDecomposable();
 
 }

@@ -2,7 +2,7 @@ package com.cig.mctbnc.learning;
 
 import com.cig.mctbnc.learning.parameters.ParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 
 /**
  * Store the parameter and structure learning algorithms for a Bayesian network.
@@ -12,7 +12,7 @@ import com.cig.mctbnc.learning.structure.BNStructureLearningAlgorithm;
  */
 public class BNLearningAlgorithms {
 	BNParameterLearningAlgorithm parameterLearningAlg;
-	BNStructureLearningAlgorithm structureLearningAlg;
+	StructureLearningAlgorithm structureLearningAlg;
 
 	/**
 	 * Receive the learning algorithms for the parameters and the structure.
@@ -21,7 +21,7 @@ public class BNLearningAlgorithms {
 	 * @param structureLearningAlg
 	 */
 	public BNLearningAlgorithms(BNParameterLearningAlgorithm parameterLearningAlg,
-			BNStructureLearningAlgorithm structureLearningAlg) {
+			StructureLearningAlgorithm structureLearningAlg) {
 		this.parameterLearningAlg = parameterLearningAlg;
 		this.structureLearningAlg = structureLearningAlg;
 	}
@@ -40,7 +40,7 @@ public class BNLearningAlgorithms {
 	 * 
 	 * @return structure learning algorithm
 	 */
-	public BNStructureLearningAlgorithm getStructureLearningAlgorithm() {
+	public StructureLearningAlgorithm getStructureLearningAlgorithm() {
 		return structureLearningAlg;
 	}
 

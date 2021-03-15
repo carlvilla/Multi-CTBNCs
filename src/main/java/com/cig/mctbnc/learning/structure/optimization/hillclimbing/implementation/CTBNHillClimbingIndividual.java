@@ -1,14 +1,14 @@
-package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
+package com.cig.mctbnc.learning.structure.optimization.hillclimbing.implementation;
 
-import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.cig.mctbnc.learning.structure.CTBNStructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.optimization.hillclimbing.HillClimbingSolution;
 import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNScoreFunction;
 import com.cig.mctbnc.models.CTBN;
+import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.Node;
 
 /**
@@ -17,7 +17,8 @@ import com.cig.mctbnc.nodes.Node;
  * @author Carlos Villa Blanco
  *
  */
-public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStructureLearningAlgorithm {
+public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
+	CTBN<? extends Node> ctbn;
 	CTBNScoreFunction scoreFunction;
 	static Logger logger = LogManager.getLogger(CTBNHillClimbingIndividual.class);
 
@@ -29,9 +30,10 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 	}
 
 	@Override
-	public boolean[][] findStructure() {
-		// Store adjacency matrix of the best structure found
-		boolean[][] bestAdjacencyMatrix = initialAdjacencyMatrix.clone();
+	public HillClimbingSolution findStructure(PGM<? extends Node> pgm) {
+		// Retrieve the model, initial structure and number of nodes
+		this.ctbn = (CTBN<? extends Node>) pgm;
+		boolean[][] bestAdjacencyMatrix = pgm.getAdjacencyMatrix().clone();
 		int numNodes = bestAdjacencyMatrix.length;
 		// As a CTBN can have cycles, the parent set of each node is optimized
 		// individually.
@@ -44,17 +46,19 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 			}
 		});
 		logger.debug("Best structure found: {}", (Object) bestAdjacencyMatrix);
-		return bestAdjacencyMatrix;
+		HillClimbingSolution solution = new HillClimbingSolution();
+		solution.setAdjacencyMatrix(bestAdjacencyMatrix);
+		return solution;
 	}
 
 	private boolean[][] findStructureNode(int indexNode, boolean[][] bestAdjacencyMatrix) {
-		Node node = pgm.getNodeByIndex(indexNode);
+		Node node = ctbn.getNodeByIndex(indexNode);
 		// As this code is used to build a MCTBNC, there can be class variables. These
 		// cannot have parents
 		if (!node.isClassVariable()) {
 			logger.info("Finding best parent set for node {}", node.getName());
 			// Set as initial best score the one obtained with the initial structure
-			double bestScore = computeScore(indexNode, initialAdjacencyMatrix);
+			double bestScore = computeScore(indexNode, bestAdjacencyMatrix);
 			// Try to improve the current structure
 			boolean improvement = false;
 			do {
@@ -96,7 +100,7 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 				// initial structure is supplied)
 				tempAdjacencyMatrix[parentIndex][indexNode] = !tempAdjacencyMatrix[parentIndex][indexNode];
 				// Check if the structure is legal
-				if (pgm.isStructureLegal(tempAdjacencyMatrix)) {
+				if (ctbn.isStructureLegal(tempAdjacencyMatrix)) {
 					// Obtain score at the node 'indexNode'
 					double obtainedScore = computeScore(indexNode, tempAdjacencyMatrix);
 					if (obtainedScore > solution.getScore()) {
@@ -120,10 +124,11 @@ public class CTBNHillClimbingIndividual extends HillClimbing implements CTBNStru
 	 */
 	private double computeScore(int indexNode, boolean[][] adjacencyMatrix) {
 		// Clone model to avoid inconsistencies between threads
-		CTBN ctbn = new CTBN(((CTBN) pgm));
+		CTBN ctbn = new CTBN(this.ctbn);
 		// Establish the parent set of the node 'indexNode'
 		ctbn.setStructure(indexNode, adjacencyMatrix);
 		// Obtain local score at the node 'indexNode'
 		return scoreFunction.compute(ctbn, indexNode);
 	}
+
 }

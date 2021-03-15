@@ -60,12 +60,12 @@ public class Metrics {
 		double microRecall = microAverage(predicted, actualDataset, Metrics::recall);
 		double microF1Score = microAverage(predicted, actualDataset, Metrics::f1score);
 		results.put("Accuracy", accuracy);
-		results.put("Macro-average precision", macroPrecision);
-		results.put("Macro-average recall", macroRecall);
-		results.put("Macro-average f1 score", macroF1Score);
-		results.put("Micro-average precision", microPrecision);
-		results.put("Micro-average recall", microRecall);
-		results.put("Micro-average f1 score", microF1Score);
+		results.put("Macro-averaged precision", macroPrecision);
+		results.put("Macro-averaged recall", macroRecall);
+		results.put("Macro-averaged f1 score", macroF1Score);
+		results.put("Micro-averaged precision", microPrecision);
+		results.put("Micro-averaged recall", microRecall);
+		results.put("Micro-averaged f1 score", microF1Score);
 		// If the probabilities of the classes are available
 		if (predicted[0].getProbabilities() != null) {
 			double globalBrierScore = globalBrierScore(predicted, actualDataset);
@@ -97,12 +97,12 @@ public class Metrics {
 		double microF1Score = microAverage(predicted, actualDataset, Metrics::f1score);
 		results.put("Global accuracy", globalAccuracy);
 		results.put("Mean accuracy", meanAccuracy);
-		results.put("Macro-average precision", macroPrecision);
-		results.put("Macro-average recall", macroRecall);
-		results.put("Macro-average f1 score", macroF1Score);
-		results.put("Micro-average precision", microPrecision);
-		results.put("Micro-average recall", microRecall);
-		results.put("Micro-average f1 score", microF1Score);
+		results.put("Macro-averaged precision", macroPrecision);
+		results.put("Macro-averaged recall", macroRecall);
+		results.put("Macro-averaged f1 score", macroF1Score);
+		results.put("Micro-averaged precision", microPrecision);
+		results.put("Micro-averaged recall", microRecall);
+		results.put("Micro-averaged f1 score", microF1Score);
 		// If the probabilities of the class configurations are available
 		if (predicted[0].getProbabilities() != null) {
 			double globalBrierScore = globalBrierScore(predicted, actualDataset);
@@ -296,7 +296,7 @@ public class Metrics {
 
 	/**
 	 * Compute the value of a given evaluation metric for a multi-dimensional
-	 * classification problem using a macro-average approach. (Gil‑Begue et al.,
+	 * classification problem using a macro-average approach (Gil‑Begue et al.,
 	 * 2020).
 	 * 
 	 * @param predicted     array of Prediction objects with predicted classes
@@ -351,7 +351,8 @@ public class Metrics {
 
 	/**
 	 * Compute the value of a given evaluation metric for a multi-dimensional
-	 * classification problem using a micro-average approach.
+	 * classification problem using a micro-average approach (Gil‑Begue et al.,
+	 * 2020).
 	 * 
 	 * @param predicted     array of Prediction objects with predicted classes
 	 * @param actualDataset dataset with actual classes
