@@ -30,6 +30,14 @@ public class CrossValidation extends ValidationMethod {
 	boolean shuffle;
 	Logger logger = LogManager.getLogger(CrossValidation.class);
 
+	/**
+	 * Constructor for cross-validation method.
+	 * 
+	 * @param datasetReader
+	 * @param folds
+	 * @param shuffle
+	 * @throws UnreadDatasetException
+	 */
 	public CrossValidation(DatasetReader datasetReader, int folds, boolean shuffle) throws UnreadDatasetException {
 		logger.info("Preparing {}-cross validation / Shuffle: {}", folds, shuffle);
 		// Obtain dataset and the number of sequence it contains

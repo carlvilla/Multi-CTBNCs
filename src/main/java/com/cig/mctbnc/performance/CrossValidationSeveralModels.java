@@ -1,6 +1,8 @@
 package com.cig.mctbnc.performance;
 
 import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,7 +25,7 @@ import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.util.Util;
 
 /**
- * Implements cross-validation method that learn one model for each class
+ * Implements cross-validation method that learn one CTBNC for each class
  * variable and merge the results.
  * 
  * @author Carlos Villa Blanco
@@ -34,7 +37,16 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 	boolean shuffle;
 	Logger logger = LogManager.getLogger(CrossValidation.class);
 
-	public CrossValidationSeveralModels(DatasetReader datasetReader, int folds, boolean shuffle) throws UnreadDatasetException {
+	/**
+	 * Constructor for cross-validation method.
+	 * 
+	 * @param datasetReader
+	 * @param folds
+	 * @param shuffle
+	 * @throws UnreadDatasetException
+	 */
+	public CrossValidationSeveralModels(DatasetReader datasetReader, int folds, boolean shuffle)
+			throws UnreadDatasetException {
 		super();
 		logger.info("Preparing {}-cross validation / Shuffle: {}", folds, shuffle);
 		// Obtain dataset and the number of sequence it contains
@@ -56,13 +68,14 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 	 * 
 	 * @param model model to evaluate
 	 */
+	@Override
 	public void evaluate(MCTBNC<?, ?> model) {
 		// Get sequences from the dataset
-		List<Sequence> sequences = dataset.getSequences();
+		List<Sequence> sequences = this.dataset.getSequences();
 		int numSequences = sequences.size();
 		// Obtain files from which the dataset was read
-		List<String> fileNames = new ArrayList<String>(dataset.getNameFiles());
-		if (shuffle) {
+		List<String> fileNames = new ArrayList<String>(this.dataset.getNameFiles());
+		if (this.shuffle) {
 			// Shuffle the sequences before performing cross-validation
 			Integer seed = 10;
 			Util.shuffle(sequences, seed);
@@ -70,111 +83,37 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 			logger.info("Sequences shuffled");
 		}
 		// Obtain size of each fold
-		int[] sizeFolds = new int[folds];
-		Arrays.fill(sizeFolds, numSequences / folds);
+		int[] sizeFolds = new int[this.folds];
+		Arrays.fill(sizeFolds, numSequences / this.folds);
 		// Sequences without fold are added one by one to the first folds
-		for (int i = 0; i < numSequences % folds; i++)
+		for (int i = 0; i < numSequences % this.folds; i++)
 			sizeFolds[i] += 1;
 		// Save evaluation metrics obtained with the cross validation
 		Map<String, Double> resultsCrossValidation = new LinkedHashMap<String, Double>();
 		// Iterate over each fold
 		int fromIndex = 0;
-		for (int i = 0; i < folds; i++) {
+		for (int i = 0; i < this.folds; i++) {
 			logger.info("Testing on fold {}", i);
-			Prediction[] predictionsFold = null;
 			// Prepare training and testing datasets for current fold
 			int toIndex = fromIndex + sizeFolds[i];
 			// Prepare training dataset for current fold
 			Dataset trainingDataset = extractTrainingDataset(sequences, fileNames, fromIndex, toIndex);
 			// Prepare testing dataset for current fold
 			Dataset testingDataset = extractTestingDataset(sequences, fileNames, fromIndex, toIndex);
-			// Train and predict considering only one class variable
-			for (String classVariable : dataset.getNameClassVariables()) {
-				List<String> nameClassVariables = new ArrayList<String>(dataset.getNameClassVariables());
-				nameClassVariables.remove(classVariable);
-				trainingDataset.setIgnoredClassVariables(nameClassVariables);
-				// Train the model
-				model.learn(trainingDataset);
-				// Make predictions over the current fold and class variable
-				Prediction[] predictionsCV = model.predict(testingDataset, true);
-				// Display learned model for current class variable
-				System.out.println(MessageFormat
-						.format("--------------------Model for class variable {0}--------------------", classVariable));
-				displayModel(model);
-				System.out.println("------------------------------------------------------");
-				// Merge predictions for each class variable
-				predictionsFold = updatePredictionsFold(predictionsFold, classVariable, predictionsCV);
-			}
+			// Learn one model per class variable in parallel
+			List<MCTBNC<?, ?>> models = learnModels(model, trainingDataset);
+			// Perform predictions with each model and merge the results
+			Prediction[] predictionsFold = predict(models, testingDataset);
 			// Result of performance metrics when evaluating the model with the current fold
 			Map<String, Double> resultsFold = Metrics.evaluate(predictionsFold, testingDataset);
 			// Update the final results of the metrics after seeing all the folds
 			resultsFold.forEach((metric, value) -> resultsCrossValidation.merge(metric, value, (a, b) -> a + b));
-			// Display results fold
-			System.out.println(MessageFormat.format("--------------------Results fold {0}--------------------", i));
-			displayResultsFold(resultsFold);
-			System.out.println("------------------------------------------------------");
+			displayResultsFold(i, resultsFold);
 			fromIndex += sizeFolds[i];
 		}
 		// The average of each metric is computed
-		resultsCrossValidation.forEach((metric, value) -> resultsCrossValidation.put(metric, value / folds));
-		// Display results
-		System.out.println("--------------------Results cross-validation--------------------");
-		displayResults(resultsCrossValidation);
-		System.out.println("----------------------------------------------------------------");
-	}
-
-	/**
-	 * Update the current predictions of a fold with the predictions for a new class
-	 * variable.
-	 * 
-	 * @param predictionsFold current predictions of the fold
-	 * @param nameCV          name of the class variable whose predictions are
-	 *                        included in the predictions of the fold
-	 * @param predictionsCV   predictions of the class variable
-	 * @return
-	 */
-	private Prediction[] updatePredictionsFold(Prediction[] predictionsFold, String nameCV,
-			Prediction[] predictionsCV) {
-		if (predictionsFold == null) {
-			// First class is predicted
-			predictionsFold = predictionsCV;
-		} else {
-			// Update the predicted class configuration for each sequence and the
-			// probabilities given to each class configuration (necessary for Brier score)
-			for (int k = 0; k < predictionsFold.length; k++) {
-				// Get prediction current class variable and sequence
-				State prediction = predictionsCV[k].getPredictedClasses();
-				// Update current class configuration (CC) of the sequence
-				State predictedCC = predictionsFold[k].getPredictedClasses();
-				predictedCC.addEvent(nameCV, prediction.getValueVariable(nameCV));
-				// Define probabilities of each class configuration for the current sequence
-				Map<State, Double> newProbabilitiesCCs = new HashMap<State, Double>();
-				// Iterate over class configurations including states current class variable
-				Set<State> statesCC = predictionsFold[k].probabilities.keySet();
-				Set<State> statesCV = predictionsCV[k].probabilities.keySet();
-				for (State stateCC : statesCC)
-					for (State classCV : statesCV) {
-						// Get new class configuration that includes state of the class variable
-						State newStateCC = new State(stateCC.getEvents());
-						newStateCC.addEvents(classCV.getEvents());
-						// Get probability new class configuration
-						double previousProbCC = predictionsFold[k].probabilities.get(stateCC);
-						double newProbCC = previousProbCC * predictionsCV[k].probabilities.get(classCV);
-						// Save new class configuration and its probability
-						newProbabilitiesCCs.put(newStateCC, newProbCC);
-					}
-				// Save probabilities class configurations for the sequence
-				predictionsFold[k].probabilities = newProbabilitiesCCs;
-				// Get probability predicted class configuration for the sequence
-				double probabilityPredictedCC = predictionsFold[k].getProbabilityPrediction();
-				// Get probability predicted class for the current class variable
-				double probabilityPredictedClass = predictionsCV[k].getProbabilityPrediction();
-				// Save new probability predicted class configuration
-				double probabilityNewPredictedCC = probabilityPredictedCC * probabilityPredictedClass;
-				predictionsFold[k].setProbabilityPrediction(probabilityNewPredictedCC);
-			}
-		}
-		return predictionsFold;
+		resultsCrossValidation.forEach((metric, value) -> resultsCrossValidation.put(metric, value / this.folds));
+		displayResultsCV(resultsCrossValidation);
 	}
 
 	/**
@@ -223,13 +162,113 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 		return testingDataset;
 	}
 
+	private List<MCTBNC<?, ?>> learnModels(MCTBNC<?, ?> model, Dataset trainingDataset) {
+		// Get name class variables
+		List<String> nameCVs = trainingDataset.getNameClassVariables();
+		// Create as many models as class variables. Required for parallelization
+		List<MCTBNC<?, ?>> models = new ArrayList<MCTBNC<?, ?>>();
+		// Training datasets for each class variable. Sequences are not duplicated
+		List<Dataset> datasets = new ArrayList<Dataset>();
+		for (int i = 0; i < nameCVs.size(); i++) {
+			// Define model for one class variable
+			models.add(new MCTBNC<>(model.getLearningAlgsBN(), model.getLearningAlgsCTBN(),
+					model.getTypeNodeClassVariable(), model.getTypeNodeFeature()));
+			// Define training dataset that ignore all class variables except one
+			Dataset dataset = new Dataset(trainingDataset.getSequences());
+			List<String> nameClassVariables = new ArrayList<String>(nameCVs);
+			nameClassVariables.remove(nameCVs.get(i));
+			dataset.setIgnoredClassVariables(nameClassVariables);
+			datasets.add(dataset);
+		}
+		// Train models in parallel
+		Instant start = Instant.now();
+		IntStream.range(0, nameCVs.size()).parallel().forEach(indexModel -> {
+			// Train the model
+			models.get(indexModel).learn(datasets.get(indexModel));
+		});
+		Instant end = Instant.now();
+		logger.info("CTBNCs learnt in {}", Duration.between(start, end));
+		return models;
+	}
+
+	private Prediction[] predict(List<MCTBNC<?, ?>> models, Dataset testingDataset) {
+		List<String> nameCVs = testingDataset.getNameClassVariables();
+		Prediction[] predictionsFold = null;
+		for (int i = 0; i < models.size(); i++) {
+			// Display learned model
+			System.out.println(MessageFormat
+					.format("--------------------Model for class variable {0}--------------------", nameCVs.get(i)));
+			displayModel(models.get(i));
+			System.out.println("------------------------------------------------------");
+			Prediction[] predictionsCV = models.get(i).predict(testingDataset, true);
+			predictionsFold = updatePredictionsFold(predictionsFold, this.dataset.getNameClassVariables().get(i),
+					predictionsCV);
+		}
+		return predictionsFold;
+	}
+
 	/**
-	 * Display the results of a fold.
+	 * Update the current predictions of a fold with the predictions for a new class
+	 * variable.
 	 * 
-	 * @param results
+	 * @param predictionsFold current predictions of the fold
+	 * @param nameCV          name of the class variable whose predictions are
+	 *                        included in the predictions of the fold
+	 * @param predictionsCV   predictions of the class variable
+	 * @return
 	 */
-	private void displayResultsFold(Map<String, Double> results) {
-		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
+	private Prediction[] updatePredictionsFold(Prediction[] predictionsFold, String nameCV,
+			Prediction[] predictionsCV) {
+		if (predictionsFold == null)
+			// First class is predicted
+			return predictionsCV;
+		// Update the predicted class configuration for each sequence and the
+		// probabilities given to each class configuration (necessary for Brier score)
+		for (int i = 0; i < predictionsFold.length; i++) {
+			// Get prediction current class variable and sequence
+			State prediction = predictionsCV[i].getPredictedClasses();
+			// Update current class configuration (CC) of the sequence
+			State predictedCC = predictionsFold[i].getPredictedClasses();
+			predictedCC.addEvent(nameCV, prediction.getValueVariable(nameCV));
+			// Define probabilities of each class configuration for the current sequence
+			Map<State, Double> newProbabilitiesCCs = new HashMap<State, Double>();
+			// Iterate over class configurations including states current class variable
+			Set<State> statesCC = predictionsFold[i].probabilities.keySet();
+			Set<State> statesCV = predictionsCV[i].probabilities.keySet();
+			for (State stateCC : statesCC)
+				for (State classCV : statesCV) {
+					// Get new class configuration that includes state of the class variable
+					State newStateCC = new State(stateCC.getEvents());
+					newStateCC.addEvents(classCV.getEvents());
+					// Get probability new class configuration
+					double previousProbCC = predictionsFold[i].probabilities.get(stateCC);
+					double newProbCC = previousProbCC * predictionsCV[i].probabilities.get(classCV);
+					// Save new class configuration and its probability
+					newProbabilitiesCCs.put(newStateCC, newProbCC);
+				}
+			// Save probabilities class configurations for the sequence
+			predictionsFold[i].probabilities = newProbabilitiesCCs;
+			// Get probability predicted class configuration for the sequence
+			double probabilityPredictedCC = predictionsFold[i].getProbabilityPrediction();
+			// Get probability predicted class for the current class variable
+			double probabilityPredictedClass = predictionsCV[i].getProbabilityPrediction();
+			// Save new probability predicted class configuration
+			double probabilityNewPredictedCC = probabilityPredictedCC * probabilityPredictedClass;
+			predictionsFold[i].setProbabilityPrediction(probabilityNewPredictedCC);
+		}
+		return predictionsFold;
+	}
+
+	private void displayResultsFold(int foldNumber, Map<String, Double> resultsFold) {
+		System.out.println(MessageFormat.format("-------------------Results fold {0}-------------------", foldNumber));
+		resultsFold.forEach((metric, value) -> System.out.println(metric + " = " + value));
+		System.out.println("-----------------------------------------------------");
+	}
+
+	private void displayResultsCV(Map<String, Double> resultsCrossValidation) {
+		System.out.println("-------------------Results cross-validation-------------------");
+		displayResults(resultsCrossValidation);
+		System.out.println("--------------------------------------------------------------");
 	}
 
 }

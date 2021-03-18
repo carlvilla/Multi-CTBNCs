@@ -20,6 +20,7 @@ import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.exceptions.ErroneousSequenceException;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
 import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
@@ -49,28 +50,15 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	private BN<NodeTypeBN> bn;
 	private CTBN<NodeTypeCTBN> ctbn;
 	// Classes of the nodes
-	Class<NodeTypeBN> bnNodeClass;
-	Class<NodeTypeCTBN> ctbnNodeClass;
+	private Class<NodeTypeBN> bnNodeClass;
+	private Class<NodeTypeCTBN> ctbnNodeClass;
 	// Algorithms used to learn the class subgraph (BN)
-	BNLearningAlgorithms bnLearningAlgs;
+	private BNLearningAlgorithms bnLearningAlgs;
 	// Algorithms used to learn the feature and bridge subgraphs (CTBN)
-	CTBNLearningAlgorithms ctbnLearningAlgs;
+	private CTBNLearningAlgorithms ctbnLearningAlgs;
 	// Initial structure (Empty by default)
-	String initialStructure = "Empty";
-	static Logger logger = LogManager.getLogger(MCTBNC.class);
-
-	/**
-	 * Receives a Bayesian network and a continuous time Bayesian network that
-	 * represent the class subgraph and feature/bridge subgraph of a MCTBNC,
-	 * respectively.
-	 * 
-	 * @param bn   Bayesian network
-	 * @param ctbn continuous time Bayesian network
-	 */
-	public MCTBNC(BN<NodeTypeBN> bn, CTBN<NodeTypeCTBN> ctbn) {
-		this.bn = bn;
-		this.ctbn = ctbn;
-	}
+	private String initialStructure = "Empty";
+	private static Logger logger = LogManager.getLogger(MCTBNC.class);
 
 	/**
 	 * Receives learning algorithms for BNs and CTBNs to generate a MCTBNC.
@@ -88,6 +76,19 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// Save algorithms used for the learning of the MCTBNC
 		this.bnLearningAlgs = bnLearningAlgs;
 		this.ctbnLearningAlgs = ctbnLearningAlgs;
+	}
+
+	/**
+	 * Receives a Bayesian network and a continuous time Bayesian network that
+	 * represent the class subgraph and feature/bridge subgraph of a MCTBNC,
+	 * respectively.
+	 * 
+	 * @param bn   Bayesian network
+	 * @param ctbn continuous time Bayesian network
+	 */
+	public MCTBNC(BN<NodeTypeBN> bn, CTBN<NodeTypeCTBN> ctbn) {
+		this.bn = bn;
+		this.ctbn = ctbn;
 	}
 
 	@Override
@@ -201,6 +202,43 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// Sample a sequence given the state of the class variables
 		Sequence sequence = sampleSequence(sampledCVs, duration);
 		return sequence;
+	}
+
+	/**
+	 * Return learning algorithms for class subgraph (Bayesian network).
+	 * 
+	 * @return
+	 */
+	public BNLearningAlgorithms getLearningAlgsBN() {
+		return this.bnLearningAlgs;
+	}
+
+	/**
+	 * Return learning algorithms for bridge and features subgraphs (continuous time
+	 * Bayesian network).
+	 * 
+	 * @return
+	 */
+	public CTBNLearningAlgorithms getLearningAlgsCTBN() {
+		return this.ctbnLearningAlgs;
+	}
+
+	/**
+	 * Return the type of the class variable nodes.
+	 * 
+	 * @return
+	 */
+	public Class<NodeTypeBN> getTypeNodeClassVariable() {
+		return this.bnNodeClass;
+	}
+
+	/**
+	 * Return the type of the feature nodes.
+	 * 
+	 * @return
+	 */
+	public Class<NodeTypeCTBN> getTypeNodeFeature() {
+		return this.ctbnNodeClass;
 	}
 
 	/**
