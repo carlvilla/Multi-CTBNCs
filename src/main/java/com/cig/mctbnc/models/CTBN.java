@@ -145,17 +145,17 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * @param adjacencyMatrix
 	 */
 	public void setStructure(int nodeIndex, boolean[][] adjacencyMatrix) {
-		Node node = nodeIndexer.getNodeByIndex(nodeIndex);
+		Node node = this.nodeIndexer.getNodeByIndex(nodeIndex);
 		// Current parents of the node are removed
 		node.removeParents();
 		for (int i = 0; i < adjacencyMatrix.length; i++)
 			if (adjacencyMatrix[i][nodeIndex]) {
-				Node parentNode = nodeIndexer.getNodeByIndex(i);
+				Node parentNode = this.nodeIndexer.getNodeByIndex(i);
 				node.setParent(parentNode);
 			}
-		parameterLearningAlg.learn(node, dataset);
+		this.parameterLearningAlg.learn(node, this.dataset);
 	}
-	
+
 	/**
 	 * Return the nodes with the learned parameters. This can be, for example, a
 	 * list of CIMNode objects that store conditional intensity matrices.
@@ -163,7 +163,7 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * @return nodes with learned parameters
 	 */
 	public List<NodeType> getLearnedNodes() {
-		return (List<NodeType>) nodes;
+		return this.nodes;
 	}
 
 	/**
@@ -173,19 +173,19 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * @return Bayesian network modelling the class subgraph
 	 */
 	public BN<? extends Node> getBnClassSubgraph() {
-		return bnClassSubgraph;
+		return this.bnClassSubgraph;
 	}
-	
+
 	@Override
 	public List<NodeType> getNodesClassVariables() {
-		return (List<NodeType>) bnClassSubgraph.getNodes();
+		return (List<NodeType>) this.bnClassSubgraph.getNodes();
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("--Structure continuous time Bayesian network--\n");
-		for (Node node : nodes) {
+		for (Node node : this.nodes) {
 			if (node.getParents().isEmpty())
 				sb.append("{}");
 			else

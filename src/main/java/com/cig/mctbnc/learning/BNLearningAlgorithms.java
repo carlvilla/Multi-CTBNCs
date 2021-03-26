@@ -32,7 +32,7 @@ public class BNLearningAlgorithms {
 	 * @return parameter learning algorithm
 	 */
 	public ParameterLearningAlgorithm getParameterLearningAlgorithm() {
-		return parameterLearningAlg;
+		return this.parameterLearningAlg;
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class BNLearningAlgorithms {
 	 * @return structure learning algorithm
 	 */
 	public StructureLearningAlgorithm getStructureLearningAlgorithm() {
-		return structureLearningAlg;
+		return this.structureLearningAlg;
 	}
 
 }

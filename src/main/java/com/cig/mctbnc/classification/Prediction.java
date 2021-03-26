@@ -41,9 +41,9 @@ public class Prediction {
 	 * @param probability
 	 */
 	public void setProbability(State classes, double probability) {
-		if (probabilities == null)
-			probabilities = new HashMap<State, Double>();
-		probabilities.put(classes, probability);
+		if (this.probabilities == null)
+			this.probabilities = new HashMap<State, Double>();
+		this.probabilities.put(classes, probability);
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class Prediction {
 	 * @return prediction
 	 */
 	public State getPredictedClasses() {
-		return predictedClasses;
+		return this.predictedClasses;
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class Prediction {
 	 * @return probability
 	 */
 	public double getProbabilityPrediction() {
-		return probabilityPrediction;
+		return this.probabilityPrediction;
 	}
 
 	/**
@@ -70,6 +70,6 @@ public class Prediction {
 	 * @return probability
 	 */
 	public Map<State, Double> getProbabilities() {
-		return probabilities;
+		return this.probabilities;
 	}
 }

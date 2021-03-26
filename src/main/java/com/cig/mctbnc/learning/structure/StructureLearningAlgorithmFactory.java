@@ -7,7 +7,6 @@ import com.cig.mctbnc.learning.structure.optimization.hillclimbing.RandomRestart
 import com.cig.mctbnc.learning.structure.optimization.hillclimbing.implementation.BNHillClimbing;
 import com.cig.mctbnc.learning.structure.optimization.hillclimbing.implementation.CTBNHillClimbing;
 import com.cig.mctbnc.learning.structure.optimization.hillclimbing.implementation.CTBNHillClimbingIndividual;
-import com.cig.mctbnc.learning.structure.optimization.hillclimbing.implementation.HillClimbingImplementation;
 import com.cig.mctbnc.learning.structure.optimization.scores.bn.BNBayesianScore;
 import com.cig.mctbnc.learning.structure.optimization.scores.bn.BNLogLikelihood;
 import com.cig.mctbnc.learning.structure.optimization.scores.bn.BNScoreFunction;

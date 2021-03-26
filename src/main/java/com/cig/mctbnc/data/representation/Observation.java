@@ -29,12 +29,12 @@ public class Observation {
 	 */
 	public Observation(List<String> nameVariables, String nameTimeVariable, String[] values) {
 		// Store name of the variable and its value for the observation
-		variablesValues = new LinkedHashMap<String, String>();
+		this.variablesValues = new LinkedHashMap<String, String>();
 		for (int i = 0; i < nameVariables.size(); i++) {
 			if (!nameVariables.get(i).equals(nameTimeVariable))
-				variablesValues.put(nameVariables.get(i), values[i]);
+				this.variablesValues.put(nameVariables.get(i), values[i]);
 			else
-				timeValue = Double.parseDouble(values[i]);
+				this.timeValue = Double.parseDouble(values[i]);
 		}
 	}
 
@@ -47,9 +47,9 @@ public class Observation {
 	 */
 	public Observation(List<String> nameVariables, String[] values, double timeValue) {
 		// Store name of the variable and its value for the observation
-		variablesValues = new LinkedHashMap<String, String>();
+		this.variablesValues = new LinkedHashMap<String, String>();
 		for (int i = 0; i < nameVariables.size(); i++)
-			variablesValues.put(nameVariables.get(i), values[i]);
+			this.variablesValues.put(nameVariables.get(i), values[i]);
 		// Store time value
 		this.timeValue = timeValue;
 	}
@@ -60,7 +60,7 @@ public class Observation {
 	 * @param nameFeature
 	 */
 	public void removeFeatures(String nameFeature) {
-		variablesValues.remove(nameFeature);
+		this.variablesValues.remove(nameFeature);
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class Observation {
 	 * @return name of the variables
 	 */
 	public List<String> getVariableNames() {
-		Set<String> keys = variablesValues.keySet();
+		Set<String> keys = this.variablesValues.keySet();
 		return new ArrayList<String>(keys);
 	}
 
@@ -81,7 +81,7 @@ public class Observation {
 	 * @return values of the variables
 	 */
 	public String[] getValues() {
-		Collection<String> values = variablesValues.values();
+		Collection<String> values = this.variablesValues.values();
 		return values.toArray(new String[values.size()]);
 	}
 
@@ -91,7 +91,7 @@ public class Observation {
 	 * @return value of the time variable
 	 */
 	public double getTimeValue() {
-		return timeValue;
+		return this.timeValue;
 	}
 
 	/**
@@ -101,7 +101,7 @@ public class Observation {
 	 * @return value of the variable for the observation
 	 */
 	public String getValueVariable(String nameVariable) {
-		return variablesValues.get(nameVariable);
+		return this.variablesValues.get(nameVariable);
 	}
 
 	/**
@@ -117,14 +117,15 @@ public class Observation {
 		return values;
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Time|");
-		for (String nameVariable : variablesValues.keySet())
+		for (String nameVariable : this.variablesValues.keySet())
 			sb.append(nameVariable + "|");
 		sb.append("\n");
-		sb.append(timeValue + "|");
-		for (String valueVariable : variablesValues.values())
+		sb.append(this.timeValue + "|");
+		for (String valueVariable : this.variablesValues.values())
 			sb.append(valueVariable + "|");
 		sb.append("\n");
 		return sb.toString();

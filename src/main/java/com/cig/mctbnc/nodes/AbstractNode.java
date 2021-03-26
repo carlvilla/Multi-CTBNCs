@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Contains common variables and methods for any kind of node.
+ * Abstract class defining common variables and methods for any kind of node.
  * 
  * @author Carlos Villa Blanco
  *
@@ -27,8 +27,8 @@ public abstract class AbstractNode implements Node {
 	 */
 	public AbstractNode(String name) {
 		this.name = name;
-		children = new ArrayList<Node>();
-		parents = new ArrayList<Node>();
+		this.children = new ArrayList<Node>();
+		this.parents = new ArrayList<Node>();
 	}
 
 	/**
@@ -42,14 +42,14 @@ public abstract class AbstractNode implements Node {
 	public AbstractNode(String name, boolean classVariable) {
 		this.name = name;
 		this.classVariable = classVariable;
-		children = new ArrayList<Node>();
-		parents = new ArrayList<Node>();
+		this.children = new ArrayList<Node>();
+		this.parents = new ArrayList<Node>();
 	}
 
 	@Override
 	public void setParent(Node nodeParent) {
-		if (!parents.contains(nodeParent))
-			parents.add(nodeParent);
+		if (!this.parents.contains(nodeParent))
+			this.parents.add(nodeParent);
 		if (!nodeParent.getChildren().contains(this))
 			nodeParent.getChildren().add(this);
 	}
@@ -61,8 +61,8 @@ public abstract class AbstractNode implements Node {
 
 	@Override
 	public void removeParent(Node nodeParent) {
-		if (parents.contains(nodeParent))
-			parents.remove(nodeParent);
+		if (this.parents.contains(nodeParent))
+			this.parents.remove(nodeParent);
 		if (nodeParent.getChildren().contains(this))
 			nodeParent.getChildren().remove(this);
 
@@ -77,7 +77,7 @@ public abstract class AbstractNode implements Node {
 	public void removeParents() {
 		// Parent nodes are removed using a temporary list to avoid a concurrent
 		// modification exception
-		List<Node> tempList = new ArrayList<Node>(parents);
+		List<Node> tempList = new ArrayList<Node>(this.parents);
 		for (Node parentNode : tempList) {
 			removeParent(parentNode);
 		}
@@ -87,7 +87,7 @@ public abstract class AbstractNode implements Node {
 	public void removeChildren() {
 		// Child nodes are removed using a temporary list to avoid a concurrent
 		// modification exception
-		List<Node> tempList = new ArrayList<Node>(children);
+		List<Node> tempList = new ArrayList<Node>(this.children);
 		for (Node childNode : tempList) {
 			removeChild(childNode);
 		}
@@ -108,37 +108,37 @@ public abstract class AbstractNode implements Node {
 
 	@Override
 	public boolean isClassVariable() {
-		return classVariable;
+		return this.classVariable;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override
 	public List<Node> getChildren() {
-		return children;
+		return this.children;
 	}
 
 	@Override
 	public List<Node> getParents() {
-		return parents;
+		return this.parents;
 	}
 
 	@Override
 	public int getNumParents() {
-		return parents.size();
+		return this.parents.size();
 	}
 
 	@Override
 	public List<String> getNameParents() {
-		return parents.stream().map(parent -> parent.getName()).collect(Collectors.toList());
+		return this.parents.stream().map(parent -> parent.getName()).collect(Collectors.toList());
 	}
 
 	@Override
 	public boolean hasParents() {
-		return parents.size() > 0;
+		return this.parents.size() > 0;
 	}
 
 	@Override

@@ -27,16 +27,25 @@ public class HoldOut extends ValidationMethod {
 	Dataset testingDataset;
 	Logger logger = LogManager.getLogger(HoldOut.class);
 
+	/**
+	 * Constructs a {@code HoldOut} by receiving a {@code DatasetReader}, the size
+	 * of the training set and if the data should be shuffled.
+	 * 
+	 * @param datasetReader
+	 * @param trainingSize
+	 * @param shuffle
+	 * @throws UnreadDatasetException
+	 */
 	public HoldOut(DatasetReader datasetReader, double trainingSize, boolean shuffle) throws UnreadDatasetException {
 		DecimalFormat df = new DecimalFormat("##.00");
-		logger.info("Generating training ({}%) and testing ({}%) datasets (Hold-out validation)",
+		this.logger.info("Generating training ({}%) and testing ({}%) datasets (Hold-out validation)",
 				df.format(trainingSize * 100), df.format((1 - trainingSize) * 100));
 		generateTrainAndTest(datasetReader, trainingSize, shuffle);
-		logger.info("Time variable: {}", trainingDataset.getNameTimeVariable());
-		logger.info("Features: {}", trainingDataset.getNameFeatures());
-		logger.info("Class variables: {}", (trainingDataset.getNameClassVariables()));
-		logger.info("Sequences for training {}", trainingDataset.getNumDataPoints());
-		logger.info("Sequences for testing {}", testingDataset.getNumDataPoints());
+		this.logger.info("Time variable: {}", this.trainingDataset.getNameTimeVariable());
+		this.logger.info("Features: {}", this.trainingDataset.getNameFeatures());
+		this.logger.info("Class variables: {}", (this.trainingDataset.getNameClassVariables()));
+		this.logger.info("Sequences for training {}", this.trainingDataset.getNumDataPoints());
+		this.logger.info("Sequences for testing {}", this.testingDataset.getNumDataPoints());
 	}
 
 	/**
@@ -44,6 +53,7 @@ public class HoldOut extends ValidationMethod {
 	 * 
 	 * @param model model to evaluate
 	 */
+	@Override
 	public void evaluate(MCTBNC<?, ?> model) {
 		// Train the model
 		model.learn(this.trainingDataset);
@@ -82,7 +92,7 @@ public class HoldOut extends ValidationMethod {
 			Integer seed = 10;
 			Util.shuffle(sequences, seed);
 			Util.shuffle(fileNames, seed);
-			logger.info("Sequences shuffled");
+			this.logger.info("Sequences shuffled");
 		}
 		// Define training and testing sequences
 		int lastIndexTraining = (int) (trainingSize * sequences.size());
@@ -105,10 +115,10 @@ public class HoldOut extends ValidationMethod {
 	 * @return training dataset
 	 */
 	public Dataset getTraining() {
-		if (trainingDataset == null) {
-			logger.warn("The training dataset was not generated.");
+		if (this.trainingDataset == null) {
+			this.logger.warn("The training dataset was not generated.");
 		}
-		return trainingDataset;
+		return this.trainingDataset;
 	}
 
 	/**
@@ -117,10 +127,10 @@ public class HoldOut extends ValidationMethod {
 	 * @return testing dataset
 	 */
 	public Dataset getTesting() {
-		if (trainingDataset == null) {
-			logger.warn("The testing dataset was not generated.");
+		if (this.trainingDataset == null) {
+			this.logger.warn("The testing dataset was not generated.");
 		}
-		return testingDataset;
+		return this.testingDataset;
 	}
 
 }

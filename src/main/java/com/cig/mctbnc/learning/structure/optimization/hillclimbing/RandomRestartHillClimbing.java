@@ -11,6 +11,14 @@ import com.cig.mctbnc.learning.structure.optimization.hillclimbing.implementatio
 public class RandomRestartHillClimbing extends HillClimbing {
 	int numAttempts;
 
+	/**
+	 * Constructs a {@code RandomRestartHillClimbing} by receiving the
+	 * implementation of the hill climbing algorithm (for a Bayesian network,
+	 * continuous time Bayesian network...).
+	 * 
+	 * @param hcImplementation
+	 * @param numAttempts
+	 */
 	public RandomRestartHillClimbing(HillClimbingImplementation hcImplementation, int numAttempts) {
 		this.hcImplementation = hcImplementation;
 		this.numAttempts = numAttempts;

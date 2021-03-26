@@ -4,7 +4,7 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.nodes.DiscreteNode;
 
 /**
- * Interface for sufficient statistics of discrete ndoes.
+ * Interface for sufficient statistics of discrete nodes.
  * 
  * @author Carlos Villa Blanco
  *

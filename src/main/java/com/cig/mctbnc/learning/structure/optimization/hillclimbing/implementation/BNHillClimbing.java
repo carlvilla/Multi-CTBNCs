@@ -131,7 +131,7 @@ public class BNHillClimbing implements HillClimbingImplementation {
 	 * 
 	 * @param indexNode
 	 * @param adjacencyMatrix
-	 * @return
+	 * @return score
 	 */
 	private double computeScore(BN<? extends Node> bn, boolean[][] adjacencyMatrix) {
 		// Establish the structure defined in an adjacency matrix and return its score

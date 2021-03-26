@@ -12,7 +12,7 @@ import com.cig.mctbnc.nodes.DiscreteNode;
 import com.cig.mctbnc.nodes.Node;
 
 /**
- * Utility class with methods related with the estimation of probabilities.
+ * Utility class with methods related to the estimation of probabilities.
  * 
  * @author Carlos Villa Blanco
  *
@@ -26,8 +26,9 @@ public final class ProbabilityUtil {
 	 * Compute the logarithm of the prior probability of the class variables taking
 	 * certain values. Their probability is computed by using the Bayesian network.
 	 * 
+	 * @param <NodeTypeBN>
 	 * @param nodesBN
-	 * @param stateClassVariables
+	 * @param stateCVs
 	 * @return logarithm of the prior probability of the class variables
 	 */
 	public static <NodeTypeBN extends Node> double logPriorProbabilityClassVariables(List<NodeTypeBN> nodesBN,
@@ -153,9 +154,8 @@ public final class ProbabilityUtil {
 	public static double extremeProbability() {
 		if (Math.random() < 0.5) {
 			return Math.random() * 0.3;
-		} else {
-			return 0.7 + Math.random() * (1 - 0.7);
 		}
+		return 0.7 + Math.random() * (1 - 0.7);
 	}
 
 }

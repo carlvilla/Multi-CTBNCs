@@ -16,7 +16,8 @@ public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 	private double TxHP;
 
 	/**
-	 * Constructor Bayesian parameter estimator for CTBNs.
+	 * Constructs a {@code CTBNBayesianEstimation} for the Bayesian estimation of
+	 * the parameters of a discrete CTBN.
 	 * 
 	 * @param MxyHP
 	 * @param TxHP
@@ -30,14 +31,14 @@ public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 
 	@Override
 	protected CTBNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset) {
-		CTBNSufficientStatistics ssNode = new CTBNSufficientStatistics(MxyHP, TxHP);
-		ssNode.computeSufficientStatistics((DiscreteNode) node, dataset);
+		CTBNSufficientStatistics ssNode = new CTBNSufficientStatistics(this.MxyHP, this.TxHP);
+		ssNode.computeSufficientStatistics(node, dataset);
 		return ssNode;
 	}
 
 	@Override
 	public String getNameMethod() {
-		return String.format("Bayesian estimation (Mxy:%s, TxHP:%s)", MxyHP, TxHP);
+		return String.format("Bayesian estimation (Mxy:%s, TxHP:%s)", this.MxyHP, this.TxHP);
 	}
 
 }

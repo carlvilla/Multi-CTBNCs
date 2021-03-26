@@ -28,7 +28,7 @@ public class MaxKCTBNC extends AbstractStructureConstraints {
 	public MaxKCTBNC(int maxK) {
 		if (maxK < 1) {
 			logger.warn("Illegal max. number of parents - The maximum number of parents must be 1 or more");
-			maxK = 1;
+			this.maxK = 1;
 		}
 		logger.warn("Max. number of parents: {}", maxK);
 		this.maxK = maxK;
@@ -43,7 +43,7 @@ public class MaxKCTBNC extends AbstractStructureConstraints {
 			for (int i = 0; i < numNodes; i++) {
 				if (i != j && !nodeIndexer.getNodeByIndex(i).isClassVariable()) {
 					numParentsJ += adjacencyMatrix[i][j] ? 1 : 0;
-					if (numParentsJ > maxK)
+					if (numParentsJ > this.maxK)
 						return false;
 				}
 			}

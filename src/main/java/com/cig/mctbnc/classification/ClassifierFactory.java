@@ -16,7 +16,7 @@ import com.cig.mctbnc.models.submodels.MCTNBC;
 import com.cig.mctbnc.nodes.Node;
 
 /**
- * Creates the specified classifiers.
+ * Provides static methods for the creation of classifiers.
  * 
  * @author Carlos Villa Blanco
  *

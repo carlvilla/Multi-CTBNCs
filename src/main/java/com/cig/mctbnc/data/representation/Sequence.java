@@ -47,11 +47,11 @@ public class Sequence {
 		// Define values class variables for the sequence
 		setValuesClassVariables(nameVariables, nameClassVariables, valueObservations);
 		// Get observations with the values of all variables
-		observations = new ArrayList<Observation>();
+		this.observations = new ArrayList<Observation>();
 		for (String[] valueObservation : valueObservations) {
 			Observation observation = new Observation(nameVariables, nameTimeVariable, valueObservation);
 			checkIntegrityObservation(observation);
-			observations.add(observation);
+			this.observations.add(observation);
 		}
 	}
 
@@ -77,11 +77,11 @@ public class Sequence {
 		// Set values class variables
 		this.classVariablesValues = stateClassVariables.getEvents();
 		// Get observations with the values of all variables
-		observations = new ArrayList<Observation>();
+		this.observations = new ArrayList<Observation>();
 		for (int i = 0; i < time.size(); i++) {
 			Observation observation = new Observation(nameVariables, transitions.get(i).getValues(), time.get(i));
 			checkIntegrityObservation(observation);
-			observations.add(observation);
+			this.observations.add(observation);
 		}
 	}
 
@@ -91,9 +91,9 @@ public class Sequence {
 	 * @param nameFeature
 	 */
 	public void removeFeature(String nameFeature) {
-		for (Observation observation : observations)
+		for (Observation observation : this.observations)
 			observation.removeFeatures(nameFeature);
-		featureNames.remove(nameFeature);
+		this.featureNames.remove(nameFeature);
 	}
 
 	/**
@@ -102,7 +102,7 @@ public class Sequence {
 	 * @return Map with names and values of the class variables
 	 */
 	public Map<String, String> getClassVariables() {
-		return classVariablesValues;
+		return this.classVariablesValues;
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class Sequence {
 	 * @return values of the class variable
 	 */
 	public String getValueClassVariable(String nameClassVariable) {
-		return classVariablesValues.get(nameClassVariable);
+		return this.classVariablesValues.get(nameClassVariable);
 	}
 
 	/**
@@ -121,7 +121,7 @@ public class Sequence {
 	 * @return names of the class variables
 	 */
 	public List<String> getClassVariablesNames() {
-		Set<String> keys = classVariablesValues.keySet();
+		Set<String> keys = this.classVariablesValues.keySet();
 		return new ArrayList<String>(keys);
 	}
 
@@ -131,7 +131,7 @@ public class Sequence {
 	 * @return names of the features.
 	 */
 	public List<String> getFeatureNames() {
-		return featureNames;
+		return this.featureNames;
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class Sequence {
 	 * @return name of the time variable
 	 */
 	public String getTimeVariableName() {
-		return nameTimeVariable;
+		return this.nameTimeVariable;
 	}
 
 	/**
@@ -149,7 +149,7 @@ public class Sequence {
 	 * @return list of observations
 	 */
 	public List<Observation> getObservations() {
-		return observations;
+		return this.observations;
 	}
 
 	/**
@@ -158,7 +158,7 @@ public class Sequence {
 	 * @return number of observations
 	 */
 	public int getNumObservations() {
-		return observations.size();
+		return this.observations.size();
 	}
 
 	/**
@@ -170,36 +170,37 @@ public class Sequence {
 	 */
 	public String[] getStates(String nameVariable) {
 		// If it is a class variable, there can only be one value per sequence.
-		if (classVariablesValues.containsKey(nameVariable)) {
-			return new String[] { classVariablesValues.get(nameVariable) };
+		if (this.classVariablesValues.containsKey(nameVariable)) {
+			return new String[] { this.classVariablesValues.get(nameVariable) };
 		}
 		// If it is a feature, it is stored in set all its possible unique values.
 		Set<String> states = new HashSet<String>();
-		for (Observation observation : observations) {
+		for (Observation observation : this.observations) {
 			states.add(observation.getValueVariable(nameVariable));
 		}
 		return states.toArray(new String[states.size()]);
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("----- TIME VARIABLE -----\n");
-		sb.append(nameTimeVariable);
+		sb.append(this.nameTimeVariable);
 		sb.append("\n");
-		for (Observation observation : observations) {
+		for (Observation observation : this.observations) {
 			sb.append(observation.getTimeValue());
 			sb.append("\n");
 		}
 		sb.append("\n");
 		sb.append("----- CLASS VARIABLES -----\n");
-		sb.append(String.join(",", classVariablesValues.keySet()));
+		sb.append(String.join(",", this.classVariablesValues.keySet()));
 		sb.append("\n");
-		sb.append(String.join(",", classVariablesValues.values()));
+		sb.append(String.join(",", this.classVariablesValues.values()));
 		sb.append("\n");
 		sb.append("----- FEATURES -----\n");
-		sb.append(Arrays.toString(featureNames.toArray()));
+		sb.append(Arrays.toString(this.featureNames.toArray()));
 		sb.append("\n");
-		for (Observation observation : observations) {
+		for (Observation observation : this.observations) {
 			sb.append(Arrays.toString(observation.getValues()));
 			sb.append("\n");
 		}
@@ -217,12 +218,12 @@ public class Sequence {
 	private void setValuesClassVariables(List<String> nameVariables, List<String> nameClassVariables,
 			List<String[]> valueObservations) {
 		// LinkedHashMap maintains the order of the class variables as in the dataset
-		classVariablesValues = new LinkedHashMap<String, String>();
+		this.classVariablesValues = new LinkedHashMap<String, String>();
 		for (String nameClassVariable : nameClassVariables) {
 			// It is obtained the index of each class variable in the observations
 			for (int i = 0; i < nameVariables.size(); i++) {
 				if (nameVariables.get(i).equals(nameClassVariable)) {
-					classVariablesValues.put(nameClassVariable, valueObservations.get(0)[i]);
+					this.classVariablesValues.put(nameClassVariable, valueObservations.get(0)[i]);
 				}
 			}
 		}
@@ -237,8 +238,9 @@ public class Sequence {
 	 * @throws ErroneousSequenceException
 	 */
 	private void checkIntegrityObservation(Observation observation) throws ErroneousSequenceException {
-		for (String nameClassVariable : classVariablesValues.keySet()) {
-			if (!observation.getValueVariable(nameClassVariable).equals(classVariablesValues.get(nameClassVariable))) {
+		for (String nameClassVariable : this.classVariablesValues.keySet()) {
+			if (!observation.getValueVariable(nameClassVariable)
+					.equals(this.classVariablesValues.get(nameClassVariable))) {
 				throw new ErroneousSequenceException("Observations have different values for the class variables");
 			}
 		}

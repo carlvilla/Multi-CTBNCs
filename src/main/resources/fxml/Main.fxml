@@ -46,11 +46,11 @@
                                     </HBox>
                                     <HBox alignment="CENTER_LEFT" prefHeight="106.0" prefWidth="592.0" spacing="20.0">
                                        <children>
-                  								<Button fx:id="btnFolder" mnemonicParsing="false" onAction="#setFolderDataset" prefHeight="27.0" text="Select folder dataset" />
+                  								<Button mnemonicParsing="false" onAction="#setFolderDataset" prefHeight="27.0" text="Select folder dataset" />
                                           <TextField fx:id="fldPath" editable="false" minWidth="380.0" />
                                        </children>
                                     </HBox>
-                                    <GridPane prefHeight="240.0" prefWidth="604.0" vgap="20.0">
+                                    <GridPane fx:id="gpModel" prefHeight="240.0" prefWidth="604.0" vgap="20.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="298.5" minWidth="10.0" prefWidth="154.5" />
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="459.0" minWidth="10.0" prefWidth="437.0" />
@@ -179,13 +179,10 @@
                                                 <Insets bottom="10.0" />
                                              </VBox.margin>
                                              <toggleGroup>
-                                                <ToggleGroup fx:id="validationMethod" />
+                                                <ToggleGroup fx:id="tgValidationMethod" />
                                              </toggleGroup>
                   								</RadioButton>
-                  								<RadioButton maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Cross-validation" toggleGroup="$validationMethod">
-                                             <VBox.margin>
-                                                <Insets top="10.0" />
-                                             </VBox.margin>
+                  								<RadioButton maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Cross-validation">
                                           </RadioButton>
                                        </children>
                                        <padding>
@@ -246,7 +243,7 @@
             <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
          </rowConstraints>
          <children>
-      				<Button disable="#checkOptions" mnemonicParsing="false" onAction="#evaluate" text="Evaluate" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+      				<Button fx:id="btnEvaluate" disable="#checkOptions" mnemonicParsing="false" onAction="#evaluate" text="Evaluate" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
             <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: black; -fx-border-radius: 10;">
                <children>
                   <Label layoutX="25.0" layoutY="-8.0" style="-fx-background-color: #f4f4f4#f4f4f4;" text="Status" />

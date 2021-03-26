@@ -9,7 +9,7 @@ import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
 
 /**
- * Implements the Bayesian Dirichlet equivalence metric for BNs (Heckerman et
+ * Implements the Bayesian Dirichlet equivalence metric for Bayesian networks (Heckerman et
  * al., 1995).
  */
 public class BNBayesianScore implements BNScoreFunction {

@@ -220,10 +220,11 @@ public final class Util {
 	}
 
 	/**
-	 * Sum all the values in a row of an array.
+	 * Sum all the values in the specified row of an array.
 	 * 
-	 * @param cim
-	 * @param i
+	 * @param array
+	 * @param row
+	 * @return sum of all the values in the specified row of the array
 	 */
 	public static double sumRow(double[][] array, int row) {
 		double result = 0.0;
@@ -235,8 +236,8 @@ public final class Util {
 	/**
 	 * Fill a double 2d array with the provided double.
 	 * 
-	 * @param mxy
-	 * @param mxyHP
+	 * @param array
+	 * @param value
 	 */
 	public static void fill2dArray(double[][] array, double value) {
 		for (double[] row : array)
@@ -246,8 +247,8 @@ public final class Util {
 	/**
 	 * Fill a double 3d array with the provided double.
 	 * 
-	 * @param mxy
-	 * @param mxyHP
+	 * @param array
+	 * @param value
 	 */
 	public static void fill3dArray(double[][][] array, double value) {
 		for (double[][] matrix : array)
@@ -258,7 +259,7 @@ public final class Util {
 	 * Set the state of a given node and its parents from a State object.
 	 * 
 	 * @param node
-	 * @param observation
+	 * @param statesNodes
 	 */
 	public static void setStateNodeAndParents(DiscreteNode node, State statesNodes) {
 		// Set state node

@@ -30,6 +30,7 @@ import com.cig.mctbnc.performance.ValidationMethodFactory;
 import com.cig.mctbnc.util.ControllerUtil;
 
 import javafx.collections.ListChangeListener;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -39,6 +40,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -98,9 +100,12 @@ public class Controller {
 	@FXML
 	private CheckBox chkProbabilities;
 
+	@FXML
+	private GridPane gpModel;
+
 	// Evaluation
 	@FXML
-	ToggleGroup validationMethod;
+	ToggleGroup tgValidationMethod;
 	@FXML
 	private CheckBox cbShuffle;
 	@FXML
@@ -136,6 +141,44 @@ public class Controller {
 		initializeDatasetPane();
 		initializeModelPane();
 		initializeEvaluationPane();
+		defineBindings();
+	}
+
+	/**
+	 * Define bindings between controls. For example, the evaluation button should
+	 * be disabled if no dataset was selected.
+	 */
+	private void defineBindings() {
+		this.btnEvaluate.disableProperty().bind(this.fldPath.textProperty().isEqualTo(""));
+	}
+
+	/**
+	 * Evaluate the selected model.
+	 */
+	public void evaluate() {
+		// Get selected variables
+		String nameTimeVariable = this.cmbTimeVariable.getValue();
+		List<String> nameClassVariables = this.ckcmbClassVariables.getCheckModel().getCheckedItems();
+		List<String> nameSelectedFeatures = this.ckcmbFeatures.getCheckModel().getCheckedItems();
+		// Set the variables that will be used
+		this.datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
+		// Define model
+		MCTBNC<CPTNode, CIMNode> model = defineModel();
+		try {
+			// Define the validation method
+			ValidationMethod validationMethod = defineValidationMethod();
+			// Evaluate the performance of the model
+			this.status.setText("Learning and evaluating the model...");
+			// Create task to evaluate model in another thread 
+			EvaluationTask evaluationTask = new EvaluationTask(validationMethod, model);
+			new Thread(evaluationTask).start();
+			this.status.setText("Idle");
+			// status.setText("Idle");
+		} catch (UnreadDatasetException e) {
+			// The dataset could not be read due to a problem with the provided files
+			this.logger.error(e.getMessage());
+			// status.setText(e.getMessage());
+		}
 	}
 
 	/**
@@ -165,35 +208,6 @@ public class Controller {
 			// Read the variables
 			readVariablesDataset(pathFolder);
 		}
-	}
-
-	/**
-	 * Evaluate the selected model.
-	 */
-	public void evaluate() {
-		// TODO CHECK THAT IT IS POSSIBLE TO LEARN A MODEL WITH THE GIVEN INFORMATION
-		checkValidOptions();
-		// Get selected variables
-		String nameTimeVariable = cmbTimeVariable.getValue();
-		List<String> nameClassVariables = ckcmbClassVariables.getCheckModel().getCheckedItems();
-		List<String> nameSelectedFeatures = ckcmbFeatures.getCheckModel().getCheckedItems();
-		// Set the variables that will be used
-		datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
-		// Define model
-		MCTBNC<CPTNode, CIMNode> model = defineModel();
-		try {
-			// Define the validation method
-			ValidationMethod validationMethod = defineValidationMethod();
-			// Evaluate the performance of the model
-			status.setText("Evaluating model...");
-			validationMethod.evaluate(model);
-			status.setText("Idle");
-		} catch (UnreadDatasetException e) {
-			// The dataset could not be read due to a problem with the provided files
-			logger.error(e.getMessage());
-			status.setText(e.getMessage());
-		}
-
 	}
 
 	/**
@@ -302,14 +316,6 @@ public class Controller {
 		ckcmbClassVariables.getItems().addAll(nameVariables);
 	}
 
-	/**
-	 * Evaluate if it is possible to train a model with the selected options. For
-	 * example, it could be forgotten the selection of the dataset.
-	 */
-	private void checkValidOptions() {
-		// TODO
-	}
-
 	private MCTBNC<CPTNode, CIMNode> defineModel() {
 		// Retrieve learning algorithms
 		BNLearningAlgorithms bnLearningAlgs = defineAlgorithmsBN();
@@ -369,21 +375,21 @@ public class Controller {
 	 * Define the validation method.
 	 * 
 	 * @param selectedValidationMethod
-	 * @return
+	 * @return validation method
 	 * @throws UnreadDatasetException
 	 */
 	private ValidationMethod defineValidationMethod() throws UnreadDatasetException {
 		// Get selected validation method
-		RadioButton rbValidationMethod = (RadioButton) validationMethod.getSelectedToggle();
+		RadioButton rbValidationMethod = (RadioButton) this.tgValidationMethod.getSelectedToggle();
 		String selectedValidationMethod = rbValidationMethod.getText();
 		// Define if sequences are shuffled before applying validation method
-		boolean shuffleSequences = cbShuffle.isSelected();
+		boolean shuffleSequences = this.cbShuffle.isSelected();
 		// Retrieve parameters of the validation methods
-		double trainingSize = sldTrainingSize.getValue();
-		int folds = Integer.valueOf(fldNumFolds.getText());
+		double trainingSize = this.sldTrainingSize.getValue();
+		int folds = Integer.valueOf(this.fldNumFolds.getText());
 		// Retrieve algorithm of the validation method
 		ValidationMethod validationMethod = ValidationMethodFactory.getValidationMethod(selectedValidationMethod,
-				datasetReader, shuffleSequences, trainingSize, folds);
+				this.datasetReader, shuffleSequences, trainingSize, folds);
 		return validationMethod;
 	}
 
@@ -391,11 +397,11 @@ public class Controller {
 	 * Reset the comboBoxes.
 	 */
 	private void resetCheckComboBoxes() {
-		ckcmbFeatures.getCheckModel().clearChecks();
-		ckcmbClassVariables.getCheckModel().clearChecks();
-		ckcmbFeatures.getItems().clear();
-		cmbTimeVariable.getItems().clear();
-		ckcmbClassVariables.getItems().clear();
+		this.ckcmbFeatures.getCheckModel().clearChecks();
+		this.ckcmbClassVariables.getCheckModel().clearChecks();
+		this.ckcmbFeatures.getItems().clear();
+		this.cmbTimeVariable.getItems().clear();
+		this.ckcmbClassVariables.getItems().clear();
 	}
 
 	// ---------- onAction methods ----------
@@ -405,8 +411,8 @@ public class Controller {
 	 * warned. This is useful to avoid the reloading of the same dataset.
 	 */
 	public void datasetModified() {
-		if (datasetReader != null)
-			datasetReader.setDatasetAsOutdated(true);
+		if (this.datasetReader != null)
+			this.datasetReader.setDatasetAsOutdated(true);
 	}
 
 	// TODO Improve the strategy to show and hide options of each algorithm
@@ -447,23 +453,24 @@ public class Controller {
 	 * A model was selected in the comboBox. Show its correspondent parameters.
 	 */
 	public void changeModel() {
-		String model = cmbModel.getValue();
+		String model = this.cmbModel.getValue();
 		if (model.equals("DAG-maxK MCTBNC") || model.equals("Empty-maxK MCTBNC"))
 			// Enable selecting the number of maximum parents
-			fldKParents.setDisable(false);
+			this.fldKParents.setDisable(false);
 		else
-			fldKParents.setDisable(true);
+			this.fldKParents.setDisable(true);
+
 		if (model.equals("MCTNBC")) {
 			// Disable of learning structure options if learning a naive Bayes classifier
-			cmbStructure.setDisable(true);
-			cmbInitialStructure.setDisable(true);
-			cmbScoreFunction.setDisable(true);
-			cmbPenalization.setDisable(true);
+			this.cmbStructure.setDisable(true);
+			this.cmbInitialStructure.setDisable(true);
+			this.cmbScoreFunction.setDisable(true);
+			this.cmbPenalization.setDisable(true);
 		} else {
-			cmbStructure.setDisable(false);
-			cmbInitialStructure.setDisable(false);
-			cmbScoreFunction.setDisable(false);
-			cmbPenalization.setDisable(false);
+			this.cmbStructure.setDisable(false);
+			this.cmbInitialStructure.setDisable(false);
+			this.cmbScoreFunction.setDisable(false);
+			this.cmbPenalization.setDisable(false);
 		}
 	}
 

@@ -6,7 +6,7 @@ import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.performance.writers.MetricsWriter;
 
 /**
- * Define common methods for validation algorithms.
+ * Abstract class defining common methods for validation algorithms.
  * 
  * @author Carlos Villa Blanco
  *
@@ -21,6 +21,11 @@ public abstract class ValidationMethod {
 	 */
 	public abstract void evaluate(MCTBNC<?, ?> model);
 
+	/**
+	 * Defines the metrics writer used to save the results of the evaluation.
+	 * 
+	 * @param metricsWriter
+	 */
 	public void setWriter(MetricsWriter metricsWriter) {
 		this.metricsWriter = metricsWriter;
 	}
@@ -32,8 +37,8 @@ public abstract class ValidationMethod {
 	 */
 	public void displayResults(Map<String, Double> results) {
 		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
-		if (metricsWriter != null)
-			metricsWriter.write(results);
+		if (this.metricsWriter != null)
+			this.metricsWriter.write(results);
 	}
 
 	/**

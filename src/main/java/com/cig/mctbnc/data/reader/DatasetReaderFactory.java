@@ -17,7 +17,9 @@ public abstract class DatasetReaderFactory {
 	 * @param datasetReader
 	 * @param pathDataset
 	 * @param sizeSequence
+	 * @return a dataset reader
 	 * @throws FileNotFoundException
+	 * 
 	 */
 	public static DatasetReader getDatasetReader(String datasetReader, String pathDataset, int sizeSequence)
 			throws FileNotFoundException {
@@ -33,7 +35,7 @@ public abstract class DatasetReaderFactory {
 	/**
 	 * Return the name of available dataset readers.
 	 * 
-	 * @return
+	 * @return name of available dataset readers
 	 */
 	public static List<String> getAvailableDatasetReaders() {
 		return List.of("Multiple CSV", "Single CSV");

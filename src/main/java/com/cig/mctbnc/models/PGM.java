@@ -11,6 +11,7 @@ import com.cig.mctbnc.nodes.NodeIndexer;
  * 
  * @author Carlos Villa Blanco
  *
+ * @param <NodeType>
  */
 public interface PGM<NodeType extends Node> {
 

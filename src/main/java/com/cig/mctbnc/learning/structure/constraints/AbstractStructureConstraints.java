@@ -21,6 +21,7 @@ public abstract class AbstractStructureConstraints implements StructureConstrain
 
 	@Override
 	public void initializeStructure(PGM<? extends Node> pgm) {
+		return;
 	}
 
 }

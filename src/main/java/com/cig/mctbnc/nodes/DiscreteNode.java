@@ -9,6 +9,12 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+/**
+ * Abstract class defining common variables and methods for discrete nodes.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 public abstract class DiscreteNode extends AbstractNode {
 	// Bidirectional map that allow to retrieve states by index and vice versa
 	private BiMap<String, Integer> indexerStates;
@@ -50,7 +56,7 @@ public abstract class DiscreteNode extends AbstractNode {
 		super.setParent(nodeParent);
 		if (nodeParent instanceof DiscreteNode)
 			// It is increased the number of states that the parents of the node can take
-			numStatesParents *= ((DiscreteNode) nodeParent).getNumStates();
+			this.numStatesParents *= ((DiscreteNode) nodeParent).getNumStates();
 	}
 
 	@Override
@@ -58,7 +64,7 @@ public abstract class DiscreteNode extends AbstractNode {
 		super.removeParent(nodeParent);
 		if (nodeParent instanceof DiscreteNode)
 			// It is decreased the number of states that the parents of the node can take
-			numStatesParents /= ((DiscreteNode) nodeParent).getNumStates();
+			this.numStatesParents /= ((DiscreteNode) nodeParent).getNumStates();
 	}
 
 	/**
@@ -67,21 +73,21 @@ public abstract class DiscreteNode extends AbstractNode {
 	 * @return list of State objects
 	 */
 	public List<String> getStates() {
-		return new ArrayList<String>(indexerStates.keySet());
+		return new ArrayList<String>(this.indexerStates.keySet());
 	}
 
 	/**
-	 * Set the state of the node. If the state was not seen during training, -1 is
-	 * returned.
+	 * Set the state of the node and returns its id. If the state was not seen
+	 * during training, -1 is returned.
 	 * 
 	 * @param state
-	 * @return
+	 * @return id of the state
 	 */
 	public Integer setState(String state) {
-		stateIdx = indexerStates.getOrDefault(state, -1);
-		if (stateIdx == -1)
+		this.stateIdx = this.indexerStates.getOrDefault(state, -1);
+		if (this.stateIdx == -1)
 			logger.trace("State {} was never seen for variable {}", state, getName());
-		return stateIdx;
+		return this.stateIdx;
 	}
 
 	/**
@@ -100,6 +106,7 @@ public abstract class DiscreteNode extends AbstractNode {
 	 * @param idxStateParents
 	 */
 	public void setStateParents(int idxStateParents) {
+		int idxStateParentsCounter = idxStateParents;
 		if (getNumParents() > 0) {
 			// Keep the number of parent states of still not seen parents in the loop
 			int numStatesParents = getNumStatesParents();
@@ -108,9 +115,9 @@ public abstract class DiscreteNode extends AbstractNode {
 				// Decrease the number of states by not considering the current parent
 				numStatesParents /= parentNode.getNumStates();
 				// Define state current parent
-				int stateParent = idxStateParents / numStatesParents;
+				int stateParent = idxStateParentsCounter / numStatesParents;
 				parentNode.setState(stateParent);
-				idxStateParents %= numStatesParents;
+				idxStateParentsCounter %= numStatesParents;
 			}
 		}
 	}
@@ -118,19 +125,19 @@ public abstract class DiscreteNode extends AbstractNode {
 	/**
 	 * Get the state of the node.
 	 * 
-	 * @return
+	 * @return state of the node
 	 */
 	public String getState() {
-		return indexerStates.inverse().get(stateIdx);
+		return this.indexerStates.inverse().get(this.stateIdx);
 	}
 
 	/**
 	 * Get the index of the current state of the node.
 	 * 
-	 * @return
+	 * @return index of the current state of the node
 	 */
 	public int getIdxState() {
-		return stateIdx;
+		return this.stateIdx;
 	}
 
 	/**
@@ -139,14 +146,14 @@ public abstract class DiscreteNode extends AbstractNode {
 	 * @return number of states of the node
 	 */
 	public int getNumStates() {
-		return indexerStates.size();
+		return this.indexerStates.size();
 	}
 
 	/**
-	 * Get the index that represents the current state of the parents of the node.
-	 * Return -1 if the state of one parent was not seen during training.
+	 * Get the index for the current state of the parents of the node. Return -1 if
+	 * the state of one parent was not seen during training.
 	 * 
-	 * @return
+	 * @return index for the current state of the parents of the node
 	 */
 	public int getIdxStateParents() {
 		int idxStateParents = 0;
@@ -175,7 +182,7 @@ public abstract class DiscreteNode extends AbstractNode {
 	 * @return number of states of the parents
 	 */
 	public int getNumStatesParents() {
-		return numStatesParents;
+		return this.numStatesParents;
 	}
 
 	@Override
@@ -183,7 +190,7 @@ public abstract class DiscreteNode extends AbstractNode {
 		String commonDescription = super.toString();
 		StringBuilder sb = new StringBuilder();
 		sb.append(commonDescription);
-		sb.append("Possible states: " + indexerStates);
+		sb.append("Possible states: " + this.indexerStates);
 		return sb.toString();
 	}
 
@@ -195,9 +202,9 @@ public abstract class DiscreteNode extends AbstractNode {
 	 */
 	private void initializeIndexerStates(List<String> states) {
 		// Define HashBiMap to access the state of the node by index and vice versa
-		indexerStates = HashBiMap.create();
+		this.indexerStates = HashBiMap.create();
 		for (int i = 0; i < states.size(); i++) {
-			indexerStates.put(states.get(i), i);
+			this.indexerStates.put(states.get(i), i);
 		}
 	}
 

@@ -35,14 +35,14 @@ public class BNBayesianEstimation extends BNParameterLearningAlgorithm {
 
 	@Override
 	protected BNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset) {
-		BNSufficientStatistics ssNode = new BNSufficientStatistics(NxHP);
+		BNSufficientStatistics ssNode = new BNSufficientStatistics(this.NxHP);
 		ssNode.computeSufficientStatistics(node, dataset);
 		return ssNode;
 	}
 
 	@Override
 	public String getNameMethod() {
-		return String.format("Bayesian estimation (Nx:%s)", NxHP);
+		return String.format("Bayesian estimation (Nx:%s)", this.NxHP);
 	}
 
 }

@@ -124,18 +124,21 @@ public class CIMNode extends DiscreteNode {
 	 * @return sufficient statistics.
 	 */
 	public CTBNSufficientStatistics getSufficientStatistics() {
-		return sufficientStatistics;
+		return this.sufficientStatistics;
 	}
 
 	/**
 	 * Return the parameter containing the probabilities of the variable leaving
 	 * every state for a different one.
 	 * 
+	 * @param idxStateParents
+	 * @param idxStateNode
+	 * 
 	 * @return parameter Qx
 	 */
 	public double getQx(int idxStateParents, int idxStateNode) {
 		try {
-			return Qx[idxStateParents][idxStateNode];
+			return this.Qx[idxStateParents][idxStateNode];
 		} catch (IndexOutOfBoundsException e) {
 			// One of the index state was never seen during prediction. The model will not
 			// be retrain, so 0 is reported.
@@ -147,11 +150,15 @@ public class CIMNode extends DiscreteNode {
 	 * Return the parameter containing the probabilities of the variable leaving a
 	 * state for a certain one
 	 * 
+	 * @param idxStateParents
+	 * @param idxToStateNode
+	 * @param idxFromStateNode
+	 * 
 	 * @return parameter Oxy
 	 */
 	public double getOxy(int idxStateParents, int idxToStateNode, int idxFromStateNode) {
 		try {
-			return Oxy[idxStateParents][idxToStateNode][idxFromStateNode];
+			return this.Oxy[idxStateParents][idxToStateNode][idxFromStateNode];
 		} catch (IndexOutOfBoundsException e) {
 			// One of the index state was never seen during prediction. The model will not
 			// be retrain, so 0 is reported.
@@ -161,7 +168,7 @@ public class CIMNode extends DiscreteNode {
 
 	@Override
 	public boolean areParametersEstimated() {
-		return !(Qx == null || Oxy == null);
+		return !(this.Qx == null || this.Oxy == null);
 	}
 
 	@Override

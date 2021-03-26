@@ -23,7 +23,7 @@ public class State {
 	 * Default constructor.
 	 */
 	public State() {
-		events = new LinkedHashMap<String, String>();
+		this.events = new LinkedHashMap<String, String>();
 	}
 
 	/**
@@ -84,17 +84,17 @@ public class State {
 	 * @param newValue     new value for the variable in this state
 	 */
 	public void modifyEventValue(String nameVariable, String newValue) {
-		events.replace(nameVariable, newValue);
+		this.events.replace(nameVariable, newValue);
 		initializeHashcode();
 	}
 
 	/**
 	 * Remove specified event.
 	 * 
-	 * @param nameVariables names of the variable whose event is removed.
+	 * @param nameVariable name of the variable whose event is removed.
 	 */
 	public void removeEvents(String nameVariable) {
-		events.keySet().remove(nameVariable);
+		this.events.keySet().remove(nameVariable);
 	}
 
 	/**
@@ -104,7 +104,7 @@ public class State {
 	 *                      removed.
 	 */
 	public void removeAllEventsExcept(List<String> nameVariables) {
-		events.keySet().removeIf(k -> !(nameVariables.contains(k)));
+		this.events.keySet().removeIf(k -> !(nameVariables.contains(k)));
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class State {
 	 * @return Map with events
 	 */
 	public Map<String, String> getEvents() {
-		return events;
+		return this.events;
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class State {
 	 * @return number of events
 	 */
 	public int getNumEvents() {
-		return events.size();
+		return this.events.size();
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class State {
 	 * @return names of the variables
 	 */
 	public List<String> getNameVariables() {
-		return new ArrayList<>(events.keySet());
+		return new ArrayList<>(this.events.keySet());
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class State {
 	 * @return value of the specified node for this state
 	 */
 	public String[] getValues() {
-		return events.values().toArray(String[]::new);
+		return this.events.values().toArray(String[]::new);
 	}
 
 	/**
@@ -151,7 +151,7 @@ public class State {
 	 * @return value of the specified node for this state
 	 */
 	public String getValueVariable(String nameVariable) {
-		return events.getOrDefault(nameVariable, null);
+		return this.events.getOrDefault(nameVariable, null);
 	}
 
 	/**
@@ -175,22 +175,22 @@ public class State {
 		// The object is of State type
 		State otherState = (State) object;
 		// Check if both maps has the same variables and values
-		return events.equals(otherState.getEvents());
+		return this.events.equals(otherState.getEvents());
 	}
 
 	@Override
 	public int hashCode() {
-		if (hashcode == null)
+		if (this.hashcode == null)
 			// The hashcode was not computed before
-			hashcode = events.hashCode();
-		return hashcode;
+			this.hashcode = this.events.hashCode();
+		return this.hashcode;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (String variableName : events.keySet()) {
-			sb.append(variableName + " = " + events.get(variableName));
+		for (String variableName : this.events.keySet()) {
+			sb.append(variableName + " = " + this.events.get(variableName));
 			sb.append("\n");
 		}
 		return sb.toString();
@@ -201,7 +201,7 @@ public class State {
 	 * modified, so the hashcode needs to be recomputed.
 	 */
 	private void initializeHashcode() {
-		hashcode = null;
+		this.hashcode = null;
 	}
 
 }

@@ -140,7 +140,7 @@ public class CTBNHillClimbing implements HillClimbingImplementation {
 	 * @param i
 	 * @param j
 	 * @param idxOperation
-	 * @return
+	 * @return true if the arc can be added, false otherwise
 	 */
 	private boolean checkModificationAdjacencyMatrix(CTBN<? extends Node> ctbn, int i, int j, int idxOperation) {
 		return i != j && !ctbn.getNodeByIndex(j).isClassVariable();
@@ -151,12 +151,12 @@ public class CTBNHillClimbing implements HillClimbingImplementation {
 	 * 
 	 * @param adjacencyMatrix
 	 * @param modifiedNodes
-	 * @return
+	 * @return score
 	 */
 	private double computeScore(CTBN<? extends Node> ctbn, boolean[][] adjacencyMatrix) {
 		// Set structure and obtain its score
 		ctbn.setStructureModifiedNodes(adjacencyMatrix);
-		return scoreFunction.compute(ctbn);
+		return this.scoreFunction.compute(ctbn);
 	}
 
 }

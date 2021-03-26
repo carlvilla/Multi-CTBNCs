@@ -83,7 +83,8 @@ public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 	 * 
 	 * @param indexNode
 	 * @param adjacencyMatrix
-	 * @return
+	 * @return a {@code HillClimbingSolution} with the adjacency matrix and score of
+	 *         the best neighbor
 	 */
 	private HillClimbingSolution findBestNeighbor(CTBN<? extends Node> ctbn, int indexNode,
 			boolean[][] adjacencyMatrix) {
@@ -120,7 +121,7 @@ public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 	 * @param indexNode
 	 * @param adjacencyMatrix
 	 * @param cache
-	 * @return
+	 * @return score
 	 */
 	private double computeScore(CTBN<? extends Node> ctbn, int indexNode, boolean[][] adjacencyMatrix) {
 		// Clone model to avoid inconsistencies between threads
@@ -128,7 +129,7 @@ public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 		// Establish the parent set of the node 'indexNode'
 		tmpCtbn.setStructure(indexNode, adjacencyMatrix);
 		// Obtain local score at the node 'indexNode'
-		return scoreFunction.compute(tmpCtbn, indexNode);
+		return this.scoreFunction.compute(tmpCtbn, indexNode);
 	}
 
 }

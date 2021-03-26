@@ -39,15 +39,15 @@ public class CrossValidation extends ValidationMethod {
 	 * @throws UnreadDatasetException
 	 */
 	public CrossValidation(DatasetReader datasetReader, int folds, boolean shuffle) throws UnreadDatasetException {
-		logger.info("Preparing {}-cross validation / Shuffle: {}", folds, shuffle);
+		this.logger.info("Preparing {}-cross validation / Shuffle: {}", folds, shuffle);
 		// Obtain dataset and the number of sequence it contains
-		dataset = datasetReader.readDataset();
-		logger.info("Time variable: {}", dataset.getNameTimeVariable());
-		logger.info("Features: {}", dataset.getNameFeatures());
-		logger.info("Class variables: {}", (dataset.getNameClassVariables()));
+		this.dataset = datasetReader.readDataset();
+		this.logger.info("Time variable: {}", this.dataset.getNameTimeVariable());
+		this.logger.info("Features: {}", this.dataset.getNameFeatures());
+		this.logger.info("Class variables: {}", (this.dataset.getNameClassVariables()));
 		// Check that the specified number of folds is valid
-		if (folds < 2 || folds > dataset.getNumDataPoints())
-			logger.warn("Number of folds must be between 2 and the dataset size (leave-one-out cross validation)");
+		if (folds < 2 || folds > this.dataset.getNumDataPoints())
+			this.logger.warn("Number of folds must be between 2 and the dataset size (leave-one-out cross validation)");
 		// Set number of folds
 		this.folds = folds;
 		// Set if the sequences should be shuffled
@@ -59,32 +59,32 @@ public class CrossValidation extends ValidationMethod {
 	 * 
 	 * @param model model to evaluate
 	 */
+	@Override
 	public void evaluate(MCTBNC<?, ?> model) {
 		// Get sequences from the dataset
-		List<Sequence> sequences = dataset.getSequences();
+		List<Sequence> sequences = this.dataset.getSequences();
 		int numSequences = sequences.size();
 		// Obtain files from which the dataset was read
-		List<String> fileNames = new ArrayList<String>(dataset.getNameFiles());
-		if (shuffle) {
+		List<String> fileNames = new ArrayList<String>(this.dataset.getNameFiles());
+		if (this.shuffle) {
 			// Shuffle the sequences before performing cross-validation
 			Integer seed = 10;
 			Util.shuffle(sequences, seed);
 			Util.shuffle(fileNames, seed);
-			logger.info("Sequences shuffled");
+			this.logger.info("Sequences shuffled");
 		}
 		// Obtain size of each fold
-		int[] sizeFolds = new int[folds];
-		Arrays.fill(sizeFolds, numSequences / folds);
+		int[] sizeFolds = new int[this.folds];
+		Arrays.fill(sizeFolds, numSequences / this.folds);
 		// Sequences without fold are added one by one to the first folds
-		for (int i = 0; i < numSequences % folds; i++)
+		for (int i = 0; i < numSequences % this.folds; i++)
 			sizeFolds[i] += 1;
 		// Save performance metrics
 		Map<String, Double> resultsCV = new LinkedHashMap<String, Double>();
 		// Iterate over each fold
 		int fromIndex = 0;
-		// TODO PARALELLIZE
-		for (int i = 0; i < folds; i++) {
-			logger.info("Testing on fold {}", i);
+		for (int i = 0; i < this.folds; i++) {
+			this.logger.info("Testing on fold {}", i);
 			// Prepare training and testing datasets for current fold
 			int toIndex = fromIndex + sizeFolds[i];
 			// Prepare training dataset for current fold
@@ -107,7 +107,7 @@ public class CrossValidation extends ValidationMethod {
 			fromIndex += sizeFolds[i];
 		}
 		// The average of each metric is computed
-		resultsCV.forEach((metric, value) -> resultsCV.put(metric, value / folds));
+		resultsCV.forEach((metric, value) -> resultsCV.put(metric, value / this.folds));
 		// Display results
 		System.out.println("--------------------Results cross-validation--------------------");
 		displayResults(resultsCV);
@@ -123,7 +123,7 @@ public class CrossValidation extends ValidationMethod {
 	 * @param fileNames
 	 * @param fromIndex index of the first sequence to ignore
 	 * @param toIndex   index of the last sequence to ignore
-	 * @return
+	 * @return training dataset
 	 */
 	private Dataset extractTrainingDataset(List<Sequence> sequences, List<String> fileNames, int fromIndex,
 			int toIndex) {
@@ -149,7 +149,7 @@ public class CrossValidation extends ValidationMethod {
 	 * @param fileNames
 	 * @param fromIndex index of the first sequence of the extracted dataset
 	 * @param toIndex   index of the last sequence of the extracted dataset
-	 * @return
+	 * @return testing dataset
 	 */
 	private Dataset extractTestingDataset(List<Sequence> sequences, List<String> fileNames, int fromIndex,
 			int toIndex) {

@@ -5,6 +5,12 @@ import java.util.List;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.nodes.Node;
 
+/**
+ * Interface for parameter learning algorithms.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 public interface ParameterLearningAlgorithm {
 
 	/**
@@ -22,13 +28,12 @@ public interface ParameterLearningAlgorithm {
 	 * @param dataset
 	 */
 	public void learn(Node node, Dataset dataset);
-	
+
 	/**
 	 * Get the name of the method to learn the parameters.
 	 * 
 	 * @return name of the method to learn the parameters
 	 */
 	public String getNameMethod();
-
 
 }

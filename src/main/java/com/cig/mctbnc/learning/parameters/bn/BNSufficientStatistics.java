@@ -26,6 +26,13 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	private double NxHP;
 	static Logger logger = LogManager.getLogger(BNSufficientStatistics.class);
 
+	/**
+	 * Constructs a {@code BNSufficientStatistics} by receiving the hyperparameter
+	 * of the Dirichlet prior distribution.
+	 * 
+	 * @param NxHP number of times the variables are in a certain state while its
+	 *             parents take a certain instantiation
+	 */
 	public BNSufficientStatistics(double NxHP) {
 		this.NxHP = NxHP;
 	}
@@ -37,6 +44,7 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	 * 
 	 * @param dataset
 	 */
+	@Override
 	public void computeSufficientStatistics(DiscreteNode node, Dataset dataset) {
 		logger.trace("Computing sufficient statistics BN for node {}", node.getName());
 		String nameVariable = node.getName();
@@ -61,22 +69,28 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Return the sufficient statistics of the node. This is the number of the
-	 * variable is in a certain state while its parents take a certain value.
+	 * Return the sufficient statistics of the node. This is the number of times the
+	 * variable is in a certain state while its parents take a certain
+	 * instantiation.
 	 * 
 	 * @return array with the number of appearances of each state of the node given
 	 *         an instantiation of the parents
 	 */
 	public double[][] getNx() {
-		return Nx;
+		return this.Nx;
 	}
 
+	/**
+	 * Return the hyperparameter value of the Dirichlet prior distribution.
+	 * 
+	 * @return hyperparameter value
+	 */
 	public double getNxHyperparameter() {
-		return NxHP;
+		return this.NxHP;
 	}
 
 	private void updateNx(int idxStateParents, int idxState, int numOccurrences) {
-		Nx[idxStateParents][idxState] += numOccurrences;
+		this.Nx[idxStateParents][idxState] += numOccurrences;
 	}
 
 	/**
@@ -86,10 +100,9 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	 * @param dataset
 	 */
 	private void initializeSufficientStatistics(DiscreteNode node, Dataset dataset) {
-		Nx = new double[node.getNumStatesParents()][node.getNumStates()];
+		this.Nx = new double[node.getNumStatesParents()][node.getNumStates()];
 		// Adds the imaginary counts (hyperparameters) to the sufficient statistics
-		Util.fill2dArray(Nx, NxHP);
-
+		Util.fill2dArray(this.Nx, this.NxHP);
 	}
 
 }

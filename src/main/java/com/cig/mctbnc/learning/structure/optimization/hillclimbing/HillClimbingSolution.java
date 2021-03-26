@@ -35,7 +35,7 @@ public class HillClimbingSolution {
 	 * @return adjacency matrix
 	 */
 	public boolean[][] getAdjacencyMatrix() {
-		return adjacencyMatrix;
+		return this.adjacencyMatrix;
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class HillClimbingSolution {
 	 * @return score
 	 */
 	public double getScore() {
-		return score;
+		return this.score;
 	}
 
 }

@@ -80,7 +80,7 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	 * Given a node whose sufficient statistics where estimated, compute its
 	 * conditional probability tables (CPT).
 	 * 
-	 * @param nodes
+	 * @param node
 	 */
 	public void setCPTs(CPTNode node) {
 		// Compute the parameters for the current node with its sufficient statistics

@@ -1,12 +1,19 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.bn;
 
 import java.util.List;
+import java.util.function.DoubleUnaryOperator;
 
 import com.cig.mctbnc.learning.structure.optimization.scores.AbstractLogLikelihood;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
 
+/**
+ * Implements the log-likelihood score for Bayesian networks.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFunction {
 
 	/**
@@ -28,6 +35,7 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 	 * @param penalizationFunction penalization function
 	 * @return penalized log-likelihood score
 	 */
+	@Override
 	public double compute(BN<? extends Node> bn) {
 		// Obtain nodes of the Bayesian networks with the CPTs
 		List<CPTNode> nodes = (List<CPTNode>) bn.getLearnedNodes();
@@ -42,14 +50,15 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 				for (int idxStateParents = 0; idxStateParents < numStatesParents; idxStateParents++)
 					llScore += classProbability(node, idxState, idxStateParents);
 			// If the specified penalization function is available, it is applied
-			if (penalizationFunctionMap.containsKey(penalizationFunction)) {
+			DoubleUnaryOperator penalizationFunction = this.penalizationFunctionMap.get(this.penalizationFunction);
+			if (penalizationFunction != null) {
 				// Overfitting is avoid by penalizing the complexity of the network
 				// Compute network complexity
 				double networkComplexity = numStatesParents * (numStates - 1);
 				// Compute non-negative penalization (For now it is performing a BIC
 				// penalization)
 				int sampleSize = bn.getDataset().getNumDataPoints();
-				double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
+				double penalization = penalizationFunction.applyAsDouble(sampleSize);
 				// Obtain number of states of the parents of the currently studied variable
 				llScore -= networkComplexity * penalization;
 			}
@@ -58,12 +67,13 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 	}
 
 	/**
-	 * Estimate the probability of a class variable taking a certain state.
+	 * Estimate the probability of a class variable taking a provided state given
+	 * the state of its parents.
 	 * 
 	 * @param node            class variable node
 	 * @param idxState        index of the state of the class variable node
 	 * @param idxStateParents index of the states of the parents of the node
-	 * @return
+	 * @return probability of a class configuration
 	 */
 	private double classProbability(CPTNode node, int idxState, int idxStateParents) {
 		// Number of times the studied variable and its parents take a certain state

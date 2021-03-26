@@ -20,7 +20,6 @@ import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.exceptions.ErroneousSequenceException;
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
 import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
@@ -106,8 +105,9 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// ------------------ Class subgraph ------------------
 		// Learn structure and parameters of class subgraph (Bayesian network)
 		logger.info("Defining structure and parameters of the class subgraph (Bayesian network)");
-		bn = new BN<NodeTypeBN>(dataset, nameClassVariables, bnLearningAlgs, getStructureConstraintsBN(), bnNodeClass);
-		bn.learn();
+		this.bn = new BN<NodeTypeBN>(dataset, nameClassVariables, this.bnLearningAlgs, getStructureConstraintsBN(),
+				this.bnNodeClass);
+		this.bn.learn();
 		logger.info("Class subgraph established!");
 		// ----------- Feature and bridge subgraphs -----------
 		// Learn structure and parameters of feature and bridge subgraph. These are
@@ -116,10 +116,10 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// features is extended to more class variables
 		logger.info("Defining structure and parameters of the feature and bridge subgraphs (Continuous time "
 				+ "Bayesian network)");
-		ctbn = new CTBN<NodeTypeCTBN>(dataset, nameVariables, ctbnLearningAlgs, getStructureConstraintsCTBN(), bn,
-				ctbnNodeClass);
-		setInitialStructure(ctbn);
-		ctbn.learn();
+		this.ctbn = new CTBN<NodeTypeCTBN>(dataset, nameVariables, this.ctbnLearningAlgs, getStructureConstraintsCTBN(),
+				this.bn, this.ctbnNodeClass);
+		setInitialStructure(this.ctbn);
+		this.ctbn.learn();
 		logger.info("Feature and bridge subgraphs established!");
 		// ------------------ Join subgraphs ------------------
 		// Join class subgraph with feature and bridge subgraphs
@@ -137,10 +137,10 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		List<Node> nodes = new ArrayList<Node>();
 		// It is important to respect the original order of the variables to generate a
 		// correct adjacency matrix
-		for (String nameVariable : dataset.getNameVariables()) {
+		for (String nameVariable : this.dataset.getNameVariables()) {
 			// Each variable node is obtained from the BN (if it exists) and from the CTBN
-			Node nodeInBN = bn.getNodeByName(nameVariable);
-			Node nodeInCTBN = ctbn.getNodeByName(nameVariable);
+			Node nodeInBN = this.bn.getNodeByName(nameVariable);
+			Node nodeInCTBN = this.ctbn.getNodeByName(nameVariable);
 			if (nodeInBN != null) {
 				// Arcs between nodes of the BN and CTBN are created, while those from class
 				// variables nodes of the CTBN are removed. A temporary list is used
@@ -207,7 +207,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	/**
 	 * Return learning algorithms for class subgraph (Bayesian network).
 	 * 
-	 * @return
+	 * @return learning algorithms for class subgraph (Bayesian network)
 	 */
 	public BNLearningAlgorithms getLearningAlgsBN() {
 		return this.bnLearningAlgs;
@@ -217,7 +217,8 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 * Return learning algorithms for bridge and features subgraphs (continuous time
 	 * Bayesian network).
 	 * 
-	 * @return
+	 * @return learning algorithms for bridge and features subgraphs (continuous
+	 *         time Bayesian network)
 	 */
 	public CTBNLearningAlgorithms getLearningAlgsCTBN() {
 		return this.ctbnLearningAlgs;
@@ -226,7 +227,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	/**
 	 * Return the type of the class variable nodes.
 	 * 
-	 * @return
+	 * @return type of the class variable nodes
 	 */
 	public Class<NodeTypeBN> getTypeNodeClassVariable() {
 		return this.bnNodeClass;
@@ -235,7 +236,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	/**
 	 * Return the type of the feature nodes.
 	 * 
-	 * @return
+	 * @return type of the feature nodes
 	 */
 	public Class<NodeTypeCTBN> getTypeNodeFeature() {
 		return this.ctbnNodeClass;
@@ -285,7 +286,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		int numSequences = dataset.getNumDataPoints();
 		Prediction[] predictions = new Prediction[numSequences];
 		// Obtain class configurations
-		List<State> statesCVs = getClassConfigurations(bn.getNodes());
+		List<State> statesCVs = getClassConfigurations(this.bn.getNodes());
 		// Make predictions on all the sequences
 		for (int i = 0; i < numSequences; i++) {
 			logger.trace("Performing prediction over sequence {}/{}", i, dataset.getNumDataPoints());
@@ -299,14 +300,14 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 
 	@Override
 	public boolean areParametersEstimated() {
-		return bn.areParametersEstimated() && ctbn.areParametersEstimated();
+		return this.bn.areParametersEstimated() && this.ctbn.areParametersEstimated();
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("--Structure multi-dimensional continuous time Bayesian network classifier--\n");
-		for (Node node : nodes) {
+		for (Node node : this.nodes) {
 			if (node.getParents().isEmpty())
 				sb.append("{}");
 			else
@@ -322,7 +323,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 */
 	private State sampleClassVariables() {
 		// Define topological order
-		List<Node> classVariables = bn.getTopologicalOrdering();
+		List<Node> classVariables = this.bn.getTopologicalOrdering();
 		// Store the sampled state of the nodes
 		State sampledState = new State();
 		for (int i = 0; i < classVariables.size(); i++) {
@@ -344,7 +345,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 */
 	private Sequence sampleSequence(State sampledCVs, int duration) {
 		// Features whose transitions will be sampled
-		LinkedList<CIMNode> features = new LinkedList<CIMNode>((List<CIMNode>) ctbn.getNodes());
+		LinkedList<CIMNode> features = new LinkedList<CIMNode>((List<CIMNode>) this.ctbn.getNodes());
 		// List with the time when observations occur
 		List<Double> timestamp = new ArrayList<Double>();
 		// List of states with the observations (which form transitions) of the sequence
@@ -412,8 +413,8 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 */
 	private State sampleInitialStateSequence(State sampledCVs) {
 		State evidence = new State();
-		for (int i = 0; i < ctbn.getNumNodes(); i++) {
-			CIMNode node = (CIMNode) ctbn.getNodes().get(i);
+		for (int i = 0; i < this.ctbn.getNumNodes(); i++) {
+			CIMNode node = (CIMNode) this.ctbn.getNodes().get(i);
 			// Sample state
 			int idxSampledState = (int) (Math.random() * node.getNumStates());
 			// Set state feature node
@@ -432,7 +433,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 * Return State objects with all class configurations.
 	 * 
 	 * @param nodesCVs
-	 * @return
+	 * @return states with all class configurations
 	 */
 	private List<State> getClassConfigurations(List<NodeTypeBN> nodesCVs) {
 		List<List<State>> statesEachCV = new ArrayList<List<State>>();
@@ -502,9 +503,9 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	 * @param ctbn
 	 */
 	private void setInitialStructure(CTBN<NodeTypeCTBN> ctbn) {
-		logger.info("Initial structure: {}", initialStructure);
+		logger.info("Initial structure: {}", this.initialStructure);
 		boolean[][] initialAdjMatrix = new boolean[ctbn.getNumNodes()][ctbn.getNumNodes()];
-		if (initialStructure.equals("Naive Bayes")) {
+		if (this.initialStructure.equals("Naive Bayes")) {
 			// Obtain names class variables
 			List<String> nameCVs = this.dataset.getNameClassVariables();
 			// Obtain names features
@@ -525,7 +526,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	private List<NodeTypeBN> getNodesBN() {
-		List<NodeTypeBN> nodesBN = bn.getNodes();
+		List<NodeTypeBN> nodesBN = this.bn.getNodes();
 		// Define nodes of the BN as class variables
 		for (Node node : nodesBN) {
 			node.isClassVariable(true);
@@ -534,7 +535,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	private List<NodeTypeCTBN> getNodesCTBN() {
-		return ctbn.getNodes();
+		return this.ctbn.getNodes();
 	}
 
 }

@@ -8,10 +8,31 @@ import com.cig.mctbnc.learning.structure.constraints.CTBNC.MaxKCTBNC;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.Node;
 
+/**
+ * Implements a MCTBNC with empty class subgraph and a K-dependence continuous
+ * time Bayesian network for the feature subgraph, i.e., the feature nodes are
+ * limited to have K parents (apart of the class variables).
+ * 
+ * @author Carlos Villa Blanco
+ *
+ * @param <NodeTypeBN>
+ * @param <NodeTypeCTBN>
+ */
 public class Empty_maxK_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node>
 		extends MCTBNC<NodeTypeBN, NodeTypeCTBN> {
 	int maxK;
 
+	/**
+	 * Constructs a {@code Empty_maxK_MCTBNC} by receiving the learning algorithms
+	 * for Bayesian networks and continuous time Bayesian networks and the maximum
+	 * number of parents of the features (apart of the class variables).
+	 * 
+	 * @param bnLearningAlgs
+	 * @param ctbnLearningAlgs
+	 * @param maxK
+	 * @param bnNodeClass
+	 * @param ctbnNodeClass
+	 */
 	public Empty_maxK_MCTBNC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnLearningAlgs, int maxK,
 			Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
 		super(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);

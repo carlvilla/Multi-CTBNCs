@@ -15,6 +15,8 @@ import org.apache.logging.log4j.Logger;
  * to refer to a certain node.
  * 
  * @author Carlos Villa Blanco
+ * 
+ * @param <NodeType>
  *
  */
 public class NodeIndexer<NodeType extends Node> {
@@ -23,22 +25,39 @@ public class NodeIndexer<NodeType extends Node> {
 	private Map<Integer, NodeType> indexToNode;
 	static Logger logger = LogManager.getLogger(NodeIndexer.class);
 
+	/**
+	 * Constructs a {@code NodeIndexer}.
+	 * 
+	 * @param nodes
+	 */
 	public NodeIndexer(List<NodeType> nodes) {
 		// Set to each node an index number
-		nodeToIndex = new WeakHashMap<String, Integer>();
-		indexToNode = new WeakHashMap<Integer, NodeType>();
+		this.nodeToIndex = new WeakHashMap<String, Integer>();
+		this.indexToNode = new WeakHashMap<Integer, NodeType>();
 		for (int i = 0; i < nodes.size(); i++) {
-			nodeToIndex.put(nodes.get(i).getName(), i);
-			indexToNode.put(i, nodes.get(i));
+			this.nodeToIndex.put(nodes.get(i).getName(), i);
+			this.indexToNode.put(i, nodes.get(i));
 		}
 	}
 
+	/**
+	 * Get the index of a node by providing its name.
+	 * 
+	 * @param nameNode
+	 * @return index of the node
+	 */
 	public int getIndexNodeByName(String nameNode) {
-		return nodeToIndex.get(nameNode);
+		return this.nodeToIndex.get(nameNode);
 	}
 
+	/**
+	 * Get the name of a node by providing its index.
+	 * 
+	 * @param indexNode
+	 * @return name of the node
+	 */
 	public NodeType getNodeByIndex(int indexNode) {
-		NodeType node = indexToNode.get(indexNode);
+		NodeType node = this.indexToNode.get(indexNode);
 		if (node == null) {
 			logger.warn("There is no node with index {}", indexNode);
 		}

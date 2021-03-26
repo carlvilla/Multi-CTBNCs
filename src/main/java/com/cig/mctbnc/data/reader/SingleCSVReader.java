@@ -23,7 +23,8 @@ public class SingleCSVReader extends AbstractCSVReader {
 	int sizeSequence;
 
 	/**
-	 * Constructor. Extract CSV file from the specified folder.
+	 * Constructs a {@code SingleCSVReader} that extracts a CSV file from the
+	 * specified folder.
 	 * 
 	 * @param datasetFolder folder path where the CSV file is stored
 	 * @param sizeSequence
@@ -35,29 +36,29 @@ public class SingleCSVReader extends AbstractCSVReader {
 		logger.info("Generating CSV reader for single csv file in {}", datasetFolder);
 		// Read all csv files from the specified folder
 		File folder = new File(datasetFolder);
-		file = folder.listFiles(new FilenameFilter() {
+		this.file = folder.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File folder, String name) {
 				return name.endsWith(".csv");
 			}
 		})[0];
 		// Extract variables names from the CSV file
-		extractVariableNames(file);
+		extractVariableNames(this.file);
 	}
 
 	@Override
 	public Dataset readDataset() throws UnreadDatasetException {
 		if (isDatasetOutdated()) {
-			dataset = new Dataset(nameTimeVariable, nameClassVariables);
+			this.dataset = new Dataset(this.nameTimeVariable, this.nameClassVariables);
 			try {
 				// Read the entire CSV
-				List<String[]> dataCSV = readCSV(file.getAbsolutePath(), excludeVariables);
+				List<String[]> dataCSV = readCSV(this.file.getAbsolutePath(), this.excludeVariables);
 				// Extract the sequences from the CSV by using the selected strategy
-				extractFixedSequences(dataset, dataCSV);
+				extractFixedSequences(this.dataset, dataCSV);
 				// Remove zero variance features
-				dataset.removeZeroVarianceFeatures();
+				this.dataset.removeZeroVarianceFeatures();
 				// Save name of the file in the dataset
-				dataset.setNameFiles(List.of(file.getName()));
+				this.dataset.setNameFiles(List.of(this.file.getName()));
 				// Set the dataset as not out-of-dates
 				setDatasetAsOutdated(false);
 			} catch (FileNotFoundException e) {
@@ -66,7 +67,7 @@ public class SingleCSVReader extends AbstractCSVReader {
 				logger.warn(e.getMessage());
 			}
 		}
-		return dataset;
+		return this.dataset;
 	}
 
 	/**
@@ -78,13 +79,15 @@ public class SingleCSVReader extends AbstractCSVReader {
 	 * As there cannot be different class configurations in one sequence, sequences
 	 * could contain less observation.
 	 * 
+	 * @param dataset
+	 * @param dataCSV
 	 * @return dataset
 	 */
 	public Dataset extractFixedSequences(Dataset dataset, List<String[]> dataCSV) {
 		int numInstances = dataCSV.size();
 		String[] namesVariables = dataCSV.get(0);
 		// Obtain the indexes of the class variables in the CSV
-		int[] indexClassVariables = nameClassVariables.stream()
+		int[] indexClassVariables = this.nameClassVariables.stream()
 				.mapToInt(nameClassVariable -> List.of(namesVariables).indexOf(nameClassVariable)).toArray();
 		// Store the class configuration of the first sequence.
 		String[] currentClassConfiguration = extractClassConfigurationObservation(indexClassVariables, dataCSV.get(1));
@@ -102,7 +105,7 @@ public class SingleCSVReader extends AbstractCSVReader {
 			// Check if any of the class variables transitioned to another state
 			boolean sameClassConfiguration = sameClassConfiguration(indexClassVariables, observation,
 					currentClassConfiguration);
-			if (dataSequence.size() < sizeSequence && sameClassConfiguration)
+			if (dataSequence.size() < this.sizeSequence && sameClassConfiguration)
 				// Add transition
 				dataSequence.add(observation);
 			else {
@@ -123,13 +126,13 @@ public class SingleCSVReader extends AbstractCSVReader {
 	}
 
 	/**
-	 * CHeck if the class configuration of an observation is equal to another that
+	 * Check if the class configuration of an observation is equal to another that
 	 * is given.
 	 * 
 	 * @param indexClassVariables
 	 * @param observation
 	 * @param classConfiguration
-	 * @return
+	 * @return true if they are equal, false otherwise
 	 */
 	private boolean sameClassConfiguration(int[] indexClassVariables, String[] observation,
 			String[] classConfiguration) {
@@ -140,11 +143,12 @@ public class SingleCSVReader extends AbstractCSVReader {
 	}
 
 	/**
-	 * Extract class configuration from the given observation.
+	 * Extract class configuration of the specified class variables from the given
+	 * observation.
 	 * 
 	 * @param indexClassVariables
 	 * @param observation
-	 * @return
+	 * @return String array with state of the class variables
 	 */
 	private String[] extractClassConfigurationObservation(int[] indexClassVariables, String[] observation) {
 		String[] classConfigurationObservation = new String[indexClassVariables.length];

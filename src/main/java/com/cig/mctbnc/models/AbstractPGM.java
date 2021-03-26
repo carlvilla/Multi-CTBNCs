@@ -66,13 +66,13 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 			this.nodes = new ArrayList<NodeType>();
 		}
 		this.nodes.addAll(nodes);
-		nodeIndexer = new NodeIndexer<NodeType>(this.nodes);
+		this.nodeIndexer = new NodeIndexer<NodeType>(this.nodes);
 	}
 
 	@Override
 	public void removeAllNodes() {
-		nodes = new ArrayList<NodeType>();
-		nodeIndexer = null;
+		this.nodes = new ArrayList<NodeType>();
+		this.nodeIndexer = null;
 	}
 
 	@Override
@@ -81,10 +81,10 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		for (Node node : this.nodes)
 			node.removeAllEdges();
 		for (int i = 0; i < adjacencyMatrix.length; i++) {
-			Node node = nodeIndexer.getNodeByIndex(i);
+			Node node = this.nodeIndexer.getNodeByIndex(i);
 			for (int j = 0; j < adjacencyMatrix.length; j++)
 				if (adjacencyMatrix[i][j]) {
-					Node childNode = nodeIndexer.getNodeByIndex(j);
+					Node childNode = this.nodeIndexer.getNodeByIndex(j);
 					node.setChild(childNode);
 				}
 		}
@@ -100,13 +100,13 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 			List<Integer> modifiedNodes = getModifiedNodes(currentAdjacencyMatrix, newAdjacencyMatrix);
 			// Modify structure of the model
 			for (int idx : modifiedNodes) {
-				Node node = nodeIndexer.getNodeByIndex(idx);
+				Node node = this.nodeIndexer.getNodeByIndex(idx);
 				// Current edges of selected nodes are removed
 				node.removeParents();
 				// Establish parents of selected nodes
 				for (int i = 0; i < newAdjacencyMatrix.length; i++) {
 					if (newAdjacencyMatrix[i][idx])
-						node.setParent(nodeIndexer.getNodeByIndex(i));
+						node.setParent(this.nodeIndexer.getNodeByIndex(i));
 				}
 			}
 			// Learn the parameters of the modified nodes
@@ -139,15 +139,15 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	@Override
 	public void learnParameters() {
 		// Learn the sufficient statistics and parameters for each node
-		parameterLearningAlg.learn(nodes, dataset);
+		this.parameterLearningAlg.learn(this.nodes, this.dataset);
 	}
 
 	@Override
 	public void learnParameters(List<Integer> idxsNodes) {
 		// Learn the sufficient statistics and parameters for each node
 		for (int idx : idxsNodes) {
-			Node node = nodeIndexer.getNodeByIndex(idx);
-			parameterLearningAlg.learn(node, dataset);
+			Node node = this.nodeIndexer.getNodeByIndex(idx);
+			this.parameterLearningAlg.learn(node, this.dataset);
 		}
 	}
 
@@ -183,13 +183,13 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 		// Save dataset used to learn the model
 		this.dataset = dataset;
 		// Use node factory to create nodes of the specified type
-		nodeFactory = new NodeFactory<NodeType>(nodeClass);
+		this.nodeFactory = new NodeFactory<NodeType>(this.nodeClass);
 		// Clear the entire model
 		removeAllNodes();
 		// Create nodes using the dataset
 		List<NodeType> nodes = new ArrayList<NodeType>();
-		for (String nameVariable : nameVariables) {
-			NodeType node = nodeFactory.createNode(nameVariable, dataset);
+		for (String nameVariable : this.nameVariables) {
+			NodeType node = this.nodeFactory.createNode(nameVariable, dataset);
 			nodes.add(node);
 		}
 		addNodes(nodes);
@@ -197,16 +197,16 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 
 	@Override
 	public void learn() {
-		if (dataset != null) {
+		if (this.dataset != null) {
 			// Depending on the class of model to learn, there could be a unique structure
 			// (naive Bayes or empty graph) or the initial one has to be optimized
-			if (structureConstraints.uniqueStructure()) {
+			if (this.structureConstraints.uniqueStructure()) {
 				// One possible structure. It is set in the PGM and the parameters learned
-				structureConstraints.initializeStructure(this);
+				this.structureConstraints.initializeStructure(this);
 				learnParameters();
 			} else
 				// Learn structure and parameters with the specified algorithms
-				structureLearningAlg.learn(this);
+				this.structureLearningAlg.learn(this);
 		} else {
 			logger.warn("Training dataset was not established");
 		}
@@ -224,14 +224,15 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * 
 	 * @return bidimensional boolean array representing the adjacency matrix
 	 */
+	@Override
 	public boolean[][] getAdjacencyMatrix() {
 		int numNodes = getNumNodes();
 		boolean[][] adjacencyMatrix = new boolean[numNodes][numNodes];
-		for (Node node : nodes) {
+		for (Node node : this.nodes) {
 			List<Node> children = node.getChildren();
 			for (Node childNode : children) {
-				int indexNode = nodeIndexer.getIndexNodeByName(node.getName());
-				int indexChildNode = nodeIndexer.getIndexNodeByName(childNode.getName());
+				int indexNode = this.nodeIndexer.getIndexNodeByName(node.getName());
+				int indexChildNode = this.nodeIndexer.getIndexNodeByName(childNode.getName());
 				adjacencyMatrix[indexNode][indexChildNode] = true;
 			}
 		}
@@ -240,21 +241,22 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 
 	@Override
 	public List<NodeType> getNodes() {
-		return nodes;
+		return this.nodes;
 	}
 
+	@Override
 	public NodeType getNodeByIndex(int index) {
-		return nodeIndexer.getNodeByIndex(index);
+		return this.nodeIndexer.getNodeByIndex(index);
 	}
 
 	@Override
 	public NodeType getNodeByName(String nameVariable) {
-		return nodes.stream().filter(node -> node.getName().equals(nameVariable)).findFirst().orElse(null);
+		return this.nodes.stream().filter(node -> node.getName().equals(nameVariable)).findFirst().orElse(null);
 	}
 
 	@Override
 	public List<NodeType> getNodesByNames(List<String> nameVariables) {
-		return nodes.stream().filter(node -> nameVariables.contains(node.getName())).collect(Collectors.toList());
+		return this.nodes.stream().filter(node -> nameVariables.contains(node.getName())).collect(Collectors.toList());
 	}
 
 	/**
@@ -262,23 +264,24 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * 
 	 * @return node indexer
 	 */
+	@Override
 	public NodeIndexer<NodeType> getNodeIndexer() {
-		return nodeIndexer;
+		return this.nodeIndexer;
 	}
 
 	@Override
 	public List<NodeType> getNodesClassVariables() {
-		return nodes.stream().filter(node -> node.isClassVariable()).collect(Collectors.toList());
+		return this.nodes.stream().filter(node -> node.isClassVariable()).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<NodeType> getNodesFeatures() {
-		return nodes.stream().filter(node -> !node.isClassVariable()).collect(Collectors.toList());
+		return this.nodes.stream().filter(node -> !node.isClassVariable()).collect(Collectors.toList());
 	}
 
 	@Override
 	public int getNumNodes() {
-		return nodes.size();
+		return this.nodes.size();
 	}
 
 	/**
@@ -287,7 +290,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * @return names of the variables
 	 */
 	public List<String> getNameVariables() {
-		return nameVariables;
+		return this.nameVariables;
 	}
 
 	/**
@@ -296,7 +299,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * @return parameter learning algorithm
 	 */
 	public ParameterLearningAlgorithm getParameterLearningAlg() {
-		return parameterLearningAlg;
+		return this.parameterLearningAlg;
 	}
 
 	/**
@@ -305,7 +308,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * @return structure learning algorithm
 	 */
 	public StructureLearningAlgorithm getStructureLearningAlg() {
-		return structureLearningAlg;
+		return this.structureLearningAlg;
 	}
 
 	/**
@@ -315,12 +318,12 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * 
 	 */
 	public StructureConstraints getStructureConstraints() {
-		return structureConstraints;
+		return this.structureConstraints;
 	}
 
 	@Override
 	public boolean areParametersEstimated() {
-		for (Node node : nodes) {
+		for (Node node : this.nodes) {
 			if (!node.areParametersEstimated())
 				return false;
 		}
@@ -333,7 +336,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * @return type of the nodes
 	 */
 	public Class<NodeType> getNodeClass() {
-		return nodeClass;
+		return this.nodeClass;
 	}
 
 	/**
@@ -342,7 +345,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * @return dataset
 	 */
 	public Dataset getDataset() {
-		return dataset;
+		return this.dataset;
 	}
 
 	/**
@@ -351,8 +354,9 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * @param adjacencyMatrix
 	 * @return boolean that determines if the structure is valid
 	 */
+	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix) {
-		return structureConstraints.isStructureLegal(adjacencyMatrix, getNodeIndexer());
+		return this.structureConstraints.isStructureLegal(adjacencyMatrix, getNodeIndexer());
 	}
 
 	/**
@@ -360,11 +364,12 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 * 
 	 * @param graph
 	 */
+	@Override
 	public void display() {
 		// Create GraphStram graph
 		Graph graph = new SingleGraph("PGM");
-		addNodes(graph, nodes);
-		addEdges(graph, nodes);
+		addNodes(graph, this.nodes);
+		addEdges(graph, this.nodes);
 		// Define style of the graph
 		graph.setAttribute("ui.stylesheet", "url(src/main/resources/css/graph-style.css);");
 		// Define viewer

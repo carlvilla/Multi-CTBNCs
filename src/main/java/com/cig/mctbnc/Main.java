@@ -38,6 +38,7 @@ public class Main extends Application {
 		Parent root = (Parent) loader.load();
 		Scene scene = new Scene(root);
 		primaryStage.setScene(scene);
+		primaryStage.setResizable(false);
 		primaryStage.show();
 		// Obtain controller of the scene
 		Controller controller = (Controller) loader.getController();

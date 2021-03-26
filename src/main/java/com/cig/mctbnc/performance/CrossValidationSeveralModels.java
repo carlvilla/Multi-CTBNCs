@@ -48,15 +48,15 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 	public CrossValidationSeveralModels(DatasetReader datasetReader, int folds, boolean shuffle)
 			throws UnreadDatasetException {
 		super();
-		logger.info("Preparing {}-cross validation / Shuffle: {}", folds, shuffle);
+		this.logger.info("Preparing {}-cross validation / Shuffle: {}", folds, shuffle);
 		// Obtain dataset and the number of sequence it contains
-		dataset = datasetReader.readDataset();
-		logger.info("Time variable: {}", dataset.getNameTimeVariable());
-		logger.info("Features: {}", dataset.getNameFeatures());
-		logger.info("Class variables: {}", (dataset.getNameClassVariables()));
+		this.dataset = datasetReader.readDataset();
+		this.logger.info("Time variable: {}", this.dataset.getNameTimeVariable());
+		this.logger.info("Features: {}", this.dataset.getNameFeatures());
+		this.logger.info("Class variables: {}", (this.dataset.getNameClassVariables()));
 		// Check that the specified number of folds is valid
-		if (folds < 2 || folds > dataset.getNumDataPoints())
-			logger.warn("Number of folds must be between 2 and the dataset size (leave-one-out cross validation)");
+		if (folds < 2 || folds > this.dataset.getNumDataPoints())
+			this.logger.warn("Number of folds must be between 2 and the dataset size (leave-one-out cross validation)");
 		// Set number of folds
 		this.folds = folds;
 		// Set if the sequences should be shuffled
@@ -80,7 +80,7 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 			Integer seed = 10;
 			Util.shuffle(sequences, seed);
 			Util.shuffle(fileNames, seed);
-			logger.info("Sequences shuffled");
+			this.logger.info("Sequences shuffled");
 		}
 		// Obtain size of each fold
 		int[] sizeFolds = new int[this.folds];
@@ -93,7 +93,7 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 		// Iterate over each fold
 		int fromIndex = 0;
 		for (int i = 0; i < this.folds; i++) {
-			logger.info("Testing on fold {}", i);
+			this.logger.info("Testing on fold {}", i);
 			// Prepare training and testing datasets for current fold
 			int toIndex = fromIndex + sizeFolds[i];
 			// Prepare training dataset for current fold
@@ -125,7 +125,7 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 	 * @param fileNames
 	 * @param fromIndex index of the first sequence to ignore
 	 * @param toIndex   index of the last sequence to ignore
-	 * @return
+	 * @return training dataset
 	 */
 	private Dataset extractTrainingDataset(List<Sequence> sequences, List<String> fileNames, int fromIndex,
 			int toIndex) {
@@ -151,7 +151,7 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 	 * @param fileNames
 	 * @param fromIndex index of the first sequence of the extracted dataset
 	 * @param toIndex   index of the last sequence of the extracted dataset
-	 * @return
+	 * @return testing dataset
 	 */
 	private Dataset extractTestingDataset(List<Sequence> sequences, List<String> fileNames, int fromIndex,
 			int toIndex) {
@@ -187,7 +187,7 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 			models.get(indexModel).learn(datasets.get(indexModel));
 		});
 		Instant end = Instant.now();
-		logger.info("CTBNCs learnt in {}", Duration.between(start, end));
+		this.logger.info("CTBNCs learnt in {}", Duration.between(start, end));
 		return models;
 	}
 
@@ -215,7 +215,7 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 	 * @param nameCV          name of the class variable whose predictions are
 	 *                        included in the predictions of the fold
 	 * @param predictionsCV   predictions of the class variable
-	 * @return
+	 * @return updated predictions for the fold
 	 */
 	private Prediction[] updatePredictionsFold(Prediction[] predictionsFold, String nameCV,
 			Prediction[] predictionsCV) {

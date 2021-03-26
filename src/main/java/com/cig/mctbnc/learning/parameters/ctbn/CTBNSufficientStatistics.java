@@ -54,6 +54,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * 
 	 * @param dataset dataset from which sufficient statistics are extracted
 	 */
+	@Override
 	public void computeSufficientStatistics(DiscreteNode node, Dataset dataset) {
 		String nameVariable = node.getName();
 		logger.trace("Computing sufficient statistics CTBN for node {}", nameVariable);
@@ -97,9 +98,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @return number of times the variable leaves every state
 	 */
 	public double[][] getMx() {
-		if (Mx == null)
+		if (this.Mx == null)
 			logger.warn("Sufficient statistic mx was not computed");
-		return Mx;
+		return this.Mx;
 	}
 
 	/**
@@ -110,9 +111,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @return number of occurrences of every transition
 	 */
 	public double[][][] getMxy() {
-		if (Mxy == null)
+		if (this.Mxy == null)
 			logger.warn("Sufficient statistic mxy was not computed");
-		return Mxy;
+		return this.Mxy;
 	}
 
 	/**
@@ -122,9 +123,9 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @return time that the variable stay for every state
 	 */
 	public double[][] getTx() {
-		if (Tx == null)
+		if (this.Tx == null)
 			logger.warn("Sufficient statistic tx was not computed");
-		return Tx;
+		return this.Tx;
 	}
 
 	/**
@@ -136,7 +137,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 *         occurred from a certain state to another
 	 */
 	public double getMxyHyperparameter() {
-		return MxyHP;
+		return this.MxyHP;
 	}
 
 	/**
@@ -147,7 +148,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 *         occurred from a certain state
 	 */
 	public double getMxHyperparameter() {
-		return MxHP;
+		return this.MxHP;
 	}
 
 	/**
@@ -158,7 +159,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 *         state
 	 */
 	public double getTxHyperparameter() {
-		return TxHP;
+		return this.TxHP;
 	}
 
 	/**
@@ -168,14 +169,14 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 */
 	private void initializeSufficientStatistics(DiscreteNode node, Dataset dataset) {
 		// Hyperparameter MxPrior (number of transitions originating from certain state)
-		MxHP = MxyHP * (node.getNumStates() - 1);
-		Mxy = new double[node.getNumStatesParents()][node.getNumStates()][node.getNumStates()];
-		Mx = new double[node.getNumStatesParents()][node.getNumStates()];
-		Tx = new double[node.getNumStatesParents()][node.getNumStates()];
+		this.MxHP = this.MxyHP * (node.getNumStates() - 1);
+		this.Mxy = new double[node.getNumStatesParents()][node.getNumStates()][node.getNumStates()];
+		this.Mx = new double[node.getNumStatesParents()][node.getNumStates()];
+		this.Tx = new double[node.getNumStatesParents()][node.getNumStates()];
 		// Adds the imaginary counts (hyperparameters) to the sufficient statistics
-		Util.fill3dArray(Mxy, MxyHP);
-		Util.fill2dArray(Mx, MxyHP * (node.getNumStates() - 1));
-		Util.fill2dArray(Tx, TxHP);
+		Util.fill3dArray(this.Mxy, this.MxyHP);
+		Util.fill2dArray(this.Mx, this.MxyHP * (node.getNumStates() - 1));
+		Util.fill2dArray(this.Tx, this.TxHP);
 	}
 
 	/**
@@ -187,7 +188,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @param numOccurrences number of occurrences
 	 */
 	private void updateMxy(int stateParents, int fromState, int toState, double numOccurrences) {
-		Mxy[stateParents][fromState][toState] += numOccurrences;
+		this.Mxy[stateParents][fromState][toState] += numOccurrences;
 	}
 
 	/**
@@ -199,7 +200,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 */
 	private void updateMx(int stateParents, int fromState, double numOccurrences) {
 		// Mx.merge(fromState, numOccurrences, Double::sum);
-		Mx[stateParents][fromState] += numOccurrences;
+		this.Mx[stateParents][fromState] += numOccurrences;
 
 	}
 
@@ -211,7 +212,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @param time  time
 	 */
 	private void updateTx(int stateParents, int fromState, double time) {
-		Tx[stateParents][fromState] += time;
+		this.Tx[stateParents][fromState] += time;
 	}
 
 }

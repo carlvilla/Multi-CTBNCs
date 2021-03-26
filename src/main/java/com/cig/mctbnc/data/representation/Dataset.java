@@ -41,7 +41,7 @@ public class Dataset {
 	 * @param nameClassVariables
 	 */
 	public Dataset(String nameTimeVariable, List<String> nameClassVariables) {
-		sequences = new ArrayList<Sequence>();
+		this.sequences = new ArrayList<Sequence>();
 		this.nameTimeVariable = nameTimeVariable;
 		this.nameClassVariables = nameClassVariables;
 		initialiazeStructures();
@@ -54,14 +54,14 @@ public class Dataset {
 	 */
 	public Dataset(List<Sequence> sequences) {
 		this.sequences = sequences;
-		nameFeatures = sequences.get(0).getFeatureNames();
-		nameClassVariables = sequences.get(0).getClassVariablesNames();
-		nameTimeVariable = sequences.get(0).getTimeVariableName();
+		this.nameFeatures = sequences.get(0).getFeatureNames();
+		this.nameClassVariables = sequences.get(0).getClassVariablesNames();
+		this.nameTimeVariable = sequences.get(0).getTimeVariableName();
 		initialiazeStructures();
 	}
 
 	private void initialiazeStructures() {
-		statesVariables = new HashMap<String, List<String>>();
+		this.statesVariables = new HashMap<String, List<String>>();
 	}
 
 	/**
@@ -84,15 +84,16 @@ public class Dataset {
 			// features. They are given by the names of the variables that were not
 			// defined as the time variable or class variable.
 			if (getSequences().size() == 0) {
-				nameFeatures = nameVariablesSequence.stream()
-						.filter(name -> !name.equals(nameTimeVariable) && !nameClassVariables.contains(name))
+				this.nameFeatures = nameVariablesSequence.stream()
+						.filter(name -> !name.equals(this.nameTimeVariable) && !this.nameClassVariables.contains(name))
 						.collect(Collectors.toList());
 			}
 			// Drop names of variables
 			data.remove(0);
 			// Create and add sequence to the dataset
-			Sequence sequence = new Sequence(nameVariablesSequence, nameTimeVariable, nameClassVariables, data);
-			sequences.add(sequence);
+			Sequence sequence = new Sequence(nameVariablesSequence, this.nameTimeVariable, this.nameClassVariables,
+					data);
+			this.sequences.add(sequence);
 			return true;
 		} catch (ErroneousSequenceException e) {
 			logger.trace(e.getMessage());
@@ -105,7 +106,7 @@ public class Dataset {
 	 */
 	public void removeZeroVarianceFeatures() {
 		// Use temporal list to avoid a concurrent modification exception
-		List<String> tempList = new ArrayList<String>(nameFeatures);
+		List<String> tempList = new ArrayList<String>(this.nameFeatures);
 		for (String nameFeature : tempList) {
 			if (getPossibleStatesVariable(nameFeature).size() == 1) {
 				logger.warn("Features {} is removed since its variance is zero.", nameFeature);
@@ -122,10 +123,10 @@ public class Dataset {
 	public void setNameFiles(List<String> list) {
 		if (list.size() == 1) {
 			// If the list size is one, all the sequences were extracted from a unique file
-			nameFiles = new ArrayList<String>();
+			this.nameFiles = new ArrayList<String>();
 			String nameFile = list.get(0);
-			for (int i = 0; i < sequences.size(); i++) {
-				nameFiles.add(nameFile);
+			for (int i = 0; i < this.sequences.size(); i++) {
+				this.nameFiles.add(nameFile);
 			}
 		} else {
 			// Every sequence was extracted from a different file
@@ -140,10 +141,10 @@ public class Dataset {
 	 */
 	private void removeFeature(String nameFeature) {
 		// Remove the feature from all the sequences of the dataset
-		for (Sequence sequence : sequences)
+		for (Sequence sequence : this.sequences)
 			sequence.removeFeature(nameFeature);
 		// Remove the name of the feature from the dataset
-		nameFeatures.remove(nameFeature);
+		this.nameFeatures.remove(nameFeature);
 	}
 
 	/**
@@ -163,7 +164,7 @@ public class Dataset {
 	 * @return list with the sequences of the dataset
 	 */
 	public List<Sequence> getSequences() {
-		return new ArrayList<Sequence>(sequences);
+		return new ArrayList<Sequence>(this.sequences);
 	}
 
 	/**
@@ -172,7 +173,7 @@ public class Dataset {
 	 * @return name of time variable
 	 */
 	public String getNameTimeVariable() {
-		return nameTimeVariable;
+		return this.nameTimeVariable;
 	}
 
 	/**
@@ -181,7 +182,7 @@ public class Dataset {
 	 * @return list with the names of the features
 	 */
 	public List<String> getNameFeatures() {
-		return nameFeatures;
+		return this.nameFeatures;
 	}
 
 	/**
@@ -191,10 +192,10 @@ public class Dataset {
 	 * @return list with the names of the class variables
 	 */
 	public List<String> getNameClassVariables() {
-		if (!(ignoredClassVariables == null || ignoredClassVariables.isEmpty()))
-			return nameClassVariables.stream().filter(var -> !ignoredClassVariables.contains(var))
+		if (!(this.ignoredClassVariables == null || this.ignoredClassVariables.isEmpty()))
+			return this.nameClassVariables.stream().filter(var -> !this.ignoredClassVariables.contains(var))
 					.collect(Collectors.toList());
-		return nameClassVariables;
+		return this.nameClassVariables;
 	}
 
 	/**
@@ -228,7 +229,7 @@ public class Dataset {
 	 * @return number of features
 	 */
 	public int getNumFeatures() {
-		return nameFeatures.size();
+		return this.nameFeatures.size();
 	}
 
 	/**
@@ -237,7 +238,7 @@ public class Dataset {
 	 * @return number of class variables.
 	 */
 	public int getNumClassVariables() {
-		return nameClassVariables.size();
+		return this.nameClassVariables.size();
 	}
 
 	/**
@@ -266,7 +267,7 @@ public class Dataset {
 	 * @return number of observations
 	 */
 	public int getNumObservation() {
-		return sequences.stream().mapToInt(sequence -> sequence.getNumObservations()).sum();
+		return this.sequences.stream().mapToInt(sequence -> sequence.getNumObservations()).sum();
 	}
 
 	/**
@@ -299,7 +300,7 @@ public class Dataset {
 	 * @return array of State objects
 	 */
 	public Map<String, List<String>> getStatesVariables() {
-		return statesVariables;
+		return this.statesVariables;
 	}
 
 	/**
@@ -313,7 +314,7 @@ public class Dataset {
 	 */
 	public List<String> getPossibleStatesVariable(String nameVariable) {
 		// Extract states from the Map (if previously obtained)
-		List<String> states = statesVariables.get(nameVariable);
+		List<String> states = this.statesVariables.get(nameVariable);
 		if (states == null) {
 			// Use a HashSet to save each state just once
 			Set<String> statesSet = new HashSet<String>();
@@ -324,24 +325,9 @@ public class Dataset {
 				}
 			}
 			states = new ArrayList<String>(statesSet);
-			statesVariables.put(nameVariable, states);
+			this.statesVariables.put(nameVariable, states);
 		}
 		return states;
-	}
-
-	/**
-	 * Create a deep copy of the given list of states.
-	 * 
-	 * @param states
-	 * @return copy of the State list
-	 */
-	private List<State> copyStateList(List<State> states) {
-		List<State> copiedStates = new ArrayList<State>();
-		for (State state : states) {
-			State copiedState = new State(state.getEvents());
-			copiedStates.add(copiedState);
-		}
-		return copiedStates;
 	}
 
 	/**
@@ -477,7 +463,7 @@ public class Dataset {
 	 * @return names of the files
 	 */
 	public List<String> getNameFiles() {
-		return nameFiles;
+		return this.nameFiles;
 	}
 
 	/**
@@ -496,10 +482,10 @@ public class Dataset {
 		}
 		// Check names of variables
 		List<String> nameVariablesSequence = Arrays.asList(data.get(0));
-		if (!nameVariablesSequence.contains(nameTimeVariable)) {
-			String message = String.format("Time variable '%s' not specified", nameTimeVariable);
+		if (!nameVariablesSequence.contains(this.nameTimeVariable)) {
+			String message = String.format("Time variable '%s' not specified", this.nameTimeVariable);
 			throw new ErroneousSequenceException(message);
-		} else if (!nameVariablesSequence.containsAll(nameClassVariables)) {
+		} else if (!nameVariablesSequence.containsAll(this.nameClassVariables)) {
 			String message = "One or more specified class variables are not present in the sequence";
 			throw new ErroneousSequenceException(message);
 		} else if (getNumDataPoints() > 0 && (!nameVariablesSequence.containsAll(getNameAllVariables())

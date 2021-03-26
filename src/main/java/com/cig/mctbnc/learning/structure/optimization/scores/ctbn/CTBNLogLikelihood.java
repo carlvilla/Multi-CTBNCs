@@ -1,11 +1,19 @@
 package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 
+import java.util.function.DoubleUnaryOperator;
+
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
 import com.cig.mctbnc.learning.structure.optimization.scores.AbstractLogLikelihood;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.Node;
 
+/**
+ * Implements the log-likelihood score for continuous time Bayesian networks.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScoreFunction {
 
 	/**
@@ -35,13 +43,15 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 	 * @param penalizationFunction penalization function
 	 * @return penalized log-likelihood score
 	 */
+	@Override
 	public double compute(CTBN<? extends Node> ctbn, int indexNode) {
 		// Obtain node to evaluate
 		CIMNode node = (CIMNode) ctbn.getNodes().get(indexNode);
 		double ll = 0.0;
 		ll += logLikelihoodScore(node);
 		// Apply the specified penalization function (if available)
-		if (penalizationFunctionMap.containsKey(penalizationFunction)) {
+		DoubleUnaryOperator penalizationFunction = this.penalizationFunctionMap.get(this.penalizationFunction);
+		if (penalizationFunction != null) {
 			// Overfitting is avoid by penalizing the complexity of the network
 			// Number of possible transitions
 			int numStates = node.getNumStates();
@@ -53,7 +63,7 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 			// Sample size (number of sequences)
 			int sampleSize = ctbn.getDataset().getNumDataPoints();
 			// Non-negative penalization
-			double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
+			double penalization = penalizationFunction.applyAsDouble(sampleSize);
 			ll -= (double) networkComplexity * penalization;
 		}
 		return ll;

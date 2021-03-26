@@ -12,12 +12,18 @@ import java.util.Map;
 public abstract class MetricsWriter {
 	List<String> nameClassVariables;
 
+	/**
+	 * Write the given results.
+	 * 
+	 * @param results
+	 */
 	public abstract void write(Map<String, Double> results);
 
 	/**
 	 * Close the writer.
 	 */
 	public void close() {
+		return;
 	}
 
 	/**

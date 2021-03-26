@@ -24,6 +24,7 @@ public class DAG extends AbstractStructureConstraints {
 	 * @param adjacencyMatrix adjacency matrix
 	 * @return boolean that determines if the structure is valid
 	 */
+	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix, NodeIndexer<? extends Node> nodeIndexer) {
 		int numNodes = adjacencyMatrix.length;
 		// Indegrees of all nodes.

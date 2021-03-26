@@ -44,7 +44,7 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	 */
 	public AbstractCSVReader(String datasetFolder) {
 		this.datasetFolder = datasetFolder;
-		outdatedDataset = true;
+		this.outdatedDataset = true;
 	}
 
 	/**
@@ -59,7 +59,7 @@ public abstract class AbstractCSVReader implements DatasetReader {
 			FileReader reader = new FileReader(csvFile);
 			CSVReader csvReader = new CSVReader(reader);
 			try {
-				nameVariables = Arrays.asList(csvReader.readNext());
+				this.nameVariables = Arrays.asList(csvReader.readNext());
 			} catch (NullPointerException | IOException e) {
 				throw new FileNotFoundException("Impossible to read CSV file");
 			} finally {
@@ -77,9 +77,10 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	 * @param excludeVariables
 	 * @return list with the rows (lists of strings) of the CSV
 	 * @throws VariableNotFoundException
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 */
-	public List<String[]> readCSV(String pathFile, List<String> excludeVariables) throws VariableNotFoundException, FileNotFoundException {
+	public List<String[]> readCSV(String pathFile, List<String> excludeVariables)
+			throws VariableNotFoundException, FileNotFoundException {
 		List<String[]> list = new ArrayList<String[]>();
 		FileReader reader = new FileReader(pathFile);
 		CSVReader csvReader = new CSVReader(reader);
@@ -132,25 +133,25 @@ public abstract class AbstractCSVReader implements DatasetReader {
 		this.nameTimeVariable = nameTimeVariable;
 		this.nameClassVariables = nameClassVariables;
 		// Variables that should be ignored
-		excludeVariables = new ArrayList<String>(getAllVariablesDataset());
-		excludeVariables.remove(nameTimeVariable);
-		excludeVariables.removeAll(nameClassVariables);
-		excludeVariables.removeAll(nameFeatures);
+		this.excludeVariables = new ArrayList<String>(getAllVariablesDataset());
+		this.excludeVariables.remove(nameTimeVariable);
+		this.excludeVariables.removeAll(nameClassVariables);
+		this.excludeVariables.removeAll(nameFeatures);
 	}
 
 	@Override
 	public List<String> getAllVariablesDataset() {
-		return nameVariables;
+		return this.nameVariables;
 	}
 
 	@Override
 	public void setDatasetAsOutdated(boolean outdated) {
-		outdatedDataset = outdated;
+		this.outdatedDataset = outdated;
 	}
 
 	@Override
 	public boolean isDatasetOutdated() {
-		return outdatedDataset;
+		return this.outdatedDataset;
 	}
 
 	private void closeReader(Closeable reader) {

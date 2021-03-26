@@ -14,7 +14,7 @@ public class CTBNMaximumLikelihoodEstimation extends CTBNParameterLearningAlgori
 	@Override
 	protected CTBNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset) {
 		CTBNSufficientStatistics ssNode = new CTBNSufficientStatistics(0, 0);
-		ssNode.computeSufficientStatistics((DiscreteNode) node, dataset);
+		ssNode.computeSufficientStatistics(node, dataset);
 		return ssNode;
 	}
 

@@ -32,7 +32,7 @@ public class CTBNLearningAlgorithms {
 	 * @return parameter learning algorithm
 	 */
 	public CTBNParameterLearningAlgorithm getParameterLearningAlgorithm() {
-		return parameterLearningAlg;
+		return this.parameterLearningAlg;
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class CTBNLearningAlgorithms {
 	 * @return structure learning algorithm
 	 */
 	public StructureLearningAlgorithm getStructureLearningAlgorithm() {
-		return structureLearningAlg;
+		return this.structureLearningAlg;
 	}
 
 }

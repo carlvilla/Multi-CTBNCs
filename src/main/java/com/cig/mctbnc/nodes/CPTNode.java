@@ -71,7 +71,7 @@ public class CPTNode extends DiscreteNode {
 	 */
 	public double getCP(int idxStateParents, int idxStateNode) {
 		try {
-			return CPT[idxStateParents][idxStateNode];
+			return this.CPT[idxStateParents][idxStateNode];
 		} catch (IndexOutOfBoundsException e) {
 			// One of the index state was never seen during prediction. The model will not
 			// be retrain, so 0 is reported.
@@ -85,7 +85,7 @@ public class CPTNode extends DiscreteNode {
 	 * @return sufficient statistics
 	 */
 	public BNSufficientStatistics getSufficientStatistics() {
-		return sufficientStatistics;
+		return this.sufficientStatistics;
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class CPTNode extends DiscreteNode {
 
 	@Override
 	public boolean areParametersEstimated() {
-		return !(CPT == null);
+		return !(this.CPT == null);
 	}
 
 	@Override
@@ -128,7 +128,7 @@ public class CPTNode extends DiscreteNode {
 		StringBuilder sb = new StringBuilder();
 		sb.append(discreteNodeDescription + "\n");
 		sb.append("--CPT--\n");
-		sb.append(CPT);
+		sb.append(this.CPT);
 		return sb.toString();
 	}
 

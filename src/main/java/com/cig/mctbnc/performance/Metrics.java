@@ -405,18 +405,13 @@ public class Metrics {
 		return metric.compute(cm);
 	}
 
-	public static double weightedMacroAverage(Prediction[] predicted, Dataset actualDataset, Metric metric) {
-		return 0.0;
-	}
-
 	/**
 	 * Return the positive class of a binary class variable. It is assumed that the
 	 * class would be either 'True', 'Positive' or '1'. If it is not possible to
 	 * determine the positive class, the first one will be returned.
 	 * 
-	 * 
 	 * @param possibleClasses
-	 * @return
+	 * @return positive class
 	 */
 	private static String getPositiveClass(String[] possibleClasses) {
 		for (int i = 0; i < possibleClasses.length; i++) {
@@ -437,7 +432,7 @@ public class Metrics {
 	 * @param predicted
 	 * @param actual
 	 * @param positiveClass
-	 * @return
+	 * @return confusion matrix
 	 */
 	private static Map<String, Integer> getConfusionMatrix(String[] predicted, String[] actual, String positiveClass) {
 		// Compute true positives, false positives, true negatives and false negatives

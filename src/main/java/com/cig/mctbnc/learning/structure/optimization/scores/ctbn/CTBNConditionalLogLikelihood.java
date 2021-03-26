@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.DoubleUnaryOperator;
 
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.bn.BNSufficientStatistics;
@@ -87,7 +88,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	 * global variable to avoid recomputing them.
 	 * 
 	 * @param nodesCVs
-	 * @return
+	 * @return states with all class configurations
 	 */
 	private List<State> getClassConfigurations(List<CPTNode> nodesCVs) {
 		if (!checkValidityCCs(nodesCVs)) {
@@ -98,23 +99,24 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 					statesNode.add(new State(Map.of(nodeCV.getName(), valueState)));
 				statesEachCV.add(statesNode);
 			}
-			statesCVs = Util.cartesianProduct(statesEachCV);
+			this.statesCVs = Util.cartesianProduct(statesEachCV);
 		}
-		return statesCVs;
+		return this.statesCVs;
 	}
 
 	/**
 	 * Check if the saved class configurations are still valid.
 	 * 
-	 * @return true if the currently saved class configurations are still valid
+	 * @return true if the currently saved class configurations are still valid,
+	 *         false otherwise
 	 */
 	private boolean checkValidityCCs(List<CPTNode> nodesCVs) {
 		// Check if the class configurations were previously obtained
-		if (statesCVs == null)
+		if (this.statesCVs == null)
 			return false;
 		// Check if it contains the currently studied class variables
 		for (CPTNode nodeCV : nodesCVs) {
-			if (statesCVs.get(0).getValueVariable(nodeCV.getName()) == null)
+			if (this.statesCVs.get(0).getValueVariable(nodeCV.getName()) == null)
 				return false;
 		}
 		return true;
@@ -124,7 +126,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	 * Compute the log prior probability of the class variables.
 	 * 
 	 * @param nodesCVs
-	 * @return
+	 * @return log prior probability of the class variables
 	 */
 	private double logPriorProbabilityClassVariables(BN<CPTNode> bnClassSubgraph) {
 		// Retrieve nodes BN
@@ -158,7 +160,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	 * 
 	 * @param ctbn
 	 * @param statesCVs
-	 * @return
+	 * @return log-likelihood of the sequences at each feature node
 	 */
 	private double logLikelihoodSequences(CTBN<? extends Node> ctbn) {
 		double lls = 0.0;
@@ -327,11 +329,12 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	 * Define the total penalization to apply to the given model.
 	 * 
 	 * @param ctbn
-	 * @return
+	 * @return penalization to apply to the given model
 	 */
 	private double getPenalization(CTBN<? extends Node> ctbn) {
 		double totalPenalization = 0.0;
-		if (penalizationFunctionMap.containsKey(penalizationFunction)) {
+		DoubleUnaryOperator penalizationFunction = this.penalizationFunctionMap.get(this.penalizationFunction);
+		if (penalizationFunction != null) {
 			for (CIMNode node : (List<CIMNode>) ctbn.getNodes()) {
 				// Overfitting is avoid by penalizing the complexity of the network
 				// Number of possible transitions
@@ -344,7 +347,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 				// Sample size (number of sequences)
 				int sampleSize = ctbn.getDataset().getNumDataPoints();
 				// Non-negative penalization
-				double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
+				double penalization = penalizationFunction.applyAsDouble(sampleSize);
 				totalPenalization += networkComplexity * penalization;
 			}
 		}
@@ -352,12 +355,12 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	}
 
 	/**
-	 * Compute the log-likelihood of the sequences at each feature node. Only
+	 * Compute the log-likelihood of the sequences at specified feature node. Only
 	 * features and class variables that are parents of each node are relevant.
 	 * 
 	 * @param ctbn
 	 * @param statesCVs
-	 * @return
+	 * @return log-likelihood of the sequences at specified feature node
 	 */
 	private double logLikelihoodSequences(CTBN<? extends Node> ctbn, int nodeIndex) {
 		double lls = 0.0;
@@ -398,12 +401,13 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	}
 
 	/**
-	 * Compute the log-marginal-likelihoods of the sequences (denominator term).
+	 * Compute the log-marginal-likelihoods of the sequences (denominator term) at
+	 * the specified node.
 	 * 
 	 * @param nodesCVs
 	 * @param ctbn
 	 * @param statesCVs
-	 * @return
+	 * @return log-marginal-likelihoods of the sequences at the specified node
 	 */
 	private double logMarginalLikelihoodSequences(BN<CPTNode> bn, CTBN<? extends Node> ctbn, int nodeIndex) {
 		// Retrieve nodes BN
@@ -428,8 +432,8 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	}
 
 	/**
-	 * Compute the log-likelihood of the sequences at the feature nodes given each
-	 * possible class configuration and stored them in Map 'uPs'.
+	 * Compute the log-likelihood of the sequences at the specified feature node
+	 * given each possible class configuration and stored them in Map 'uPs'.
 	 * 
 	 * @param ctbn
 	 * @param statesCVs
@@ -490,14 +494,16 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	}
 
 	/**
-	 * Define the total penalization to apply to the given model.
+	 * Define the total penalization to apply to the given model, considering only
+	 * the specified feature node.
 	 * 
 	 * @param ctbn
-	 * @return
+	 * @return penalization to apply to the given model
 	 */
 	private double getPenalization(CTBN<? extends Node> ctbn, int nodeIndex) {
 		double totalPenalization = 0.0;
-		if (penalizationFunctionMap.containsKey(penalizationFunction)) {
+		DoubleUnaryOperator penalizationFunction = this.penalizationFunctionMap.get(this.penalizationFunction);
+		if (penalizationFunction != null) {
 			CIMNode node = (CIMNode) ctbn.getNodes().get(nodeIndex);
 			// Overfitting is avoid by penalizing the complexity of the network
 			// Number of possible transitions
@@ -510,7 +516,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 			// Sample size (number of sequences)
 			int sampleSize = ctbn.getDataset().getNumDataPoints();
 			// Non-negative penalization
-			double penalization = penalizationFunctionMap.get(penalizationFunction).applyAsDouble(sampleSize);
+			double penalization = penalizationFunction.applyAsDouble(sampleSize);
 			totalPenalization += networkComplexity * penalization;
 		}
 		return totalPenalization;

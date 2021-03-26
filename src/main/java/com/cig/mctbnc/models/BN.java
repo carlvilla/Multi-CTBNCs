@@ -74,7 +74,7 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * @return nodes with learned parameters
 	 */
 	public List<NodeType> getLearnedNodes() {
-		return (List<NodeType>) nodes;
+		return this.nodes;
 	}
 
 	/**
@@ -84,11 +84,11 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 */
 	public List<Node> getTopologicalOrdering() {
 		List<Node> sortedNodes = new ArrayList<Node>();
-		LinkedList<Node> nodesWithoutParents = nodes.stream().filter(node -> !node.hasParents())
+		LinkedList<Node> nodesWithoutParents = this.nodes.stream().filter(node -> !node.hasParents())
 				.collect(Collectors.toCollection(LinkedList::new));
 		// Create a map with the nodes and their incoming arcs.
 		Map<Node, Integer> indegree = IntStream.range(0, getNumNodes()).boxed()
-				.collect(Collectors.toMap(i -> nodes.get(i), i -> nodes.get(i).getNumParents()));
+				.collect(Collectors.toMap(i -> this.nodes.get(i), i -> this.nodes.get(i).getNumParents()));
 		// Iterate over nodes without parents
 		while (!nodesWithoutParents.isEmpty()) {
 			Node node = nodesWithoutParents.poll();
@@ -111,15 +111,15 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("--Structure Bayesian network--\n");
-		for (Node node : nodes) {
+		for (Node node : this.nodes) {
 			if (node.getParents().isEmpty())
 				sb.append("{}");
-			else	
+			else
 				for (Node parent : node.getParents()) {
 					sb.append("(" + parent.getName() + ")");
 				}
 			sb.append(" => (" + node.getName() + ") \n");
-		}		
+		}
 		return sb.toString();
 	}
 
