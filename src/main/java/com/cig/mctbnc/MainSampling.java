@@ -1,13 +1,10 @@
 package com.cig.mctbnc;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
-import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.data.writer.MultipleCSVWriter;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.models.CTBN;
@@ -36,427 +33,55 @@ public class MainSampling {
 		// Duration of the sequences
 		int durationSequences = 10;
 		// Extreme probabilities
-		boolean forceExtremeProb = true;
+		boolean forceExtremeProb = false;
 		// Minimum and maximum values of the intensities
 		int minIntensity = 0;
 		int maxIntensity = 10;
+
 		// Destination path for the generated dataset
+		String path = "Experiments/Datasets/synthetic/Experiment1/D1";
+		// Select the experiment from which the dataset will be generated
+		String selectedExperiment = "1";
 
-		String path = "C:\\Users\\Carlos\\Desktop\\datasets\\synthetic\\Experiment10_extreme\\D5";
+		// MCTBNC with the structure from the selected experiment
+		MCTBNC<CPTNode, CIMNode> mctbnc = generateModelSelectedExperiment(selectedExperiment, forceExtremeProb,
+				minIntensity, maxIntensity);
 
-//				// ------------------- Experiment 1 -------------------
-//				// Define class variables
-//				CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
-//				CPTNode C2 = new CPTNode("C2", true, List.of("C2_A", "C2_B"));
-//				CPTNode C3 = new CPTNode("C3", true, List.of("C3_A", "C3_B"));
-//				CPTNode C4 = new CPTNode("C4", true, List.of("C4_A", "C4_B"));
-//				CPTNode C5 = new CPTNode("C5", true, List.of("C5_A", "C5_B"));
+		if (mctbnc == null)
+			// The selected experiment was not found
+			return;
 
-//				// Definition of the structure of the class subgraph
-//				C1.setChild(C2);
-//				C1.setChild(C3);
-//				C3.setChild(C2);
-//				C3.setChild(C4);
-//				C3.setChild(C5);
-//				C5.setChild(C4);
+		// Sample sequences from the MCTBNC
+		List<Sequence> sequences = new ArrayList<Sequence>();
+		for (int i = 0; i < numSequences; i++)
+			sequences.add(mctbnc.sample(durationSequences));
 
-//				BN<CPTNode> CS = new BN<CPTNode>(List.of(C1, C2, C3, C4, C5));
+		// Create a dataset with the generated sequences
+		Dataset dataset = new Dataset(sequences);
+		// Save dataset in provided path
+		MultipleCSVWriter.write(dataset, path);
 
-//				// Definition of the parameters of the Bayesian network (class subgraph)
-//				generateRandomCPD(CS, forceExtremeProb);
+		System.out.println("Dataset generated!");
+	}
 
-//				// Define features
-//				CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
-//				CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));
-//				CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));
-//				CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));
-//				CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));
-
-//				// Definition of the structure of the bridge and feature subgraphs
-//				C1.setChild(X1);
-//				C1.setChild(X2);
-//				C3.setChild(X2);
-//				C3.setChild(X3);
-//				C3.setChild(X4);
-//				C5.setChild(X4);
-//				C5.setChild(X5);
-//				X1.setChild(X2);
-//				X1.setChild(X3);
-//				X2.setChild(X3);
-//				X2.setChild(X4);
-//				X4.setChild(X3);
-//				X4.setChild(X5);
-//				X5.setChild(X4);
-//				// ------------------- Experiment 1 -------------------
-
-//				// ------------------- Experiment 2 -------------------
-//				// Define class variables
-//				CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
-//				CPTNode C2 = new CPTNode("C2", true, List.of("C2_A", "C2_B"));
-//				CPTNode C3 = new CPTNode("C3", true, List.of("C3_A", "C3_B"));
-//				CPTNode C4 = new CPTNode("C4", true, List.of("C4_A", "C4_B"));
-//				CPTNode C5 = new CPTNode("C5", true, List.of("C5_A", "C5_B"));
-		//
-//				// Definition of the structure of the class subgraph
-//				C1.setChild(C2);
-//				C1.setChild(C3);
-//				C3.setChild(C2);
-//				C3.setChild(C4);
-//				C3.setChild(C5);
-//				C5.setChild(C4);
-		//
-//				BN<CPTNode> CS = new BN<CPTNode>(List.of(C1, C2, C3, C4, C5));
-		//
-//				// Definition of the parameters of the Bayesian network (class subgraph)
-//				generateRandomCPD(CS, forceExtremeProb);
-		//
-//				// Define features
-//				CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
-//				CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));
-//				CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));
-//				CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));
-//				CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));
-		//
-//				// Definition of the structure of the bridge and feature subgraphs
-//				C1.setChild(X1);
-//				C1.setChild(X2);
-//				C2.setChild(X2);
-//				C3.setChild(X2);
-//				C3.setChild(X3);
-//				C3.setChild(X4);
-//				C4.setChild(X4);
-//				C5.setChild(X4);
-//				C5.setChild(X5);
-//				X1.setChild(X2);
-//				X1.setChild(X3);
-//				X2.setChild(X3);
-//				X2.setChild(X4);
-//				X4.setChild(X3);
-//				X4.setChild(X5);
-//				X5.setChild(X4);
-//				// ------------------- Experiment 2 -------------------
-
-//				// ------------------- Experiment 3 -------------------
-//				// Define class variables
-//				CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
-//				CPTNode C2 = new CPTNode("C2", true, List.of("C2_A", "C2_B"));
-//				CPTNode C3 = new CPTNode("C3", true, List.of("C3_A", "C3_B"));
-//				CPTNode C4 = new CPTNode("C4", true, List.of("C4_A", "C4_B"));
-//				CPTNode C5 = new CPTNode("C5", true, List.of("C5_A", "C5_B"));
-		//
-//				// Definition of the structure of the class subgraph
-//				C1.setChild(C2);
-//				C1.setChild(C3);
-//				C3.setChild(C2);
-//				C3.setChild(C4);
-//				C3.setChild(C5);
-//				C5.setChild(C4);
-		//
-//				BN<CPTNode> CS = new BN<CPTNode>(List.of(C1, C2, C3, C4, C5));
-		//
-//				// Definition of the parameters of the Bayesian network (class subgraph)
-//				generateRandomCPD(CS, forceExtremeProb);
-		//
-//				// Define features
-//				CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
-//				CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));
-//				CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));
-//				CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));
-//				CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));
-		//
-//				// Definition of the structure of the bridge and feature subgraphs
-//				C1.setChild(X1);
-//				C2.setChild(X2);
-//				C3.setChild(X3);
-//				C4.setChild(X4);
-//				C5.setChild(X5);
-//				X1.setChild(X2);
-//				X1.setChild(X3);
-//				X2.setChild(X3);
-//				X2.setChild(X4);
-//				X4.setChild(X3);
-//				X4.setChild(X5);
-//				X5.setChild(X4);
-//				// ------------------- Experiment 3 -------------------
-
-//				// ------------------- Experiment 4 -------------------
-//				// Define class variables
-//				CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
-//				CPTNode C2 = new CPTNode("C2", true, List.of("C2_A", "C2_B"));
-//				CPTNode C3 = new CPTNode("C3", true, List.of("C3_A", "C3_B"));
-//				CPTNode C4 = new CPTNode("C4", true, List.of("C4_A", "C4_B"));
-//				CPTNode C5 = new CPTNode("C5", true, List.of("C5_A", "C5_B"));
-		//
-//				// Definition of the structure of the class subgraph
-//				C1.setChild(C2);
-//				C1.setChild(C3);
-//				C3.setChild(C2);
-//				C3.setChild(C4);
-//				C3.setChild(C5);
-//				C5.setChild(C4);
-		//
-//				BN<CPTNode> CS = new BN<CPTNode>(List.of(C1, C2, C3, C4, C5));
-		//
-//				// Definition of the parameters of the Bayesian network (class subgraph)
-//				generateRandomCPD(CS, forceExtremeProb);
-		//
-//				// Define features
-//				CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
-//				CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));
-//				CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));
-//				CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));
-//				CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));
-		//
-//				// Definition of the structure of the bridge and feature subgraphs
-//				C1.setChild(X1);
-//				C3.setChild(X3);
-//				C5.setChild(X5);
-//				X1.setChild(X2);
-//				X1.setChild(X3);
-//				X2.setChild(X3);
-//				X2.setChild(X4);
-//				X4.setChild(X3);
-//				X4.setChild(X5);
-//				X5.setChild(X4);
-//				// ------------------- Experiment 4 -------------------
-
-//				// ------------------- Experiment 5 -------------------
-//				// Define class variables
-//				CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
-//				CPTNode C2 = new CPTNode("C2", true, List.of("C2_A", "C2_B"));
-//				CPTNode C3 = new CPTNode("C3", true, List.of("C3_A", "C3_B"));
-//				CPTNode C4 = new CPTNode("C4", true, List.of("C4_A", "C4_B"));
-//				CPTNode C5 = new CPTNode("C5", true, List.of("C5_A", "C5_B"));
-		//
-//				// Definition of the structure of the class subgraph
-//				C1.setChild(C2);
-//				C1.setChild(C3);
-//				C1.setChild(C4);
-//				C5.setChild(C2);
-//				C5.setChild(C3);
-//				C5.setChild(C4);
-		//
-//				BN<CPTNode> CS = new BN<CPTNode>(List.of(C1, C2, C3, C4, C5));
-		//
-//				// Definition of the parameters of the Bayesian network (class subgraph)
-//				generateRandomCPD(CS, forceExtremeProb);
-		//
-//				// Define features
-//				CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
-//				CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));
-//				CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));
-//				CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));
-//				CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));
-		//
-//				// Definition of the structure of the bridge and feature subgraphs
-//				C1.setChild(X1);
-//				C1.setChild(X3);
-//				C5.setChild(X3);
-//				C5.setChild(X5);
-//				X1.setChild(X2);
-//				X1.setChild(X3);
-//				X2.setChild(X3);
-//				X2.setChild(X4);
-//				X4.setChild(X3);
-//				X4.setChild(X5);
-//				X5.setChild(X4);
-//				// ------------------- Experiment 5 -------------------
-
-//				// ------------------- Experiment 6 -------------------
-//				// Define class variables
-//				CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
-//				CPTNode C2 = new CPTNode("C2", true, List.of("C2_A", "C2_B"));
-//				CPTNode C3 = new CPTNode("C3", true, List.of("C3_A", "C3_B"));
-//				CPTNode C4 = new CPTNode("C4", true, List.of("C4_A", "C4_B"));
-//				CPTNode C5 = new CPTNode("C5", true, List.of("C5_A", "C5_B"));
-		//
-//				// Definition of the structure of the class subgraph
-//				C1.setChild(C2);
-//				C1.setChild(C3);
-//				C1.setChild(C4);
-//				C5.setChild(C2);
-//				C5.setChild(C3);
-//				C5.setChild(C4);
-		//
-//				BN<CPTNode> CS = new BN<CPTNode>(List.of(C1, C2, C3, C4, C5));
-		//
-//				// Definition of the parameters of the Bayesian network (class subgraph)
-//				generateRandomCPD(CS, forceExtremeProb);
-		//
-//				// Define features
-//				CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
-//				CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));
-//				CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));
-//				CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));
-//				CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));
-		//
-//				// Definition of the structure of the bridge and feature subgraphs
-//				C1.setChild(X1);
-//				C1.setChild(X3);
-//				C2.setChild(X2);
-//				C3.setChild(X3);
-//				C4.setChild(X4);
-//				C5.setChild(X3);
-//				C5.setChild(X5);
-//				X1.setChild(X2);
-//				X1.setChild(X3);
-//				X2.setChild(X3);
-//				X2.setChild(X4);
-//				X4.setChild(X3);
-//				X4.setChild(X5);
-//				X5.setChild(X4);
-//				// ------------------- Experiment 6 -------------------
-
-//				// ------------------- Experiment 7 -------------------
-//				// Define class variables
-//				CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
-//				CPTNode C2 = new CPTNode("C2", true, List.of("C2_A", "C2_B"));
-//				CPTNode C3 = new CPTNode("C3", true, List.of("C3_A", "C3_B"));
-//				CPTNode C4 = new CPTNode("C4", true, List.of("C4_A", "C4_B"));
-//				CPTNode C5 = new CPTNode("C5", true, List.of("C5_A", "C5_B"));
-		//
-//				// Definition of the structure of the class subgraph
-//				C1.setChild(C3);
-//				C2.setChild(C1);
-//				C2.setChild(C3);
-//				C4.setChild(C3);
-//				C4.setChild(C5);
-//				C5.setChild(C3);
-		//
-//				BN<CPTNode> CS = new BN<CPTNode>(List.of(C1, C2, C3, C4, C5));
-		//
-//				// Definition of the parameters of the Bayesian network (class subgraph)
-//				generateRandomCPD(CS, forceExtremeProb);
-		//
-//				// Define features
-//				CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
-//				CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));
-//				CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));
-//				CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));
-//				CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));
-		//
-//				// Definition of the structure of the bridge and feature subgraphs
-//				C1.setChild(X1);
-//				C2.setChild(X2);
-//				C2.setChild(X3);
-//				C4.setChild(X3);
-//				C4.setChild(X4);
-//				C5.setChild(X5);
-//				X1.setChild(X2);
-//				X1.setChild(X3);
-//				X2.setChild(X3);
-//				X2.setChild(X4);
-//				X4.setChild(X3);
-//				X4.setChild(X5);
-//				X5.setChild(X4);
-//				// ------------------- Experiment 7 -------------------
-
-//				// ------------------- Experiment 8 -------------------
-//				// Define class variables
-//				CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
-//				CPTNode C2 = new CPTNode("C2", true, List.of("C2_A", "C2_B"));
-//				CPTNode C3 = new CPTNode("C3", true, List.of("C3_A", "C3_B"));
-//				CPTNode C4 = new CPTNode("C4", true, List.of("C4_A", "C4_B"));
-//				CPTNode C5 = new CPTNode("C5", true, List.of("C5_A", "C5_B"));
-		//
-//				// Definition of the structure of the class subgraph
-//				C1.setChild(C2);
-//				C1.setChild(C3);
-//				C3.setChild(C2);
-//				C3.setChild(C4);
-//				C3.setChild(C5);
-//				C5.setChild(C4);
-		//
-//				BN<CPTNode> CS = new BN<CPTNode>(List.of(C1, C2, C3, C4, C5));
-		//
-//				// Definition of the parameters of the Bayesian network (class subgraph)
-//				generateRandomCPD(CS, forceExtremeProb);
-		//
-//				// Define features
-//				CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
-//				CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));
-//				CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));
-//				CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));
-//				CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));
-		//
-//				// Definition of the structure of the bridge and feature subgraphs
-//				C1.setChild(X1);
-//				C1.setChild(X2);
-//				C3.setChild(X2);
-//				C3.setChild(X3);
-//				C3.setChild(X4);
-//				C5.setChild(X4);
-//				C5.setChild(X5);
-//				X1.setChild(X4);
-//				X2.setChild(X1);
-//				X3.setChild(X2);
-//				X4.setChild(X3);
-//				X5.setChild(X4);
-//				// ------------------- Experiment 8 -------------------
-
-//				// ------------------- Experiment 9 -------------------
-//				// Define class variables
-//				CPTNode C1 = new CPTNode("C1", true, List.of("C1_A", "C1_B"));
-//				CPTNode C2 = new CPTNode("C2", true, List.of("C2_A", "C2_B"));
-//				CPTNode C3 = new CPTNode("C3", true, List.of("C3_A", "C3_B"));
-//				CPTNode C4 = new CPTNode("C4", true, List.of("C4_A", "C4_B"));
-//				CPTNode C5 = new CPTNode("C5", true, List.of("C5_A", "C5_B"));
-		//
-//				// Definition of the structure of the class subgraph
-//				C1.setChild(C2);
-//				C1.setChild(C3);
-//				C3.setChild(C2);
-//				C3.setChild(C4);
-//				C3.setChild(C5);
-//				C5.setChild(C4);
-		//
-//				BN<CPTNode> CS = new BN<CPTNode>(List.of(C1, C2, C3, C4, C5));
-		//
-//				// Definition of the parameters of the Bayesian network (class subgraph)
-//				generateRandomCPD(CS, forceExtremeProb);
-		//
-//				// Define features
-//				CIMNode X1 = new CIMNode("X1", false, List.of("X1_A", "X1_B", "X1_C"));
-//				CIMNode X2 = new CIMNode("X2", false, List.of("X2_A", "X2_B", "X2_C"));
-//				CIMNode X3 = new CIMNode("X3", false, List.of("X3_A", "X3_B", "X3_C"));
-//				CIMNode X4 = new CIMNode("X4", false, List.of("X4_A", "X4_B", "X4_C"));
-//				CIMNode X5 = new CIMNode("X5", false, List.of("X5_A", "X5_B", "X5_C"));
-		//
-//				// Definition of the structure of the bridge and feature subgraphs
-//				C1.setChild(X1);
-//				C1.setChild(X2);
-//				C3.setChild(X2);
-//				C3.setChild(X3);
-//				C3.setChild(X4);
-//				C5.setChild(X4);
-//				C5.setChild(X5);
-//				X1.setChild(X3);
-//				X1.setChild(X4);
-//				X2.setChild(X1);
-//				X3.setChild(X2);
-//				X3.setChild(X4);
-//				X4.setChild(X5);
-//				X5.setChild(X3);
-//				// ------------------- Experiment 9 -------------------
-
-		// ------------------- Experiment 10 -------------------
+	/**
+	 * Generate a MCTBNC for the selected experiment.
+	 * 
+	 * @param selectedExperiment experiment from which the model is defined
+	 * @param forceExtremeProb   true to force the probabilities of the CPTs to be
+	 *                           extreme (0 to 0.3 or 0.7 to 1)
+	 * @param minIntensity       minimum value of the intensities of the CIMs
+	 * @param maxIntensity       maximum value of the intensities of the CIMs
+	 * @return a {@code MCTBNC}
+	 */
+	private static MCTBNC<CPTNode, CIMNode> generateModelSelectedExperiment(String selectedExperiment,
+			boolean forceExtremeProb, int minIntensity, int maxIntensity) {
 		// Define class variables
 		CPTNode C1 = new CPTNode("C1", List.of("C1_A", "C1_B"), true);
 		CPTNode C2 = new CPTNode("C2", List.of("C2_A", "C2_B"), true);
 		CPTNode C3 = new CPTNode("C3", List.of("C3_A", "C3_B"), true);
 		CPTNode C4 = new CPTNode("C4", List.of("C4_A", "C4_B"), true);
-
-		// Definition of the structure of the class subgraph
-		C2.setChild(C1);
-		C2.setChild(C3);
-		C4.setChild(C2);
-		C4.setChild(C3);
-
-		BN<CPTNode> CS = new BN<CPTNode>(List.of(C1, C2, C3, C4));
-
-		// Definition of the parameters of the Bayesian network (class subgraph)
-		generateRandomCPD(CS, forceExtremeProb);
-
+		CPTNode C5 = new CPTNode("C5", List.of("C5_A", "C5_B"), true);
 		// Define features
 		CIMNode X1 = new CIMNode("X1", List.of("X1_A", "X1_B", "X1_C"), false);
 		CIMNode X2 = new CIMNode("X2", List.of("X2_A", "X2_B", "X2_C"), false);
@@ -464,48 +89,256 @@ public class MainSampling {
 		CIMNode X4 = new CIMNode("X4", List.of("X4_A", "X4_B", "X4_C"), false);
 		CIMNode X5 = new CIMNode("X5", List.of("X5_A", "X5_B", "X5_C"), false);
 
-		// Definition of the structure of the bridge and feature subgraphs
-		C1.setChild(X1);
-		C2.setChild(X1);
-		C2.setChild(X2);
-		C2.setChild(X3);
-		C3.setChild(X3);
-		C3.setChild(X4);
-		C4.setChild(X5);
-		X1.setChild(X2);
-		X1.setChild(X3);
-		X2.setChild(X3);
-		X2.setChild(X4);
-		X4.setChild(X3);
-		X4.setChild(X5);
-		X5.setChild(X4);
-		// ------------------- Experiment 10 -------------------
+		switch (selectedExperiment) {
+		// ------------------- Experiment 1 (Figure 1a)-------------------
+		// Define class variables
+		case ("1"):
+			// Definition of the structure of the class subgraph
+			C1.setChild(C2);
+			C1.setChild(C3);
+			C3.setChild(C2);
+			C3.setChild(C4);
+			C3.setChild(C5);
+			C5.setChild(C4);
+			// Definition of the structure of the bridge and feature subgraphs
+			C1.setChild(X1);
+			C1.setChild(X2);
+			C2.setChild(X2);
+			C3.setChild(X2);
+			C3.setChild(X3);
+			C3.setChild(X4);
+			C4.setChild(X4);
+			C5.setChild(X4);
+			C5.setChild(X5);
+			X1.setChild(X2);
+			X1.setChild(X3);
+			X2.setChild(X3);
+			X2.setChild(X4);
+			X4.setChild(X3);
+			X4.setChild(X5);
+			X5.setChild(X4);
+			break;
+		// ------------------- Experiment 1 (Figure 1a)-------------------
+		// ------------------- Experiment 2 (Figure 3a)-------------------
+		case ("2"):
+			// Definition of the structure of the class subgraph
+			C1.setChild(C2);
+			C1.setChild(C3);
+			C3.setChild(C2);
+			C3.setChild(C4);
+			C3.setChild(C5);
+			C5.setChild(C4);
+			// Definition of the structure of the bridge and feature subgraphs
+			C1.setChild(X1);
+			C1.setChild(X2);
+			C3.setChild(X2);
+			C3.setChild(X3);
+			C5.setChild(X4);
+			C5.setChild(X5);
+			X1.setChild(X2);
+			X1.setChild(X3);
+			X2.setChild(X3);
+			X2.setChild(X4);
+			X4.setChild(X3);
+			X4.setChild(X5);
+			X5.setChild(X4);
+			break;
+		// ------------------- Experiment 2 (Figure 3a)-------------------
+		// ------------------- Experiment 3 (Figure 3b)-------------------
+		case ("3"):
+			// Definition of the structure of the class subgraph
+			C1.setChild(C3);
+			C2.setChild(C1);
+			C2.setChild(C3);
+			C4.setChild(C3);
+			C4.setChild(C5);
+			C5.setChild(C3);
+			// Definition of the structure of the bridge and feature subgraphs
+			C1.setChild(X1);
+			C2.setChild(X2);
+			C2.setChild(X3);
+			C4.setChild(X3);
+			C4.setChild(X4);
+			C5.setChild(X5);
+			X1.setChild(X2);
+			X1.setChild(X3);
+			X2.setChild(X3);
+			X2.setChild(X4);
+			X4.setChild(X3);
+			X4.setChild(X5);
+			X5.setChild(X4);
+			break;
+		// ------------------- Experiment 3 (Figure 3b)-------------------
+		// ------------------- Experiment 4 (Figure 3c)-------------------
+		case ("4"):
+			// Definition of the structure of the class subgraph
+			C1.setChild(C2);
+			C2.setChild(C3);
+			C3.setChild(C5);
+			C4.setChild(C3);
+			// Definition of the structure of the bridge and feature subgraphs
+			C1.setChild(X1);
+			C1.setChild(X2);
+			C1.setChild(X3);
+			C2.setChild(X2);
+			C2.setChild(X3);
+			C3.setChild(X4);
+			C4.setChild(X5);
+			C5.setChild(X4);
+			X1.setChild(X4);
+			X2.setChild(X1);
+			X3.setChild(X2);
+			X4.setChild(X3);
+			X5.setChild(X4);
+			break;
+		// ------------------- Experiment 4 (Figure 3c)-------------------
+		// ------------------- Experiment 5 (Figure 3d)-------------------
+		case ("5"):
+			// Definition of the structure of the class subgraph
+			C1.setChild(C2);
+			C2.setChild(C3);
+			C2.setChild(C4);
+			C3.setChild(C4);
+			C4.setChild(C5);
+			// Definition of the structure of the bridge and feature subgraphs
+			C1.setChild(X1);
+			C2.setChild(X1);
+			C2.setChild(X2);
+			C3.setChild(X3);
+			C4.setChild(X4);
+			C5.setChild(X4);
+			C5.setChild(X4);
+			C5.setChild(X5);
+			X1.setChild(X3);
+			X2.setChild(X1);
+			X3.setChild(X2);
+			X3.setChild(X4);
+			X4.setChild(X5);
+			X5.setChild(X3);
+			break;
+		// ------------------- Experiment 5 (Figure 3d)-------------------
+		// ------------------- Experiment 6 (Figure 3e)-------------------
+		case ("6"):
+			// Definition of the structure of the class subgraph
+			C2.setChild(C1);
+			C3.setChild(C4);
+			C4.setChild(C5);
+			// Definition of the structure of the bridge and feature subgraphs
+			C1.setChild(X1);
+			C2.setChild(X3);
+			C3.setChild(X2);
+			C3.setChild(X4);
+			C4.setChild(X3);
+			C4.setChild(X5);
+			X1.setChild(X2);
+			X2.setChild(X4);
+			X3.setChild(X4);
+			X3.setChild(X5);
+			X5.setChild(X4);
+			break;
+		// ------------------- Experiment 6 (Figure 3e)-------------------
+		// ------------------- Experiment 7 (Figure 3f)-------------------
+		case ("7"):
+			// Definition of the structure of the class subgraph
+			C2.setChild(C1);
+			C3.setChild(C2);
+			C4.setChild(C3);
+			C4.setChild(C5);
+			// Definition of the structure of the bridge and feature subgraphs
+			C2.setChild(X1);
+			C2.setChild(X2);
+			C3.setChild(X2);
+			C3.setChild(X3);
+			C3.setChild(X4);
+			C3.setChild(X5);
+			C4.setChild(X4);
+			X2.setChild(X1);
+			X2.setChild(X4);
+			X3.setChild(X2);
+			X4.setChild(X3);
+			X5.setChild(X3);
+			break;
+		// ------------------- Experiment 7 (Figure 3f)-------------------
+		// ------------------- Experiment 8 (Figure 3g)-------------------
+		case ("8"):
+			// Definition of the structure of the class subgraph
+			C1.setChild(C2);
+			C1.setChild(C3);
+			C3.setChild(C2);
+			C4.setChild(C2);
+			C4.setChild(C3);
+			C4.setChild(C5);
+			// Definition of the structure of the bridge and feature subgraphs
+			C1.setChild(X1);
+			C2.setChild(X1);
+			C3.setChild(X2);
+			C3.setChild(X3);
+			C4.setChild(X4);
+			C5.setChild(X5);
+			X1.setChild(X2);
+			X1.setChild(X3);
+			X3.setChild(X4);
+			X3.setChild(X5);
+			break;
+		// ------------------- Experiment 8 (Figure 3g)-------------------
+		// ------------------- Experiment 9 (Figure 3h)-------------------
+		case ("9"):
+			// Empty class subgraph
+			// Definition of the structure of the bridge and feature subgraphs
+			C1.setChild(X1);
+			C1.setChild(X3);
+			C2.setChild(X2);
+			C3.setChild(X3);
+			C4.setChild(X3);
+			C4.setChild(X5);
+			C5.setChild(X4);
+			C5.setChild(X5);
+			X2.setChild(X4);
+			X3.setChild(X1);
+			X3.setChild(X2);
+			X5.setChild(X3);
+			break;
+		// ------------------- Experiment 9 (Figure 3h)-------------------
+		// ------------------- Experiment 10 (Figure 3i)-------------------
+		case ("10"):
+			// Definition of the structure of the class subgraph
+			C2.setChild(C3);
+			C2.setChild(C4);
+			C3.setChild(C1);
+			C4.setChild(C5);
+			C5.setChild(C3);
+			// Definition of the structure of the bridge and feature subgraphs
+			C1.setChild(X2);
+			C2.setChild(X1);
+			C2.setChild(X3);
+			C3.setChild(X4);
+			C4.setChild(X3);
+			C4.setChild(X5);
+			C5.setChild(X4);
+			X1.setChild(X4);
+			X2.setChild(X1);
+			X3.setChild(X2);
+			X4.setChild(X5);
+			X5.setChild(X3);
+			break;
+		// ------------------- Experiment 10 (Figure 3i)-------------------
+		default:
+			System.err.print(
+					"The selected experiment was not found. Available datasets range from number 1 to 10 (for example, specify \"1\" to use structure from Figure 1a)");
+			return null;
+		}
 
+		// Definition of the parameters of the Bayesian network (class subgraph)
+		BN<CPTNode> CS = new BN<CPTNode>(List.of(C1, C2, C3, C4, C5));
+		generateRandomCPTs(CS, forceExtremeProb);
 		// Definition of the parameters of the continuous time Bayesian network (feature
 		// and bridge subgraph)
 		CTBN<CIMNode> FBS = new CTBN<CIMNode>(List.of(X1, X2, X3, X4, X5), CS);
-		generateRandomCPD(FBS, minIntensity, maxIntensity);
+		generateRandomCIMs(FBS, minIntensity, maxIntensity);
 
 		// Define MCTBNC
 		MCTBNC<CPTNode, CIMNode> mctbnc = new MCTBNC<CPTNode, CIMNode>(CS, FBS);
-
-		// Sample sequences from the MCTBNC
-		List<Sequence> sequences = new ArrayList<Sequence>();
-		for (int i = 0; i < numSequences; i++)
-			sequences.add(mctbnc.sample(durationSequences));
-
-		// Save generated dataset
-		Dataset dataset = new Dataset(sequences);
-
-		State[] states = dataset.getStatesClassVariables();
-		Set<State> statesUniq = new HashSet<State>();
-		for (State state : states) {
-			statesUniq.add(state);
-		}
-
-		MultipleCSVWriter.write(dataset, path);
-
-		System.out.println("Dataset generated!");
+		return mctbnc;
 	}
 
 	/**
@@ -517,7 +350,7 @@ public class MainSampling {
 	 *                         0.7 to 1)
 	 * 
 	 */
-	public static void generateRandomCPD(BN<CPTNode> bn, boolean forceExtremeProb) {
+	private static void generateRandomCPTs(BN<CPTNode> bn, boolean forceExtremeProb) {
 		// Iterate over all possible node to define their CPTs
 		for (CPTNode node : bn.getNodes()) {
 			// Number of states node and parents
@@ -547,7 +380,7 @@ public class MainSampling {
 	 * @param maxIntensity maximum value of the intensities
 	 * 
 	 */
-	public static void generateRandomCPD(CTBN<CIMNode> ctbn, double minIntensity, double maxIntensity) {
+	private static void generateRandomCIMs(CTBN<CIMNode> ctbn, double minIntensity, double maxIntensity) {
 		// The initial distribution of a CTBN is a Bayesian network
 		for (CIMNode node : ctbn.getNodes()) {
 			// Number of states of the node and its parents

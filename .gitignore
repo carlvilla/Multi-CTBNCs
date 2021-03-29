@@ -1,5 +1,5 @@
 /.gradle/
 /bin/
 /build/
-/src/main/resources/datasets/energy
+/logs/
 *.DS_Store
