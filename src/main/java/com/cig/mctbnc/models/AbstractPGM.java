@@ -361,8 +361,6 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 
 	/**
 	 * Display the PGM using GraphStream.
-	 * 
-	 * @param graph
 	 */
 	@Override
 	public void display() {

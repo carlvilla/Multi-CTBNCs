@@ -31,8 +31,7 @@ public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFun
 	 * This is done by computing the marginal log-likelihood of the graph. It is
 	 * assumed a uniform prior structure.
 	 * 
-	 * @param bn                   Bayesian network
-	 * @param penalizationFunction penalization function
+	 * @param bn Bayesian network
 	 * @return penalized log-likelihood score
 	 */
 	@Override

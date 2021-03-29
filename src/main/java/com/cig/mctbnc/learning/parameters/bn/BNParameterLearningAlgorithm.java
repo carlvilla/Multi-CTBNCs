@@ -94,9 +94,8 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	 * sufficient statistics.
 	 * 
 	 * @param node
-	 * @param N
-	 * @return a Map object with the probabilities of each possible state of a
-	 *         variable and its parents
+	 * @return array with probabilities of each possible state of a variable given
+	 *         its parents
 	 */
 	public double[][] estimateCPT(CPTNode node) {
 		logger.trace("Learning parameters of BN node {} with maximum likelihood estimation", node.getName());

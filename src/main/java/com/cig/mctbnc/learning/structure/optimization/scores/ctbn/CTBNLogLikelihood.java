@@ -38,9 +38,8 @@ public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScor
 	 * Compute the (penalized) log-likelihood score at a given node of a discrete
 	 * continuous time Bayesian network.
 	 * 
-	 * @param ctbn                 continuous time Bayesian network
-	 * @param indexNode            index of the node
-	 * @param penalizationFunction penalization function
+	 * @param ctbn      continuous time Bayesian network
+	 * @param indexNode index of the node
 	 * @return penalized log-likelihood score
 	 */
 	@Override

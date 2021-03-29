@@ -43,7 +43,7 @@ public class CPTNode extends DiscreteNode {
 	/**
 	 * Establish the sufficient statistics of a CPT node.
 	 * 
-	 * @param CPT
+	 * @param sufficientStatistics
 	 */
 	@Override
 	public void setSufficientStatistics(SufficientStatistics sufficientStatistics) {

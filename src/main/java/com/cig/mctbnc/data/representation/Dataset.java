@@ -151,8 +151,6 @@ public class Dataset {
 	 * Set the class variables that should be ignored.
 	 * 
 	 * @param ignoredClassVariables
-	 * 
-	 * @param remove
 	 */
 	public void setIgnoredClassVariables(List<String> ignoredClassVariables) {
 		this.ignoredClassVariables = ignoredClassVariables;

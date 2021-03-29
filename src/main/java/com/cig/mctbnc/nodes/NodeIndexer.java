@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Link each node with a unique index. It is necessary that each model has its
+ * Links nodes with a unique index. It is necessary that each model has its
  * own indexer, since each model will use different nodes. The index starts from
  * 0 and its maximum value is equal to the number of variables. This is
  * necessary for the adjacency matrices, so the same rows and columns are used

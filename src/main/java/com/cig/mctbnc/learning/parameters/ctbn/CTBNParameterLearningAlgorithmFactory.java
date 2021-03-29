@@ -13,7 +13,6 @@ public class CTBNParameterLearningAlgorithmFactory {
 	 * 
 	 * @param algorithm
 	 * @param nxy
-	 * @param nx
 	 * @param tx
 	 * @return parameter learning algorithm
 	 */

@@ -48,7 +48,6 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * 
 	 * @param trainingDataset
 	 * @param nameVariables
-	 * @param dataset
 	 * @param bnLearningAlgs
 	 * @param structureConstraints
 	 * @param nodeClass

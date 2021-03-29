@@ -19,8 +19,6 @@ plugins{
 mainClassName = "com.cig.mctbnc.Main"
 
 repositories {
-    // Use jcenter for resolving dependencies.
-    // You can declare any Maven/Ivy/file repository here.
 	jcenter()
     maven { url 'https://jitpack.io' }	
 }
@@ -30,36 +28,33 @@ test {
 }
 
 dependencies {
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api 'org.apache.commons:commons-math3:3.6.1'
-
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
+    // Google Core Libraries for Java
     implementation 'com.google.guava:guava:28.2-jre'
-
-    // Use JUnit test framework
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
-    testRuntimeOnly "org.junit.platform:junit-platform-commons:1.7.0"
     
     // GraphStream library. It is used to display graphs
 	implementation 'com.github.graphstream:gs-core:2.0'
-	compile group: 'com.github.graphstream', name: 'gs-ui-javafx', version: '2.0'
+	implementation 'com.github.graphstream:gs-ui-javafx:2.0'
     
     // LOG4j logging library
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.3'
-  	compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.3'
+    implementation 'org.apache.logging.log4j:log4j-api:2.13.3'
+  	implementation 'org.apache.logging.log4j:log4j-core:2.13.3'
   	
   	// OpenCSV
-  	compile group: 'com.opencsv', name: 'opencsv', version: '3.7'
+  	implementation 'com.opencsv:opencsv:3.7'
   	
   	// Extract controls for JavaFX
-  	compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.2'
+  	implementation 'org.controlsfx:controlsfx:11.0.2'
   	
   	// The Apache Commons Math project 
-  	compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+  	implementation 'org.apache.commons:commons-math3:3.6.1'
   	
   	// Apache POI
-  	compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.9'
+  	implementation 'org.apache.poi:poi-ooxml:3.9'
+  	
+  	    // Use JUnit test framework
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+    testRuntimeOnly "org.junit.platform:junit-platform-commons:1.7.0"
 }
 
 javafx{

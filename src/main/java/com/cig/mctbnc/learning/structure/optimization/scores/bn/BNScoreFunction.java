@@ -12,7 +12,7 @@ import com.cig.mctbnc.nodes.Node;
 public interface BNScoreFunction {
 
 	/**
-	 * Compute score for provided Bayesian network.
+	 * Compute score for a Bayesian network.
 	 * 
 	 * @param bn
 	 * @return score

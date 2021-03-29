@@ -161,7 +161,6 @@ public class Metrics {
 	 * 
 	 * @param predicted     array of Prediction objects with predicted classes
 	 * @param actualDataset dataset with actual classes
-	 * @param results       map to store the accuracies of each class variables
 	 * @return mean accuracy
 	 */
 	public static double meanAccuracy(Prediction[] predicted, Dataset actualDataset) {

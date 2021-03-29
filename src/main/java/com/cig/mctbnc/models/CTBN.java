@@ -95,9 +95,6 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	 * @param nameVariables
 	 * @param ctbnLearningAlgs
 	 * @param structureConstraints
-	 * @param bnClassSubgraph      Bayesian network that models the class subgraph
-	 *                             (necessary to estimate conditional
-	 *                             log-likelihood)
 	 * @param nodeClass            type of the CTBN nodes
 	 */
 	public CTBN(Dataset trainingDataset, List<String> nameVariables, CTBNLearningAlgorithms ctbnLearningAlgs,

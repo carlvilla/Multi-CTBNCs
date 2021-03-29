@@ -22,7 +22,6 @@ public abstract class AbstractNode implements Node {
 	 * models that are not meant for classification. It could be confusion to
 	 * specify this attribute for that kind of models.
 	 * 
-	 * @param index
 	 * @param name
 	 */
 	public AbstractNode(String name) {
@@ -35,7 +34,6 @@ public abstract class AbstractNode implements Node {
 	 * Common initialization of a node. In this constructor is possible to specify
 	 * if the node is a class variable.
 	 * 
-	 * @param index
 	 * @param name
 	 * @param classVariable
 	 */
