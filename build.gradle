@@ -49,7 +49,7 @@ dependencies {
   	// Apache POI
   	implementation 'org.apache.poi:poi-ooxml:3.9'
   	
-  	    // Use JUnit test framework
+  	// Use JUnit test framework
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
     testRuntimeOnly "org.junit.platform:junit-platform-commons:1.7.0"
@@ -59,3 +59,34 @@ javafx{
     modules = [ 'javafx.controls', 'javafx.fxml']
 }
 
+task syntheticLL(type: JavaExec){
+	group 'MCTBNC Experiments'
+	description 'Runs synthetic experiments to compare the performance of CTBNCs and a MCTBNC when they are learnt with the BIC-penalized log-likelihood score'
+	classpath sourceSets.main.runtimeClasspath
+    main 'com.cig.mctbnc.MainExperiments'
+    args 'synthetic', 'CTBNCs', 'MCTBNC', 'Log-likelihood'
+}
+
+task syntheticBDe(type: JavaExec){
+	group 'MCTBNC Experiments'
+	description 'Runs synthetic experiments to compare the performance of CTBNCs and a MCTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
+	classpath sourceSets.main.runtimeClasspath
+    main 'com.cig.mctbnc.MainExperiments'
+    args 'synthetic', 'CTBNCs', 'MCTBNC', 'Bayesian Dirichlet equivalent'
+}
+
+task energy(type: JavaExec){
+	group 'MCTBNC Experiments'
+	description 'Runs experiments with the energy dataset to compare the performance of max1 CTBNCs and a DAG-max1 MCTBNC when they are learnt with the BIC-penalized log-likelihood score'
+	classpath sourceSets.main.runtimeClasspath
+    main 'com.cig.mctbnc.MainExperiments'
+    args 'energy', 'maxK CTBNCs', 'DAG-maxK MCTBNC', 'Bayesian Dirichlet equivalent'
+}
+
+task emptyDigraphMCTBNC(type: JavaExec){
+	group 'MCTBNC Experiments'
+	description 'Runs synthetic experiments to compare the performance of CTBNCs and an empty-digraph MCTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
+	classpath sourceSets.main.runtimeClasspath
+    main 'com.cig.mctbnc.MainExperiments'
+    args 'synthetic', 'CTBNCs', 'Empty-digraph MCTBNC', 'Bayesian Dirichlet equivalent'
+}

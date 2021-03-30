@@ -36,72 +36,7 @@ import com.cig.mctbnc.performance.writers.MetricsWriter;
  *
  */
 public class MainExperiments {
-
-	// ---------------------------- Synthetic dataset ----------------------------
-	// Paths to datasets
-	static List<List<String>> datasetsAll = List.of(
-			List.of("Experiments/Datasets/synthetic/Experiment1/D1", "Experiments/Datasets/synthetic/Experiment1/D2",
-					"Experiments/Datasets/synthetic/Experiment1/D3", "Experiments/Datasets/synthetic/Experiment1/D4",
-					"Experiments/Datasets/synthetic/Experiment1/D5"),
-
-			List.of("Experiments/Datasets/synthetic/Experiment2/D1", "Experiments/Datasets/synthetic/Experiment2/D2",
-					"Experiments/Datasets/synthetic/Experiment2/D3", "Experiments/Datasets/synthetic/Experiment2/D4",
-					"Experiments/Datasets/synthetic/Experiment2/D5"),
-
-			List.of("Experiments/Datasets/synthetic/Experiment3/D1", "Experiments/Datasets/synthetic/Experiment3/D2",
-					"Experiments/Datasets/synthetic/Experiment3/D3", "Experiments/Datasets/synthetic/Experiment3/D4",
-					"Experiments/Datasets/synthetic/Experiment3/D5"),
-
-			List.of("Experiments/Datasets/synthetic/Experiment4/D1", "Experiments/Datasets/synthetic/Experiment4/D2",
-					"Experiments/Datasets/synthetic/Experiment4/D3", "Experiments/Datasets/synthetic/Experiment4/D4",
-					"Experiments/Datasets/synthetic/Experiment4/D5"),
-
-			List.of("Experiments/Datasets/synthetic/Experiment5/D1", "Experiments/Datasets/synthetic/Experiment5/D2",
-					"Experiments/Datasets/synthetic/Experiment5/D3", "Experiments/Datasets/synthetic/Experiment5/D4",
-					"Experiments/Datasets/synthetic/Experiment5/D5"),
-
-			List.of("Experiments/Datasets/synthetic/Experiment6/D1", "Experiments/Datasets/synthetic/Experiment6/D2",
-					"Experiments/Datasets/synthetic/Experiment6/D3", "Experiments/Datasets/synthetic/Experiment6/D4",
-					"Experiments/Datasets/synthetic/Experiment6/D5"),
-
-			List.of("Experiments/Datasets/synthetic/Experiment7/D1", "Experiments/Datasets/synthetic/Experiment7/D2",
-					"Experiments/Datasets/synthetic/Experiment7/D3", "Experiments/Datasets/synthetic/Experiment7/D4",
-					"Experiments/Datasets/synthetic/Experiment7/D5"),
-
-			List.of("Experiments/Datasets/synthetic/Experiment8/D1", "Experiments/Datasets/synthetic/Experiment8/D2",
-					"Experiments/Datasets/synthetic/Experiment8/D3", "Experiments/Datasets/synthetic/Experiment8/D4",
-					"Experiments/Datasets/synthetic/Experiment8/D5"),
-
-			List.of("Experiments/Datasets/synthetic/Experiment9/D1", "Experiments/Datasets/synthetic/Experiment9/D2",
-					"Experiments/Datasets/synthetic/Experiment9/D3", "Experiments/Datasets/synthetic/Experiment9/D4",
-					"Experiments/Datasets/synthetic/Experiment9/D5"),
-
-			List.of("Experiments/Datasets/synthetic/Experiment10/D1", "Experiments/Datasets/synthetic/Experiment10/D2",
-					"Experiments/Datasets/synthetic/Experiment10/D3", "Experiments/Datasets/synthetic/Experiment10/D4",
-					"Experiments/Datasets/synthetic/Experiment10/D5"));
-
-	static String nameTimeVariable = "t";
-	static List<String> nameClassVariables = List.of("C1", "C2", "C3", "C4", "C5");
-	static List<String> nameFeatureVariables = List.of("X1", "X2", "X3", "X4", "X5");
-	// ---------------------------- Synthetic dataset ----------------------------
-
-	// ---------------------------- Energy dataset ----------------------------
-//	// Paths to datasets
-//	static List<List<String>> datasetsAll = List.of(List.of("Experiments/Datasets/energy"));
-//	// Time, class and feature variables
-//	static String nameTimeVariable = "timestamp";
-//	static List<String> nameClassVariables = List.of("M1", "M5", "M2", "M6", "M3", "M4");
-//	static List<String> nameFeatureVariables = List.of("IA", "IB", "IC", "VA", "VB", "VC", "SA", "SB", "SC", "PA", "PB",
-//			"PC", "QA", "QB", "QC");
-	// ---------------------------- Energy dataset ----------------------------
-
 	// ---------------------------- Experiment settings ----------------------------
-	// Models to compare: "MCTBNC", "DAG-maxK MCTBNC", "Empty-digraph MCTBNC",
-	// "Empty-maxK MCTBNC", "MCTNBC", "CTBNCs", "maxK CTBNCs"
-	static List<String> models = List.of("maxK CTBNCs", "DAG-maxK MCTBNC");
-	// Maximum number of feature parents (if maxK is used)
-	static String maxK = "1";
-
 	// Class subgraph
 	// Parameter learning: "Bayesian estimation", "Maximum likelihood estimation"
 	static String nameBnPLA = "Bayesian estimation";
@@ -120,16 +55,14 @@ public class MainExperiments {
 	// Initial structure: "Empty", "Naive Bayes"
 	static String initialStructure = "Empty";
 
-	// Score function: "Log-likelihood", "Bayesian Dirichlet equivalent",
-	// "Conditional log-likelihood"
-	static List<String> scoreFunctions = List.of("Log-likelihood");
+	// Maximum number of feature parents (if maxK is used)
+	static String maxK = "1";
+
 	// Penalization (except for "Bayesian Dirichlet equivalent"): "BIC", "AIC", "No"
 	static String penalizationFunction = "BIC";
 
 	// Evaluation method: "Cross-validation", "Hold-out validation"
-	static String selectedValidationMethod = "Cross-validation";
 	static int folds = 5; // For "Cross-validation"
-	static int trainingSize = 0; // For "Hold-out validation"
 	static boolean shuffleSequences = true;
 	// ---------------------------- Experiment settings ----------------------------
 
@@ -143,6 +76,23 @@ public class MainExperiments {
 	 * @throws FileNotFoundException
 	 */
 	public static void main(String[] args) {
+		// Retrieve experiment to perform
+		String selectedExperiment = args[0];
+		List<List<String>> datasetsAll = getPathDatasets(selectedExperiment);
+		String nameTimeVariable = getTimeVariable(selectedExperiment);
+		List<String> nameClassVariables = getClassVariables(selectedExperiment);
+		List<String> nameFeatureVariables = getFeatureVariables(selectedExperiment);
+
+		// Retrieve models to compare: "MCTBNC", "DAG-maxK MCTBNC", "Empty-digraph
+		// MCTBNC", "Empty-maxK MCTBNC", "MCTNBC", "CTBNCs", "maxK CTBNCs"
+		String model1 = args[1];
+		String model2 = args[2];
+		List<String> models = List.of(model1, model2);
+
+		// Retrieve score function: "Log-likelihood", "Bayesian Dirichlet equivalent",
+		// "Conditional log-likelihood"
+		List<String> scoreFunctions = List.of(args[3]);
+
 		// Define parameter learning algorithms
 		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, nx);
 		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, mxy,
@@ -207,8 +157,8 @@ public class MainExperiments {
 		} else {
 			model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(selectedModel, bnLearningAlgs, ctbnLearningAlgs,
 					parameters, CPTNode.class, CIMNode.class);
-			validationMethod = ValidationMethodFactory.getValidationMethod(selectedValidationMethod, datasetReader,
-					shuffleSequences, trainingSize, folds);
+			validationMethod = ValidationMethodFactory.getValidationMethod("Cross-validation", datasetReader,
+					shuffleSequences, 0, folds);
 		}
 		// Set output to show results
 		validationMethod.setWriter(metricsWriter);
@@ -217,4 +167,83 @@ public class MainExperiments {
 		// Evaluate the performance of the model
 		validationMethod.evaluate(model);
 	}
+
+	private static List<List<String>> getPathDatasets(String selectedExperiment) {
+		switch (selectedExperiment) {
+		case ("synthetic"):
+			return List.of(
+					List.of("datasets/synthetic/Experiment1/D1", "datasets/synthetic/Experiment1/D2",
+							"datasets/synthetic/Experiment1/D3", "datasets/synthetic/Experiment1/D4",
+							"datasets/synthetic/Experiment1/D5"),
+					List.of("datasets/synthetic/Experiment2/D1", "datasets/synthetic/Experiment2/D2",
+							"datasets/synthetic/Experiment2/D3", "datasets/synthetic/Experiment2/D4",
+							"datasets/synthetic/Experiment2/D5"),
+					List.of("datasets/synthetic/Experiment3/D1", "datasets/synthetic/Experiment3/D2",
+							"datasets/synthetic/Experiment3/D3", "datasets/synthetic/Experiment3/D4",
+							"datasets/synthetic/Experiment3/D5"),
+					List.of("datasets/synthetic/Experiment4/D1", "datasets/synthetic/Experiment4/D2",
+							"datasets/synthetic/Experiment4/D3", "datasets/synthetic/Experiment4/D4",
+							"datasets/synthetic/Experiment4/D5"),
+					List.of("datasets/synthetic/Experiment5/D1", "datasets/synthetic/Experiment5/D2",
+							"datasets/synthetic/Experiment5/D3", "datasets/synthetic/Experiment5/D4",
+							"datasets/synthetic/Experiment5/D5"),
+					List.of("datasets/synthetic/Experiment6/D1", "datasets/synthetic/Experiment6/D2",
+							"datasets/synthetic/Experiment6/D3", "datasets/synthetic/Experiment6/D4",
+							"datasets/synthetic/Experiment6/D5"),
+					List.of("datasets/synthetic/Experiment7/D1", "datasets/synthetic/Experiment7/D2",
+							"datasets/synthetic/Experiment7/D3", "datasets/synthetic/Experiment7/D4",
+							"datasets/synthetic/Experiment7/D5"),
+					List.of("datasets/synthetic/Experiment8/D1", "datasets/synthetic/Experiment8/D2",
+							"datasets/synthetic/Experiment8/D3", "datasets/synthetic/Experiment8/D4",
+							"datasets/synthetic/Experiment8/D5"),
+					List.of("datasets/synthetic/Experiment9/D1", "datasets/synthetic/Experiment9/D2",
+							"datasets/synthetic/Experiment9/D3", "datasets/synthetic/Experiment9/D4",
+							"datasets/synthetic/Experiment9/D5"),
+					List.of("datasets/synthetic/Experiment10/D1", "datasets/synthetic/Experiment10/D2",
+							"datasets/synthetic/Experiment10/D3", "datasets/synthetic/Experiment10/D4",
+							"datasets/synthetic/Experiment10/D5"));
+		case ("energy"):
+			return List.of(List.of("datasets/energy"));
+		default:
+			System.err.println("Selected experiment was not found");
+			return null;
+		}
+	}
+
+	private static String getTimeVariable(String selectedExperiment) {
+		switch (selectedExperiment) {
+		case ("synthetic"):
+			return "t";
+		case ("energy"):
+			return "timestamp";
+		default:
+			System.err.println("Selected experiment was not found");
+			return null;
+		}
+	}
+
+	private static List<String> getClassVariables(String selectedExperiment) {
+		switch (selectedExperiment) {
+		case ("synthetic"):
+			return List.of("C1", "C2", "C3", "C4", "C5");
+		case ("energy"):
+			return List.of("M1", "M2", "M3", "M4", "M5", "M6");
+		default:
+			System.err.println("Selected experiment was not found");
+			return null;
+		}
+	}
+
+	private static List<String> getFeatureVariables(String selectedExperiment) {
+		switch (selectedExperiment) {
+		case ("synthetic"):
+			return List.of("X1", "X2", "X3", "X4", "X5");
+		case ("energy"):
+			return List.of("IA", "IB", "IC", "VA", "VB", "VC", "SA", "SB", "SC", "PA", "PB", "PC", "QA", "QB", "QC");
+		default:
+			System.err.println("Selected experiment was not found");
+			return null;
+		}
+	}
+
 }

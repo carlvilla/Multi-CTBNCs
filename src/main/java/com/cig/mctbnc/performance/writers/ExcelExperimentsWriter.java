@@ -1,5 +1,6 @@
 package com.cig.mctbnc.performance.writers;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,7 +32,7 @@ import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
  *
  */
 public class ExcelExperimentsWriter extends MetricsWriter {
-	String path = "src/main/resources/results/";
+	String path = "results/";
 	XSSFWorkbook workbook;
 	XSSFSheet sheet;
 	FileOutputStream out = null;
@@ -60,7 +61,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	 * 
 	 */
 	public ExcelExperimentsWriter(List<String> scoreFunctions, List<String> nameDatasets, List<String> nameModels,
-			List<String> nameFeatureVariables, List<String> nameClassVariables, BNParameterLearningAlgorithm bnPLA,
+			List<String> nameClassVariables, List<String> nameFeatureVariables, BNParameterLearningAlgorithm bnPLA,
 			CTBNParameterLearningAlgorithm ctbnPLA, String penalizationFunction, String initialStructure) {
 		// Set values global variables
 		this.numDatasets = nameDatasets.size();
@@ -72,8 +73,10 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 		this.sheet = this.workbook.createSheet("Experiments");
 		String fileName = new SimpleDateFormat("yyyyMMddHHmm'.xlsx'").format(new Date());
 		try {
-			this.out = new FileOutputStream(this.path + fileName);
-		} catch (FileNotFoundException e) {
+			File file = new File(this.path + fileName);
+			file.getParentFile().mkdirs();
+			this.out = new FileOutputStream(file);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		// Conditions experiments

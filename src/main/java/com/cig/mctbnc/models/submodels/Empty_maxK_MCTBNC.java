@@ -53,5 +53,10 @@ public class Empty_maxK_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Nod
 	public String getType() {
 		return String.format("Empty-max%d multidimensional continuous time Bayesian network classifier", this.maxK);
 	}
+	
+	@Override
+	public String getModelIdentifier() {
+		return "Empty-maxK MCTBNC";
+	}
 
 }

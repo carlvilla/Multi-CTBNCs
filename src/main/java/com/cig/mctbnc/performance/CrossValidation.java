@@ -84,7 +84,7 @@ public class CrossValidation extends ValidationMethod {
 		// Iterate over each fold
 		int fromIndex = 0;
 		for (int i = 0; i < this.folds; i++) {
-			this.logger.info("Testing on fold {}", i);
+			System.out.println("+++++++++++++++++++++++ Testing on fold " + i + " +++++++++++++++++++++++");
 			// Prepare training and testing datasets for current fold
 			int toIndex = fromIndex + sizeFolds[i];
 			// Prepare training dataset for current fold

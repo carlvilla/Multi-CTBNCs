@@ -63,7 +63,6 @@ public class ClassifierFactory {
 			logger.info("Creating a multi-dimensional continuous time Bayesian network classifier (MCTBNC)");
 			return new MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
 		}
-
 	}
 
 	/**
@@ -72,7 +71,7 @@ public class ClassifierFactory {
 	 * @return list of available classifiers
 	 */
 	public static List<String> getAvailableModels() {
-		return List.of("MCTBNC", "MCTNBC", "DAG-maxK MCTBNC", "Empty-maxK MCTBNC", "Empty-digraph MCTBNC");
+		return List.of("MCTBNC", "MCTNBC", "DAG-maxK MCTBNC", "Empty-digraph MCTBNC", "Empty-maxK MCTBNC");
 	}
 
 }

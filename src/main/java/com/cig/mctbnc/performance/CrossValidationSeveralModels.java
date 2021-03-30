@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.cig.mctbnc.classification.ClassifierFactory;
 import com.cig.mctbnc.classification.Prediction;
 import com.cig.mctbnc.data.reader.DatasetReader;
 import com.cig.mctbnc.data.representation.Dataset;
@@ -25,7 +26,7 @@ import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.util.Util;
 
 /**
- * Implements cross-validation method that learn one CTBNC for each class
+ * Implements a cross-validation method used to learn one CTBNC for each class
  * variable and merge the results.
  * 
  * @author Carlos Villa Blanco
@@ -93,7 +94,7 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 		// Iterate over each fold
 		int fromIndex = 0;
 		for (int i = 0; i < this.folds; i++) {
-			this.logger.info("Testing on fold {}", i);
+			System.out.println("+++++++++++++++++++++++ Testing on fold " + i + " +++++++++++++++++++++++");
 			// Prepare training and testing datasets for current fold
 			int toIndex = fromIndex + sizeFolds[i];
 			// Prepare training dataset for current fold
@@ -171,8 +172,8 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 		List<Dataset> datasets = new ArrayList<Dataset>();
 		for (int i = 0; i < nameCVs.size(); i++) {
 			// Define model for one class variable
-			models.add(new MCTBNC<>(model.getLearningAlgsBN(), model.getLearningAlgsCTBN(),
-					model.getTypeNodeClassVariable(), model.getTypeNodeFeature()));
+			models.add(ClassifierFactory.getMCTBNC(model.getModelIdentifier(), model.getLearningAlgsBN(),
+					model.getLearningAlgsCTBN(), null, model.getTypeNodeClassVariable(), model.getTypeNodeFeature()));
 			// Define training dataset that ignore all class variables except one
 			Dataset dataset = new Dataset(trainingDataset.getSequences());
 			List<String> nameClassVariables = new ArrayList<String>(nameCVs);

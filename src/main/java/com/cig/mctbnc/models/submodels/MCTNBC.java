@@ -48,5 +48,10 @@ public class MCTNBC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	public String getType() {
 		return "Multidimensional continuous time naive Bayes classifier";
 	}
+	
+	@Override
+	public String getModelIdentifier() {
+		return "MCTNBC";
+	}
 
 }

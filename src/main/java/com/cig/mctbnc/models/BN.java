@@ -127,4 +127,9 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		return "Bayesian network";
 	}
 
+	@Override
+	public String getModelIdentifier() {
+		return "BN";
+	}
+
 }

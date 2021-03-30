@@ -200,4 +200,9 @@ public class CTBN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		return "Continuous time Bayesian network";
 	}
 
+	@Override
+	public String getModelIdentifier() {
+		return "CTBN";
+	}
+
 }
