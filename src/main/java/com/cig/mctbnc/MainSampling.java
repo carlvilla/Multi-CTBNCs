@@ -39,7 +39,7 @@ public class MainSampling {
 		int maxIntensity = 10;
 
 		// Destination path for the generated dataset
-		String path = "Experiments/Datasets/synthetic/Experiment1/D1";
+		String path = "datasets/synthetic/Experiment1/D1";
 		// Select the experiment from which the dataset will be generated
 		String selectedExperiment = "1";
 

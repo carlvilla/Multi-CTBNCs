@@ -28,39 +28,40 @@ public class CrossValidation extends ValidationMethod {
 	Dataset dataset;
 	int folds;
 	boolean shuffle;
+	boolean estimateProbabilities;
+	DatasetReader datasetReader;
 	Logger logger = LogManager.getLogger(CrossValidation.class);
 
 	/**
 	 * Constructor for cross-validation method.
 	 * 
-	 * @param datasetReader
-	 * @param folds
-	 * @param shuffle
+	 * @param datasetReader         dataset reader
+	 * @param folds                 number of folds
+	 * @param shuffle               determines if the sequences should be shuffled
+	 * @param estimateProbabilities determines if the probabilities of the class
+	 *                              configurations are estimated
 	 * @throws UnreadDatasetException
 	 */
-	public CrossValidation(DatasetReader datasetReader, int folds, boolean shuffle) throws UnreadDatasetException {
-		this.logger.info("Preparing {}-cross validation / Shuffle: {}", folds, shuffle);
-		// Obtain dataset and the number of sequence it contains
-		this.dataset = datasetReader.readDataset();
-		this.logger.info("Time variable: {}", this.dataset.getNameTimeVariable());
-		this.logger.info("Features: {}", this.dataset.getNameFeatures());
-		this.logger.info("Class variables: {}", (this.dataset.getNameClassVariables()));
-		// Check that the specified number of folds is valid
-		if (folds < 2 || folds > this.dataset.getNumDataPoints())
-			this.logger.warn("Number of folds must be between 2 and the dataset size (leave-one-out cross validation)");
-		// Set number of folds
+	public CrossValidation(DatasetReader datasetReader, int folds, boolean shuffle, boolean estimateProbabilities)
+			throws UnreadDatasetException {
+		this.logger.info("Preparing {}-cross validation / Shuffle: {} / Estimate probabilities: {}", folds, shuffle,
+				estimateProbabilities);
 		this.folds = folds;
-		// Set if the sequences should be shuffled
 		this.shuffle = shuffle;
+		this.datasetReader = datasetReader;
+		this.estimateProbabilities = estimateProbabilities;
 	}
 
 	/**
 	 * Evaluate the performance of the specified model using cross-validation.
 	 * 
 	 * @param model model to evaluate
+	 * @throws UnreadDatasetException
 	 */
 	@Override
-	public void evaluate(MCTBNC<?, ?> model) {
+	public void evaluate(MCTBNC<?, ?> model) throws UnreadDatasetException {
+		// Read dataset (if it was not done before)
+		readDataset();
 		// Get sequences from the dataset
 		List<Sequence> sequences = this.dataset.getSequences();
 		int numSequences = sequences.size();
@@ -93,9 +94,8 @@ public class CrossValidation extends ValidationMethod {
 			Dataset testingDataset = extractTestingDataset(sequences, fileNames, fromIndex, toIndex);
 			// Train the model
 			model.learn(trainingDataset);
-			// model.display();
 			// Make predictions over the current fold
-			Prediction[] predictions = model.predict(testingDataset, true);
+			Prediction[] predictions = model.predict(testingDataset, this.estimateProbabilities);
 			// Result of performance metrics when evaluating the model with the current fold
 			Map<String, Double> resultsFold = Metrics.evaluate(predictions, testingDataset);
 			// Update the final results of the metrics after seeing all the folds
@@ -112,6 +112,23 @@ public class CrossValidation extends ValidationMethod {
 		System.out.println("--------------------Results cross-validation--------------------");
 		displayResults(resultsCV);
 		System.out.println("----------------------------------------------------------------");
+	}
+
+	/**
+	 * Read dataset.
+	 * 
+	 * @throws UnreadDatasetException
+	 */
+	private void readDataset() throws UnreadDatasetException {
+		this.dataset = this.datasetReader.readDataset();
+		// Check that the specified number of folds is valid
+		if (this.folds < 2 || this.folds > this.dataset.getNumDataPoints()) {
+			this.logger.warn("Number of folds must be between 2 and the dataset size (2 folds will be used)");
+			this.folds = 2;
+		}
+		this.logger.info("Time variable: {}", this.dataset.getNameTimeVariable());
+		this.logger.info("Features: {}", this.dataset.getNameFeatures());
+		this.logger.info("Class variables: {}", (this.dataset.getNameClassVariables()));
 	}
 
 	/**

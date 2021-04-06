@@ -63,7 +63,7 @@ class LearnStructureBNTest {
 				.getAlgorithm("Maximum likelihood estimation", 0.0);
 		// Algorithm to learn structure
 		StructureLearningAlgorithm slAlg = StructureLearningAlgorithmFactory.getAlgorithmBN("Hill climbing",
-				"Log-likelihood", "No");
+				"Log-likelihood", "No", 0);
 
 		// Define object containing the learning algorithms
 		BNLearningAlgorithms learningAlgs = new BNLearningAlgorithms(plAlg, slAlg);

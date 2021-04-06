@@ -9,7 +9,7 @@ import com.cig.mctbnc.learning.structure.optimization.hillclimbing.implementatio
  *
  */
 public class RandomRestartHillClimbing extends HillClimbing {
-	int numAttempts;
+	int numRestarts;
 
 	/**
 	 * Constructs a {@code RandomRestartHillClimbing} by receiving the
@@ -17,11 +17,11 @@ public class RandomRestartHillClimbing extends HillClimbing {
 	 * continuous time Bayesian network...).
 	 * 
 	 * @param hcImplementation
-	 * @param numAttempts
+	 * @param numRestarts
 	 */
-	public RandomRestartHillClimbing(HillClimbingImplementation hcImplementation, int numAttempts) {
+	public RandomRestartHillClimbing(HillClimbingImplementation hcImplementation, int numRestarts) {
 		this.hcImplementation = hcImplementation;
-		this.numAttempts = numAttempts;
+		this.numRestarts = numRestarts;
 	}
 
 	@Override
@@ -29,8 +29,8 @@ public class RandomRestartHillClimbing extends HillClimbing {
 		HillClimbingSolution bestSolution = null;
 		boolean[][] initialStructure = this.pgm.getAdjacencyMatrix().clone();
 		int numNodes = initialStructure.length;
-		for (int attempt = 0; attempt < this.numAttempts; attempt++) {
-			logger.debug("Random-restart: {}", attempt);
+		for (int restart = 0; restart < this.numRestarts; restart++) {
+			logger.info("Random-restart: {}", restart);
 			// Randomly define the initial structure
 			for (int i = 0; i < numNodes; i++) {
 				for (int j = 0; j < numNodes; j++)

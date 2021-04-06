@@ -30,16 +30,18 @@ public class StructureLearningAlgorithmFactory {
 	 * @param algorithm
 	 * @param scoreFunction
 	 * @param penalizationFunction
+	 * @param numRestarts          number of restarts for the random-restart hill
+	 *                             climbing
 	 * @return structure learning algorithm
 	 */
 	public static StructureLearningAlgorithm getAlgorithmBN(String algorithm, String scoreFunction,
-			String penalizationFunction) {
+			String penalizationFunction, int numRestarts) {
 		// Retrieve score function
 		BNScoreFunction score = getScoreFunctionBN(scoreFunction, penalizationFunction);
 		// Retrieve optimization algorithm
 		switch (algorithm) {
 		case "Random-restart hill climbing":
-			return new RandomRestartHillClimbing(new BNHillClimbing(score), 5);
+			return new RandomRestartHillClimbing(new BNHillClimbing(score), numRestarts);
 		default:
 			// Hill Climbing
 			return new FirstChoiceHillClimbing(new BNHillClimbing(score));
@@ -56,14 +58,14 @@ public class StructureLearningAlgorithmFactory {
 	 * @return structure learning algorithm
 	 */
 	public static StructureLearningAlgorithm getAlgorithmCTBN(String algorithm, String scoreFunction,
-			String penalizationFunction) {
+			String penalizationFunction, int numRestarts) {
 		// Retrieve score function
 		CTBNScoreFunction score = getScoreFunctionCTBN(scoreFunction, penalizationFunction);
 		switch (algorithm) {
 		case ("Random-restart hill climbing"):
 			if (score.isDecomposable())
-				return new RandomRestartHillClimbing(new CTBNHillClimbingIndividual(score), 5);
-			return new RandomRestartHillClimbing(new CTBNHillClimbing(score), 5);
+				return new RandomRestartHillClimbing(new CTBNHillClimbingIndividual(score), numRestarts);
+			return new RandomRestartHillClimbing(new CTBNHillClimbing(score), numRestarts);
 		default:
 			// Hill Climbing
 			if (score.isDecomposable())

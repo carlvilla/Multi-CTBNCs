@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
@@ -12,63 +11,88 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.CheckComboBox?>
 
-<BorderPane prefHeight="582.0" prefWidth="641.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cig.mctbnc.gui.controllers.Controller">
+<BorderPane prefHeight="618.0" prefWidth="656.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cig.mctbnc.gui.Controller">
 	<top>
       <AnchorPane prefHeight="429.0" prefWidth="655.0" BorderPane.alignment="CENTER">
          <children>
-      		<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="498.0" prefWidth="644.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="-70.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="1.0">
+      		<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="546.0" prefWidth="644.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="-118.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="1.0">
       			<tabs>
       				<Tab text="Dataset">
       					<content>
-                  						<AnchorPane prefHeight="200.0" prefWidth="200.0">
+                  						<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0">
                   							<children>
-                              <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="369.0" prefWidth="632.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                              <VBox layoutX="25.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="20.0">
                                  <children>
-                                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                    <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="90.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="ALWAYS">
                                        <children>
-                                          <Label text="Data format:" />
-                                          <ComboBox fx:id="cmbDataFormat" onAction="#changeDatasetReader" prefWidth="140.0" />
-                                          <Label text="Strategy:" />
-                                          <ComboBox fx:id="cmbStrategy" onAction="#changeDatasetReaderStrategy" prefWidth="140.0" />
-                                          <Label text="Size sequences:" />
-                                          <TextField fx:id="fldSizeSequences" onKeyTyped="#datasetModified" prefHeight="27.0" prefWidth="60.0" />
+                                          <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="219.0" HBox.hgrow="ALWAYS">
+                                             <children>
+                                                <Label text="Data format:" HBox.hgrow="ALWAYS">
+                                                   <HBox.margin>
+                                                      <Insets right="8.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <ComboBox fx:id="cmbDataFormat" maxWidth="1.7976931348623157E308" onAction="#changeDatasetReader" prefWidth="140.0" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                          <HBox fx:id="hbStrategy" alignment="CENTER" prefHeight="100.0" prefWidth="198.0" HBox.hgrow="ALWAYS">
+                                             <children>
+                                                <Label text="Strategy:" HBox.hgrow="ALWAYS">
+                                                   <HBox.margin>
+                                                      <Insets right="8.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <ComboBox fx:id="cmbStrategy" maxWidth="1.7976931348623157E308" onAction="#changeDatasetReaderStrategy" prefWidth="140.0" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                          <HBox fx:id="hbSizeSequences" alignment="CENTER" prefHeight="100.0" prefWidth="162.0" HBox.hgrow="ALWAYS">
+                                             <children>
+                                                <Label text="Size sequences:" HBox.hgrow="ALWAYS">
+                                                   <HBox.margin>
+                                                      <Insets right="8.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="fldSizeSequences" maxWidth="1.7976931348623157E308" onKeyTyped="#datasetModified" prefHeight="27.0" prefWidth="60.0" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
                                        </children>
                                     </HBox>
-                                    <HBox alignment="CENTER_LEFT" prefHeight="106.0" prefWidth="592.0" spacing="20.0">
+                                    <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="90.0" prefWidth="592.0" spacing="20.0" VBox.vgrow="ALWAYS">
                                        <children>
-                  								<Button mnemonicParsing="false" onAction="#setFolderDataset" prefHeight="27.0" text="Select folder dataset" />
-                                          <TextField fx:id="fldPath" editable="false" minWidth="380.0" />
+                  								<Button mnemonicParsing="false" onAction="#setFolderDataset" prefHeight="27.0" text="Select folder dataset" HBox.hgrow="ALWAYS" />
+                                          <TextField fx:id="fldPath" editable="false" minWidth="344.0" prefHeight="27.0" prefWidth="382.0" HBox.hgrow="ALWAYS" />
                                        </children>
                                     </HBox>
-                                    <GridPane fx:id="gpModel" prefHeight="240.0" prefWidth="604.0" vgap="20.0">
-                                       <columnConstraints>
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="298.5" minWidth="10.0" prefWidth="154.5" />
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="459.0" minWidth="10.0" prefWidth="437.0" />
-                                       </columnConstraints>
-                                       <rowConstraints>
-                                          <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                       </rowConstraints>
+                                    <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="100.0" VBox.vgrow="ALWAYS">
                                        <children>
-                                          <Label text="Select time variable:" />
-                                          <ComboBox fx:id="cmbTimeVariable" onAction="#datasetModified" prefWidth="150.0" promptText="Time variable" GridPane.columnIndex="1" />
-                                          <Label text="Select class variables:" GridPane.rowIndex="1" />
-                                          <CheckComboBox fx:id="ckcmbClassVariables" onMouseClicked="#datasetModified" prefWidth="150.0" title="Class variables" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                          <Label text="Select features:" GridPane.rowIndex="2" />
-                                          <CheckComboBox fx:id="ckcmbFeatures" prefWidth="150.0" title="Features" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                             <children>
+                                                <Label maxWidth="150.0" minWidth="150.0" text="Select time variable:" HBox.hgrow="ALWAYS" />
+                                                <ComboBox fx:id="cmbTimeVariable" maxWidth="1.7976931348623157E308" onAction="#datasetModified" promptText="Time variable" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                             <children>
+                                                <Label maxWidth="150.0" minWidth="150.0" text="Select class variables:" HBox.hgrow="ALWAYS" />
+                                                <CheckComboBox fx:id="ckcmbClassVariables" maxWidth="1.7976931348623157E308" onMouseClicked="#datasetModified" title="Class variables" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                             <children>
+                                                <Label maxWidth="150.0" minWidth="150.0" text="Select feature variables:" HBox.hgrow="ALWAYS" />
+                                                <CheckComboBox fx:id="ckcmbFeatures" maxWidth="1.7976931348623157E308" title="Features" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
                                        </children>
-                                    </GridPane>
+                                    </VBox>
                                  </children>
                               </VBox>
                   							</children>
@@ -79,151 +103,232 @@
       					<content>
       						<AnchorPane prefHeight="367.0" prefWidth="548.0">
       							<children>
-                              <GridPane layoutX="16.0" layoutY="35.0" prefWidth="604.0" vgap="10.0">
-                                 <columnConstraints>
-                                    <ColumnConstraints fillWidth="false" halignment="LEFT" hgrow="SOMETIMES" maxWidth="395.0" minWidth="10.0" prefWidth="209.0" />
-                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="407.0" minWidth="10.0" prefWidth="395.0" />
-                                 </columnConstraints>
-                                 <rowConstraints>
-                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" />
-                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                 </rowConstraints>
+                              <VBox layoutX="25.0" maxHeight="1.7976931348623157E308" prefHeight="478.0" prefWidth="596.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="30.0">
                                  <children>
-                                    <HBox alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT" prefHeight="43.0" prefWidth="399.0" style="-fx-background-color: #e6e6e6#e6e6e6;" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                    <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                                        <children>
-                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
-                                             <children>
-                                                <Label alignment="CENTER" text="Mxy hyperparameter:" />
-                                                <TextField fx:id="fldMxy" prefHeight="27.0" prefWidth="60.0">
-                                                   <HBox.margin>
-                                                      <Insets />
-                                                   </HBox.margin>
-                                                </TextField>
-                                             </children>
-                                             <HBox.margin>
-                                                <Insets left="5.0" />
-                                             </HBox.margin>
-                                          </HBox>
-                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
-                                             <children>
-                                                <Label alignment="CENTER" text="Tx hyperparameter:" />
-                                                <TextField fx:id="fldTx" prefHeight="27.0" prefWidth="60.0">
-                                                   <HBox.margin>
-                                                      <Insets />
-                                                   </HBox.margin>
-                                                </TextField>
-                                             </children>
-                                             <HBox.margin>
-                                                <Insets right="5.0" />
-                                             </HBox.margin>
-                                          </HBox>
+                  								<Label prefWidth="210.0" text="Classification model:" HBox.hgrow="ALWAYS" />
+                  								<ComboBox fx:id="cmbModel" maxWidth="1.7976931348623157E308" onAction="#changeModel" prefHeight="27.0" prefWidth="390.0" HBox.hgrow="ALWAYS" />
                                        </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
                                     </HBox>
-            								<ComboBox fx:id="cmbModel" maxWidth="1.7976931348623157E308" onAction="#changeModel" prefHeight="27.0" prefWidth="230.0" GridPane.columnIndex="1" />
-            								<Label text="Classification model:" />
-            								<Label text="Penalization:" GridPane.rowIndex="9" />
-            								<Label text="Structure learning algorithm:" GridPane.rowIndex="6" />
-            								<Label text="Parameter learning algorithm CTBN:" GridPane.rowIndex="4" />
-            								<ComboBox fx:id="cmbStructure" maxWidth="1.7976931348623157E308" prefHeight="27.0" prefWidth="203.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-            								<ComboBox fx:id="cmbParameterCTBN" maxWidth="1.7976931348623157E308" onAction="#changeParameterLearningAlgCTBN" prefHeight="27.0" prefWidth="204.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            								<ComboBox fx:id="cmbPenalization" maxWidth="1.7976931348623157E308" prefHeight="27.0" prefWidth="201.0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
-                                    <TextField fx:id="fldKParents" maxWidth="60.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <Label text="Max. K parents:" GridPane.rowIndex="1" />
-                                    <Label text="Parameter learning algorithm BN:" GridPane.rowIndex="2" />
-                                    <ComboBox fx:id="cmbParameterBN" maxWidth="1.7976931348623157E308" onAction="#changeParameterLearningAlgBN" prefHeight="27.0" prefWidth="204.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                    <HBox alignment="CENTER" prefHeight="36.0" prefWidth="200.0" spacing="5.0" style="-fx-background-color: #e6e6e6#e6e6e6 #e6e6e6#e6e6e6;" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                                    <HBox fx:id="hbKParents" alignment="CENTER" maxHeight="1.7976931348623157E308" prefHeight="45.0" prefWidth="390.0" spacing="5.0" style="-fx-background-color: #e6e6e6;" VBox.vgrow="ALWAYS">
                                        <children>
-                                          <Label text="Nx hyperparameter:" />
-                                          <TextField fx:id="fldNxBN" prefHeight="27.0" prefWidth="60.0" />
+                                          <Label text="Max. K parents:">
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                          </Label>
+                                          <TextField fx:id="fldKParents" prefWidth="60.0" />
                                        </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="210.0" />
+                                       </VBox.margin>
                                     </HBox>
-                                    <Label text="Compute probabilities" GridPane.rowIndex="10" />
-                                    <CheckBox fx:id="chkProbabilities" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="10" />
-                                    <Label text="Initial structure:" GridPane.rowIndex="7" />
-                                    <ComboBox fx:id="cmbInitialStructure" prefHeight="27.0" prefWidth="442.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                                    <Label text="Score:" GridPane.rowIndex="8" />
-                                    <ComboBox fx:id="cmbScoreFunction" prefHeight="27.0" prefWidth="406.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                                    <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                       <children>
+                                          <Label maxWidth="1.7976931348623157E308" prefWidth="210.0" text="Parameter learning algorithm BN:" />
+                                          <ComboBox fx:id="cmbParameterBN" maxWidth="1.7976931348623157E308" onAction="#changeParameterLearningAlgBN" prefHeight="27.0" prefWidth="390.0" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox fx:id="hbHyperBN" alignment="CENTER" maxHeight="1.7976931348623157E308" prefHeight="45.0" prefWidth="390.0" spacing="5.0" style="-fx-background-color: #e6e6e6;" VBox.vgrow="ALWAYS">
+                                       <children>
+                                          <Label text="Nx hyperparameter:">
+                                             <HBox.margin>
+                                                <Insets right="3.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <TextField fx:id="fldNx" prefHeight="27.0" prefWidth="60.0" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="210.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                       <children>
+                  								<Label maxWidth="1.7976931348623157E308" prefWidth="210.0" text="Parameter learning algorithm CTBN:" />
+                  								<ComboBox fx:id="cmbParameterCTBN" maxWidth="1.7976931348623157E308" onAction="#changeParameterLearningAlgCTBN" prefHeight="27.0" prefWidth="390.0" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                          </ComboBox>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox fx:id="hbHyperCTBN" alignment="CENTER" maxHeight="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" prefHeight="45.0" prefWidth="400.0" style="-fx-background-color: #e6e6e6#e6e6e6;" VBox.vgrow="ALWAYS">
+                                       <children>
+                                          <Label alignment="CENTER" minWidth="-Infinity" text="Mxy hyperparameter:">
+                                             <HBox.margin>
+                                                <Insets right="8.0" />
+                                             </HBox.margin></Label>
+                                          <TextField fx:id="fldMxy" minWidth="-Infinity" prefHeight="27.0" prefWidth="60.0">
+                                             <HBox.margin>
+                                                <Insets right="10.0" />
+                                             </HBox.margin>
+                                          </TextField>
+                                          <Label alignment="CENTER" minWidth="-Infinity" text="Tx hyperparameter:">
+                                             <HBox.margin>
+                                                <Insets right="8.0" />
+                                             </HBox.margin></Label>
+                                          <TextField fx:id="fldTx" minWidth="-Infinity" prefHeight="27.0" prefWidth="60.0">
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                          </TextField>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="210.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                       <children>
+                  								<Label maxWidth="1.7976931348623157E308" prefWidth="210.0" text="Structure learning algorithm:" />
+                  								<ComboBox fx:id="cmbStructure" maxWidth="1.7976931348623157E308" onAction="#changeStructureLearningAlg" prefHeight="27.0" prefWidth="390.0" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox fx:id="hbRestarts" alignment="CENTER" maxHeight="1.7976931348623157E308" prefHeight="45.0" prefWidth="390.0" spacing="5.0" style="-fx-background-color: #e6e6e6;" VBox.vgrow="ALWAYS">
+                                       <children>
+                                          <Label alignment="CENTER" text="Number of random restarts:">
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                          </Label>
+                                          <TextField fx:id="fldRestarts" prefWidth="60.0" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="210.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                       <children>
+                                          <Label maxWidth="1.7976931348623157E308" prefWidth="210.0" text="Initial structure:" />
+                                          <ComboBox fx:id="cmbInitialStructure" maxWidth="1.7976931348623157E308" prefHeight="27.0" prefWidth="390.0" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                       <children>
+                                          <Label maxWidth="1.7976931348623157E308" prefWidth="210.0" text="Score:" />
+                                          <ComboBox fx:id="cmbScoreFunction" maxWidth="1.7976931348623157E308" onAction="#changeScoreFunction" prefHeight="27.0" prefWidth="390.0" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox fx:id="hbPenalization" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                       <children>
+                  								<Label maxWidth="1.7976931348623157E308" prefWidth="210.0" text="Penalization:">
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                          </Label>
+                  								<ComboBox fx:id="cmbPenalization" maxWidth="1.7976931348623157E308" prefHeight="27.0" prefWidth="390.0" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
+                                    </HBox>
                                  </children>
-                              </GridPane>
-                              <Accordion layoutX="150.0" layoutY="-26.0" />
+                              </VBox>
       							</children>
       						</AnchorPane>
       					</content>
       				</Tab>
-      				<Tab text="Evaluation method">
+      				<Tab text="Evaluation">
       					<content>
-      						<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+      						<AnchorPane>
       							<children>
-                              <GridPane layoutY="-1.0" prefHeight="368.0" prefWidth="632.0" vgap="15.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="15.0">
-                                 <columnConstraints>
-                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                                 </columnConstraints>
-                                 <rowConstraints>
-                                    <RowConstraints maxHeight="128.0" minHeight="10.0" prefHeight="113.0" vgrow="SOMETIMES" />
-                                    <RowConstraints maxHeight="303.0" minHeight="10.0" prefHeight="254.0" vgrow="SOMETIMES" />
-                                 </rowConstraints>
+                              <VBox layoutX="25.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="30.0">
                                  <children>
-                                    <VBox alignment="CENTER" prefHeight="35.0" prefWidth="617.0" style="-fx-border-color: black; -fx-border-radius: 10; -fx-border-width: 0.5;">
+                                    <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="100.0" style="-fx-border-color: black; -fx-border-radius: 10; -fx-border-width: 0.5;" VBox.vgrow="ALWAYS">
                                        <children>
-                  								<RadioButton maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="18.0" prefWidth="600.0" selected="true" text="Hold-out validation">
+                                          <Label style="-fx-background-color: #f4f4f4;" text="Evaluation method" translateX="10.0" translateY="-35.0" VBox.vgrow="NEVER">
                                              <VBox.margin>
-                                                <Insets bottom="10.0" />
+                                                <Insets bottom="-17.0" />
+                                             </VBox.margin>
+                                          </Label>
+                  								<RadioButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#selectHoldOutValidation" selected="true" text="Hold-out validation" VBox.vgrow="ALWAYS">
+                                             <VBox.margin>
+                                                <Insets bottom="12.0" />
                                              </VBox.margin>
                                              <toggleGroup>
                                                 <ToggleGroup fx:id="tgValidationMethod" />
                                              </toggleGroup>
                   								</RadioButton>
-                  								<RadioButton maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Cross-validation">
-                                          </RadioButton>
+                  								<RadioButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#selectCrossValidation" text="Cross-validation" toggleGroup="$tgValidationMethod" VBox.vgrow="ALWAYS">
+                                             <VBox.margin>
+                                                <Insets />
+                                             </VBox.margin></RadioButton>
                                        </children>
                                        <padding>
                                           <Insets left="15.0" />
                                        </padding>
+                                       <VBox.margin>
+                                          <Insets bottom="20.0" />
+                                       </VBox.margin>
                                     </VBox>
-                                    <VBox spacing="20.0" style="-fx-border-color: black; -fx-border-radius: 10; -fx-border-width: 0.5;" GridPane.rowIndex="1">
+                                    <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="20.0" style="-fx-border-color: black; -fx-border-radius: 10; -fx-border-width: 0.5;" VBox.vgrow="ALWAYS">
                                        <children>
-                                          <GridPane alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="233.0" prefWidth="610.0">
-                                             <columnConstraints>
-                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                                             </columnConstraints>
-                                             <rowConstraints>
-                                                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                             </rowConstraints>
-                                             <children>
-                                                <CheckBox fx:id="cbShuffle" mnemonicParsing="false" text="Shuffle sequences" />
-                                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.rowIndex="1">
-                                                   <children>
-                              								<Label text="Training size (%):" />
-                                                      <Slider fx:id="sldTrainingSize" max="0.9" min="0.1" prefHeight="6.0" prefWidth="140.0" />
-                                                      <TextField disable="true" prefHeight="27.0" prefWidth="53.0" text="${sldTrainingSize.value}" />
-                                                   </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-                                                   <children>
-                              								<Label text="Number of folds:" />
-                              								<TextField fx:id="fldNumFolds" prefHeight="27.0" prefWidth="58.0" />
-                                                   </children>
-                                                </HBox>
-                                             </children>
+                                          <Label style="-fx-background-color: #f4f4f4;" text="Evaluation method parameters" translateX="10.0" translateY="-20.0">
                                              <VBox.margin>
-                                                <Insets left="15.0" />
-                                             </VBox.margin>
-                                          </GridPane>
+                                                <Insets />
+                                             </VBox.margin></Label>
+                                          <HBox fx:id="hbTrainingSize" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                             <children>
+                        								<Label maxWidth="-Infinity" minWidth="-Infinity" prefWidth="180.0" text="Training size (%):" HBox.hgrow="ALWAYS" />
+                                                <Slider fx:id="sldTrainingSize" max="0.9" maxWidth="150.0" min="0.1" showTickLabels="true" showTickMarks="true" HBox.hgrow="ALWAYS">
+                                                   <HBox.margin>
+                                                      <Insets right="15.0" />
+                                                   </HBox.margin></Slider>
+                                                <TextField disable="true" maxWidth="60.0" text="${sldTrainingSize.value}" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                          <HBox fx:id="hbNumFolds" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                             <children>
+                        								<Label maxWidth="-Infinity" minWidth="-Infinity" prefWidth="180.0" text="Number of folds:" />
+                        								<TextField fx:id="fldNumFolds" maxWidth="60.0" />
+                                             </children>
+                                          </HBox>
+                                          <HBox maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                             <children>
+                                                <Label maxWidth="-Infinity" minWidth="-Infinity" prefWidth="180.0" text="Shuffle sequences:" />
+                                                <CheckBox fx:id="chkShuffle" maxWidth="1.7976931348623157E308" mnemonicParsing="false">
+                                                   <tooltip>
+                                                      <Tooltip style="-fx-show-duration: 20s;" text="Sequences are shuffled before applying the evaluation method" />
+                                                   </tooltip></CheckBox>
+                                             </children>
+                                          </HBox>
+                                          <HBox maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                             <children>
+                                                <Label maxWidth="-Infinity" minWidth="-Infinity" prefWidth="180.0" text="Estimate probabilities classes:" />
+                                                <CheckBox fx:id="chkProbabilities" mnemonicParsing="false">
+                                                   <tooltip>
+                                                      <Tooltip style="-fx-show-duration: 20s;" text="Estimate probabilities of each class configuration (may increase prediction time)" />
+                                                   </tooltip></CheckBox>
+                                             </children>
+                                          </HBox>
                                        </children>
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                       <padding>
+                                          <Insets left="15.0" top="10.0" />
+                                       </padding>
                                     </VBox>
                                  </children>
-                              </GridPane>
+                              </VBox>
       							</children>
       						</AnchorPane>
       					</content>
@@ -233,27 +338,27 @@
          </children>
       </AnchorPane>
 	</top>
-	<bottom>
-      <GridPane prefHeight="33.0" prefWidth="570.0">
-         <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="545.0" minWidth="10.0" prefWidth="528.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="287.0" minWidth="10.0" prefWidth="97.0" />
-         </columnConstraints>
-         <rowConstraints>
-            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-         </rowConstraints>
+   <bottom>
+      <HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER_LEFT">
          <children>
-      				<Button fx:id="btnEvaluate" disable="#checkOptions" mnemonicParsing="false" onAction="#evaluate" text="Evaluate" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
-            <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: black; -fx-border-radius: 10;">
+            <Pane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="500.0" style="-fx-border-color: black; -fx-border-radius: 10;" HBox.hgrow="ALWAYS">
                <children>
-                  <Label layoutX="25.0" layoutY="-8.0" style="-fx-background-color: #f4f4f4#f4f4f4;" text="Status" />
-                  <Label fx:id="status" layoutX="15.0" layoutY="5.0" prefHeight="26.0" prefWidth="510.0" text="Idle" />
+                  <Label layoutX="25.0" layoutY="-8.0" style="-fx-background-color: #f4f4f4;" text="Status" />
+                  <Label fx:id="status" layoutX="15.0" layoutY="5.0" maxWidth="1.7976931348623157E308" text="Idle">
+                     <padding>
+                        <Insets top="5.0" />
+                     </padding>
+                  </Label>
                </children>
+               <HBox.margin>
+                  <Insets right="20.0" />
+               </HBox.margin>
             </Pane>
+      				<Button fx:id="btnEvaluate" disable="#checkOptions" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#evaluate" text="Evaluate" HBox.hgrow="ALWAYS" />
          </children>
          <BorderPane.margin>
-            <Insets bottom="10.0" left="15.0" right="15.0" />
+            <Insets bottom="10.0" left="20.0" right="20.0" />
          </BorderPane.margin>
-      </GridPane>
-	</bottom>
+      </HBox>
+   </bottom>
 </BorderPane>

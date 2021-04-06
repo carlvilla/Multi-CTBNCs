@@ -76,7 +76,7 @@ class LearnStructureCTBNTest {
 		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = CTBNParameterLearningAlgorithmFactory
 				.getAlgorithm("Maximum likelihood estimation", 0.0, 0.0);
 		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = StructureLearningAlgorithmFactory
-				.getAlgorithmCTBN("Hill climbing", "Log-likelihood", "BIC");
+				.getAlgorithmCTBN("Hill climbing", "Log-likelihood", "BIC", 0);
 
 		CTBNLearningAlgorithms learningAlgs = new CTBNLearningAlgorithms(ctbnParameterLearningAlgorithm,
 				ctbnStructureLearningAlgorithm);

@@ -1,5 +1,6 @@
 package com.cig.mctbnc.data.writer;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -35,6 +36,9 @@ public class MultipleCSVWriter {
 		logger.info("Writing dataset with {} sequences into {}", dataset.getNumDataPoints(), destinationPath);
 		List<Sequence> sequences = dataset.getSequences();
 		List<String> header = dataset.getNameAllVariables();
+		// Create folders of provided path if they do not exist
+		File f = new File(destinationPath);
+		f.mkdirs();
 		for (int i = 0; i < sequences.size(); i++) {
 			// Get a sequence
 			Sequence sequence = sequences.get(i);

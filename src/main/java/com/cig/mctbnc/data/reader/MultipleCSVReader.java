@@ -27,8 +27,9 @@ public class MultipleCSVReader extends AbstractCSVReader {
 	 * 
 	 * @param datasetFolder folder path where the csv files are stored
 	 * @throws FileNotFoundException
+	 * @throws UnreadDatasetException
 	 */
-	public MultipleCSVReader(String datasetFolder) throws FileNotFoundException {
+	public MultipleCSVReader(String datasetFolder) throws FileNotFoundException, UnreadDatasetException {
 		super(datasetFolder);
 		logger.info("Generating CSV reader for multiples csv files in {}", datasetFolder);
 		// Read all csv files from the specified folder
@@ -39,6 +40,8 @@ public class MultipleCSVReader extends AbstractCSVReader {
 				return name.endsWith(".csv");
 			}
 		});
+		if (this.files == null)
+			throw new UnreadDatasetException("No CSV files found in the specified folder");
 		// Order the files by name
 		Arrays.sort(this.files);
 		// Extract variables names from first CSV file

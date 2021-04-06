@@ -36,20 +36,25 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 	Dataset dataset;
 	int folds;
 	boolean shuffle;
+	boolean estimateProbabilities;
 	Logger logger = LogManager.getLogger(CrossValidation.class);
 
 	/**
 	 * Constructor for cross-validation method.
 	 * 
 	 * @param datasetReader
-	 * @param folds
-	 * @param shuffle
+	 * @param folds                 number of folds
+	 * @param shuffle               determines if the sequences should be shuffled
+	 * @param estimateProbabilities determines if the probabilities of the class
+	 *                              configurations are estimated
 	 * @throws UnreadDatasetException
 	 */
-	public CrossValidationSeveralModels(DatasetReader datasetReader, int folds, boolean shuffle)
-			throws UnreadDatasetException {
+	public CrossValidationSeveralModels(DatasetReader datasetReader, int folds, boolean shuffle,
+			boolean estimateProbabilities) throws UnreadDatasetException {
 		super();
-		this.logger.info("Preparing {}-cross validation / Shuffle: {}", folds, shuffle);
+		this.logger.info(
+				"Preparing {}-cross validation for independent CTBNCs / Shuffle: {} / Estimate probabilities: {}",
+				folds, shuffle, estimateProbabilities);
 		// Obtain dataset and the number of sequence it contains
 		this.dataset = datasetReader.readDataset();
 		this.logger.info("Time variable: {}", this.dataset.getNameTimeVariable());
@@ -58,10 +63,9 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 		// Check that the specified number of folds is valid
 		if (folds < 2 || folds > this.dataset.getNumDataPoints())
 			this.logger.warn("Number of folds must be between 2 and the dataset size (leave-one-out cross validation)");
-		// Set number of folds
 		this.folds = folds;
-		// Set if the sequences should be shuffled
 		this.shuffle = shuffle;
+		this.estimateProbabilities = estimateProbabilities;
 	}
 
 	/**
@@ -201,9 +205,9 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 					.format("--------------------Model for class variable {0}--------------------", nameCVs.get(i)));
 			displayModel(models.get(i));
 			System.out.println("------------------------------------------------------");
-			Prediction[] predictionsCV = models.get(i).predict(testingDataset, true);
+			Prediction[] predictionsCV = models.get(i).predict(testingDataset, this.estimateProbabilities);
 			predictionsFold = updatePredictionsFold(predictionsFold, this.dataset.getNameClassVariables().get(i),
-					predictionsCV);
+					predictionsCV, false);
 		}
 		return predictionsFold;
 	}
@@ -212,14 +216,16 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 	 * Update the current predictions of a fold with the predictions for a new class
 	 * variable.
 	 * 
-	 * @param predictionsFold current predictions of the fold
-	 * @param nameCV          name of the class variable whose predictions are
-	 *                        included in the predictions of the fold
-	 * @param predictionsCV   predictions of the class variable
+	 * @param predictionsFold       current predictions of the fold
+	 * @param nameCV                name of the class variable whose predictions are
+	 *                              included in the predictions of the fold
+	 * @param predictionsCV         predictions of the class variable
+	 * @param estimateProbabilities determines if the probabilities of the classes
+	 *                              are estimated
 	 * @return updated predictions for the fold
 	 */
-	private Prediction[] updatePredictionsFold(Prediction[] predictionsFold, String nameCV,
-			Prediction[] predictionsCV) {
+	private Prediction[] updatePredictionsFold(Prediction[] predictionsFold, String nameCV, Prediction[] predictionsCV,
+			boolean estimateProbabilities) {
 		if (predictionsFold == null)
 			// First class is predicted
 			return predictionsCV;
@@ -233,29 +239,31 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 			predictedCC.addEvent(nameCV, prediction.getValueVariable(nameCV));
 			// Define probabilities of each class configuration for the current sequence
 			Map<State, Double> newProbabilitiesCCs = new HashMap<State, Double>();
-			// Iterate over class configurations including states current class variable
-			Set<State> statesCC = predictionsFold[i].probabilities.keySet();
-			Set<State> statesCV = predictionsCV[i].probabilities.keySet();
-			for (State stateCC : statesCC)
-				for (State classCV : statesCV) {
-					// Get new class configuration that includes state of the class variable
-					State newStateCC = new State(stateCC.getEvents());
-					newStateCC.addEvents(classCV.getEvents());
-					// Get probability new class configuration
-					double previousProbCC = predictionsFold[i].probabilities.get(stateCC);
-					double newProbCC = previousProbCC * predictionsCV[i].probabilities.get(classCV);
-					// Save new class configuration and its probability
-					newProbabilitiesCCs.put(newStateCC, newProbCC);
-				}
-			// Save probabilities class configurations for the sequence
-			predictionsFold[i].probabilities = newProbabilitiesCCs;
-			// Get probability predicted class configuration for the sequence
-			double probabilityPredictedCC = predictionsFold[i].getProbabilityPrediction();
-			// Get probability predicted class for the current class variable
-			double probabilityPredictedClass = predictionsCV[i].getProbabilityPrediction();
-			// Save new probability predicted class configuration
-			double probabilityNewPredictedCC = probabilityPredictedCC * probabilityPredictedClass;
-			predictionsFold[i].setProbabilityPrediction(probabilityNewPredictedCC);
+			if (estimateProbabilities) {
+				// Iterate over class configurations including states current class variable
+				Set<State> statesCC = predictionsFold[i].probabilities.keySet();
+				Set<State> statesCV = predictionsCV[i].probabilities.keySet();
+				for (State stateCC : statesCC)
+					for (State classCV : statesCV) {
+						// Get new class configuration that includes state of the class variable
+						State newStateCC = new State(stateCC.getEvents());
+						newStateCC.addEvents(classCV.getEvents());
+						// Get probability new class configuration
+						double previousProbCC = predictionsFold[i].probabilities.get(stateCC);
+						double newProbCC = previousProbCC * predictionsCV[i].probabilities.get(classCV);
+						// Save new class configuration and its probability
+						newProbabilitiesCCs.put(newStateCC, newProbCC);
+					}
+				// Save probabilities class configurations for the sequence
+				predictionsFold[i].probabilities = newProbabilitiesCCs;
+				// Get probability predicted class configuration for the sequence
+				double probabilityPredictedCC = predictionsFold[i].getProbabilityPrediction();
+				// Get probability predicted class for the current class variable
+				double probabilityPredictedClass = predictionsCV[i].getProbabilityPrediction();
+				// Save new probability predicted class configuration
+				double probabilityNewPredictedCC = probabilityPredictedCC * probabilityPredictedClass;
+				predictionsFold[i].setProbabilityPrediction(probabilityNewPredictedCC);
+			}
 		}
 		return predictionsFold;
 	}

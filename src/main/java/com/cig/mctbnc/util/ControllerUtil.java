@@ -2,6 +2,7 @@ package com.cig.mctbnc.util;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Node;
 import javafx.scene.control.TextField;
 
 /**
@@ -47,6 +48,19 @@ public final class ControllerUtil {
 					textField.setText(newValue.replaceAll("[^\\d+]", ""));
 			}
 		});
+	}
+
+	/**
+	 * Changes the visibility of a node.
+	 * 
+	 * @param node node whose status is changed
+	 * @param show true to show the node, otherwise false
+	 */
+	public static void showNode(Node node, boolean show) {
+		if (node != null) {
+			node.setVisible(show);
+			node.setManaged(show);
+		}
 	}
 
 }

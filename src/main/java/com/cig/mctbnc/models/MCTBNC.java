@@ -264,12 +264,11 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	public String getType() {
 		return "Multidimensional continuous time Bayesian network classifier";
 	}
-	
+
 	@Override
 	public String getModelIdentifier() {
 		return "MCTBNC";
 	}
-	
 
 	/**
 	 * Perform classification over the sequences of a dataset according to the

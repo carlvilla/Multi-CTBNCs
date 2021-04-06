@@ -1,7 +1,5 @@
 # MCTBNCs [![Build Status](https://travis-ci.com/carlvilla/MCTBNCs.svg?token=aJzHjLbR53QnhrMdqpW5&branch=master)](https://travis-ci.com/carlvilla/MCTBNCs)
 ## Installation
-1. Install gradle: https://gradle.org/
-2. ...
 
 ## Supported datasets
 Datasets can be stored and presented in different formats. Currently, this software supports the following:
@@ -35,8 +33,4 @@ The following penalizations can be applied over the log-likelihood and condition
 * Empty-digraph multi-dimensional continuous time Bayesian network classifier (Empty-digraph MCTBNC): dependencies between class variables are ignored.
 * Empty-maxK multi-dimensional continuous time Bayesian network classifier (Empty-maxK MCTBNC): feature nodes have at most k parents (excluding class variables) and dependencies between class variables are ignored.
 
-Note that if only one class variable is provided, a continuous time Bayesian network classifier (CTBNC) will be learnt instead with the selected constraints. 
-
-## Inference over MCTBNCs
-
-
+Note that if only one class variable is provided, a continuous time Bayesian network classifier (CTBNC) will be learnt instead with the selected constraints.

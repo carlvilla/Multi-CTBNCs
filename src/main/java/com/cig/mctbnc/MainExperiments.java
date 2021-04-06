@@ -64,6 +64,7 @@ public class MainExperiments {
 	// Evaluation method: "Cross-validation", "Hold-out validation"
 	static int folds = 5; // For "Cross-validation"
 	static boolean shuffleSequences = true;
+	static boolean estimateProbabilities = true;
 	// ---------------------------- Experiment settings ----------------------------
 
 	static MetricsWriter metricsWriter;
@@ -73,7 +74,6 @@ public class MainExperiments {
 	 * Class use to perform experiments.
 	 * 
 	 * @param args
-	 * @throws FileNotFoundException
 	 */
 	public static void main(String[] args) {
 		// Retrieve experiment to perform
@@ -138,9 +138,9 @@ public class MainExperiments {
 			Map<String, String> parameters) throws UnreadDatasetException {
 		// Define structure learning algorithms
 		StructureLearningAlgorithm bnSLA = StructureLearningAlgorithmFactory.getAlgorithmBN(nameBnSLA, scoreFunction,
-				penalizationFunction);
+				penalizationFunction, 0);
 		StructureLearningAlgorithm ctbnSLA = StructureLearningAlgorithmFactory.getAlgorithmCTBN(nameCtbnSLA,
-				scoreFunction, penalizationFunction);
+				scoreFunction, penalizationFunction, 0);
 		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
 		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 		// Generate selected model and validation method
@@ -149,16 +149,18 @@ public class MainExperiments {
 		if (selectedModel.equals("CTBNCs")) {
 			model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("MCTBNC", bnLearningAlgs, ctbnLearningAlgs,
 					parameters, CPTNode.class, CIMNode.class);
-			validationMethod = new CrossValidationSeveralModels(datasetReader, folds, shuffleSequences);
+			validationMethod = new CrossValidationSeveralModels(datasetReader, folds, shuffleSequences,
+					estimateProbabilities);
 		} else if (selectedModel.equals("maxK CTBNCs")) {
 			model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("DAG-maxK MCTBNC", bnLearningAlgs, ctbnLearningAlgs,
 					parameters, CPTNode.class, CIMNode.class);
-			validationMethod = new CrossValidationSeveralModels(datasetReader, folds, shuffleSequences);
+			validationMethod = new CrossValidationSeveralModels(datasetReader, folds, shuffleSequences,
+					estimateProbabilities);
 		} else {
 			model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(selectedModel, bnLearningAlgs, ctbnLearningAlgs,
 					parameters, CPTNode.class, CIMNode.class);
 			validationMethod = ValidationMethodFactory.getValidationMethod("Cross-validation", datasetReader,
-					shuffleSequences, 0, folds);
+					shuffleSequences, estimateProbabilities, 0, folds);
 		}
 		// Set output to show results
 		validationMethod.setWriter(metricsWriter);

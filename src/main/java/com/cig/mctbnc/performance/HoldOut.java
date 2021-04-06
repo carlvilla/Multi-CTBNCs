@@ -23,6 +23,9 @@ import com.cig.mctbnc.util.Util;
  *
  */
 public class HoldOut extends ValidationMethod {
+	double trainingSize;
+	boolean shuffle;
+	DatasetReader datasetReader;
 	Dataset trainingDataset;
 	Dataset testingDataset;
 	Logger logger = LogManager.getLogger(HoldOut.class);
@@ -31,21 +34,21 @@ public class HoldOut extends ValidationMethod {
 	 * Constructs a {@code HoldOut} by receiving a {@code DatasetReader}, the size
 	 * of the training set and if the data should be shuffled.
 	 * 
-	 * @param datasetReader
-	 * @param trainingSize
-	 * @param shuffle
-	 * @throws UnreadDatasetException
+	 * @param datasetReader         read the dataset
+	 * @param trainingSize          size of the training dataset (percentage)
+	 * @param shuffle               determines if the data is shuffled before
+	 *                              splitting into training and testing
+	 * @param estimateProbabilities determines if the probabilities of the class
+	 *                              configurations are estimated
 	 */
-	public HoldOut(DatasetReader datasetReader, double trainingSize, boolean shuffle) throws UnreadDatasetException {
+	public HoldOut(DatasetReader datasetReader, double trainingSize, boolean shuffle, boolean estimateProbabilities) {
 		DecimalFormat df = new DecimalFormat("##.00");
-		this.logger.info("Generating training ({}%) and testing ({}%) datasets (Hold-out validation)",
-				df.format(trainingSize * 100), df.format((1 - trainingSize) * 100));
-		generateTrainAndTest(datasetReader, trainingSize, shuffle);
-		this.logger.info("Time variable: {}", this.trainingDataset.getNameTimeVariable());
-		this.logger.info("Features: {}", this.trainingDataset.getNameFeatures());
-		this.logger.info("Class variables: {}", (this.trainingDataset.getNameClassVariables()));
-		this.logger.info("Sequences for training {}", this.trainingDataset.getNumDataPoints());
-		this.logger.info("Sequences for testing {}", this.testingDataset.getNumDataPoints());
+		this.logger.info(
+				"Generating training ({}%) and testing ({}%) datasets (Hold-out validation) / Shuffle: {} / Estimate probabilities: {}",
+				df.format(trainingSize * 100), df.format((1 - trainingSize) * 100), shuffle, estimateProbabilities);
+		this.trainingSize = trainingSize;
+		this.shuffle = shuffle;
+		this.datasetReader = datasetReader;
 	}
 
 	/**
@@ -54,7 +57,9 @@ public class HoldOut extends ValidationMethod {
 	 * @param model model to evaluate
 	 */
 	@Override
-	public void evaluate(MCTBNC<?, ?> model) {
+	public void evaluate(MCTBNC<?, ?> model) throws UnreadDatasetException {
+		// Generate training and testing datasets (if it was not done before)
+		generateTrainAndTest();
 		// Train the model
 		model.learn(this.trainingDataset);
 		// Make predictions with the model
@@ -66,28 +71,21 @@ public class HoldOut extends ValidationMethod {
 		displayResults(results);
 		displayModel(model);
 		System.out.println("-------------------------------------------------------------------");
-		// Display learned model
-		model.display();
 	}
 
 	/**
 	 * Generate a training and a testing dataset.
 	 * 
-	 * @param datasetReader read the dataset
-	 * @param trainingSize  size of the training dataset (percentage)
-	 * @param shuffle       determines if the data is shuffled before splitting into
-	 *                      training and testing
 	 * @throws UnreadDatasetException
 	 */
-	public void generateTrainAndTest(DatasetReader datasetReader, double trainingSize, boolean shuffle)
-			throws UnreadDatasetException {
+	public void generateTrainAndTest() throws UnreadDatasetException {
 		// Obtain entire dataset
-		Dataset dataset = datasetReader.readDataset();
+		Dataset dataset = this.datasetReader.readDataset();
 		// Obtain files names from which the dataset was read
 		List<String> fileNames = new ArrayList<String>(dataset.getNameFiles());
 		// Obtain sequences of the dataset
 		List<Sequence> sequences = new ArrayList<Sequence>(dataset.getSequences());
-		if (shuffle) {
+		if (this.shuffle) {
 			// Sequences and their files are shuffled before splitting into train and test
 			Integer seed = 10;
 			Util.shuffle(sequences, seed);
@@ -95,7 +93,7 @@ public class HoldOut extends ValidationMethod {
 			this.logger.info("Sequences shuffled");
 		}
 		// Define training and testing sequences
-		int lastIndexTraining = (int) (trainingSize * sequences.size());
+		int lastIndexTraining = (int) (this.trainingSize * sequences.size());
 		List<Sequence> trainingSequences = sequences.subList(0, lastIndexTraining);
 		List<Sequence> testingSequences = sequences.subList(lastIndexTraining, sequences.size());
 		// Define training and testing datasets
@@ -107,6 +105,11 @@ public class HoldOut extends ValidationMethod {
 		// Warn the training set about the possible states the variables can take (for
 		// now, categorical variable are assumed)
 		this.trainingDataset.setStatesVariables(dataset.getStatesVariables());
+		this.logger.info("Time variable: {}", this.trainingDataset.getNameTimeVariable());
+		this.logger.info("Features: {}", this.trainingDataset.getNameFeatures());
+		this.logger.info("Class variables: {}", (this.trainingDataset.getNameClassVariables()));
+		this.logger.info("Sequences for training {}", this.trainingDataset.getNumDataPoints());
+		this.logger.info("Sequences for testing {}", this.testingDataset.getNumDataPoints());
 	}
 
 	/**

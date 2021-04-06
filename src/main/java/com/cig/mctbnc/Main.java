@@ -3,7 +3,7 @@ package com.cig.mctbnc;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.cig.mctbnc.gui.controllers.Controller;
+import com.cig.mctbnc.gui.Controller;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -38,8 +38,10 @@ public class Main extends Application {
 		Parent root = (Parent) loader.load();
 		Scene scene = new Scene(root);
 		primaryStage.setScene(scene);
-		primaryStage.setResizable(false);
+		primaryStage.sizeToScene();
 		primaryStage.show();
+		primaryStage.setMinWidth(primaryStage.getWidth());
+		primaryStage.setMinHeight(primaryStage.getHeight());
 		// Obtain controller of the scene
 		Controller controller = (Controller) loader.getController();
 		// Pass the stage to the controller. This is necessary to show dialogs.

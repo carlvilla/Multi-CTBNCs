@@ -80,17 +80,11 @@ public class Metrics {
 		Map<String, Double> results = new LinkedHashMap<String, Double>();
 		double globalAccuracy = globalAccuracy(predicted, actualDataset);
 		double meanAccuracy = meanAccuracy(predicted, actualDataset, results);
-
 		System.out.println("-----PRECISION-----");
-
 		double macroPrecision = macroAverage(predicted, actualDataset, Metrics::precision);
-
 		System.out.println("-----RECALL-----");
-
 		double macroRecall = macroAverage(predicted, actualDataset, Metrics::recall);
-
 		System.out.println("-----F1 SCORE-----");
-
 		double macroF1Score = macroAverage(predicted, actualDataset, Metrics::f1score);
 		double microPrecision = microAverage(predicted, actualDataset, Metrics::precision);
 		double microRecall = microAverage(predicted, actualDataset, Metrics::recall);
@@ -130,8 +124,12 @@ public class Metrics {
 			// Show predicted and actual classes along with the name of the sequence file
 			// TODO The order of the class variables can change from that in the dataset due
 			// to the HashMap in State
-			logger.trace("File {} / Real classes: {} / Predicted classes {} / Prob. {}",
-					actualDataset.getNameFiles().get(i), actualCC, predictedCC, probability);
+			if (predicted[i].getProbabilities() != null)
+				logger.trace("File {} / Real classes: {} / Predicted classes {} / Prob. {}",
+						actualDataset.getNameFiles().get(i), actualCC, predictedCC, probability);
+			else
+				logger.trace("File {} / Real classes: {} / Predicted classes {}", actualDataset.getNameFiles().get(i),
+						actualCC, predictedCC);
 		}
 	}
 

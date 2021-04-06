@@ -2,6 +2,7 @@ package com.cig.mctbnc.performance;
 
 import java.util.Map;
 
+import com.cig.mctbnc.exceptions.UnreadDatasetException;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.performance.writers.MetricsWriter;
 
@@ -18,8 +19,9 @@ public abstract class ValidationMethod {
 	 * Evaluate the performance of the specified model.
 	 * 
 	 * @param model model to evaluate
+	 * @throws UnreadDatasetException 
 	 */
-	public abstract void evaluate(MCTBNC<?, ?> model);
+	public abstract void evaluate(MCTBNC<?, ?> model) throws UnreadDatasetException;
 
 	/**
 	 * Defines the metrics writer used to save the results of the evaluation.

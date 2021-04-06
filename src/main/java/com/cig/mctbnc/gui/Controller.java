@@ -1,4 +1,4 @@
-package com.cig.mctbnc.gui.controllers;
+package com.cig.mctbnc.gui;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,10 +27,11 @@ import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.performance.ValidationMethod;
 import com.cig.mctbnc.performance.ValidationMethodFactory;
+import com.cig.mctbnc.services.EvaluationService;
 import com.cig.mctbnc.util.ControllerUtil;
 
 import javafx.collections.ListChangeListener;
-import javafx.concurrent.Task;
+import javafx.concurrent.Service;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -40,7 +41,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -64,15 +65,19 @@ public class Controller {
 	@FXML
 	private ComboBox<String> cmbStrategy;
 	@FXML
-	private TextField fldSizeSequences;
-	@FXML
-	private TextField fldPath;
-	@FXML
 	private ComboBox<String> cmbTimeVariable;
 	@FXML
 	private CheckComboBox<String> ckcmbClassVariables;
 	@FXML
 	private CheckComboBox<String> ckcmbFeatures;
+	@FXML
+	private TextField fldSizeSequences;
+	@FXML
+	private TextField fldPath;
+	@FXML
+	private HBox hbStrategy;
+	@FXML
+	private HBox hbSizeSequences;
 
 	// Model
 	@FXML
@@ -92,26 +97,39 @@ public class Controller {
 	@FXML
 	private TextField fldKParents;
 	@FXML
-	private TextField fldNxBN;
+	private TextField fldNx;
 	@FXML
 	private TextField fldMxy;
 	@FXML
 	private TextField fldTx;
 	@FXML
-	private CheckBox chkProbabilities;
-
+	private TextField fldRestarts;
 	@FXML
-	private GridPane gpModel;
+	private HBox hbKParents;
+	@FXML
+	private HBox hbHyperBN;
+	@FXML
+	private HBox hbHyperCTBN;
+	@FXML
+	private HBox hbRestarts;
+	@FXML
+	private HBox hbPenalization;
 
 	// Evaluation
 	@FXML
-	ToggleGroup tgValidationMethod;
-	@FXML
-	private CheckBox cbShuffle;
+	private ToggleGroup tgValidationMethod;
 	@FXML
 	private Slider sldTrainingSize;
 	@FXML
 	private TextField fldNumFolds;
+	@FXML
+	private HBox hbTrainingSize;
+	@FXML
+	private HBox hbNumFolds;
+	@FXML
+	private CheckBox chkShuffle;
+	@FXML
+	private CheckBox chkProbabilities;
 
 	// General controls
 	@FXML
@@ -167,17 +185,17 @@ public class Controller {
 		try {
 			// Define the validation method
 			ValidationMethod validationMethod = defineValidationMethod();
-			// Evaluate the performance of the model
-			this.status.setText("Learning and evaluating the model...");
-			// Create task to evaluate model in another thread 
-			EvaluationTask evaluationTask = new EvaluationTask(validationMethod, model);
-			new Thread(evaluationTask).start();
-			this.status.setText("Idle");
-			// status.setText("Idle");
+			// Create service to evaluate model in another thread. This will allow to update
+			// and keep using the user interface
+			Service<Void> service = new EvaluationService(validationMethod, model);
+			service.start();
+			// The status label will be updated with the progress of the service
+			this.status.textProperty().bind(service.messageProperty());
+
 		} catch (UnreadDatasetException e) {
 			// The dataset could not be read due to a problem with the provided files
 			this.logger.error(e.getMessage());
-			// status.setText(e.getMessage());
+			this.status.setText(e.getMessage());
 		}
 	}
 
@@ -194,15 +212,16 @@ public class Controller {
 	 * Open a dialog to select the folder where the dataset is located.
 	 * 
 	 * @throws FileNotFoundException
+	 * @throws UnreadDatasetException
 	 */
-	public void setFolderDataset() throws FileNotFoundException {
+	public void setFolderDataset() throws FileNotFoundException, UnreadDatasetException {
 		// Open window to select the folder with the dataset
 		DirectoryChooser directoryChooser = new DirectoryChooser();
-		File selectedDirectory = directoryChooser.showDialog(stage);
+		File selectedDirectory = directoryChooser.showDialog(this.stage);
 		if (selectedDirectory != null) {
 			// Show the selected directory
 			String pathFolder = selectedDirectory.getAbsolutePath();
-			fldPath.setText(pathFolder);
+			this.fldPath.setText(pathFolder);
 			// Define dataset reader
 			initializeDatasetReader(pathFolder);
 			// Read the variables
@@ -215,30 +234,30 @@ public class Controller {
 	 */
 	private void initializeDatasetPane() {
 		// Initialize options of comboBoxes
-		cmbDataFormat.getItems().addAll(datasetReaders);
-		cmbStrategy.getItems().addAll(datasetReaderStrategies);
+		this.cmbDataFormat.getItems().addAll(this.datasetReaders);
+		this.cmbStrategy.getItems().addAll(this.datasetReaderStrategies);
 		// Select first option as default in comboBoxes
-		cmbDataFormat.getSelectionModel().selectFirst();
-		cmbStrategy.getSelectionModel().selectFirst();
-		cmbStrategy.setDisable(true);
+		this.cmbDataFormat.getSelectionModel().selectFirst();
+		this.cmbStrategy.getSelectionModel().selectFirst();
+		ControllerUtil.showNode(this.hbStrategy, false);
 		// Initialize text fields with default values
-		fldSizeSequences.setText("30");
-		fldSizeSequences.setDisable(true);
+		this.fldSizeSequences.setText("30");
+		ControllerUtil.showNode(this.hbSizeSequences, false);
 		// Add listeners to checkcomboboxes
-		ckcmbClassVariables.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
+		this.ckcmbClassVariables.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
 			@Override
 			public void onChanged(Change<? extends String> c) {
 				datasetModified();
 			}
 		});
-		ckcmbFeatures.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
+		this.ckcmbFeatures.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
 			@Override
 			public void onChanged(Change<? extends String> c) {
 				datasetModified();
 			}
 		});
 		// Text fields are restricted to certain values
-		ControllerUtil.onlyPositiveInteger(fldSizeSequences);
+		ControllerUtil.onlyPositiveInteger(this.fldSizeSequences);
 	}
 
 	/**
@@ -246,45 +265,52 @@ public class Controller {
 	 */
 	private void initializeModelPane() {
 		// Initialize options of comboBoxes
-		cmbModel.getItems().addAll(models);
-		cmbParameterBN.getItems().addAll(parameterLearningAlgs);
-		cmbParameterCTBN.getItems().addAll(parameterLearningAlgs);
-		cmbStructure.getItems().addAll(structureLearningAlgs);
-		cmbPenalization.getItems().addAll(penalizations);
-		cmbInitialStructure.getItems().addAll(initialStructures);
-		cmbScoreFunction.getItems().addAll(scores);
+		this.cmbModel.getItems().addAll(this.models);
+		this.cmbParameterBN.getItems().addAll(this.parameterLearningAlgs);
+		this.cmbParameterCTBN.getItems().addAll(this.parameterLearningAlgs);
+		this.cmbStructure.getItems().addAll(this.structureLearningAlgs);
+		this.cmbPenalization.getItems().addAll(this.penalizations);
+		this.cmbInitialStructure.getItems().addAll(this.initialStructures);
+		this.cmbScoreFunction.getItems().addAll(this.scores);
 		// Select first option as default in comboBoxes
-		cmbModel.getSelectionModel().selectFirst();
-		cmbParameterBN.getSelectionModel().selectFirst();
-		cmbParameterCTBN.getSelectionModel().selectFirst();
-		cmbStructure.getSelectionModel().selectFirst();
-		cmbPenalization.getSelectionModel().selectFirst();
-		cmbInitialStructure.getSelectionModel().selectFirst();
-		cmbScoreFunction.getSelectionModel().selectFirst();
+		this.cmbModel.getSelectionModel().selectFirst();
+		this.cmbParameterBN.getSelectionModel().selectFirst();
+		this.cmbParameterCTBN.getSelectionModel().selectFirst();
+		this.cmbStructure.getSelectionModel().selectFirst();
+		this.cmbPenalization.getSelectionModel().selectFirst();
+		this.cmbInitialStructure.getSelectionModel().selectFirst();
+		this.cmbScoreFunction.getSelectionModel().selectFirst();
 		// Initialize text fields with default values
-		fldKParents.setText("2");
-		fldNxBN.setText("1");
-		fldMxy.setText("1");
-		fldTx.setText("0.001");
-		fldKParents.setDisable(true);
-		fldNxBN.setDisable(true);
-		fldMxy.setDisable(true);
-		fldTx.setDisable(true);
+		this.fldKParents.setText("2");
+		this.fldNx.setText("1");
+		this.fldMxy.setText("1");
+		this.fldTx.setText("0.001");
+		this.fldRestarts.setText("5");
+		// Hide parameters
+		ControllerUtil.showNode(this.hbKParents, false);
+		ControllerUtil.showNode(this.hbHyperBN, false);
+		ControllerUtil.showNode(this.hbHyperCTBN, false);
+		ControllerUtil.showNode(this.hbRestarts, false);
 		// Text fields are restricted to certain values
-		ControllerUtil.onlyPositiveInteger(fldKParents);
+		ControllerUtil.onlyPositiveInteger(this.fldKParents);
+		ControllerUtil.onlyPositiveInteger(this.fldRestarts);
 	}
 
 	/**
 	 * Initialize the controllers of the evaluation pane.
 	 */
 	private void initializeEvaluationPane() {
+		// Hold-out validation by default
+		selectHoldOutValidation();
 		// Initialize text fields with default values
-		sldTrainingSize.setValue(0.7);
-		fldNumFolds.setText("5");
+		this.sldTrainingSize.setValue(0.7);
+		this.fldNumFolds.setText("5");
 		// Text values are restricted to certain values
-		ControllerUtil.onlyPositiveIntegerGreaterThan(fldNumFolds, 2);
+		ControllerUtil.onlyPositiveIntegerGreaterThan(this.fldNumFolds, 2);
 		// By default the sequences are shuffled
-		cbShuffle.setSelected(true);
+		this.chkShuffle.setSelected(true);
+		// By default the probabilities of the class configurations are estimated
+		this.chkProbabilities.setSelected(true);
 	}
 
 	/**
@@ -292,11 +318,12 @@ public class Controller {
 	 * 
 	 * @param pathFolder
 	 * @throws FileNotFoundException
+	 * @throws UnreadDatasetException
 	 */
-	private void initializeDatasetReader(String pathFolder) throws FileNotFoundException {
-		String nameDatasetReader = cmbDataFormat.getValue();
-		int sizeSequence = Integer.valueOf(fldSizeSequences.getText());
-		datasetReader = DatasetReaderFactory.getDatasetReader(nameDatasetReader, pathFolder, sizeSequence);
+	private void initializeDatasetReader(String pathFolder) throws FileNotFoundException, UnreadDatasetException {
+		String nameDatasetReader = this.cmbDataFormat.getValue();
+		int sizeSequence = Integer.valueOf(this.fldSizeSequences.getText());
+		this.datasetReader = DatasetReaderFactory.getDatasetReader(nameDatasetReader, pathFolder, sizeSequence);
 	}
 
 	/**
@@ -307,13 +334,13 @@ public class Controller {
 	 */
 	private void readVariablesDataset(String pathFolder) throws FileNotFoundException {
 		// Names of the variables are retrieved
-		List<String> nameVariables = datasetReader.getAllVariablesDataset();
+		List<String> nameVariables = this.datasetReader.getAllVariablesDataset();
 		// If another dataset was used before, comboBoxes are reseted
 		resetCheckComboBoxes();
 		// Variables' names are added to the comboBoxes
-		ckcmbFeatures.getItems().addAll(nameVariables);
-		cmbTimeVariable.getItems().addAll(nameVariables);
-		ckcmbClassVariables.getItems().addAll(nameVariables);
+		this.ckcmbFeatures.getItems().addAll(nameVariables);
+		this.cmbTimeVariable.getItems().addAll(nameVariables);
+		this.ckcmbClassVariables.getItems().addAll(nameVariables);
 	}
 
 	private MCTBNC<CPTNode, CIMNode> defineModel() {
@@ -322,51 +349,55 @@ public class Controller {
 		CTBNLearningAlgorithms ctbnLearningAlgs = defineAlgorithmsCTBN();
 		// Parameters that could be necessary for the generation of the model
 		Map<String, String> parameters = new WeakHashMap<String, String>();
-		parameters.put("maxK", fldKParents.getText());
+		parameters.put("maxK", this.fldKParents.getText());
 		// Generate selected model
-		String selectedModel = cmbModel.getValue();
+		String selectedModel = this.cmbModel.getValue();
 		MCTBNC<CPTNode, CIMNode> model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(selectedModel, bnLearningAlgs,
 				ctbnLearningAlgs, parameters, CPTNode.class, CIMNode.class);
 		// Define initial structure
-		model.setIntialStructure(cmbInitialStructure.getValue());
+		model.setIntialStructure(this.cmbInitialStructure.getValue());
 		return model;
 	}
 
 	private BNLearningAlgorithms defineAlgorithmsBN() {
 		// Get names learning algorithms
-		String nameBnPLA = cmbParameterBN.getValue();
-		String nameBnSLA = cmbStructure.getValue();
+		String nameBnPLA = this.cmbParameterBN.getValue();
+		String nameBnSLA = this.cmbStructure.getValue();
 		// Get hyperparameters
-		double nx = Double.valueOf(fldNxBN.getText());
+		double nx = Double.valueOf(this.fldNx.getText());
 		// Get score function
-		String scoreFunction = cmbScoreFunction.getValue();
+		String scoreFunction = this.cmbScoreFunction.getValue();
 		// Define penalization function (if any)
-		String penalizationFunction = cmbPenalization.getValue();
+		String penalizationFunction = this.cmbPenalization.getValue();
+		// Get number of restarts (for random restart hill climbing)
+		int restarts = Integer.valueOf(this.fldRestarts.getText());
 		// Define learning algorithms for the class subgraph (Bayesian network)
 		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, nx);
 		StructureLearningAlgorithm bnSLA = StructureLearningAlgorithmFactory.getAlgorithmBN(nameBnSLA, scoreFunction,
-				penalizationFunction);
+				penalizationFunction, restarts);
 		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
 		return bnLearningAlgs;
 	}
 
 	private CTBNLearningAlgorithms defineAlgorithmsCTBN() {
 		// Get names learning algorithms
-		String nameCtbnPLA = cmbParameterCTBN.getValue();
-		String nameCtbnSLA = cmbStructure.getValue();
+		String nameCtbnPLA = this.cmbParameterCTBN.getValue();
+		String nameCtbnSLA = this.cmbStructure.getValue();
 		// Get hyperparameters
-		double mxy = Double.valueOf(fldMxy.getText());
-		double tx = Double.valueOf(fldTx.getText());
+		double mxy = Double.valueOf(this.fldMxy.getText());
+		double tx = Double.valueOf(this.fldTx.getText());
 		// Get score function
-		String scoreFunction = cmbScoreFunction.getValue();
+		String scoreFunction = this.cmbScoreFunction.getValue();
 		// Define penalization function (if any)
-		String penalizationFunction = cmbPenalization.getValue();
+		String penalizationFunction = this.cmbPenalization.getValue();
+		// Get number of restarts (for random restart hill climbing)
+		int restarts = Integer.valueOf(this.fldRestarts.getText());
 		// Define learning algorithms for the feature and class subgraph (Continuous
 		// time Bayesian network)
 		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, mxy,
 				tx);
 		StructureLearningAlgorithm ctbnSLA = StructureLearningAlgorithmFactory.getAlgorithmCTBN(nameCtbnSLA,
-				scoreFunction, penalizationFunction);
+				scoreFunction, penalizationFunction, restarts);
 		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 		return ctbnLearningAlgs;
 	}
@@ -383,13 +414,15 @@ public class Controller {
 		RadioButton rbValidationMethod = (RadioButton) this.tgValidationMethod.getSelectedToggle();
 		String selectedValidationMethod = rbValidationMethod.getText();
 		// Define if sequences are shuffled before applying validation method
-		boolean shuffleSequences = this.cbShuffle.isSelected();
+		boolean shuffleSequences = this.chkShuffle.isSelected();
+		// Define if the probabilities of the class configurations are estimated
+		boolean estimateProbabilities = this.chkProbabilities.isSelected();
 		// Retrieve parameters of the validation methods
 		double trainingSize = this.sldTrainingSize.getValue();
 		int folds = Integer.valueOf(this.fldNumFolds.getText());
 		// Retrieve algorithm of the validation method
 		ValidationMethod validationMethod = ValidationMethodFactory.getValidationMethod(selectedValidationMethod,
-				this.datasetReader, shuffleSequences, trainingSize, folds);
+				this.datasetReader, shuffleSequences, estimateProbabilities, trainingSize, folds);
 		return validationMethod;
 	}
 
@@ -425,13 +458,14 @@ public class Controller {
 		// Define dataset as modified
 		datasetModified();
 		// Show or hide options
-		if (cmbDataFormat.getValue().equals("Single CSV")) {
-			cmbStrategy.setDisable(false);
-			if (cmbStrategy.getValue().equals("Fixed size"))
-				fldSizeSequences.setDisable(false);
+		if (this.cmbDataFormat.getValue().equals("Single CSV")) {
+			ControllerUtil.showNode(this.hbStrategy, true);
+			ControllerUtil.showNode(this.hbSizeSequences, true);
+			if (this.cmbStrategy.getValue().equals("Fixed size"))
+				ControllerUtil.showNode(this.fldSizeSequences, true);
 		} else {
-			cmbStrategy.setDisable(true);
-			fldSizeSequences.setDisable(true);
+			ControllerUtil.showNode(this.hbStrategy, false);
+			ControllerUtil.showNode(this.hbSizeSequences, false);
 		}
 	}
 
@@ -443,10 +477,10 @@ public class Controller {
 		// Define dataset as modified
 		datasetModified();
 		// Show or hide options
-		if (cmbStrategy.getValue().equals("Fixed size"))
-			fldSizeSequences.setDisable(false);
+		if (this.cmbStrategy.getValue().equals("Fixed size"))
+			this.fldSizeSequences.setDisable(false);
 		else
-			fldSizeSequences.setDisable(true);
+			this.fldSizeSequences.setDisable(true);
 	}
 
 	/**
@@ -456,9 +490,9 @@ public class Controller {
 		String model = this.cmbModel.getValue();
 		if (model.equals("DAG-maxK MCTBNC") || model.equals("Empty-maxK MCTBNC"))
 			// Enable selecting the number of maximum parents
-			this.fldKParents.setDisable(false);
+			ControllerUtil.showNode(this.hbKParents, true);
 		else
-			this.fldKParents.setDisable(true);
+			ControllerUtil.showNode(this.hbKParents, false);
 
 		if (model.equals("MCTNBC")) {
 			// Disable of learning structure options if learning a naive Bayes classifier
@@ -479,10 +513,10 @@ public class Controller {
 	 * correspondent parameters.
 	 */
 	public void changeParameterLearningAlgBN() {
-		if (cmbParameterBN.getValue().equals("Bayesian estimation"))
-			fldNxBN.setDisable(false);
+		if (this.cmbParameterBN.getValue().equals("Bayesian estimation"))
+			ControllerUtil.showNode(this.hbHyperBN, true);
 		else
-			fldNxBN.setDisable(true);
+			ControllerUtil.showNode(this.hbHyperBN, false);
 	}
 
 	/**
@@ -490,13 +524,50 @@ public class Controller {
 	 * its correspondent parameters.
 	 */
 	public void changeParameterLearningAlgCTBN() {
-		if (cmbParameterCTBN.getValue().equals("Bayesian estimation")) {
-			fldMxy.setDisable(false);
-			fldTx.setDisable(false);
+		if (this.cmbParameterCTBN.getValue().equals("Bayesian estimation"))
+			ControllerUtil.showNode(this.hbHyperCTBN, true);
+		else
+			ControllerUtil.showNode(this.hbHyperCTBN, false);
+	}
+
+	/**
+	 * A structure learning algorithm was selected in the comboBox. Show its
+	 * correspondent parameters.
+	 */
+	public void changeStructureLearningAlg() {
+		if (this.cmbStructure.getValue().equals("Random-restart hill climbing")) {
+			ControllerUtil.showNode(this.hbRestarts, true);
 		} else {
-			fldMxy.setDisable(true);
-			fldTx.setDisable(true);
+			ControllerUtil.showNode(this.hbRestarts, false);
 		}
+	}
+
+	/**
+	 * A score function was selected in the comboBox. Show its correspondent
+	 * parameters.
+	 */
+	public void changeScoreFunction() {
+		if (this.cmbScoreFunction.getValue().equals("Bayesian Dirichlet equivalent")) {
+			ControllerUtil.showNode(this.hbPenalization, false);
+		} else {
+			ControllerUtil.showNode(this.hbPenalization, true);
+		}
+	}
+
+	/**
+	 * Cross-validation method was selected. Show its correspondent parameters.
+	 */
+	public void selectCrossValidation() {
+		ControllerUtil.showNode(this.hbNumFolds, true);
+		ControllerUtil.showNode(this.hbTrainingSize, false);
+	}
+
+	/**
+	 * Hold-out-validation method was selected. Show its correspondent parameters.
+	 */
+	public void selectHoldOutValidation() {
+		ControllerUtil.showNode(this.hbTrainingSize, true);
+		ControllerUtil.showNode(this.hbNumFolds, false);
 	}
 
 }

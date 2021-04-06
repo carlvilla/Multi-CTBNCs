@@ -3,6 +3,8 @@ package com.cig.mctbnc.data.reader;
 import java.io.FileNotFoundException;
 import java.util.List;
 
+import com.cig.mctbnc.exceptions.UnreadDatasetException;
+
 /**
  * Creates dataset readers.
  * 
@@ -19,10 +21,11 @@ public abstract class DatasetReaderFactory {
 	 * @param sizeSequence
 	 * @return a dataset reader
 	 * @throws FileNotFoundException
+	 * @throws UnreadDatasetException
 	 * 
 	 */
 	public static DatasetReader getDatasetReader(String datasetReader, String pathDataset, int sizeSequence)
-			throws FileNotFoundException {
+			throws FileNotFoundException, UnreadDatasetException {
 		switch (datasetReader) {
 		case ("Multiple CSV"):
 			return new MultipleCSVReader(pathDataset);

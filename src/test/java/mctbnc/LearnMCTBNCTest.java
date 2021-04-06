@@ -204,14 +204,14 @@ class LearnMCTBNCTest {
 		BNParameterLearningAlgorithm bnParameterLearningAlgorithm = BNParameterLearningAlgorithmFactory
 				.getAlgorithm("Maximum likelihood estimation", 0.0);
 		StructureLearningAlgorithm bnStructureLearningAlgorithm = StructureLearningAlgorithmFactory
-				.getAlgorithmBN("Hill climbing", "Log-likelihood", "BIC");
+				.getAlgorithmBN("Hill climbing", "Log-likelihood", "BIC", 0);
 		bnLearningAlgs = new BNLearningAlgorithms(bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
 
 		// Algorithms to learn CTBN (feature and bridge subgraph of MCTBNC)
 		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = CTBNParameterLearningAlgorithmFactory
 				.getAlgorithm("Maximum likelihood estimation", 0.0, 0.0);
 		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = StructureLearningAlgorithmFactory
-				.getAlgorithmCTBN("Hill climbing", "Log-likelihood", "BIC");
+				.getAlgorithmCTBN("Hill climbing", "Log-likelihood", "BIC", 0);
 		ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm);
 
 		// Define model
@@ -240,14 +240,14 @@ class LearnMCTBNCTest {
 		BNParameterLearningAlgorithm bnParameterLearningAlgorithm = BNParameterLearningAlgorithmFactory
 				.getAlgorithm("Maximum likelihood estimation", 0.0);
 		StructureLearningAlgorithm bnStructureLearningAlgorithm = StructureLearningAlgorithmFactory
-				.getAlgorithmBN("Hill climbing", "Conditional log-likelihood", "BIC");
+				.getAlgorithmBN("Hill climbing", "Conditional log-likelihood", "BIC", 0);
 		bnLearningAlgs = new BNLearningAlgorithms(bnParameterLearningAlgorithm, bnStructureLearningAlgorithm);
 
 		// Algorithms to learn CTBN (feature and bridge subgraph of MCTBNC)
 		CTBNParameterLearningAlgorithm ctbnParameterLearningAlgorithm = CTBNParameterLearningAlgorithmFactory
 				.getAlgorithm("Maximum likelihood estimation", 0.0, 0.0);
 		StructureLearningAlgorithm ctbnStructureLearningAlgorithm = StructureLearningAlgorithmFactory
-				.getAlgorithmCTBN("Hill climbing", "Conditional log-likelihood", "BIC");
+				.getAlgorithmCTBN("Hill climbing", "Conditional log-likelihood", "BIC", 0);
 		ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnParameterLearningAlgorithm, ctbnStructureLearningAlgorithm);
 
 		// Define model
