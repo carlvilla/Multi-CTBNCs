@@ -3,7 +3,7 @@ package com.cig.mctbnc.learning.structure.optimization.scores.bn;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
-import com.cig.mctbnc.learning.structure.optimization.scores.AbstractLogLikelihood;
+import com.cig.mctbnc.learning.structure.optimization.scores.AbstractLikelihood;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
@@ -14,7 +14,7 @@ import com.cig.mctbnc.nodes.Node;
  * @author Carlos Villa Blanco
  *
  */
-public class BNLogLikelihood extends AbstractLogLikelihood implements BNScoreFunction {
+public class BNLogLikelihood extends AbstractLikelihood implements BNScoreFunction {
 
 	/**
 	 * Receives the name of the penalization function used for the structure

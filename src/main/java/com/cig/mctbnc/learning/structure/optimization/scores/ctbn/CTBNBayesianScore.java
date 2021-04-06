@@ -21,6 +21,7 @@ public class CTBNBayesianScore implements CTBNScoreFunction {
 		return bdeScore;
 	}
 
+	@Override
 	public double compute(CTBN<? extends Node> ctbn, int nodeIndex) {
 		// Obtain node to evaluate
 		CIMNode node = (CIMNode) ctbn.getNodes().get(nodeIndex);

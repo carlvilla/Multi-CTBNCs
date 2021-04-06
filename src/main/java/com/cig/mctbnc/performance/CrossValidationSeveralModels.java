@@ -241,21 +241,21 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 			Map<State, Double> newProbabilitiesCCs = new HashMap<State, Double>();
 			if (estimateProbabilities) {
 				// Iterate over class configurations including states current class variable
-				Set<State> statesCC = predictionsFold[i].probabilities.keySet();
-				Set<State> statesCV = predictionsCV[i].probabilities.keySet();
+				Set<State> statesCC = predictionsFold[i].getProbabilities().keySet();
+				Set<State> statesCV = predictionsCV[i].getProbabilities().keySet();
 				for (State stateCC : statesCC)
 					for (State classCV : statesCV) {
 						// Get new class configuration that includes state of the class variable
 						State newStateCC = new State(stateCC.getEvents());
 						newStateCC.addEvents(classCV.getEvents());
 						// Get probability new class configuration
-						double previousProbCC = predictionsFold[i].probabilities.get(stateCC);
-						double newProbCC = previousProbCC * predictionsCV[i].probabilities.get(classCV);
+						double previousProbCC = predictionsFold[i].getProbabilities().get(stateCC);
+						double newProbCC = previousProbCC * predictionsCV[i].getProbabilities().get(classCV);
 						// Save new class configuration and its probability
 						newProbabilitiesCCs.put(newStateCC, newProbCC);
 					}
 				// Save probabilities class configurations for the sequence
-				predictionsFold[i].probabilities = newProbabilitiesCCs;
+				predictionsFold[i].setProbabilities(newProbabilitiesCCs);
 				// Get probability predicted class configuration for the sequence
 				double probabilityPredictedCC = predictionsFold[i].getProbabilityPrediction();
 				// Get probability predicted class for the current class variable

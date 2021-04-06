@@ -4,7 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
 
-public class AbstractLogLikelihood {
+/**
+ * Abstract class defining common variables and methods for likelihood based
+ * scores.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
+public class AbstractLikelihood {
 	protected String penalizationFunction;
 	protected Map<String, DoubleUnaryOperator> penalizationFunctionMap = new HashMap<>() {
 		private static final long serialVersionUID = 1L;
@@ -20,7 +27,7 @@ public class AbstractLogLikelihood {
 	 * 
 	 * @param penalizationFunction
 	 */
-	public AbstractLogLikelihood(String penalizationFunction) {
+	public AbstractLikelihood(String penalizationFunction) {
 		this.penalizationFunction = penalizationFunction;
 	}
 }

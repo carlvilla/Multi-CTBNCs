@@ -3,7 +3,7 @@ package com.cig.mctbnc.learning.structure.optimization.scores.ctbn;
 import java.util.function.DoubleUnaryOperator;
 
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
-import com.cig.mctbnc.learning.structure.optimization.scores.AbstractLogLikelihood;
+import com.cig.mctbnc.learning.structure.optimization.scores.AbstractLikelihood;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.Node;
@@ -14,7 +14,7 @@ import com.cig.mctbnc.nodes.Node;
  * @author Carlos Villa Blanco
  *
  */
-public class CTBNLogLikelihood extends AbstractLogLikelihood implements CTBNScoreFunction {
+public class CTBNLogLikelihood extends AbstractLikelihood implements CTBNScoreFunction {
 
 	/**
 	 * Receives the name of the penalization function used for the structure

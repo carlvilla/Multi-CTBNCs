@@ -14,7 +14,7 @@ import com.cig.mctbnc.data.representation.State;
 public class Prediction {
 	State predictedClasses;
 	double probabilityPrediction;
-	public Map<State, Double> probabilities;
+	Map<State, Double> probabilities;
 
 	/**
 	 * Set the predicted classes
@@ -62,6 +62,15 @@ public class Prediction {
 	 */
 	public double getProbabilityPrediction() {
 		return this.probabilityPrediction;
+	}
+
+	/**
+	 * Set the probabilities of every possible classes.
+	 * 
+	 * @param probabilities probabilities of each class configuration
+	 */
+	public void setProbabilities(Map<State, Double> probabilities) {
+		this.probabilities = probabilities;
 	}
 
 	/**

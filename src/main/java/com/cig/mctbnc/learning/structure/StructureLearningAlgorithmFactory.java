@@ -55,6 +55,7 @@ public class StructureLearningAlgorithmFactory {
 	 * @param algorithm
 	 * @param scoreFunction
 	 * @param penalizationFunction
+	 * @param numRestarts 
 	 * @return structure learning algorithm
 	 */
 	public static StructureLearningAlgorithm getAlgorithmCTBN(String algorithm, String scoreFunction,

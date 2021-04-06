@@ -10,7 +10,7 @@ import java.util.function.DoubleUnaryOperator;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.learning.parameters.bn.BNSufficientStatistics;
 import com.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
-import com.cig.mctbnc.learning.structure.optimization.scores.AbstractLogLikelihood;
+import com.cig.mctbnc.learning.structure.optimization.scores.AbstractLikelihood;
 import com.cig.mctbnc.models.BN;
 import com.cig.mctbnc.models.CTBN;
 import com.cig.mctbnc.nodes.CIMNode;
@@ -23,7 +23,7 @@ import com.cig.mctbnc.util.Util;
  * Implements the conditional log-likelihood score to perform a discriminative
  * training.
  */
-public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implements CTBNScoreFunction {
+public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements CTBNScoreFunction {
 	// Store class configurations
 	List<State> statesCVs;
 
@@ -206,7 +206,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLogLikelihood implemen
 	 * @param nodesCVs
 	 * @param ctbn
 	 * @param statesCVs
-	 * @return
+	 * @return log-marginal-likelihood
 	 */
 	private double logMarginalLikelihoodSequences(BN<CPTNode> bn, CTBN<? extends Node> ctbn) {
 		// Retrieve nodes BN
