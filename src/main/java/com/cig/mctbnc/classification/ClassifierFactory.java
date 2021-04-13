@@ -25,32 +25,32 @@ public class ClassifierFactory {
 	static Logger logger = LogManager.getLogger(ClassifierFactory.class);
 
 	/**
-	 * Build the specified classifier with the provided parameters.
+	 * Build the specified classifier with the provided hyperparameters.
 	 * 
 	 * @param <NodeTypeBN>
 	 * @param <NodeTypeCTBN>
 	 * @param nameClassifier
 	 * @param bnLearningAlgs
 	 * @param ctbnLearningAlgs
-	 * @param parameters       special parameters for each type of classifier
+	 * @param hyperparameters  specific hyperparameters for each type of classifier
 	 * @param bnNodeClass
 	 * @param ctbnNodeClass
 	 * @return classifier
 	 */
 	public static <NodeTypeBN extends Node, NodeTypeCTBN extends Node> MCTBNC<NodeTypeBN, NodeTypeCTBN> getMCTBNC(
 			String nameClassifier, BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnLearningAlgs,
-			Map<String, String> parameters, Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
+			Map<String, String> hyperparameters, Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
 		switch (nameClassifier) {
 		case "MCTNBC":
 			logger.info("Creating a multi-dimensional continuous naive Bayes classifier (MCTBNC)");
 			return new MCTNBC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
 		case "DAG-maxK MCTBNC":
-			int maxK = Integer.valueOf(parameters.get("maxK"));
+			int maxK = Integer.valueOf(hyperparameters.get("maxK"));
 			logger.info("Creating a DAG-{}DB multi-dimensional continuous Bayesian network classifier", maxK);
 			return new DAG_maxK_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);
 		case "Empty-maxK MCTBNC":
-			maxK = Integer.valueOf(parameters.get("maxK"));
+			maxK = Integer.valueOf(hyperparameters.get("maxK"));
 			logger.info("Creating a Empty-{}DB multi-dimensional continuous Bayesian network classifier", maxK);
 			return new Empty_maxK_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);

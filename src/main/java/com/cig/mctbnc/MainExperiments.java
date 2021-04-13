@@ -23,7 +23,7 @@ import com.cig.mctbnc.learning.structure.StructureLearningAlgorithmFactory;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
-import com.cig.mctbnc.performance.CrossValidationSeveralModels;
+import com.cig.mctbnc.performance.CrossValidationBinaryRelevance;
 import com.cig.mctbnc.performance.ValidationMethod;
 import com.cig.mctbnc.performance.ValidationMethodFactory;
 import com.cig.mctbnc.performance.writers.ExcelExperimentsWriter;
@@ -63,8 +63,8 @@ public class MainExperiments {
 
 	// Evaluation method: "Cross-validation", "Hold-out validation"
 	static int folds = 5; // For "Cross-validation"
-	static boolean shuffleSequences = true;
 	static boolean estimateProbabilities = true;
+	static boolean shuffleSequences = true;
 	// ---------------------------- Experiment settings ----------------------------
 
 	static MetricsWriter metricsWriter;
@@ -93,49 +93,58 @@ public class MainExperiments {
 		// "Conditional log-likelihood"
 		List<String> scoreFunctions = List.of(args[3]);
 
+		// Retrieve seed used to shuffle sequences
+		List<Long> seeds = getSeeds(selectedExperiment);
+
 		// Define parameter learning algorithms
 		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, nx);
 		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, mxy,
 				tx);
-		// Parameters that could be necessary for the generation of the models
-		Map<String, String> parameters = new WeakHashMap<String, String>();
-		parameters.put("maxK", maxK);
+		// Hyperparameters that could be necessary for the generation of the models
+		Map<String, String> hyperparameters = new WeakHashMap<String, String>();
+		hyperparameters.put("maxK", maxK);
 		// Iterate over experiments
 		for (List<String> datasets : datasetsAll) {
 			// Define output to store the results of the experiments
 			metricsWriter = new ExcelExperimentsWriter(scoreFunctions, datasets, models, nameClassVariables,
-					nameFeatureVariables, bnPLA, ctbnPLA, penalizationFunction, initialStructure);
-			// Iterate over the score functions that are used
-			for (String scoreFunction : scoreFunctions) {
-				System.out.printf("------------------------------ Score function: %s ------------------------------\n",
-						scoreFunction);
-				// Iterate over the datasets that are evaluated
-				for (String pathDataset : datasets) {
-					System.out.printf("############################# DATASET: %s #############################\n",
-							pathDataset);
-					try {
-						DatasetReader datasetReader = new MultipleCSVReader(pathDataset);
-						// Set the variables that will be used
-						datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameFeatureVariables);
-						for (String selectedModel : models) {
-							System.out.printf("***************************** MODEL: %s *****************************\n",
-									selectedModel);
-							performExperiment(datasetReader, bnPLA, ctbnPLA, selectedModel, scoreFunction, parameters);
+					nameFeatureVariables, bnPLA, ctbnPLA, penalizationFunction, initialStructure, seeds);
+			// Iterate over different permutations of the same dataset
+			for (long seed : seeds) {
+				// Iterate over the score functions that are used
+				for (String scoreFunction : scoreFunctions) {
+					System.out.printf(
+							"------------------------------ Score function: %s ------------------------------\n",
+							scoreFunction);
+					// Iterate over the datasets that are evaluated
+					for (String pathDataset : datasets) {
+						System.out.printf("############################# DATASET: %s #############################\n",
+								pathDataset);
+						try {
+							DatasetReader datasetReader = new MultipleCSVReader(pathDataset);
+							// Set the variables that will be used
+							datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameFeatureVariables);
+							for (String selectedModel : models) {
+								System.out.printf(
+										"***************************** MODEL: %s *****************************\n",
+										selectedModel);
+								performExperiment(datasetReader, bnPLA, ctbnPLA, selectedModel, scoreFunction,
+										hyperparameters, seed);
+							}
+						} catch (FileNotFoundException e) {
+							logger.error(e.getMessage());
+						} catch (UnreadDatasetException e) {
+							logger.error(e.getMessage());
 						}
-					} catch (FileNotFoundException e) {
-						logger.error(e.getMessage());
-					} catch (UnreadDatasetException e) {
-						logger.error(e.getMessage());
 					}
 				}
+				metricsWriter.close();
 			}
-			metricsWriter.close();
 		}
 	}
 
 	private static void performExperiment(DatasetReader datasetReader, BNParameterLearningAlgorithm bnPLA,
 			CTBNParameterLearningAlgorithm ctbnPLA, String selectedModel, String scoreFunction,
-			Map<String, String> parameters) throws UnreadDatasetException {
+			Map<String, String> hyperparameters, long seed) throws UnreadDatasetException {
 		// Define structure learning algorithms
 		StructureLearningAlgorithm bnSLA = StructureLearningAlgorithmFactory.getAlgorithmBN(nameBnSLA, scoreFunction,
 				penalizationFunction, 0);
@@ -148,19 +157,19 @@ public class MainExperiments {
 		ValidationMethod validationMethod;
 		if (selectedModel.equals("CTBNCs")) {
 			model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("MCTBNC", bnLearningAlgs, ctbnLearningAlgs,
-					parameters, CPTNode.class, CIMNode.class);
-			validationMethod = new CrossValidationSeveralModels(datasetReader, folds, shuffleSequences,
-					estimateProbabilities);
+					hyperparameters, CPTNode.class, CIMNode.class);
+			validationMethod = new CrossValidationBinaryRelevance(datasetReader, folds, estimateProbabilities,
+					shuffleSequences, seed);
 		} else if (selectedModel.equals("maxK CTBNCs")) {
 			model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("DAG-maxK MCTBNC", bnLearningAlgs, ctbnLearningAlgs,
-					parameters, CPTNode.class, CIMNode.class);
-			validationMethod = new CrossValidationSeveralModels(datasetReader, folds, shuffleSequences,
-					estimateProbabilities);
+					hyperparameters, CPTNode.class, CIMNode.class);
+			validationMethod = new CrossValidationBinaryRelevance(datasetReader, folds, estimateProbabilities,
+					shuffleSequences, seed);
 		} else {
 			model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(selectedModel, bnLearningAlgs, ctbnLearningAlgs,
-					parameters, CPTNode.class, CIMNode.class);
-			validationMethod = ValidationMethodFactory.getValidationMethod("Cross-validation", datasetReader,
-					shuffleSequences, estimateProbabilities, 0, folds);
+					hyperparameters, CPTNode.class, CIMNode.class);
+			validationMethod = ValidationMethodFactory.getValidationMethod("Cross-validation", datasetReader, 0, folds,
+					estimateProbabilities, shuffleSequences, seed);
 		}
 		// Set output to show results
 		validationMethod.setWriter(metricsWriter);
@@ -242,6 +251,18 @@ public class MainExperiments {
 			return List.of("X1", "X2", "X3", "X4", "X5");
 		case ("energy"):
 			return List.of("IA", "IB", "IC", "VA", "VB", "VC", "SA", "SB", "SC", "PA", "PB", "PC", "QA", "QB", "QC");
+		default:
+			System.err.println("Selected experiment was not found");
+			return null;
+		}
+	}
+
+	private static List<Long> getSeeds(String selectedExperiment) {
+		switch (selectedExperiment) {
+		case ("synthetic"):
+			return List.of(10L);
+		case ("energy"):
+			return List.of(10L, 20L, 30L, 40L, 50L, 60L, 70L, 80L, 90L, 100L);
 		default:
 			System.err.println("Selected experiment was not found");
 			return null;

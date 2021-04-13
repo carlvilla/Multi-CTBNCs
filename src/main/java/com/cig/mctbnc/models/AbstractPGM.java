@@ -2,6 +2,7 @@ package com.cig.mctbnc.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -346,6 +347,15 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 */
 	public Dataset getDataset() {
 		return this.dataset;
+	}
+
+	/**
+	 * Return the hyperparameters of the model that are set by the user.
+	 * 
+	 * @return {@code a Map} with the hyperparameters
+	 */
+	public Map<String, String> getHyperparameters() {
+		return Map.of();
 	}
 
 	/**

@@ -23,9 +23,11 @@ import com.cig.mctbnc.util.Util;
  *
  */
 public class HoldOut extends ValidationMethod {
-	double trainingSize;
-	boolean shuffle;
 	DatasetReader datasetReader;
+	double trainingSize;
+	boolean estimateProbabilities;
+	boolean shuffle;
+	long seed;
 	Dataset trainingDataset;
 	Dataset testingDataset;
 	Logger logger = LogManager.getLogger(HoldOut.class);
@@ -36,19 +38,23 @@ public class HoldOut extends ValidationMethod {
 	 * 
 	 * @param datasetReader         read the dataset
 	 * @param trainingSize          size of the training dataset (percentage)
-	 * @param shuffle               determines if the data is shuffled before
-	 *                              splitting into training and testing
 	 * @param estimateProbabilities determines if the probabilities of the class
 	 *                              configurations are estimated
+	 * @param shuffle               determines if the data is shuffled before
+	 *                              splitting into training and testing
+	 * @param seed
 	 */
-	public HoldOut(DatasetReader datasetReader, double trainingSize, boolean shuffle, boolean estimateProbabilities) {
+	public HoldOut(DatasetReader datasetReader, double trainingSize, boolean estimateProbabilities, boolean shuffle,
+			long seed) {
 		DecimalFormat df = new DecimalFormat("##.00");
 		this.logger.info(
 				"Generating training ({}%) and testing ({}%) datasets (Hold-out validation) / Shuffle: {} / Estimate probabilities: {}",
 				df.format(trainingSize * 100), df.format((1 - trainingSize) * 100), shuffle, estimateProbabilities);
-		this.trainingSize = trainingSize;
-		this.shuffle = shuffle;
 		this.datasetReader = datasetReader;
+		this.trainingSize = trainingSize;
+		this.estimateProbabilities = estimateProbabilities;
+		this.shuffle = shuffle;
+		this.seed = seed;
 	}
 
 	/**
@@ -87,9 +93,9 @@ public class HoldOut extends ValidationMethod {
 		List<Sequence> sequences = new ArrayList<Sequence>(dataset.getSequences());
 		if (this.shuffle) {
 			// Sequences and their files are shuffled before splitting into train and test
-			Integer seed = 10;
-			Util.shuffle(sequences, seed);
-			Util.shuffle(fileNames, seed);
+			this.seed = 10;
+			Util.shuffle(sequences, this.seed);
+			Util.shuffle(fileNames, this.seed);
 			this.logger.info("Sequences shuffled");
 		}
 		// Define training and testing sequences

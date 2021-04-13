@@ -209,7 +209,8 @@ public class Controller {
 	}
 
 	/**
-	 * Open a dialog to select the folder where the dataset is located.
+	 * Open a dialog to select the folder where the dataset for training and
+	 * evaluation is located.
 	 * 
 	 * @throws FileNotFoundException
 	 * @throws UnreadDatasetException
@@ -347,13 +348,13 @@ public class Controller {
 		// Retrieve learning algorithms
 		BNLearningAlgorithms bnLearningAlgs = defineAlgorithmsBN();
 		CTBNLearningAlgorithms ctbnLearningAlgs = defineAlgorithmsCTBN();
-		// Parameters that could be necessary for the generation of the model
-		Map<String, String> parameters = new WeakHashMap<String, String>();
-		parameters.put("maxK", this.fldKParents.getText());
+		// Hyperparameters that could be necessary for the generation of the model
+		Map<String, String> hyperparameters = new WeakHashMap<String, String>();
+		hyperparameters.put("maxK", this.fldKParents.getText());
 		// Generate selected model
 		String selectedModel = this.cmbModel.getValue();
 		MCTBNC<CPTNode, CIMNode> model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC(selectedModel, bnLearningAlgs,
-				ctbnLearningAlgs, parameters, CPTNode.class, CIMNode.class);
+				ctbnLearningAlgs, hyperparameters, CPTNode.class, CIMNode.class);
 		// Define initial structure
 		model.setIntialStructure(this.cmbInitialStructure.getValue());
 		return model;
@@ -422,7 +423,7 @@ public class Controller {
 		int folds = Integer.valueOf(this.fldNumFolds.getText());
 		// Retrieve algorithm of the validation method
 		ValidationMethod validationMethod = ValidationMethodFactory.getValidationMethod(selectedValidationMethod,
-				this.datasetReader, shuffleSequences, estimateProbabilities, trainingSize, folds);
+				this.datasetReader, trainingSize, folds, estimateProbabilities, shuffleSequences, null);
 		return validationMethod;
 	}
 
@@ -484,7 +485,7 @@ public class Controller {
 	}
 
 	/**
-	 * A model was selected in the comboBox. Show its correspondent parameters.
+	 * A model was selected in the comboBox. Show its correspondent hyperparameters.
 	 */
 	public void changeModel() {
 		String model = this.cmbModel.getValue();

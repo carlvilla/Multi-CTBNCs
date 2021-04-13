@@ -27,8 +27,9 @@ import com.cig.mctbnc.util.Util;
 public class CrossValidation extends ValidationMethod {
 	Dataset dataset;
 	int folds;
-	boolean shuffle;
 	boolean estimateProbabilities;
+	boolean shuffle;
+	long seed;
 	DatasetReader datasetReader;
 	Logger logger = LogManager.getLogger(CrossValidation.class);
 
@@ -37,19 +38,21 @@ public class CrossValidation extends ValidationMethod {
 	 * 
 	 * @param datasetReader         dataset reader
 	 * @param folds                 number of folds
-	 * @param shuffle               determines if the sequences should be shuffled
 	 * @param estimateProbabilities determines if the probabilities of the class
 	 *                              configurations are estimated
+	 * @param shuffle               determines if the sequences should be shuffled
+	 * @param seed
 	 * @throws UnreadDatasetException
 	 */
-	public CrossValidation(DatasetReader datasetReader, int folds, boolean shuffle, boolean estimateProbabilities)
-			throws UnreadDatasetException {
+	public CrossValidation(DatasetReader datasetReader, int folds, boolean estimateProbabilities, boolean shuffle,
+			long seed) throws UnreadDatasetException {
 		this.logger.info("Preparing {}-cross validation / Shuffle: {} / Estimate probabilities: {}", folds, shuffle,
 				estimateProbabilities);
-		this.folds = folds;
-		this.shuffle = shuffle;
 		this.datasetReader = datasetReader;
+		this.folds = folds;
 		this.estimateProbabilities = estimateProbabilities;
+		this.shuffle = shuffle;
+		this.seed = seed;
 	}
 
 	/**
@@ -69,9 +72,8 @@ public class CrossValidation extends ValidationMethod {
 		List<String> fileNames = new ArrayList<String>(this.dataset.getNameFiles());
 		if (this.shuffle) {
 			// Shuffle the sequences before performing cross-validation
-			Integer seed = 10;
-			Util.shuffle(sequences, seed);
-			Util.shuffle(fileNames, seed);
+			Util.shuffle(sequences, this.seed);
+			Util.shuffle(fileNames, this.seed);
 			this.logger.info("Sequences shuffled");
 		}
 		// Obtain size of each fold

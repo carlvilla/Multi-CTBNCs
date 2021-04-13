@@ -16,23 +16,25 @@ public class ValidationMethodFactory {
 	 * 
 	 * @param nameValidationMethod
 	 * @param dR
-	 * @param shuffle
-	 * @param estimateProbabilities
 	 * @param trainingSize
 	 * @param folds
-	 * @return validation method
+	 * @param estimateProbabilities
+	 * @param shuffle
+	 * @param seed
+	 * @return a {@code ValidationMethod}
 	 * @throws UnreadDatasetException
 	 */
-	public static ValidationMethod getValidationMethod(String nameValidationMethod, DatasetReader dR, boolean shuffle,
-			boolean estimateProbabilities, double trainingSize, int folds) throws UnreadDatasetException {
+	public static ValidationMethod getValidationMethod(String nameValidationMethod, DatasetReader dR,
+			double trainingSize, int folds, boolean estimateProbabilities, boolean shuffle, Long seed)
+			throws UnreadDatasetException {
 		ValidationMethod validationMethod;
 		switch (nameValidationMethod) {
 		case "Cross-validation":
-			validationMethod = new CrossValidation(dR, folds, shuffle, estimateProbabilities);
+			validationMethod = new CrossValidation(dR, folds, estimateProbabilities, shuffle, seed);
 			break;
 		default:
 			// Hold-out validation
-			validationMethod = new HoldOut(dR, trainingSize, shuffle, estimateProbabilities);
+			validationMethod = new HoldOut(dR, trainingSize, estimateProbabilities, shuffle, seed);
 		}
 		return validationMethod;
 	}

@@ -1,5 +1,7 @@
 package com.cig.mctbnc.models.submodels;
 
+import java.util.Map;
+
 import com.cig.mctbnc.learning.BNLearningAlgorithms;
 import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
 import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
@@ -50,10 +52,15 @@ public class Empty_maxK_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Nod
 	}
 
 	@Override
+	public Map<String, String> getHyperparameters() {
+		return Map.of("maxK", String.valueOf(this.maxK));
+	}
+
+	@Override
 	public String getType() {
 		return String.format("Empty-max%d multidimensional continuous time Bayesian network classifier", this.maxK);
 	}
-	
+
 	@Override
 	public String getModelIdentifier() {
 		return "Empty-maxK MCTBNC";

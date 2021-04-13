@@ -144,13 +144,14 @@ public final class Util {
 	}
 
 	/**
-	 * Objects in a list are shuffled.
+	 * Objects in a list are shuffled. The seed is computed using the current system
+	 * time if the provided one is null.
 	 * 
 	 * @param <T>  type of the elements to shuffle
 	 * @param list
 	 * @param seed
 	 */
-	public static <T> void shuffle(List<T> list, Integer seed) {
+	public static <T> void shuffle(List<T> list, Long seed) {
 		Random rd = new Random();
 		if (seed != null)
 			rd.setSeed(seed);

@@ -41,6 +41,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	int idxCurrentDataset = 0;
 	int idxCurrentModel = 0;
 	int idxCurrentScoreFunction = 0;
+	List<Long> seeds;
 	List<String> metrics = List.of("Global accuracy", "Mean accuracy", "Macro-averaged precision",
 			"Macro-averaged recall", "Macro-averaged f1 score", "Micro-averaged precision", "Micro-averaged recall",
 			"Micro-averaged f1 score", "Globar Brier score");
@@ -57,16 +58,21 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	 * @param ctbnPLA
 	 * @param penalizationFunction
 	 * @param initialStructure
+	 * @param seeds                seeds that are used to shuffle the datasets. It
+	 *                             is assumed that each dataset will be evaluated
+	 *                             with each of those seeds
 	 * 
 	 */
 	public ExcelExperimentsWriter(List<String> scoreFunctions, List<String> nameDatasets, List<String> nameModels,
 			List<String> nameClassVariables, List<String> nameFeatureVariables, BNParameterLearningAlgorithm bnPLA,
-			CTBNParameterLearningAlgorithm ctbnPLA, String penalizationFunction, String initialStructure) {
+			CTBNParameterLearningAlgorithm ctbnPLA, String penalizationFunction, String initialStructure,
+			List<Long> seeds) {
 		// Set values global variables
 		this.numDatasets = nameDatasets.size();
 		this.numModels = nameModels.size();
 		this.numScoreFunctions = scoreFunctions.size();
 		this.nameClassVariables = nameClassVariables;
+		this.seeds = seeds;
 		// Create a workbook, sheet and file to store the results
 		this.workbook = new XSSFWorkbook();
 		this.sheet = this.workbook.createSheet("Experiments");

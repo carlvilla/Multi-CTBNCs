@@ -32,11 +32,12 @@ import com.cig.mctbnc.util.Util;
  * @author Carlos Villa Blanco
  *
  */
-public class CrossValidationSeveralModels extends ValidationMethod {
+public class CrossValidationBinaryRelevance extends ValidationMethod {
 	Dataset dataset;
 	int folds;
-	boolean shuffle;
 	boolean estimateProbabilities;
+	boolean shuffle;
+	long seed;
 	Logger logger = LogManager.getLogger(CrossValidation.class);
 
 	/**
@@ -44,13 +45,14 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 	 * 
 	 * @param datasetReader
 	 * @param folds                 number of folds
-	 * @param shuffle               determines if the sequences should be shuffled
 	 * @param estimateProbabilities determines if the probabilities of the class
 	 *                              configurations are estimated
+	 * @param shuffle               determines if the sequences should be shuffled
+	 * @param seed
 	 * @throws UnreadDatasetException
 	 */
-	public CrossValidationSeveralModels(DatasetReader datasetReader, int folds, boolean shuffle,
-			boolean estimateProbabilities) throws UnreadDatasetException {
+	public CrossValidationBinaryRelevance(DatasetReader datasetReader, int folds, boolean estimateProbabilities,
+			boolean shuffle, long seed) throws UnreadDatasetException {
 		super();
 		this.logger.info(
 				"Preparing {}-cross validation for independent CTBNCs / Shuffle: {} / Estimate probabilities: {}",
@@ -64,8 +66,9 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 		if (folds < 2 || folds > this.dataset.getNumDataPoints())
 			this.logger.warn("Number of folds must be between 2 and the dataset size (leave-one-out cross validation)");
 		this.folds = folds;
-		this.shuffle = shuffle;
 		this.estimateProbabilities = estimateProbabilities;
+		this.shuffle = shuffle;
+		this.seed = seed;
 	}
 
 	/**
@@ -82,9 +85,8 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 		List<String> fileNames = new ArrayList<String>(this.dataset.getNameFiles());
 		if (this.shuffle) {
 			// Shuffle the sequences before performing cross-validation
-			Integer seed = 10;
-			Util.shuffle(sequences, seed);
-			Util.shuffle(fileNames, seed);
+			Util.shuffle(sequences, this.seed);
+			Util.shuffle(fileNames, this.seed);
 			this.logger.info("Sequences shuffled");
 		}
 		// Obtain size of each fold
@@ -177,7 +179,8 @@ public class CrossValidationSeveralModels extends ValidationMethod {
 		for (int i = 0; i < nameCVs.size(); i++) {
 			// Define model for one class variable
 			models.add(ClassifierFactory.getMCTBNC(model.getModelIdentifier(), model.getLearningAlgsBN(),
-					model.getLearningAlgsCTBN(), null, model.getTypeNodeClassVariable(), model.getTypeNodeFeature()));
+					model.getLearningAlgsCTBN(), model.getHyperparameters(), model.getTypeNodeClassVariable(),
+					model.getTypeNodeFeature()));
 			// Define training dataset that ignore all class variables except one
 			Dataset dataset = new Dataset(trainingDataset.getSequences());
 			List<String> nameClassVariables = new ArrayList<String>(nameCVs);

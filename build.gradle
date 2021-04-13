@@ -80,7 +80,7 @@ task energy(type: JavaExec){
 	description 'Runs experiments with the energy dataset to compare the performance of max1 CTBNCs and a DAG-max1 MCTBNC when they are learnt with the BIC-penalized log-likelihood score'
 	classpath sourceSets.main.runtimeClasspath
     main 'com.cig.mctbnc.MainExperiments'
-    args 'energy', 'maxK CTBNCs', 'DAG-maxK MCTBNC', 'Bayesian Dirichlet equivalent'
+    args 'energy', 'maxK CTBNCs', 'DAG-maxK MCTBNC', 'Log-likelihood'
 }
 
 task emptyDigraphMCTBNC(type: JavaExec){
