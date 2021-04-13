@@ -82,6 +82,7 @@ public class MainExperiments {
 		String nameTimeVariable = getTimeVariable(selectedExperiment);
 		List<String> nameClassVariables = getClassVariables(selectedExperiment);
 		List<String> nameFeatureVariables = getFeatureVariables(selectedExperiment);
+		List<Long> seeds = getSeeds(selectedExperiment);
 
 		// Retrieve models to compare: "MCTBNC", "DAG-maxK MCTBNC", "Empty-digraph
 		// MCTBNC", "Empty-maxK MCTBNC", "MCTNBC", "CTBNCs", "maxK CTBNCs"
@@ -92,9 +93,6 @@ public class MainExperiments {
 		// Retrieve score function: "Log-likelihood", "Bayesian Dirichlet equivalent",
 		// "Conditional log-likelihood"
 		List<String> scoreFunctions = List.of(args[3]);
-
-		// Retrieve seed used to shuffle sequences
-		List<Long> seeds = getSeeds(selectedExperiment);
 
 		// Define parameter learning algorithms
 		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, nx);
@@ -117,8 +115,14 @@ public class MainExperiments {
 							scoreFunction);
 					// Iterate over the datasets that are evaluated
 					for (String pathDataset : datasets) {
-						System.out.printf("############################# DATASET: %s #############################\n",
-								pathDataset);
+						if (seeds.size() > 1)
+							System.out.printf(
+									"############################# DATASET: %s (Shuffling seed: %d) #############################\n",
+									pathDataset, seed);
+						else
+							System.out.printf(
+									"############################# DATASET: %s #############################\n",
+									pathDataset);
 						try {
 							DatasetReader datasetReader = new MultipleCSVReader(pathDataset);
 							// Set the variables that will be used
@@ -137,8 +141,8 @@ public class MainExperiments {
 						}
 					}
 				}
-				metricsWriter.close();
 			}
+			metricsWriter.close();
 		}
 	}
 

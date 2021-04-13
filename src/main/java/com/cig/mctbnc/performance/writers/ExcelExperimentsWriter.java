@@ -72,7 +72,9 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 		this.numModels = nameModels.size();
 		this.numScoreFunctions = scoreFunctions.size();
 		this.nameClassVariables = nameClassVariables;
-		this.seeds = seeds;
+		if (seeds.size() > 1)
+			// It will be generated as many shuffled datasets as specified seeds
+			this.numDatasets *= seeds.size();
 		// Create a workbook, sheet and file to store the results
 		this.workbook = new XSSFWorkbook();
 		this.sheet = this.workbook.createSheet("Experiments");
@@ -92,7 +94,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 			// Score function
 			setScoreFunction(initialRow, scoreFunctions.get(i));
 			// Table with results
-			generateTableDatasets(initialRow, nameDatasets, nameModels);
+			generateTableDatasets(initialRow, nameDatasets, nameModels, seeds);
 			// Comparison of evaluation metrics
 			generateTableComparionMetrics(initialRow, nameModels);
 			// Comparison of evaluation metrics per class variable
@@ -214,20 +216,43 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	/**
 	 * Generate a table where it is shown the results of each model for each dataset
 	 * and evaluation metric.
+	 * 
+	 * @param seeds
 	 */
-	private void generateTableDatasets(int initialRow, List<String> nameDatasets, List<String> nameModels) {
+	private void generateTableDatasets(int initialRow, List<String> nameDatasets, List<String> nameModels,
+			List<Long> seeds) {
 		// Results for each of the datasets
 		this.sheet.createRow(initialRow + 1);
 		this.sheet.createRow(initialRow + 2);
-		for (int i = 0; i < this.numDatasets; i++) {
-			this.sheet.getRow(initialRow + 1).createCell(1 + this.numModels * i).setCellValue(nameDatasets.get(i));
-			this.sheet.addMergedRegion(new CellRangeAddress(initialRow + 1, initialRow + 1, 1 + this.numModels * i,
-					this.numModels * (i + 1)));
-			for (int j = 0; j < this.numModels; j++) {
-				this.sheet.getRow(initialRow + 2).createCell(1 + this.numModels * i + j)
-						.setCellValue(nameModels.get(j));
+		if (seeds.size() > 1) {
+			// More than one seed is specified, so more than one evaluation is performed per
+			// dataset and model
+			for (int i = 0; i < nameDatasets.size(); i++) {
+				for (int j = 0; j < seeds.size(); j++) {
+					this.sheet.getRow(initialRow + 1).createCell(1 + this.numModels * (i + j))
+							.setCellValue(nameDatasets.get(i) + " (Shuffling seed: " + seeds.get(j) + ")");
+					this.sheet.addMergedRegion(new CellRangeAddress(initialRow + 1, initialRow + 1,
+							1 + this.numModels * (i + j), this.numModels * (i + j + 1)));
+					for (int k = 0; k < this.numModels; k++) {
+						this.sheet.getRow(initialRow + 2).createCell(1 + this.numModels * (i + j) + k)
+								.setCellValue(nameModels.get(k));
+					}
+				}
+			}
+		} else {
+			// No more than one seed is specified, so one evaluation is performed per
+			// dataset and model
+			for (int i = 0; i < this.numDatasets; i++) {
+				this.sheet.getRow(initialRow + 1).createCell(1 + this.numModels * i).setCellValue(nameDatasets.get(i));
+				this.sheet.addMergedRegion(new CellRangeAddress(initialRow + 1, initialRow + 1, 1 + this.numModels * i,
+						this.numModels * (i + 1)));
+				for (int j = 0; j < this.numModels; j++) {
+					this.sheet.getRow(initialRow + 2).createCell(1 + this.numModels * i + j)
+							.setCellValue(nameModels.get(j));
+				}
 			}
 		}
+
 	}
 
 	/**
