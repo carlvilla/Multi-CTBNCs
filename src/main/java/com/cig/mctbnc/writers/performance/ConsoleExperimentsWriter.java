@@ -1,4 +1,4 @@
-package com.cig.mctbnc.performance.writers;
+package com.cig.mctbnc.writers.performance;
 
 import java.util.Map;
 
@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Carlos Villa Blanco
  *
  */
-public class ConsoleWriter extends MetricsWriter {
+public class ConsoleExperimentsWriter extends MetricsWriter {
 
 	@Override
 	public void write(Map<String, Double> results) {

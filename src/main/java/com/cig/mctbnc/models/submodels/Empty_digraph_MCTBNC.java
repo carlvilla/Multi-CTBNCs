@@ -38,8 +38,10 @@ public class Empty_digraph_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends 
 	}
 
 	@Override
-	public String getType() {
-		return "Empty-digraph multidimensional continuous time Bayesian network classifier";
+	public String getType() {				
+		if (getNodesBN().size() == 1)
+			return "Continuous time Bayesian network classifier";
+		return "Empty-digraph multidimensional continuous time Bayesian network classifier";		
 	}
 	
 	@Override

@@ -29,7 +29,7 @@ public class CrossValidation extends ValidationMethod {
 	int folds;
 	boolean estimateProbabilities;
 	boolean shuffle;
-	long seed;
+	Long seed;
 	DatasetReader datasetReader;
 	Logger logger = LogManager.getLogger(CrossValidation.class);
 
@@ -45,7 +45,7 @@ public class CrossValidation extends ValidationMethod {
 	 * @throws UnreadDatasetException
 	 */
 	public CrossValidation(DatasetReader datasetReader, int folds, boolean estimateProbabilities, boolean shuffle,
-			long seed) throws UnreadDatasetException {
+			Long seed) throws UnreadDatasetException {
 		this.logger.info("Preparing {}-cross validation / Shuffle: {} / Estimate probabilities: {}", folds, shuffle,
 				estimateProbabilities);
 		this.datasetReader = datasetReader;

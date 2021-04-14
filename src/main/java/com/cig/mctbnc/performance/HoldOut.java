@@ -27,7 +27,7 @@ public class HoldOut extends ValidationMethod {
 	double trainingSize;
 	boolean estimateProbabilities;
 	boolean shuffle;
-	long seed;
+	Long seed;
 	Dataset trainingDataset;
 	Dataset testingDataset;
 	Logger logger = LogManager.getLogger(HoldOut.class);
@@ -45,7 +45,7 @@ public class HoldOut extends ValidationMethod {
 	 * @param seed
 	 */
 	public HoldOut(DatasetReader datasetReader, double trainingSize, boolean estimateProbabilities, boolean shuffle,
-			long seed) {
+			Long seed) {
 		DecimalFormat df = new DecimalFormat("##.00");
 		this.logger.info(
 				"Generating training ({}%) and testing ({}%) datasets (Hold-out validation) / Shuffle: {} / Estimate probabilities: {}",
@@ -93,7 +93,6 @@ public class HoldOut extends ValidationMethod {
 		List<Sequence> sequences = new ArrayList<Sequence>(dataset.getSequences());
 		if (this.shuffle) {
 			// Sequences and their files are shuffled before splitting into train and test
-			this.seed = 10;
 			Util.shuffle(sequences, this.seed);
 			Util.shuffle(fileNames, this.seed);
 			this.logger.info("Sequences shuffled");

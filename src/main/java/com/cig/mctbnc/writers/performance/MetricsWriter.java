@@ -1,4 +1,4 @@
-package com.cig.mctbnc.performance.writers;
+package com.cig.mctbnc.writers.performance;
 
 import java.util.List;
 import java.util.Map;

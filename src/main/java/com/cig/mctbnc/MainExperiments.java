@@ -26,8 +26,8 @@ import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.performance.CrossValidationBinaryRelevance;
 import com.cig.mctbnc.performance.ValidationMethod;
 import com.cig.mctbnc.performance.ValidationMethodFactory;
-import com.cig.mctbnc.performance.writers.ExcelExperimentsWriter;
-import com.cig.mctbnc.performance.writers.MetricsWriter;
+import com.cig.mctbnc.writers.performance.ExcelExperimentsWriter;
+import com.cig.mctbnc.writers.performance.MetricsWriter;
 
 /**
  * Class used to automate the execution of experiments.

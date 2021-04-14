@@ -46,6 +46,8 @@ public class MCTNBC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 
 	@Override
 	public String getType() {
+		if (getNodesBN().size() == 1)
+			return "Continuous time naive Bayes classifier";
 		return "Multidimensional continuous time naive Bayes classifier";
 	}
 	

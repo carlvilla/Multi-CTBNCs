@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.cig.mctbnc.exceptions.UnreadDatasetException;
 import com.cig.mctbnc.models.MCTBNC;
-import com.cig.mctbnc.performance.writers.MetricsWriter;
+import com.cig.mctbnc.writers.performance.MetricsWriter;
 
 /**
  * Abstract class defining common methods for validation algorithms.

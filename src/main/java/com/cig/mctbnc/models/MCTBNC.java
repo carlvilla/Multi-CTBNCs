@@ -262,6 +262,8 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 
 	@Override
 	public String getType() {
+		if (getNodesBN().size() == 1)
+			return "Continuous time Bayesian network classifier";
 		return "Multidimensional continuous time Bayesian network classifier";
 	}
 
@@ -530,12 +532,11 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		ctbn.setStructure(initialAdjMatrix);
 	}
 
-	private List<NodeTypeBN> getNodesBN() {
+	protected List<NodeTypeBN> getNodesBN() {
 		List<NodeTypeBN> nodesBN = this.bn.getNodes();
 		// Define nodes of the BN as class variables
-		for (Node node : nodesBN) {
+		for (Node node : nodesBN)
 			node.isClassVariable(true);
-		}
 		return nodesBN;
 	}
 

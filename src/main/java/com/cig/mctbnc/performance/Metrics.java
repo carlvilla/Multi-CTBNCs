@@ -62,10 +62,10 @@ public class Metrics {
 		results.put("Accuracy", accuracy);
 		results.put("Macro-averaged precision", macroPrecision);
 		results.put("Macro-averaged recall", macroRecall);
-		results.put("Macro-averaged f1 score", macroF1Score);
+		results.put("Macro-averaged F1 score", macroF1Score);
 		results.put("Micro-averaged precision", microPrecision);
 		results.put("Micro-averaged recall", microRecall);
-		results.put("Micro-averaged f1 score", microF1Score);
+		results.put("Micro-averaged F1 score", microF1Score);
 		// If the probabilities of the classes are available
 		if (predicted[0].getProbabilities() != null) {
 			double globalBrierScore = globalBrierScore(predicted, actualDataset);
@@ -93,10 +93,10 @@ public class Metrics {
 		results.put("Mean accuracy", meanAccuracy);
 		results.put("Macro-averaged precision", macroPrecision);
 		results.put("Macro-averaged recall", macroRecall);
-		results.put("Macro-averaged f1 score", macroF1Score);
+		results.put("Macro-averaged F1 score", macroF1Score);
 		results.put("Micro-averaged precision", microPrecision);
 		results.put("Micro-averaged recall", microRecall);
-		results.put("Micro-averaged f1 score", microF1Score);
+		results.put("Micro-averaged F1 score", microF1Score);
 		// If the probabilities of the class configurations are available
 		if (predicted[0].getProbabilities() != null) {
 			double globalBrierScore = globalBrierScore(predicted, actualDataset);
@@ -375,7 +375,8 @@ public class Metrics {
 			// Obtain possible classes of the class variable
 			String[] possibleClassesCV = Util.getUnique(actualClassesCV);
 			if (possibleClassesCV.length > 2)
-				// Categorical variable
+				// Categorical variable. If all class variables are multi-class, the precision
+				// and recall (and therefore F1 score) will be the same
 				for (String classCV : possibleClassesCV) {
 					// Obtain confusion matrix for each class
 					Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, classCV);
