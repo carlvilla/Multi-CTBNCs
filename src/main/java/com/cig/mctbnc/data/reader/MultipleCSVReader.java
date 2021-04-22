@@ -51,6 +51,7 @@ public class MultipleCSVReader extends AbstractCSVReader {
 	@Override
 	public Dataset readDataset() throws UnreadDatasetException {
 		if (isDatasetOutdated()) {
+			logger.info("Reading dataset from multiples csv files in {}", this.datasetFolder);
 			this.dataset = new Dataset(this.nameTimeVariable, this.nameClassVariables);
 			// Names of the files from which the dataset was read. Some files could be
 			// rejected due to problems in its content.

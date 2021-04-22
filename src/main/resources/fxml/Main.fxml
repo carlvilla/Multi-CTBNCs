@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.CheckComboBox?>
 
-<BorderPane prefHeight="618.0" prefWidth="656.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cig.mctbnc.gui.Controller">
+<BorderPane prefHeight="618.0" prefWidth="656.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cig.mctbnc.gui.Controller">
 	<top>
       <AnchorPane prefHeight="429.0" prefWidth="655.0" BorderPane.alignment="CENTER">
          <children>
@@ -327,12 +327,94 @@
                                           <Insets left="15.0" top="10.0" />
                                        </padding>
                                     </VBox>
+                              				<Button fx:id="btnEvaluate" disable="#checkOptions" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#evaluate" text="Evaluate">
+                                       <tooltip>
+                                          <Tooltip style="-fx-show-duration: 20s;" text="Evaluate model selected in the &quot;Model&quot; tab with the dataset from the &quot;Dataset&quot; tab" />
+                                       </tooltip></Button>
                                  </children>
                               </VBox>
       							</children>
       						</AnchorPane>
       					</content>
       				</Tab>
+                  <Tab text="Classification">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="20.0">
+                                 <children>
+                                    <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="90.0" prefWidth="200.0" spacing="10.0">
+                                       <children>
+                                          <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="219.0" HBox.hgrow="ALWAYS">
+                                             <children>
+                                                <Label text="Data format:" HBox.hgrow="ALWAYS">
+                                                   <HBox.margin>
+                                                      <Insets right="8.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <ComboBox fx:id="cmbDataFormatClassification" maxWidth="1.7976931348623157E308" onAction="#changeDatasetReader" prefWidth="140.0" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                          <HBox fx:id="hbStrategyClassification" alignment="CENTER" prefHeight="100.0" prefWidth="198.0" HBox.hgrow="ALWAYS">
+                                             <children>
+                                                <Label text="Strategy:" HBox.hgrow="ALWAYS">
+                                                   <HBox.margin>
+                                                      <Insets right="8.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <ComboBox fx:id="cmbStrategyClassification" maxWidth="1.7976931348623157E308" onAction="#changeDatasetReaderStrategy" prefWidth="140.0" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                          <HBox fx:id="hbSizeSequencesClassification" alignment="CENTER" prefHeight="100.0" prefWidth="162.0" HBox.hgrow="ALWAYS">
+                                             <children>
+                                                <Label text="Size sequences:" HBox.hgrow="ALWAYS">
+                                                   <HBox.margin>
+                                                      <Insets right="8.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="fldSizeSequencesClassification" maxWidth="1.7976931348623157E308" onKeyTyped="#datasetModified" prefHeight="27.0" prefWidth="60.0" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="90.0" prefWidth="592.0" spacing="20.0">
+                                       <children>
+                                          <Button mnemonicParsing="false" onAction="#setFolderDatasetClassification" prefHeight="27.0" text="Select folder dataset to classify" HBox.hgrow="ALWAYS" />
+                                          <TextField fx:id="fldPathDatasetClassification" editable="false" minWidth="344.0" prefHeight="27.0" prefWidth="382.0" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <HBox maxWidth="1.7976931348623157E308">
+                                       <children>
+                                          <Label maxWidth="-Infinity" minWidth="-Infinity" prefWidth="180.0" text="Estimate probabilities classes:" />
+                                          <CheckBox fx:id="chkProbabilitiesClassification" mnemonicParsing="false">
+                                             <tooltip>
+                                                <Tooltip style="-fx-show-duration: 20s;" text="Estimate probabilities of each class configuration (may increase prediction time)" />
+                                             </tooltip>
+                                          </CheckBox>
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                       <children>
+                                          <Button fx:id="btnTraining" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#trainModel" prefWidth="100.0" text="Train model">
+                                             <tooltip>
+                                                <Tooltip style="-fx-show-duration: 20s;" text="Train model selected in the &quot;Model&quot; tab with the dataset from the &quot;Dataset&quot; tab" />
+                                             </tooltip></Button>
+                                          <Button fx:id="btnClassify" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#classify" prefWidth="100.0" text="Classify">
+                                             <tooltip>
+                                                <Tooltip text="Classify above dataset with the trained model">
+                                                   <graphic>
+                                                      <HBox prefHeight="100.0" prefWidth="200.0" />
+                                                   </graphic>
+                                                </Tooltip>
+                                             </tooltip></Button>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </Tab>
       			</tabs>
       		</TabPane>
          </children>
@@ -351,10 +433,9 @@
                   </Label>
                </children>
                <HBox.margin>
-                  <Insets right="20.0" />
+                  <Insets />
                </HBox.margin>
             </Pane>
-      				<Button fx:id="btnEvaluate" disable="#checkOptions" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#evaluate" text="Evaluate" HBox.hgrow="ALWAYS" />
          </children>
          <BorderPane.margin>
             <Insets bottom="10.0" left="20.0" right="20.0" />

@@ -27,7 +27,9 @@ import com.cig.mctbnc.nodes.CIMNode;
 import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.performance.ValidationMethod;
 import com.cig.mctbnc.performance.ValidationMethodFactory;
+import com.cig.mctbnc.services.ClassificationService;
 import com.cig.mctbnc.services.EvaluationService;
+import com.cig.mctbnc.services.TrainingService;
 import com.cig.mctbnc.util.ControllerUtil;
 
 import javafx.collections.ListChangeListener;
@@ -53,13 +55,17 @@ import javafx.stage.Stage;
  *
  */
 public class Controller {
-	// Objects MCTBNC
-	DatasetReader datasetReader;
-
 	// Controllers javafx
 	private Stage stage;
 
-	// Dataset
+	// Dataset readers
+	DatasetReader datasetReader;
+	DatasetReader dRClassification;
+
+	// Selected model
+	MCTBNC<CPTNode, CIMNode> model;
+
+	// Dataset tab
 	@FXML
 	private ComboBox<String> cmbDataFormat;
 	@FXML
@@ -79,7 +85,7 @@ public class Controller {
 	@FXML
 	private HBox hbSizeSequences;
 
-	// Model
+	// Model tab
 	@FXML
 	private ComboBox<String> cmbModel;
 	@FXML
@@ -115,7 +121,7 @@ public class Controller {
 	@FXML
 	private HBox hbPenalization;
 
-	// Evaluation
+	// Evaluation tab
 	@FXML
 	private ToggleGroup tgValidationMethod;
 	@FXML
@@ -130,10 +136,30 @@ public class Controller {
 	private CheckBox chkShuffle;
 	@FXML
 	private CheckBox chkProbabilities;
-
-	// General controls
 	@FXML
 	private Button btnEvaluate;
+
+	// Classification tab
+	@FXML
+	private ComboBox<String> cmbDataFormatClassification;
+	@FXML
+	private ComboBox<String> cmbStrategyClassification;
+	@FXML
+	private TextField fldSizeSequencesClassification;
+	@FXML
+	private TextField fldPathDatasetClassification;
+	@FXML
+	private HBox hbStrategyClassification;
+	@FXML
+	private HBox hbSizeSequencesClassification;
+	@FXML
+	private CheckBox chkProbabilitiesClassification;
+	@FXML
+	private Button btnTraining;
+	@FXML
+	private Button btnClassify;
+
+	// General controls
 	@FXML
 	private Label status;
 
@@ -159,6 +185,7 @@ public class Controller {
 		initializeDatasetPane();
 		initializeModelPane();
 		initializeEvaluationPane();
+		initializeClassificationPane();
 		defineBindings();
 	}
 
@@ -168,6 +195,7 @@ public class Controller {
 	 */
 	private void defineBindings() {
 		this.btnEvaluate.disableProperty().bind(this.fldPath.textProperty().isEqualTo(""));
+		this.btnClassify.disableProperty().bind(this.fldPathDatasetClassification.textProperty().isEqualTo(""));
 	}
 
 	/**
@@ -191,12 +219,56 @@ public class Controller {
 			service.start();
 			// The status label will be updated with the progress of the service
 			this.status.textProperty().bind(service.messageProperty());
-
+			// Disable evaluation button while the model is being trained and evaluated
+			this.btnEvaluate.disableProperty().bind(service.runningProperty());
 		} catch (UnreadDatasetException e) {
 			// The dataset could not be read due to a problem with the provided files
 			this.logger.error(e.getMessage());
 			this.status.setText(e.getMessage());
 		}
+	}
+
+	/**
+	 * Train the selected model.
+	 */
+	public void trainModel() {
+		// Get selected variables
+		String nameTimeVariable = this.cmbTimeVariable.getValue();
+		List<String> nameClassVariables = this.ckcmbClassVariables.getCheckModel().getCheckedItems();
+		List<String> nameSelectedFeatures = this.ckcmbFeatures.getCheckModel().getCheckedItems();
+		// Set the variables that will be used
+		this.datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
+		// Define model
+		this.model = defineModel();
+		// Create service to train model in another thread
+		Service<Void> service = new TrainingService(this.model, this.datasetReader);
+		service.start();
+		// The status label will be updated with the progress of the service
+		this.status.textProperty().bind(service.messageProperty());
+		// Disable training button while the model is being trained
+		this.btnTraining.disableProperty().bind(service.runningProperty());
+		// Disable classification button while the dataset is being classified
+		this.btnClassify.disableProperty().bind(service.runningProperty());
+	}
+
+	/**
+	 * Perform classification over a provided dataset with a previously trained
+	 * model.
+	 */
+	public void classify() {
+		if (this.model != null) {
+			// Check if probabilities of predicted class configurations should be estimated
+			boolean estimateProbabilities = this.chkProbabilitiesClassification.isSelected();
+			// Create service to train model in another thread
+			Service<Void> service = new ClassificationService(this.model, this.datasetReader, estimateProbabilities);
+			service.start();
+			// The status label will be updated with the progress of the service
+			this.status.textProperty().bind(service.messageProperty());
+			// Disable classification button while the dataset is being classified
+			this.btnClassify.disableProperty().bind(service.runningProperty());
+		} else
+			this.logger.error("The classification was not performed. There is no trained model.");
+
 	}
 
 	/**
@@ -227,6 +299,26 @@ public class Controller {
 			initializeDatasetReader(pathFolder);
 			// Read the variables
 			readVariablesDataset(pathFolder);
+		}
+	}
+
+	/**
+	 * Open a dialog to select the folder where the dataset on which classification
+	 * is performed is located.
+	 * 
+	 * @throws FileNotFoundException
+	 * @throws UnreadDatasetException
+	 */
+	public void setFolderDatasetClassification() throws FileNotFoundException, UnreadDatasetException {
+		// Open window to select the folder with the dataset
+		DirectoryChooser directoryChooser = new DirectoryChooser();
+		File selectedDirectory = directoryChooser.showDialog(this.stage);
+		if (selectedDirectory != null) {
+			// Show the selected directory
+			String pathFolder = selectedDirectory.getAbsolutePath();
+			this.fldPathDatasetClassification.setText(pathFolder);
+			// Define dataset reader
+			initializeDatasetReaderClassification(pathFolder);
 		}
 	}
 
@@ -314,8 +406,23 @@ public class Controller {
 		this.chkProbabilities.setSelected(true);
 	}
 
+	private void initializeClassificationPane() {
+		// Initialize options of comboBoxes
+		this.cmbDataFormatClassification.getItems().addAll(this.datasetReaders);
+		this.cmbStrategyClassification.getItems().addAll(this.datasetReaderStrategies);
+		// Select first option as default in comboBoxes
+		this.cmbDataFormatClassification.getSelectionModel().selectFirst();
+		this.cmbStrategyClassification.getSelectionModel().selectFirst();
+		ControllerUtil.showNode(this.hbStrategyClassification, false);
+		// Initialize text fields with default values
+		this.fldSizeSequences.setText("30");
+		ControllerUtil.showNode(this.hbSizeSequencesClassification, false);
+		// Text fields are restricted to certain values
+		ControllerUtil.onlyPositiveInteger(this.fldSizeSequencesClassification);
+	}
+
 	/**
-	 * Initialize the dataset reader given the paht of the dataset folder.
+	 * Initialize the dataset reader given the path of the dataset folder.
 	 * 
 	 * @param pathFolder
 	 * @throws FileNotFoundException
@@ -325,6 +432,20 @@ public class Controller {
 		String nameDatasetReader = this.cmbDataFormat.getValue();
 		int sizeSequence = Integer.valueOf(this.fldSizeSequences.getText());
 		this.datasetReader = DatasetReaderFactory.getDatasetReader(nameDatasetReader, pathFolder, sizeSequence);
+	}
+
+	/**
+	 * Initialize the dataset reader given the path of the dataset folder.
+	 * 
+	 * @param pathFolder
+	 * @throws FileNotFoundException
+	 * @throws UnreadDatasetException
+	 */
+	private void initializeDatasetReaderClassification(String pathFolder)
+			throws FileNotFoundException, UnreadDatasetException {
+		String nameDatasetReader = this.cmbDataFormat.getValue();
+		int sizeSequence = Integer.valueOf(this.fldSizeSequences.getText());
+		this.dRClassification = DatasetReaderFactory.getDatasetReader(nameDatasetReader, pathFolder, sizeSequence);
 	}
 
 	/**
@@ -448,8 +569,6 @@ public class Controller {
 		if (this.datasetReader != null)
 			this.datasetReader.setDatasetAsOutdated(true);
 	}
-
-	// TODO Improve the strategy to show and hide options of each algorithm
 
 	/**
 	 * A dataset reader was selected in the comboBox. Show its correspondent

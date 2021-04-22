@@ -22,11 +22,11 @@ public class EvaluationTask extends Task<Void> {
 	Logger logger = LogManager.getLogger(EvaluationTask.class);
 
 	/**
-	 * Constructs a {@code MultipleCSVReader} that receives a
-	 * {@code ValidationMethod} and a {@code MCTBNC} model.
+	 * Constructs an {@code EvaluationTask} that receives a {@code ValidationMethod}
+	 * and an {@code MCTBNC} model.
 	 * 
-	 * @param validationMethod
-	 * @param model
+	 * @param validationMethod validation method used to evaluate the provided model
+	 * @param model            model to train and evaluate
 	 */
 	public EvaluationTask(ValidationMethod validationMethod, MCTBNC<?, ?> model) {
 		this.validationMethod = validationMethod;

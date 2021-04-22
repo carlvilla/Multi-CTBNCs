@@ -9,7 +9,7 @@ import javafx.concurrent.Task;
 
 /**
  * 
- * Service that creates and manages an {@EvaluationTask}.
+ * Service that creates and manages an {@code EvaluationTask}.
  * 
  * @author Carlos Villa Blanco
  *

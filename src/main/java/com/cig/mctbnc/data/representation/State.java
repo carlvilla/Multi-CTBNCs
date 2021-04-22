@@ -188,12 +188,7 @@ public class State {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (String variableName : this.events.keySet()) {
-			sb.append(variableName + " = " + this.events.get(variableName));
-			sb.append("\n");
-		}
-		return sb.toString();
+		return this.events.toString();
 	}
 
 	/**

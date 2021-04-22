@@ -153,6 +153,8 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 					// BN class variables nodes are added as parents for the CTBN feature nodes
 					child.setParent(nodeInBN);
 				}
+				// Set node as class variable
+				nodeInBN.isClassVariable(true);
 				nodes.add(nodeInBN);
 			} else
 				// It is a feature node
