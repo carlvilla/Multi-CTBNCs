@@ -280,12 +280,12 @@ public class Metrics {
 	}
 
 	/**
-	 * Compute the f1 score from a Map containing a confusion matrix. The Map should
+	 * Compute the F1 score from a Map containing a confusion matrix. The Map should
 	 * contain, at least, the keys "tp" (true positive), "fp" (false positive) and
 	 * "fn" (false negative).
 	 * 
 	 * @param cm Map representing a confusion matrix
-	 * @return f1 score
+	 * @return F1 score
 	 */
 	public static double f1score(Map<String, Integer> cm) {
 		return (double) 2 * cm.get("tp") / (2 * cm.get("tp") + cm.get("fn") + cm.get("fp"));

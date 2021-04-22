@@ -44,7 +44,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	List<Long> seeds;
 	List<String> metrics = List.of("Global accuracy", "Mean accuracy", "Macro-averaged precision",
 			"Macro-averaged recall", "Macro-averaged F1 score", "Micro-averaged precision", "Micro-averaged recall",
-			"Micro-averaged F1 score", "Globar Brier score");
+			"Micro-averaged F1 score", "Global Brier score");
 
 	/**
 	 * Initialize the writer.
@@ -159,10 +159,13 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	@Override
 	public void close() {
 		try {
+			// Set size of columns to fit all the text
+			this.sheet.setDefaultColumnWidth(16);
+			this.sheet.autoSizeColumn(0);
+			// Write results to file
 			this.workbook.write(this.out);
 			this.out.flush();
 			this.out.close();
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -64,7 +64,7 @@ task syntheticLL(type: JavaExec){
 	description 'Runs synthetic experiments to compare the performance of CTBNCs and a MCTBNC when they are learnt with the BIC-penalized log-likelihood score'
 	classpath sourceSets.main.runtimeClasspath
     main 'com.cig.mctbnc.MainExperiments'
-    args 'synthetic', 'CTBNCs', 'MCTBNC', 'Log-likelihood'
+    args 'synthetic', 'CTBNCs', 'MCTBNC', 'Log-likelihood', 'BIC'
 }
 
 task syntheticBDe(type: JavaExec){
@@ -72,15 +72,23 @@ task syntheticBDe(type: JavaExec){
 	description 'Runs synthetic experiments to compare the performance of CTBNCs and a MCTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
 	classpath sourceSets.main.runtimeClasspath
     main 'com.cig.mctbnc.MainExperiments'
-    args 'synthetic', 'CTBNCs', 'MCTBNC', 'Bayesian Dirichlet equivalent'
+    args 'synthetic', 'CTBNCs', 'MCTBNC', 'Bayesian Dirichlet equivalent', 'No'
 }
 
-task energy(type: JavaExec){
+task energyLL(type: JavaExec){
 	group 'MCTBNC Experiments'
 	description 'Runs experiments with the energy dataset to compare the performance of max1 CTBNCs and a DAG-max1 MCTBNC when they are learnt with the BIC-penalized log-likelihood score'
 	classpath sourceSets.main.runtimeClasspath
     main 'com.cig.mctbnc.MainExperiments'
-    args 'energy', 'maxK CTBNCs', 'DAG-maxK MCTBNC', 'Log-likelihood'
+    args 'energy', 'maxK CTBNCs', 'DAG-maxK MCTBNC', 'Log-likelihood', 'BIC'
+}
+
+task energyBDe(type: JavaExec){
+	group 'MCTBNC Experiments'
+	description 'Runs experiments with the energy dataset to compare the performance of max1 CTBNCs and a DAG-max1 MCTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
+	classpath sourceSets.main.runtimeClasspath
+    main 'com.cig.mctbnc.MainExperiments'
+    args 'energy', 'maxK CTBNCs', 'DAG-maxK MCTBNC', 'Bayesian Dirichlet equivalent', 'No'
 }
 
 task emptyDigraphMCTBNC(type: JavaExec){
@@ -88,5 +96,5 @@ task emptyDigraphMCTBNC(type: JavaExec){
 	description 'Runs synthetic experiments to compare the performance of CTBNCs and an empty-digraph MCTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
 	classpath sourceSets.main.runtimeClasspath
     main 'com.cig.mctbnc.MainExperiments'
-    args 'synthetic', 'CTBNCs', 'Empty-digraph MCTBNC', 'Bayesian Dirichlet equivalent'
+    args 'synthetic', 'CTBNCs', 'Empty-digraph MCTBNC', 'Bayesian Dirichlet equivalent', 'No'
 }

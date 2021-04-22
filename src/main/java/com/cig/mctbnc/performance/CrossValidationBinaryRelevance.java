@@ -210,7 +210,7 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 			System.out.println("------------------------------------------------------");
 			Prediction[] predictionsCV = models.get(i).predict(testingDataset, this.estimateProbabilities);
 			predictionsFold = updatePredictionsFold(predictionsFold, this.dataset.getNameClassVariables().get(i),
-					predictionsCV, false);
+					predictionsCV);
 		}
 		return predictionsFold;
 	}
@@ -223,12 +223,9 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 	 * @param nameCV                name of the class variable whose predictions are
 	 *                              included in the predictions of the fold
 	 * @param predictionsCV         predictions of the class variable
-	 * @param estimateProbabilities determines if the probabilities of the classes
-	 *                              are estimated
 	 * @return updated predictions for the fold
 	 */
-	private Prediction[] updatePredictionsFold(Prediction[] predictionsFold, String nameCV, Prediction[] predictionsCV,
-			boolean estimateProbabilities) {
+	private Prediction[] updatePredictionsFold(Prediction[] predictionsFold, String nameCV, Prediction[] predictionsCV) {
 		if (predictionsFold == null)
 			// First class is predicted
 			return predictionsCV;
@@ -242,7 +239,7 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 			predictedCC.addEvent(nameCV, prediction.getValueVariable(nameCV));
 			// Define probabilities of each class configuration for the current sequence
 			Map<State, Double> newProbabilitiesCCs = new HashMap<State, Double>();
-			if (estimateProbabilities) {
+			if (this.estimateProbabilities) {
 				// Iterate over class configurations including states current class variable
 				Set<State> statesCC = predictionsFold[i].getProbabilities().keySet();
 				Set<State> statesCV = predictionsCV[i].getProbabilities().keySet();

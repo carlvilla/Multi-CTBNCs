@@ -58,9 +58,6 @@ public class MainExperiments {
 	// Maximum number of feature parents (if maxK is used)
 	static String maxK = "1";
 
-	// Penalization (except for "Bayesian Dirichlet equivalent"): "BIC", "AIC", "No"
-	static String penalizationFunction = "BIC";
-
 	// Evaluation method: "Cross-validation", "Hold-out validation"
 	static int folds = 5; // For "Cross-validation"
 	static boolean estimateProbabilities = true;
@@ -93,6 +90,8 @@ public class MainExperiments {
 		// Retrieve score function: "Log-likelihood", "Bayesian Dirichlet equivalent",
 		// "Conditional log-likelihood"
 		List<String> scoreFunctions = List.of(args[3]);
+		// Penalization (except for "Bayesian Dirichlet equivalent"): "BIC", "AIC", "No"
+		String penalizationFunction = args[4];
 
 		// Define parameter learning algorithms
 		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, nx);
@@ -132,7 +131,7 @@ public class MainExperiments {
 										"***************************** MODEL: %s *****************************\n",
 										selectedModel);
 								performExperiment(datasetReader, bnPLA, ctbnPLA, selectedModel, scoreFunction,
-										hyperparameters, seed);
+										penalizationFunction, hyperparameters, seed);
 							}
 						} catch (FileNotFoundException e) {
 							logger.error(e.getMessage());
@@ -148,7 +147,7 @@ public class MainExperiments {
 
 	private static void performExperiment(DatasetReader datasetReader, BNParameterLearningAlgorithm bnPLA,
 			CTBNParameterLearningAlgorithm ctbnPLA, String selectedModel, String scoreFunction,
-			Map<String, String> hyperparameters, long seed) throws UnreadDatasetException {
+			String penalizationFunction, Map<String, String> hyperparameters, long seed) throws UnreadDatasetException {
 		// Define structure learning algorithms
 		StructureLearningAlgorithm bnSLA = StructureLearningAlgorithmFactory.getAlgorithmBN(nameBnSLA, scoreFunction,
 				penalizationFunction, 0);
@@ -266,7 +265,8 @@ public class MainExperiments {
 		case ("synthetic"):
 			return List.of(10L);
 		case ("energy"):
-			return List.of(10L, 20L, 30L, 40L, 50L, 60L, 70L, 80L, 90L, 100L);
+			return List.of(203901165L, 210776381L, 219721216L, 168929L, 71283273L, 154241767L, 61801568L, 118950040L,
+					62100514L, 13014671L, 40044639L, 197151791L, 25959076L, 135446808L, 165931238L);
 		default:
 			System.err.println("Selected experiment was not found");
 			return null;
