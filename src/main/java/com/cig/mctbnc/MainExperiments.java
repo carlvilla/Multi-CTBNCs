@@ -57,6 +57,9 @@ public class MainExperiments {
 
 	// Maximum number of feature parents (if maxK is used)
 	static String maxK = "1";
+	
+	// Number of random restarts (if random-restart hill climbing is used)
+	static int numRestarts = 5;
 
 	// Evaluation method: "Cross-validation", "Hold-out validation"
 	static int folds = 5; // For "Cross-validation"
@@ -150,9 +153,9 @@ public class MainExperiments {
 			String penalizationFunction, Map<String, String> hyperparameters, long seed) throws UnreadDatasetException {
 		// Define structure learning algorithms
 		StructureLearningAlgorithm bnSLA = StructureLearningAlgorithmFactory.getAlgorithmBN(nameBnSLA, scoreFunction,
-				penalizationFunction, 0);
+				penalizationFunction, numRestarts);
 		StructureLearningAlgorithm ctbnSLA = StructureLearningAlgorithmFactory.getAlgorithmCTBN(nameCtbnSLA,
-				scoreFunction, penalizationFunction, 0);
+				scoreFunction, penalizationFunction, numRestarts);
 		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
 		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 		// Generate selected model and validation method

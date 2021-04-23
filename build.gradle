@@ -61,10 +61,18 @@ javafx{
 
 task syntheticLL(type: JavaExec){
 	group 'MCTBNC Experiments'
-	description 'Runs synthetic experiments to compare the performance of CTBNCs and a MCTBNC when they are learnt with the BIC-penalized log-likelihood score'
+	description 'Runs synthetic experiments to compare the performance of CTBNCs and a MCTBNC when they are learnt with the log-likelihood score penalized with BIC'
 	classpath sourceSets.main.runtimeClasspath
     main 'com.cig.mctbnc.MainExperiments'
     args 'synthetic', 'CTBNCs', 'MCTBNC', 'Log-likelihood', 'BIC'
+}
+
+task syntheticCLL(type: JavaExec){
+	group 'MCTBNC Experiments'
+	description 'Runs synthetic experiments to compare the performance of CTBNCs and a MCTBNC when they are learnt with the conditional log-likelihood score penalized with BIC'
+	classpath sourceSets.main.runtimeClasspath
+    main 'com.cig.mctbnc.MainExperiments'
+    args 'synthetic', 'CTBNCs', 'MCTBNC', 'Conditional log-likelihood', 'BIC'
 }
 
 task syntheticBDe(type: JavaExec){

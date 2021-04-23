@@ -1,5 +1,8 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.cig.mctbnc.learning.structure.optimization.hillclimbing.implementation.HillClimbingImplementation;
 
 /**
@@ -10,6 +13,7 @@ import com.cig.mctbnc.learning.structure.optimization.hillclimbing.implementatio
  */
 public class RandomRestartHillClimbing extends HillClimbing {
 	int numRestarts;
+	static Logger logger = LogManager.getLogger(RandomRestartHillClimbing.class);
 
 	/**
 	 * Constructs a {@code RandomRestartHillClimbing} by receiving the
@@ -29,6 +33,10 @@ public class RandomRestartHillClimbing extends HillClimbing {
 		HillClimbingSolution bestSolution = null;
 		boolean[][] initialStructure = this.pgm.getAdjacencyMatrix().clone();
 		int numNodes = initialStructure.length;
+		if (this.numRestarts == 0) {
+			this.numRestarts = 5;
+			logger.warn("No number of random restarts provided. Five random restarts will be performed.");
+		}
 		for (int restart = 0; restart < this.numRestarts; restart++) {
 			logger.info("Random-restart: {}", restart);
 			// Randomly define the initial structure
