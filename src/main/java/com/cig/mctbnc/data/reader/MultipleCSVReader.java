@@ -3,7 +3,6 @@ package com.cig.mctbnc.data.reader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,11 +52,8 @@ public class MultipleCSVReader extends AbstractCSVReader {
 		if (isDatasetOutdated()) {
 			logger.info("Reading dataset from multiples csv files in {}", this.datasetFolder);
 			this.dataset = new Dataset(this.nameTimeVariable, this.nameClassVariables);
-			// Names of the files from which the dataset was read. Some files could be
-			// rejected due to problems in its content.
-			List<String> nameAcceptedFiles = new ArrayList<String>();
 			for (File file : this.files)
-				readCSV(file, nameAcceptedFiles);
+				readCSV(file);
 			// Check if any sequence was added to the dataset
 			if (this.dataset.getNumDataPoints() == 0)
 				throw new UnreadDatasetException("Any sequence was succesfully processed");
@@ -65,8 +61,6 @@ public class MultipleCSVReader extends AbstractCSVReader {
 				logger.warn("Some sequences not added. They may not have valid variables or enough observations");
 			// Remove variables with zero variance
 			this.dataset.removeZeroVarianceFeatures();
-			// Save in the dataset the files used to extract its sequences
-			this.dataset.setNameFiles(nameAcceptedFiles);
 			// Set the dataset as not out-of-date
 			setDatasetAsOutdated(false);
 		}
@@ -80,12 +74,10 @@ public class MultipleCSVReader extends AbstractCSVReader {
 	 * @param file
 	 * @throws UnreadDatasetException
 	 */
-	private void readCSV(File file, List<String> nameAcceptedFiles) throws UnreadDatasetException {
+	private void readCSV(File file) throws UnreadDatasetException {
 		try {
 			List<String[]> dataSequence = readCSV(file.getAbsolutePath(), this.excludeVariables);
-			boolean sequenceAdded = this.dataset.addSequence(dataSequence);
-			if (sequenceAdded)
-				nameAcceptedFiles.add(file.getName());
+			this.dataset.addSequence(dataSequence, file.getAbsolutePath());
 		} catch (FileNotFoundException e) {
 			throw new UnreadDatasetException("There was an error reading the files of the dataset");
 		} catch (VariableNotFoundException e) {

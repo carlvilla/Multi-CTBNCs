@@ -35,10 +35,11 @@ public class TrainingTask extends Task<Void> {
 
 	@Override
 	protected Void call() throws Exception {
-		updateMessage("Training model...");
 		// Read training dataset
+		updateMessage("Reading training sequences from the dataset...");
 		Dataset trainingDataset = this.datasetReader.readDataset();
-		// Evaluate the performance of the model
+		// Train the model
+		updateMessage("Training model...");
 		this.model.learn(trainingDataset);
 		return null;
 	}

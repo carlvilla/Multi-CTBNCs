@@ -43,9 +43,10 @@ public class ClassificationTask extends Task<Void> {
 
 	@Override
 	protected Void call() throws Exception {
-		updateMessage("Classifying sequences...");
+		updateMessage("Reading sequences to classify from the dataset...");
 		// Read dataset to classify
 		Dataset dataset = this.datasetReader.readDataset();
+		updateMessage("Classifying sequences...");
 		// Evaluate the performance of the model
 		Prediction[] predictions = this.model.predict(dataset, this.estimateProbabilities);
 		// Write predictions to a file

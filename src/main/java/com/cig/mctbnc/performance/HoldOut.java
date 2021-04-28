@@ -87,14 +87,11 @@ public class HoldOut extends ValidationMethod {
 	public void generateTrainAndTest() throws UnreadDatasetException {
 		// Obtain entire dataset
 		Dataset dataset = this.datasetReader.readDataset();
-		// Obtain files names from which the dataset was read
-		List<String> fileNames = new ArrayList<String>(dataset.getNameFiles());
 		// Obtain sequences of the dataset
 		List<Sequence> sequences = new ArrayList<Sequence>(dataset.getSequences());
 		if (this.shuffle) {
-			// Sequences and their files are shuffled before splitting into train and test
+			// Sequences are shuffled before splitting into train and test
 			Util.shuffle(sequences, this.seed);
-			Util.shuffle(fileNames, this.seed);
 			this.logger.info("Sequences shuffled");
 		}
 		// Define training and testing sequences
@@ -104,9 +101,6 @@ public class HoldOut extends ValidationMethod {
 		// Define training and testing datasets
 		this.trainingDataset = new Dataset(trainingSequences);
 		this.testingDataset = new Dataset(testingSequences);
-		// Set in the datasets the names of the files from which the data was extracted
-		this.trainingDataset.setNameFiles(fileNames.subList(0, lastIndexTraining));
-		this.testingDataset.setNameFiles(fileNames.subList(lastIndexTraining, sequences.size()));
 		// Warn the training set about the possible states the variables can take (for
 		// now, categorical variable are assumed)
 		this.trainingDataset.setStatesVariables(dataset.getStatesVariables());

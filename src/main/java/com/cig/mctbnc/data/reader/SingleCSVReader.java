@@ -57,8 +57,6 @@ public class SingleCSVReader extends AbstractCSVReader {
 				extractFixedSequences(this.dataset, dataCSV);
 				// Remove zero variance features
 				this.dataset.removeZeroVarianceFeatures();
-				// Save name of the file in the dataset
-				this.dataset.setNameFiles(List.of(this.file.getName()));
 				// Set the dataset as not out-of-dates
 				setDatasetAsOutdated(false);
 			} catch (FileNotFoundException e) {
@@ -81,7 +79,7 @@ public class SingleCSVReader extends AbstractCSVReader {
 	 * 
 	 * @param dataset
 	 * @param dataCSV
-	 * @return dataset
+	 * @return dataset a {@code Dataset}
 	 */
 	public Dataset extractFixedSequences(Dataset dataset, List<String[]> dataCSV) {
 		int numInstances = dataCSV.size();
@@ -110,7 +108,7 @@ public class SingleCSVReader extends AbstractCSVReader {
 				dataSequence.add(observation);
 			else {
 				// Add sequence to dataset
-				dataset.addSequence(dataSequence);
+				dataset.addSequence(dataSequence, this.file.getAbsolutePath());
 				if (!sameClassConfiguration)
 					// The class configuration changed
 					currentClassConfiguration = extractClassConfigurationObservation(indexClassVariables, observation);

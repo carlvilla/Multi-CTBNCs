@@ -38,7 +38,7 @@ public class TxtClassificationWriter {
 		try {
 			PrintWriter writer = new PrintWriter(file, "UTF-8");
 			for (int i = 0; i < predictions.length; i++) {
-				String fileSequence = dataset.getNameFiles().get(i);
+				String fileSequence = dataset.getSequences().get(i).getFilePath();
 				State predictedCC = predictions[i].getPredictedClasses();
 				double probabilityCC = predictions[i].getProbabilityPrediction();
 				writer.print(fileSequence + " / Predicted classes: " + predictedCC);

@@ -257,10 +257,16 @@ public class Controller {
 	 */
 	public void classify() {
 		if (this.model != null) {
+			// Get selected variables. These will be the same as those used for the training
+			String nameTimeVariable = this.datasetReader.getNameTimeVariable();
+			List<String> nameClassVariables = this.datasetReader.getNameClassVariables();
+			List<String> nameSelectedFeatures = this.datasetReader.getNameFeatures();
+			// Set the variables that will be used
+			this.dRClassification.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
 			// Check if probabilities of predicted class configurations should be estimated
 			boolean estimateProbabilities = this.chkProbabilitiesClassification.isSelected();
 			// Create service to train model in another thread
-			Service<Void> service = new ClassificationService(this.model, this.datasetReader, estimateProbabilities);
+			Service<Void> service = new ClassificationService(this.model, this.dRClassification, estimateProbabilities);
 			service.start();
 			// The status label will be updated with the progress of the service
 			this.status.textProperty().bind(service.messageProperty());
@@ -268,7 +274,6 @@ public class Controller {
 			this.btnClassify.disableProperty().bind(service.runningProperty());
 		} else
 			this.logger.error("The classification was not performed. There is no trained model.");
-
 	}
 
 	/**
@@ -443,7 +448,7 @@ public class Controller {
 	 */
 	private void initializeDatasetReaderClassification(String pathFolder)
 			throws FileNotFoundException, UnreadDatasetException {
-		String nameDatasetReader = this.cmbDataFormat.getValue();
+		String nameDatasetReader = this.cmbDataFormatClassification.getValue();
 		int sizeSequence = Integer.valueOf(this.fldSizeSequences.getText());
 		this.dRClassification = DatasetReaderFactory.getDatasetReader(nameDatasetReader, pathFolder, sizeSequence);
 	}
@@ -456,7 +461,7 @@ public class Controller {
 	 */
 	private void readVariablesDataset(String pathFolder) throws FileNotFoundException {
 		// Names of the variables are retrieved
-		List<String> nameVariables = this.datasetReader.getAllVariablesDataset();
+		List<String> nameVariables = this.datasetReader.getNameVariables();
 		// If another dataset was used before, comboBoxes are reseted
 		resetCheckComboBoxes();
 		// Variables' names are added to the comboBoxes
@@ -590,6 +595,23 @@ public class Controller {
 	}
 
 	/**
+	 * A dataset reader for the classification dataset was selected in the comboBox.
+	 * Show its correspondent options.
+	 */
+	public void changeDatasetReaderClassification() {
+		// Show or hide options
+		if (this.cmbDataFormatClassification.getValue().equals("Single CSV")) {
+			ControllerUtil.showNode(this.hbStrategyClassification, true);
+			ControllerUtil.showNode(this.hbSizeSequencesClassification, true);
+			if (this.cmbStrategyClassification.getValue().equals("Fixed size"))
+				ControllerUtil.showNode(this.fldSizeSequencesClassification, true);
+		} else {
+			ControllerUtil.showNode(this.hbStrategyClassification, false);
+			ControllerUtil.showNode(this.hbSizeSequencesClassification, false);
+		}
+	}
+
+	/**
 	 * An strategy for the extraction of sequences was selected. Show its
 	 * correspondent options.
 	 */
@@ -604,6 +626,18 @@ public class Controller {
 	}
 
 	/**
+	 * An strategy for the extraction of sequences to classify was selected. Show
+	 * its correspondent options.
+	 */
+	public void changeDatasetReaderClassificationStrategy() {
+		// Show or hide options
+		if (this.cmbStrategyClassification.getValue().equals("Fixed size"))
+			this.fldSizeSequencesClassification.setDisable(false);
+		else
+			this.fldSizeSequencesClassification.setDisable(true);
+	}
+
+	/**
 	 * A model was selected in the comboBox. Show its correspondent hyperparameters.
 	 */
 	public void changeModel() {
@@ -613,7 +647,6 @@ public class Controller {
 			ControllerUtil.showNode(this.hbKParents, true);
 		else
 			ControllerUtil.showNode(this.hbKParents, false);
-
 		if (model.equals("MCTNBC")) {
 			// Disable of learning structure options if learning a naive Bayes classifier
 			this.cmbStructure.setDisable(true);

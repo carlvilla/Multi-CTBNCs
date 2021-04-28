@@ -26,7 +26,6 @@ public class Dataset {
 	private String nameTimeVariable;
 	private List<String> nameFeatures;
 	private List<String> nameClassVariables;
-	private List<String> nameFiles;
 	// A list of class variables that should be ignored
 	private List<String> ignoredClassVariables;
 	// Store the possible states of a variable to avoid recomputations
@@ -65,9 +64,9 @@ public class Dataset {
 	}
 
 	/**
-	 * Receive a list of Strings (a sequence), create a Sequence object and add it
-	 * to the dataset. The first array of Strings has to contain the name of the
-	 * variables.
+	 * Receive a list of Strings (a sequence) from which a {@code Sequence} is
+	 * created, and add it to the dataset. The first array of Strings has to contain
+	 * the name of the variables.
 	 * 
 	 * @param data list of Strings (a sequence) where the first array contains the
 	 *             name of the variables
@@ -75,30 +74,59 @@ public class Dataset {
 	 *         dataset; <code>false</code> otherwise.
 	 */
 	public boolean addSequence(List<String[]> data) {
+		return addSequence(data, "No file path");
+	}
+
+	/**
+	 * Receive a list of Strings (a sequence) and the path of the file from which it
+	 * was extracted. Then create a {@code Sequence} and add it to the dataset. The
+	 * first array of Strings representing the sequence has to contain the name of
+	 * the variables.
+	 * 
+	 * @param data     list of Strings (a sequence) where the first array contains
+	 *                 the name of the variables
+	 * @param filePath path of the file from from which the sequence was extracted
+	 * @return <code>true</code> if the sequence was successfully added to the
+	 *         dataset; <code>false</code> otherwise.
+	 */
+	public boolean addSequence(List<String[]> data, String filePath) {
 		try {
-			// Check if it is possible to add the sequence
-			checkIntegrityData(data);
-			// Obtain names of variables
-			List<String> nameVariablesSequence = Arrays.asList(data.get(0));
-			// If there are no sequences in the dataset, it is stored the name of the
-			// features. They are given by the names of the variables that were not
-			// defined as the time variable or class variable.
-			if (getSequences().size() == 0) {
-				this.nameFeatures = nameVariablesSequence.stream()
-						.filter(name -> !name.equals(this.nameTimeVariable) && !this.nameClassVariables.contains(name))
-						.collect(Collectors.toList());
-			}
-			// Drop names of variables
-			data.remove(0);
-			// Create and add sequence to the dataset
-			Sequence sequence = new Sequence(nameVariablesSequence, this.nameTimeVariable, this.nameClassVariables,
-					data);
+			Sequence sequence = createSequence(data);
+			sequence.setFilePath(filePath);
 			this.sequences.add(sequence);
 			return true;
 		} catch (ErroneousSequenceException e) {
 			logger.trace(e.getMessage());
 			return false;
 		}
+	}
+
+	/**
+	 * Receive a list of Strings (a sequence) from which a {@code Sequence} is
+	 * created.
+	 * 
+	 * @param data data from which the {@code Sequence} is generated
+	 * @return a {@code Sequence}
+	 * @throws ErroneousSequenceException
+	 */
+	private Sequence createSequence(List<String[]> data) throws ErroneousSequenceException {
+		// Check if it is possible to add the sequence
+		checkIntegrityData(data);
+		// Obtain names of variables
+		List<String> nameVariablesSequence = Arrays.asList(data.get(0));
+		// If there are no sequences in the dataset, it is stored the name of the
+		// features. They are given by the names of the variables that were not
+		// defined as the time variable or class variable.
+		if (getSequences().size() == 0) {
+			this.nameFeatures = nameVariablesSequence.stream()
+					.filter(name -> !name.equals(this.nameTimeVariable) && !this.nameClassVariables.contains(name))
+					.collect(Collectors.toList());
+		}
+		// Drop names of variables
+		data.remove(0);
+		// Create and add sequence to the dataset
+		Sequence sequence = new Sequence(nameVariablesSequence, this.nameTimeVariable, this.nameClassVariables, data);
+		return sequence;
 	}
 
 	/**
@@ -112,25 +140,6 @@ public class Dataset {
 				logger.warn("Features {} is removed since its variance is zero.", nameFeature);
 				removeFeature(nameFeature);
 			}
-		}
-	}
-
-	/**
-	 * Set the names of the files from which the data was extracted.
-	 * 
-	 * @param list
-	 */
-	public void setNameFiles(List<String> list) {
-		if (list.size() == 1) {
-			// If the list size is one, all the sequences were extracted from a unique file
-			this.nameFiles = new ArrayList<String>();
-			String nameFile = list.get(0);
-			for (int i = 0; i < this.sequences.size(); i++) {
-				this.nameFiles.add(nameFile);
-			}
-		} else {
-			// Every sequence was extracted from a different file
-			this.nameFiles = list;
 		}
 	}
 
@@ -453,15 +462,6 @@ public class Dataset {
 					}
 			}
 		return time;
-	}
-
-	/**
-	 * Get the names of the files from which the data was extracted.
-	 * 
-	 * @return names of the files
-	 */
-	public List<String> getNameFiles() {
-		return this.nameFiles;
 	}
 
 	/**

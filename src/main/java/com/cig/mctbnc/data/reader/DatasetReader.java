@@ -14,6 +14,13 @@ import com.cig.mctbnc.exceptions.UnreadDatasetException;
 public interface DatasetReader {
 
 	/**
+	 * Define the time variable.
+	 * 
+	 * @param nameTimeVariable
+	 */
+	public void setTimeVariable(String nameTimeVariable);
+
+	/**
 	 * Define the time variable, the class variables and the features.
 	 * 
 	 * @param nameTimeVariable
@@ -31,12 +38,33 @@ public interface DatasetReader {
 	public Dataset readDataset() throws UnreadDatasetException;
 
 	/**
+	 * Return the name of the time variable.
+	 * 
+	 * @return name of the time variable.
+	 */
+	public String getNameTimeVariable();
+
+	/**
+	 * Return the name of the class variables.
+	 * 
+	 * @return name of the class variables.
+	 */
+	public List<String> getNameClassVariables();
+	
+	/**
+	 * Return the name of the features.
+	 * 
+	 * @return name of the features.
+	 */
+	public List<String> getNameFeatures();
+
+	/**
 	 * Return the names of all the variables of the dataset, included those are are
 	 * not used.
 	 * 
 	 * @return names of the variables
 	 */
-	public List<String> getAllVariablesDataset();
+	public List<String> getNameVariables();
 
 	/**
 	 * Define a previously read dataset as out-of-date, so it should be reloaded.

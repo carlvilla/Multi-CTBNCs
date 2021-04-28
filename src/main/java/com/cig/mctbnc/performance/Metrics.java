@@ -126,10 +126,10 @@ public class Metrics {
 			// to the HashMap in State
 			if (predicted[i].getProbabilities() != null)
 				logger.trace("File {} / Real classes: {} / Predicted classes {} / Prob. {}",
-						actualDataset.getNameFiles().get(i), actualCC, predictedCC, probability);
+						actualDataset.getSequences().get(i).getFilePath(), actualCC, predictedCC, probability);
 			else
-				logger.trace("File {} / Real classes: {} / Predicted classes {}", actualDataset.getNameFiles().get(i),
-						actualCC, predictedCC);
+				logger.trace("File {} / Real classes: {} / Predicted classes {}",
+						actualDataset.getSequences().get(i).getFilePath(), actualCC, predictedCC);
 		}
 	}
 

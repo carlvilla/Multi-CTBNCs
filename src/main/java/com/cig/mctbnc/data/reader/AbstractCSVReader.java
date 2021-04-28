@@ -86,7 +86,7 @@ public abstract class AbstractCSVReader implements DatasetReader {
 		CSVReader csvReader = new CSVReader(reader);
 		try {
 			// If it was specified variables to ignore
-			if (excludeVariables.size() > 0) {
+			if (excludeVariables != null && excludeVariables.size() > 0) {
 				// Obtain name of the variables
 				List<String> head = new ArrayList<String>(Arrays.asList(csvReader.readNext()));
 				// Obtain the index of the variables to ignore
@@ -129,18 +129,42 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	}
 
 	@Override
+	public void setTimeVariable(String nameTimeVariable) {
+		this.nameTimeVariable = nameTimeVariable;
+	}
+
+	@Override
 	public void setVariables(String nameTimeVariable, List<String> nameClassVariables, List<String> nameFeatures) {
 		this.nameTimeVariable = nameTimeVariable;
 		this.nameClassVariables = nameClassVariables;
 		// Variables that should be ignored
-		this.excludeVariables = new ArrayList<String>(getAllVariablesDataset());
+		this.excludeVariables = new ArrayList<String>(getNameVariables());
 		this.excludeVariables.remove(nameTimeVariable);
 		this.excludeVariables.removeAll(nameClassVariables);
 		this.excludeVariables.removeAll(nameFeatures);
 	}
 
 	@Override
-	public List<String> getAllVariablesDataset() {
+	public String getNameTimeVariable() {
+		return this.nameTimeVariable;
+	}
+
+	@Override
+	public List<String> getNameClassVariables() {
+		return this.nameClassVariables;
+	}
+
+	@Override
+	public List<String> getNameFeatures() {
+		List<String> nameFeatures = new ArrayList<String>(this.nameVariables);
+		nameFeatures.remove(this.nameTimeVariable);
+		nameFeatures.removeAll(this.nameClassVariables);
+		nameFeatures.removeAll(this.excludeVariables);
+		return nameFeatures;
+	}
+
+	@Override
+	public List<String> getNameVariables() {
 		return this.nameVariables;
 	}
 

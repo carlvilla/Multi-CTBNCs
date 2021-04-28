@@ -352,7 +352,7 @@
                                                       <Insets right="8.0" />
                                                    </HBox.margin>
                                                 </Label>
-                                                <ComboBox fx:id="cmbDataFormatClassification" maxWidth="1.7976931348623157E308" onAction="#changeDatasetReader" prefWidth="140.0" HBox.hgrow="ALWAYS" />
+                                                <ComboBox fx:id="cmbDataFormatClassification" maxWidth="1.7976931348623157E308" onAction="#changeDatasetReaderClassification" prefWidth="140.0" HBox.hgrow="ALWAYS" />
                                              </children>
                                           </HBox>
                                           <HBox fx:id="hbStrategyClassification" alignment="CENTER" prefHeight="100.0" prefWidth="198.0" HBox.hgrow="ALWAYS">
@@ -362,7 +362,7 @@
                                                       <Insets right="8.0" />
                                                    </HBox.margin>
                                                 </Label>
-                                                <ComboBox fx:id="cmbStrategyClassification" maxWidth="1.7976931348623157E308" onAction="#changeDatasetReaderStrategy" prefWidth="140.0" HBox.hgrow="ALWAYS" />
+                                                <ComboBox fx:id="cmbStrategyClassification" maxWidth="1.7976931348623157E308" onAction="#changeDatasetReaderClassificationStrategy" prefWidth="140.0" HBox.hgrow="ALWAYS" />
                                              </children>
                                           </HBox>
                                           <HBox fx:id="hbSizeSequencesClassification" alignment="CENTER" prefHeight="100.0" prefWidth="162.0" HBox.hgrow="ALWAYS">

@@ -81,12 +81,9 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 		// Get sequences from the dataset
 		List<Sequence> sequences = this.dataset.getSequences();
 		int numSequences = sequences.size();
-		// Obtain files from which the dataset was read
-		List<String> fileNames = new ArrayList<String>(this.dataset.getNameFiles());
 		if (this.shuffle) {
-			// Shuffle the sequences before performing cross-validation
+			// Shuffle the sequences before performing the cross-validation
 			Util.shuffle(sequences, this.seed);
-			Util.shuffle(fileNames, this.seed);
 			this.logger.info("Sequences shuffled");
 		}
 		// Obtain size of each fold
@@ -104,9 +101,9 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 			// Prepare training and testing datasets for current fold
 			int toIndex = fromIndex + sizeFolds[i];
 			// Prepare training dataset for current fold
-			Dataset trainingDataset = extractTrainingDataset(sequences, fileNames, fromIndex, toIndex);
+			Dataset trainingDataset = extractTrainingDataset(sequences, fromIndex, toIndex);
 			// Prepare testing dataset for current fold
-			Dataset testingDataset = extractTestingDataset(sequences, fileNames, fromIndex, toIndex);
+			Dataset testingDataset = extractTestingDataset(sequences, fromIndex, toIndex);
 			// Learn one model per class variable in parallel
 			List<MCTBNC<?, ?>> models = learnModels(model, trainingDataset);
 			// Perform predictions with each model and merge the results
@@ -124,49 +121,33 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 	}
 
 	/**
-	 * Given all the sequences of a dataset and the names of the files from where
-	 * they were extracted, create a training dataset that include all the sequences
-	 * but those between some specified indexes.
+	 * Given all the sequences of a dataset, create a training dataset that include
+	 * all the sequences but those between some specified indexes.
 	 * 
 	 * @param sequences
-	 * @param fileNames
 	 * @param fromIndex index of the first sequence to ignore
 	 * @param toIndex   index of the last sequence to ignore
 	 * @return training dataset
 	 */
-	private Dataset extractTrainingDataset(List<Sequence> sequences, List<String> fileNames, int fromIndex,
-			int toIndex) {
+	private Dataset extractTrainingDataset(List<Sequence> sequences, int fromIndex, int toIndex) {
 		List<Sequence> trainingSequences = new ArrayList<Sequence>(sequences);
 		// Remove instances that will be used for testing
 		trainingSequences.subList(fromIndex, toIndex).clear();
-		Dataset trainingDataset = new Dataset(trainingSequences);
-		// Get name of the files from which the training sequences were extracted
-		// A new list is created to avoid concurrent modification exceptions
-		List<String> fileNamesAux = new ArrayList<String>(fileNames);
-		// Remove filenames of sequences that will be used for testing
-		fileNamesAux.subList(fromIndex, toIndex).clear();
-		trainingDataset.setNameFiles(fileNamesAux);
-		return trainingDataset;
+		return new Dataset(trainingSequences);
 	}
 
 	/**
-	 * Given all the sequences of a dataset and the names of the files from where
-	 * they were extracted, create a testing dataset using the sequences between
-	 * some specified indexes.
+	 * Given all the sequences of a dataset, create a testing dataset using the
+	 * sequences between some specified indexes.
 	 * 
 	 * @param sequences
-	 * @param fileNames
 	 * @param fromIndex index of the first sequence of the extracted dataset
 	 * @param toIndex   index of the last sequence of the extracted dataset
 	 * @return testing dataset
 	 */
-	private Dataset extractTestingDataset(List<Sequence> sequences, List<String> fileNames, int fromIndex,
-			int toIndex) {
+	private Dataset extractTestingDataset(List<Sequence> sequences, int fromIndex, int toIndex) {
 		List<Sequence> testingSequences = sequences.subList(fromIndex, toIndex);
-		Dataset testingDataset = new Dataset(testingSequences);
-		// Get name of the files from which the testing sequences were extracted
-		testingDataset.setNameFiles(fileNames.subList(fromIndex, toIndex));
-		return testingDataset;
+		return new Dataset(testingSequences);
 	}
 
 	private List<MCTBNC<?, ?>> learnModels(MCTBNC<?, ?> model, Dataset trainingDataset) {
@@ -219,13 +200,14 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 	 * Update the current predictions of a fold with the predictions for a new class
 	 * variable.
 	 * 
-	 * @param predictionsFold       current predictions of the fold
-	 * @param nameCV                name of the class variable whose predictions are
-	 *                              included in the predictions of the fold
-	 * @param predictionsCV         predictions of the class variable
+	 * @param predictionsFold current predictions of the fold
+	 * @param nameCV          name of the class variable whose predictions are
+	 *                        included in the predictions of the fold
+	 * @param predictionsCV   predictions of the class variable
 	 * @return updated predictions for the fold
 	 */
-	private Prediction[] updatePredictionsFold(Prediction[] predictionsFold, String nameCV, Prediction[] predictionsCV) {
+	private Prediction[] updatePredictionsFold(Prediction[] predictionsFold, String nameCV,
+			Prediction[] predictionsCV) {
 		if (predictionsFold == null)
 			// First class is predicted
 			return predictionsCV;

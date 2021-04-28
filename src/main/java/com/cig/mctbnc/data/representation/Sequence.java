@@ -27,6 +27,9 @@ public class Sequence {
 	// directly from sequences
 	private List<String> featureNames;
 
+	// Path to the file from which the sequence was extracted (if it exists)
+	private String filePath;
+
 	/**
 	 * Constructor
 	 * 
@@ -94,6 +97,15 @@ public class Sequence {
 		for (Observation observation : this.observations)
 			observation.removeFeatures(nameFeature);
 		this.featureNames.remove(nameFeature);
+	}
+
+	/**
+	 * Set the path of file from which the sequence was extracted.
+	 * 
+	 * @param filePath
+	 */
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
 	}
 
 	/**
@@ -166,7 +178,7 @@ public class Sequence {
 	 * 
 	 * @param nameVariable name of the variable whose possible states we want to
 	 *                     know
-	 * @return Array with the states of the variable.
+	 * @return Array with the states of the variable
 	 */
 	public String[] getStates(String nameVariable) {
 		// If it is a class variable, there can only be one value per sequence.
@@ -179,6 +191,15 @@ public class Sequence {
 			states.add(observation.getValueVariable(nameVariable));
 		}
 		return states.toArray(new String[states.size()]);
+	}
+
+	/**
+	 * Return the path of file from which the sequence was extracted.
+	 * 
+	 * @return path of file from which the sequence was extracted
+	 */
+	public String getFilePath() {
+		return this.filePath;
 	}
 
 	@Override
@@ -246,5 +267,4 @@ public class Sequence {
 		}
 
 	}
-
 }
