@@ -1,5 +1,7 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,5 +39,15 @@ public abstract class HillClimbing implements StructureLearningAlgorithm {
 	 * @return found adjacency matrix
 	 */
 	public abstract boolean[][] findStructure();
+
+	@Override
+	public String getIdentifier() {
+		return "Hill climbing";
+	}
+
+	@Override
+	public Map<String, String> getParametersAlgorithm() {
+		return hcImplementation.getInfoScoreFunction();
+	}
 
 }

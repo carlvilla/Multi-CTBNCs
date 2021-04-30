@@ -522,4 +522,14 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 		return totalPenalization;
 	}
 
+	@Override
+	public String getIdentifier() {
+		return "Conditional log-likelihood";
+	}
+
+	@Override
+	public String getPenalization() {
+		return penalizationFunction;
+	}
+
 }

@@ -1,5 +1,7 @@
 package com.cig.mctbnc.learning.parameters.ctbn;
 
+import java.util.Map;
+
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.nodes.DiscreteNode;
 
@@ -39,6 +41,16 @@ public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 	@Override
 	public String getNameMethod() {
 		return String.format("Bayesian estimation (Mxy:%s, TxHP:%s)", this.MxyHP, this.TxHP);
+	}
+
+	@Override
+	public String getIdentifier() {
+		return "Bayesian estimation";
+	}
+
+	@Override
+	public Map<String, String> getParametersAlgorithm() {
+		return Map.of("mxy", String.valueOf(this.MxyHP), "tx", String.valueOf(this.TxHP));
 	}
 
 }

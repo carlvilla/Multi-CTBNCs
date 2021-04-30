@@ -1,5 +1,7 @@
 package com.cig.mctbnc.learning.parameters.bn;
 
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,6 +45,16 @@ public class BNBayesianEstimation extends BNParameterLearningAlgorithm {
 	@Override
 	public String getNameMethod() {
 		return String.format("Bayesian estimation (Nx:%s)", this.NxHP);
+	}
+
+	@Override
+	public String getIdentifier() {
+		return "Bayesian estimation";
+	}
+
+	@Override
+	public Map<String, String> getParametersAlgorithm() {
+		return Map.of("nx", String.valueOf(this.NxHP));
 	}
 
 }

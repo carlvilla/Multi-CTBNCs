@@ -63,4 +63,14 @@ public class CTBNBayesianScore implements CTBNScoreFunction {
 		return true;
 	}
 
+	@Override
+	public String getIdentifier() {
+		return "Bayesian Dirichlet equivalent";
+	}
+
+	@Override
+	public String getPenalization() {
+		return "No";
+	}
+
 }

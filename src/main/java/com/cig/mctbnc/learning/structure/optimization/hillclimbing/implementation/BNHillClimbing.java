@@ -1,5 +1,7 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing.implementation;
 
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -137,6 +139,12 @@ public class BNHillClimbing implements HillClimbingImplementation {
 		// Establish the structure defined in an adjacency matrix and return its score
 		bn.setStructureModifiedNodes(adjacencyMatrix);
 		return this.scoreFunction.compute(bn);
+	}
+
+	@Override
+	public Map<String, String> getInfoScoreFunction() {
+		return Map.of("scoreFunction", scoreFunction.getIdentifier(), "penalizationFunction",
+				scoreFunction.getPenalization());
 	}
 
 }

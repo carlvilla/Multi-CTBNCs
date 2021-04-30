@@ -1,5 +1,6 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing.implementation;
 
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.LogManager;
@@ -130,6 +131,12 @@ public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 		tmpCtbn.setStructure(indexNode, adjacencyMatrix);
 		// Obtain local score at the node 'indexNode'
 		return this.scoreFunction.compute(tmpCtbn, indexNode);
+	}
+
+	@Override
+	public Map<String, String> getInfoScoreFunction() {
+		return Map.of("scoreFunction", scoreFunction.getIdentifier(), "penalizationFunction",
+				scoreFunction.getPenalization());
 	}
 
 }

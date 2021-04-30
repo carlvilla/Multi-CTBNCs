@@ -57,7 +57,7 @@ public class MainExperiments {
 
 	// Maximum number of feature parents (if maxK is used)
 	static String maxK = "1";
-	
+
 	// Number of random restarts (if random-restart hill climbing is used)
 	static int numRestarts = 5;
 
@@ -66,7 +66,6 @@ public class MainExperiments {
 	static boolean estimateProbabilities = true;
 	static boolean shuffleSequences = true;
 	// ---------------------------- Experiment settings ----------------------------
-
 	static MetricsWriter metricsWriter;
 	static Logger logger = LogManager.getLogger(MainExperiments.class);
 
@@ -83,19 +82,16 @@ public class MainExperiments {
 		List<String> nameClassVariables = getClassVariables(selectedExperiment);
 		List<String> nameFeatureVariables = getFeatureVariables(selectedExperiment);
 		List<Long> seeds = getSeeds(selectedExperiment);
-
 		// Retrieve models to compare: "MCTBNC", "DAG-maxK MCTBNC", "Empty-digraph
 		// MCTBNC", "Empty-maxK MCTBNC", "MCTNBC", "CTBNCs", "maxK CTBNCs"
 		String model1 = args[1];
 		String model2 = args[2];
 		List<String> models = List.of(model1, model2);
-
 		// Retrieve score function: "Log-likelihood", "Bayesian Dirichlet equivalent",
 		// "Conditional log-likelihood"
 		List<String> scoreFunctions = List.of(args[3]);
 		// Penalization (except for "Bayesian Dirichlet equivalent"): "BIC", "AIC", "No"
 		String penalizationFunction = args[4];
-
 		// Define parameter learning algorithms
 		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, nx);
 		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, mxy,
@@ -161,6 +157,7 @@ public class MainExperiments {
 		// Generate selected model and validation method
 		MCTBNC<CPTNode, CIMNode> model;
 		ValidationMethod validationMethod;
+		// Cross validation may be performed using a binary relevance or a unique model
 		if (selectedModel.equals("CTBNCs")) {
 			model = ClassifierFactory.<CPTNode, CIMNode>getMCTBNC("MCTBNC", bnLearningAlgs, ctbnLearningAlgs,
 					hyperparameters, CPTNode.class, CIMNode.class);

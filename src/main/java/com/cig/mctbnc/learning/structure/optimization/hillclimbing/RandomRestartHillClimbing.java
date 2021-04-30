@@ -1,5 +1,8 @@
 package com.cig.mctbnc.learning.structure.optimization.hillclimbing;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,6 +62,18 @@ public class RandomRestartHillClimbing extends HillClimbing {
 				bestSolution = hcSolution;
 		}
 		return bestSolution.getAdjacencyMatrix();
+	}
+
+	@Override
+	public String getIdentifier() {
+		return "Random-restart hill climbing";
+	}
+
+	@Override
+	public Map<String, String> getParametersAlgorithm() {
+		Map<String, String> parametersAlgorithm = new HashMap<String, String>(hcImplementation.getInfoScoreFunction());
+		parametersAlgorithm.put("numRestarts", String.valueOf(numRestarts));
+		return parametersAlgorithm;
 	}
 
 }

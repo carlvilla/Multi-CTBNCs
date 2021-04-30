@@ -114,4 +114,14 @@ public class CTBNLogLikelihood extends AbstractLikelihood implements CTBNScoreFu
 		return ll;
 	}
 
+	@Override
+	public String getIdentifier() {
+		return "Log-likelihood";
+	}
+	
+	@Override
+	public String getPenalization() {
+		return penalizationFunction;
+	}
+
 }

@@ -22,6 +22,14 @@ import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.data.representation.Sequence;
 import com.cig.mctbnc.data.representation.State;
 import com.cig.mctbnc.exceptions.UnreadDatasetException;
+import com.cig.mctbnc.learning.BNLearningAlgorithms;
+import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
+import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithmFactory;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
+import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithmFactory;
+import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import com.cig.mctbnc.learning.structure.StructureLearningAlgorithmFactory;
 import com.cig.mctbnc.models.MCTBNC;
 import com.cig.mctbnc.util.Util;
 
@@ -158,10 +166,12 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 		// Training datasets for each class variable. Sequences are not duplicated
 		List<Dataset> datasets = new ArrayList<Dataset>();
 		for (int i = 0; i < nameCVs.size(); i++) {
+			// An instance of the parameter and structure learning algorithms for each model
+			BNLearningAlgorithms bnLearningAlgs = getLearningAlgorithmsBN(model);
+			CTBNLearningAlgorithms ctbnLearningAlgs = getLearningAlgorithmsCTBN(model);
 			// Define model for one class variable
-			models.add(ClassifierFactory.getMCTBNC(model.getModelIdentifier(), model.getLearningAlgsBN(),
-					model.getLearningAlgsCTBN(), model.getHyperparameters(), model.getTypeNodeClassVariable(),
-					model.getTypeNodeFeature()));
+			models.add(ClassifierFactory.getMCTBNC(model.getModelIdentifier(), bnLearningAlgs, ctbnLearningAlgs,
+					model.getHyperparameters(), model.getTypeNodeClassVariable(), model.getTypeNodeFeature()));
 			// Define training dataset that ignore all class variables except one
 			Dataset dataset = new Dataset(trainingDataset.getSequences());
 			List<String> nameClassVariables = new ArrayList<String>(nameCVs);
@@ -178,6 +188,48 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 		Instant end = Instant.now();
 		this.logger.info("CTBNCs learnt in {}", Duration.between(start, end));
 		return models;
+	}
+
+	private BNLearningAlgorithms getLearningAlgorithmsBN(MCTBNC<?, ?> model) {
+		// Retrieve learning algorithms
+		BNLearningAlgorithms bnLA = model.getLearningAlgsBN();
+		String nameBnPLA = bnLA.getParameterLearningAlgorithm().getIdentifier();
+		String nameBnSLA = bnLA.getStructureLearningAlgorithm().getIdentifier();
+		// Retrieve parameters of the parameter learning algorithm
+		Map<String, String> parametersBnPLA = bnLA.getParameterLearningAlgorithm().getParametersAlgorithm();
+		double nx = Double.valueOf(parametersBnPLA.getOrDefault("nx", "0"));
+		// Retrieve parameters of the structure learning algorithm
+		Map<String, String> parametersBnSLA = bnLA.getStructureLearningAlgorithm().getParametersAlgorithm();
+		String scoreFunction = parametersBnSLA.get("scoreFunction");
+		String penalizationFunction = parametersBnSLA.get("penalizationFunction");
+		int numRestarts = Integer.valueOf(parametersBnSLA.getOrDefault("numRestarts", "0"));
+		// Create learning algorithms
+		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, nx);
+		StructureLearningAlgorithm bnSLA = StructureLearningAlgorithmFactory.getAlgorithmBN(nameBnSLA, scoreFunction,
+				penalizationFunction, numRestarts);
+		return new BNLearningAlgorithms(bnPLA, bnSLA);
+	}
+
+	private CTBNLearningAlgorithms getLearningAlgorithmsCTBN(MCTBNC<?, ?> model) {
+		// Retrieve learning algorithms
+		CTBNLearningAlgorithms ctbnLA = model.getLearningAlgsCTBN();
+		String nameCtbnPLA = ctbnLA.getParameterLearningAlgorithm().getIdentifier();
+		String nameCtbnSLA = ctbnLA.getStructureLearningAlgorithm().getIdentifier();
+		// Retrieve parameters of the parameter learning algorithm
+		Map<String, String> parametersCtbnPLA = ctbnLA.getParameterLearningAlgorithm().getParametersAlgorithm();
+		double mxy = Double.valueOf(parametersCtbnPLA.getOrDefault("mxy", "0"));
+		double tx = Double.valueOf(parametersCtbnPLA.getOrDefault("tx", "0"));
+		// Retrieve parameters of the structure learning algorithm
+		Map<String, String> parametersCtbnSLA = ctbnLA.getStructureLearningAlgorithm().getParametersAlgorithm();
+		String scoreFunction = parametersCtbnSLA.get("scoreFunction");
+		String penalizationFunction = parametersCtbnSLA.get("penalizationFunction");
+		int numRestarts = Integer.valueOf(parametersCtbnSLA.getOrDefault("numRestarts", "0"));
+		// Create learning algorithms
+		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, mxy,
+				tx);
+		StructureLearningAlgorithm ctbnSLA = StructureLearningAlgorithmFactory.getAlgorithmCTBN(nameCtbnSLA,
+				scoreFunction, penalizationFunction, numRestarts);
+		return new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
 	}
 
 	private Prediction[] predict(List<MCTBNC<?, ?>> models, Dataset testingDataset) {

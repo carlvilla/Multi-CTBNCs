@@ -9,8 +9,8 @@ import com.cig.mctbnc.nodes.CPTNode;
 import com.cig.mctbnc.nodes.Node;
 
 /**
- * Implements the Bayesian Dirichlet equivalence metric for Bayesian networks (Heckerman et
- * al., 1995).
+ * Implements the Bayesian Dirichlet equivalence metric for Bayesian networks
+ * (Heckerman et al., 1995).
  */
 public class BNBayesianScore implements BNScoreFunction {
 
@@ -41,5 +41,15 @@ public class BNBayesianScore implements BNScoreFunction {
 			}
 		}
 		return bdeScore;
+	}
+
+	@Override
+	public String getIdentifier() {
+		return "Bayesian Dirichlet equivalent";
+	}
+
+	@Override
+	public String getPenalization() {
+		return "No";
 	}
 }

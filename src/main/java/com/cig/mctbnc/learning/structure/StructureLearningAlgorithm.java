@@ -1,5 +1,7 @@
 package com.cig.mctbnc.learning.structure;
 
+import java.util.Map;
+
 import com.cig.mctbnc.models.PGM;
 import com.cig.mctbnc.nodes.Node;
 
@@ -18,5 +20,19 @@ public interface StructureLearningAlgorithm {
 	 * @param pgm
 	 */
 	public void learn(PGM<? extends Node> pgm);
+
+	/**
+	 * Return a unique identifier for the structure learning algorithm.
+	 * 
+	 * @return unique identifier for the structure learning algorithm
+	 */
+	public String getIdentifier();
+
+	/**
+	 * Return the parameters that are used by the algorithm.
+	 * 
+	 * @return a {@code Map} with the parameters used by the algorithm
+	 */
+	public Map<String, String> getParametersAlgorithm();
 
 }

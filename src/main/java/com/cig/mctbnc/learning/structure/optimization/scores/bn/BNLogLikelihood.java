@@ -84,4 +84,14 @@ public class BNLogLikelihood extends AbstractLikelihood implements BNScoreFuncti
 			classProbability = Nijk * Math.log(node.getCP(idxStateParents, idxState));
 		return classProbability;
 	}
+
+	@Override
+	public String getIdentifier() {
+		return "Log-likelihood";
+	}
+
+	@Override
+	public String getPenalization() {
+		return penalizationFunction;
+	}
 }

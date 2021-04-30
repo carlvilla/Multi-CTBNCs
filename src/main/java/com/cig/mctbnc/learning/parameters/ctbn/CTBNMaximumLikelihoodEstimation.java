@@ -1,5 +1,6 @@
 package com.cig.mctbnc.learning.parameters.ctbn;
 
+import java.util.Map;
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.nodes.DiscreteNode;
 
@@ -21,6 +22,16 @@ public class CTBNMaximumLikelihoodEstimation extends CTBNParameterLearningAlgori
 	@Override
 	public String getNameMethod() {
 		return "Maximum likelihood estimation";
+	}
+
+	@Override
+	public String getIdentifier() {
+		return getNameMethod();
+	}
+
+	@Override
+	public Map<String, String> getParametersAlgorithm() {
+		return Map.of();
 	}
 
 }

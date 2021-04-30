@@ -1,5 +1,7 @@
 package com.cig.mctbnc.learning.parameters.bn;
 
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,6 +27,16 @@ public class BNMaximumLikelihoodEstimation extends BNParameterLearningAlgorithm 
 	@Override
 	public String getNameMethod() {
 		return "Maximum likelihood estimation";
+	}
+
+	@Override
+	public String getIdentifier() {
+		return getNameMethod();
+	}
+
+	@Override
+	public Map<String, String> getParametersAlgorithm() {
+		return Map.of();
 	}
 
 }

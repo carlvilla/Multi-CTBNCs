@@ -34,5 +34,19 @@ public interface CTBNScoreFunction {
 	 * @return true if the score is decomposable, false otherwise
 	 */
 	public boolean isDecomposable();
+	
+	/**
+	 * Get an identifier for the score function.
+	 * 
+	 * @return identifier for the score function.
+	 */
+	public String getIdentifier();
+	
+	/**
+	 * Get the name of the penalization applied (if any) to the score function.
+	 * 
+	 * @return name of the penalization applied to the score function
+	 */
+	public String getPenalization();
 
 }

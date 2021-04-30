@@ -1,6 +1,7 @@
 package com.cig.mctbnc.learning.parameters;
 
 import java.util.List;
+import java.util.Map;
 
 import com.cig.mctbnc.data.representation.Dataset;
 import com.cig.mctbnc.nodes.Node;
@@ -35,5 +36,19 @@ public interface ParameterLearningAlgorithm {
 	 * @return name of the method to learn the parameters
 	 */
 	public String getNameMethod();
+
+	/**
+	 * Return a unique identifier for the parameter learning algorithm.
+	 * 
+	 * @return unique identifier for the parameter learning algorithm
+	 */
+	public String getIdentifier();
+
+	/**
+	 * Return the parameters that are used by the algorithm.
+	 * 
+	 * @return a {@code Map} with the parameters used by the algorithm
+	 */
+	public Map<String, String> getParametersAlgorithm();
 
 }

@@ -106,3 +106,9 @@ task emptyDigraphMCTBNC(type: JavaExec){
     main 'com.cig.mctbnc.MainExperiments'
     args 'synthetic', 'CTBNCs', 'Empty-digraph MCTBNC', 'Bayesian Dirichlet equivalent', 'No'
 }
+
+task runAllExperiments(type: GradleBuild){
+	group 'MCTBNC Experiments'
+	description 'Runs all the experiments with the synthetic and energy datasets'
+	tasks = ['syntheticLL', 'syntheticBDe', 'syntheticCLL', 'emptyDigraphMCTBNC', 'energyLL']
+}
