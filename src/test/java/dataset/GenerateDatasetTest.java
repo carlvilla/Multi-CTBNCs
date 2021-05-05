@@ -10,9 +10,9 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.data.representation.Sequence;
-import com.cig.mctbnc.exceptions.ErroneousSequenceException;
+import es.upm.fi.cig.mctbnc.data.representation.Dataset;
+import es.upm.fi.cig.mctbnc.data.representation.Sequence;
+import es.upm.fi.cig.mctbnc.exceptions.ErroneousSequenceException;
 
 class GenerateDatasetTest {
 

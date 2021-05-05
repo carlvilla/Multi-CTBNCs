@@ -11,20 +11,20 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNBayesianScore;
-import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNConditionalLogLikelihood;
-import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNLogLikelihood;
-import com.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNScoreFunction;
-import com.cig.mctbnc.models.BN;
-import com.cig.mctbnc.models.CTBN;
-import com.cig.mctbnc.nodes.CIMNode;
-import com.cig.mctbnc.nodes.CPTNode;
-import com.cig.mctbnc.nodes.Node;
-import com.cig.mctbnc.util.Util;
+import es.upm.fi.cig.mctbnc.data.representation.Dataset;
+import es.upm.fi.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
+import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
+import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
+import es.upm.fi.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNBayesianScore;
+import es.upm.fi.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNConditionalLogLikelihood;
+import es.upm.fi.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNLogLikelihood;
+import es.upm.fi.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNScoreFunction;
+import es.upm.fi.cig.mctbnc.models.BN;
+import es.upm.fi.cig.mctbnc.models.CTBN;
+import es.upm.fi.cig.mctbnc.nodes.CIMNode;
+import es.upm.fi.cig.mctbnc.nodes.CPTNode;
+import es.upm.fi.cig.mctbnc.nodes.Node;
+import es.upm.fi.cig.mctbnc.util.Util;
 
 /**
  * Tests over the score functions for CTBNs. Some structures are built and their

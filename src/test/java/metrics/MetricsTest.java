@@ -8,10 +8,10 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.cig.mctbnc.classification.Prediction;
-import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.data.representation.State;
-import com.cig.mctbnc.performance.Metrics;
+import es.upm.fi.cig.mctbnc.classification.Prediction;
+import es.upm.fi.cig.mctbnc.data.representation.Dataset;
+import es.upm.fi.cig.mctbnc.data.representation.State;
+import es.upm.fi.cig.mctbnc.performance.Metrics;
 
 /**
  * Test to evaluate the correct behavior of performance test over

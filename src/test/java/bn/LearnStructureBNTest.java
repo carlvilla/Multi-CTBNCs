@@ -7,16 +7,16 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.BNLearningAlgorithms;
-import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithmFactory;
-import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.StructureLearningAlgorithmFactory;
-import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
-import com.cig.mctbnc.learning.structure.constraints.BN.DAG;
-import com.cig.mctbnc.models.BN;
-import com.cig.mctbnc.nodes.CPTNode;
+import es.upm.fi.cig.mctbnc.data.representation.Dataset;
+import es.upm.fi.cig.mctbnc.learning.BNLearningAlgorithms;
+import es.upm.fi.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
+import es.upm.fi.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithmFactory;
+import es.upm.fi.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import es.upm.fi.cig.mctbnc.learning.structure.StructureLearningAlgorithmFactory;
+import es.upm.fi.cig.mctbnc.learning.structure.constraints.StructureConstraints;
+import es.upm.fi.cig.mctbnc.learning.structure.constraints.BN.DAG;
+import es.upm.fi.cig.mctbnc.models.BN;
+import es.upm.fi.cig.mctbnc.nodes.CPTNode;
 
 class LearnStructureBNTest {
 

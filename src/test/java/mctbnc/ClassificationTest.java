@@ -9,14 +9,14 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.cig.mctbnc.classification.Prediction;
-import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.data.representation.State;
-import com.cig.mctbnc.models.BN;
-import com.cig.mctbnc.models.CTBN;
-import com.cig.mctbnc.models.MCTBNC;
-import com.cig.mctbnc.nodes.CIMNode;
-import com.cig.mctbnc.nodes.CPTNode;
+import es.upm.fi.cig.mctbnc.classification.Prediction;
+import es.upm.fi.cig.mctbnc.data.representation.Dataset;
+import es.upm.fi.cig.mctbnc.data.representation.State;
+import es.upm.fi.cig.mctbnc.models.BN;
+import es.upm.fi.cig.mctbnc.models.CTBN;
+import es.upm.fi.cig.mctbnc.models.MCTBNC;
+import es.upm.fi.cig.mctbnc.nodes.CIMNode;
+import es.upm.fi.cig.mctbnc.nodes.CPTNode;
 
 class ClassificationTest {
 	static MCTBNC<CPTNode, CIMNode> mctbnc;

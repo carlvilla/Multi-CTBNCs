@@ -7,16 +7,16 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithmFactory;
-import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.StructureLearningAlgorithmFactory;
-import com.cig.mctbnc.learning.structure.constraints.StructureConstraints;
-import com.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
-import com.cig.mctbnc.models.CTBN;
-import com.cig.mctbnc.nodes.CIMNode;
+import es.upm.fi.cig.mctbnc.data.representation.Dataset;
+import es.upm.fi.cig.mctbnc.learning.CTBNLearningAlgorithms;
+import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
+import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithmFactory;
+import es.upm.fi.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import es.upm.fi.cig.mctbnc.learning.structure.StructureLearningAlgorithmFactory;
+import es.upm.fi.cig.mctbnc.learning.structure.constraints.StructureConstraints;
+import es.upm.fi.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
+import es.upm.fi.cig.mctbnc.models.CTBN;
+import es.upm.fi.cig.mctbnc.nodes.CIMNode;
 
 class LearnStructureCTBNTest {
 

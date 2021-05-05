@@ -7,14 +7,15 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+
+import es.upm.fi.cig.mctbnc.data.representation.Dataset;
+import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
+import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
+import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
+import es.upm.fi.cig.mctbnc.nodes.CIMNode;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-
-import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
-import com.cig.mctbnc.nodes.CIMNode;
 
 /**
  * Test the estimation of sufficient statistics and parameters of a CTBN.

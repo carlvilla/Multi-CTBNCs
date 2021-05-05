@@ -8,19 +8,19 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.cig.mctbnc.data.representation.Dataset;
-import com.cig.mctbnc.learning.BNLearningAlgorithms;
-import com.cig.mctbnc.learning.CTBNLearningAlgorithms;
-import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithmFactory;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
-import com.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithmFactory;
-import com.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
-import com.cig.mctbnc.learning.structure.StructureLearningAlgorithmFactory;
-import com.cig.mctbnc.models.MCTBNC;
-import com.cig.mctbnc.models.submodels.MCTNBC;
-import com.cig.mctbnc.nodes.CIMNode;
-import com.cig.mctbnc.nodes.CPTNode;
+import es.upm.fi.cig.mctbnc.data.representation.Dataset;
+import es.upm.fi.cig.mctbnc.learning.BNLearningAlgorithms;
+import es.upm.fi.cig.mctbnc.learning.CTBNLearningAlgorithms;
+import es.upm.fi.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithm;
+import es.upm.fi.cig.mctbnc.learning.parameters.bn.BNParameterLearningAlgorithmFactory;
+import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
+import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithmFactory;
+import es.upm.fi.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
+import es.upm.fi.cig.mctbnc.learning.structure.StructureLearningAlgorithmFactory;
+import es.upm.fi.cig.mctbnc.models.MCTBNC;
+import es.upm.fi.cig.mctbnc.models.submodels.MCTNBC;
+import es.upm.fi.cig.mctbnc.nodes.CIMNode;
+import es.upm.fi.cig.mctbnc.nodes.CPTNode;
 
 /**
  * Tests to evaluate the learning of multidimensional continuous time naive
