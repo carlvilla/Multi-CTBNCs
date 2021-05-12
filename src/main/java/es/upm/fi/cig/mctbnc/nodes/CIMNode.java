@@ -15,32 +15,36 @@ import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
  */
 public class CIMNode extends DiscreteNode {
 	// The conditional intensity matrix can be summarized by two types of parameters
-	// (Nodelman et al., 2012): (1) instantaneous probability of the variable
-	// leaving a certain state while its parents take a certain value
+	// (Nodelman et al., 2012):
+	// (1) intensity of the variable leaving a certain state while its parents take
+	// a certain instantiation
 	double[][] Qx;
 	// (2) probability of the variable leaving a certain state for another one while
-	// its parents take a certain value
+	// its parents take a certain instantiation
 	double[][][] Oxy;
 
 	CTBNSufficientStatistics sufficientStatistics;
 
 	/**
-	 * Construct a CIMNode given its name and possible states.
+	 * Constructs a CIMNode given its name and possible states.
 	 * 
-	 * @param name
-	 * @param states
+	 * @param name   name of the node
+	 * @param states list of strings representing the states that the variable
+	 *               related to the node can take
 	 */
 	public CIMNode(String name, List<String> states) {
 		super(name, states);
 	}
 
 	/**
-	 * Initialize a CIMNode given its name, possible states and if it is a class
+	 * Initializes a CIMNode given its name, possible states and if it is a class
 	 * variable.
 	 * 
-	 * @param name
-	 * @param states
-	 * @param isClassVariable
+	 * @param name            name of the node
+	 * @param states          list of strings representing the states that the
+	 *                        variable related to the node can take
+	 * @param isClassVariable true if the node represent a class variable, false
+	 *                        otherwise
 	 */
 	public CIMNode(String name, List<String> states, boolean isClassVariable) {
 		super(name, states, isClassVariable);
@@ -52,10 +56,12 @@ public class CIMNode extends DiscreteNode {
 	}
 
 	/**
-	 * Set the parameters of a node.
+	 * Sets the parameters of a node.
 	 * 
-	 * @param Qx
-	 * @param Oxy
+	 * @param Qx  intensity of the variable leaving a certain state while its
+	 *            parents take a certain instantiation
+	 * @param Oxy probability of the variable leaving a certain state for another
+	 *            one while its parents take a certain instantiation
 	 */
 	public void setParameters(double[][] Qx, double[][][] Oxy) {
 		this.Qx = Qx;
@@ -63,7 +69,7 @@ public class CIMNode extends DiscreteNode {
 	}
 
 	/**
-	 * Sample the time that the node stays in its current state given the state of
+	 * Samples the time that the node stays in its current state given the state of
 	 * its parents.
 	 * 
 	 * @return sampled time
@@ -87,7 +93,7 @@ public class CIMNode extends DiscreteNode {
 	}
 
 	/**
-	 * Sample the next state of the node given the current one and that of its
+	 * Samples the next state of the node given the current one and that of its
 	 * parents. Returns null if not all the parents were instantiated.
 	 * 
 	 * @return sampled state
@@ -119,7 +125,7 @@ public class CIMNode extends DiscreteNode {
 	}
 
 	/**
-	 * Get the sufficient statistics of a CIM node.
+	 * Gets the sufficient statistics of a CIM node.
 	 * 
 	 * @return sufficient statistics.
 	 */
@@ -128,11 +134,11 @@ public class CIMNode extends DiscreteNode {
 	}
 
 	/**
-	 * Return the parameter containing the probabilities of the variable leaving
-	 * every state for a different one.
+	 * Returns the intensity of the variable leaving a certain state given the state
+	 * of its parents
 	 * 
-	 * @param idxStateParents
-	 * @param idxStateNode
+	 * @param idxStateParents index of the state of the node's parents
+	 * @param idxStateNode    leaving state index
 	 * 
 	 * @return parameter Qx
 	 */
@@ -147,18 +153,18 @@ public class CIMNode extends DiscreteNode {
 	}
 
 	/**
-	 * Return the parameter containing the probabilities of the variable leaving a
-	 * state for a certain one
+	 * Returns the probability of the variable leaving a state for a certain one
+	 * given the state of its parents
 	 * 
-	 * @param idxStateParents
-	 * @param idxToStateNode
-	 * @param idxFromStateNode
+	 * @param idxStateParents  index of the state of the node's parents
+	 * @param idxFromStateNode leaving state index
+	 * @param idxToStateNode   incoming state index
 	 * 
 	 * @return parameter Oxy
 	 */
-	public double getOxy(int idxStateParents, int idxToStateNode, int idxFromStateNode) {
+	public double getOxy(int idxStateParents, int idxFromStateNode, int idxToStateNode) {
 		try {
-			return this.Oxy[idxStateParents][idxToStateNode][idxFromStateNode];
+			return this.Oxy[idxStateParents][idxFromStateNode][idxToStateNode];
 		} catch (IndexOutOfBoundsException e) {
 			// One of the index state was never seen during prediction. The model will not
 			// be retrain, so 0 is reported.

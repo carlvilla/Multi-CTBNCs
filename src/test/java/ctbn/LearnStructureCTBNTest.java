@@ -18,15 +18,21 @@ import es.upm.fi.cig.mctbnc.learning.structure.constraints.CTBNC.CTBNC;
 import es.upm.fi.cig.mctbnc.models.CTBN;
 import es.upm.fi.cig.mctbnc.nodes.CIMNode;
 
+/**
+ * Tests the learning of the structure of a CTBN.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 class LearnStructureCTBNTest {
 
-	@Test
 	/**
-	 * Learn a continuous time Bayesian network. The dataset is formed by four
+	 * Learns a continuous time Bayesian network. The dataset is formed by four
 	 * binary features V1, V2, V3 and V4. Each of the features depends on one
 	 * variable in the following way V1->V2->V3->V4->V1. Thus, if V1 changes its
 	 * state, the variable V2 will transition to another state.
 	 */
+	@Test
 	public void learnContinuousTimeBayesianNetwork() {
 		List<String> nameFeatures = List.of("V1", "V2", "V3", "V4");
 		String nameTimeVariable = "Time";

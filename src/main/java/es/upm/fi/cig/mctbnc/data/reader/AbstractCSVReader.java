@@ -38,10 +38,10 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	static Logger logger = LogManager.getLogger(AbstractCSVReader.class);
 
 	/**
-	 * Receives the path to the folder of the dataset and initialize the reader as
+	 * Receives the path to the dataset folder and initialize the reader as
 	 * out-of-date. In that way, the dataset will be loaded when it is requested.
 	 * 
-	 * @param datasetFolder
+	 * @param datasetFolder path to the dataset folder
 	 */
 	public AbstractCSVReader(String datasetFolder) {
 		this.datasetFolder = datasetFolder;
@@ -49,11 +49,11 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	}
 
 	/**
-	 * Extract the names of the variables from a CSV file. It is assumed that the
+	 * Extracts the names of the variables from a CSV file. It is assumed that the
 	 * names are in the first row.
 	 * 
-	 * @param csvFile
-	 * @throws FileNotFoundException
+	 * @param csvFile CSV file
+	 * @throws FileNotFoundException if the CSV file was not found
 	 */
 	public void extractVariableNames(File csvFile) throws FileNotFoundException {
 		if (csvFile.isFile()) {
@@ -75,10 +75,11 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	 * Reads a CSV file.
 	 * 
 	 * @param pathFile         path to the CSV file
-	 * @param excludeVariables
+	 * @param excludeVariables names of variables to ignore when reading the CSV
 	 * @return list with the rows (lists of strings) of the CSV
-	 * @throws VariableNotFoundException
-	 * @throws FileNotFoundException
+	 * @throws VariableNotFoundException if a specified variable was not found in
+	 *                                   the provided files
+	 * @throws FileNotFoundException     if the CSV file was not found
 	 */
 	public List<String[]> readCSV(String pathFile, List<String> excludeVariables)
 			throws VariableNotFoundException, FileNotFoundException {
@@ -130,8 +131,12 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	}
 
 	@Override
-	public void setTimeVariable(String nameTimeVariable) {
+	public void setVariables(String nameTimeVariable, List<String> nameFeatures) {
 		this.nameTimeVariable = nameTimeVariable;
+		// Variables that should be ignored
+		this.excludeVariables = new ArrayList<String>(getNameVariables());
+		this.excludeVariables.remove(nameTimeVariable);
+		this.excludeVariables.removeAll(nameFeatures);
 	}
 
 	@Override

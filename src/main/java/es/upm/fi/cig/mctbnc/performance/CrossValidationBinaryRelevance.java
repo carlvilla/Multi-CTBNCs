@@ -51,13 +51,13 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 	/**
 	 * Constructor for cross-validation method.
 	 * 
-	 * @param datasetReader
+	 * @param datasetReader         a {@code DatasetReader} to read the dataset
 	 * @param folds                 number of folds
-	 * @param estimateProbabilities determines if the probabilities of the class
-	 *                              configurations are estimated
-	 * @param shuffle               determines if the sequences should be shuffled
-	 * @param seed
-	 * @throws UnreadDatasetException
+	 * @param estimateProbabilities true to estimate the probabilities of the class
+	 *                              configurations, false otherwise
+	 * @param shuffle               true to shuffle the sequences, false otherwise
+	 * @param seed                  seed used to shuffle the sequences
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	public CrossValidationBinaryRelevance(DatasetReader datasetReader, int folds, boolean estimateProbabilities,
 			boolean shuffle, long seed) throws UnreadDatasetException {
@@ -80,7 +80,7 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 	}
 
 	/**
-	 * Evaluate the performance of the specified model using cross-validation.
+	 * Evaluates the performance of the specified model using cross-validation.
 	 * 
 	 * @param model model to evaluate
 	 */
@@ -129,7 +129,7 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 	}
 
 	/**
-	 * Given all the sequences of a dataset, create a training dataset that include
+	 * Given all the sequences of a dataset, creates a training dataset that include
 	 * all the sequences but those between some specified indexes.
 	 * 
 	 * @param sequences
@@ -145,7 +145,7 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 	}
 
 	/**
-	 * Given all the sequences of a dataset, create a testing dataset using the
+	 * Given all the sequences of a dataset, creates a testing dataset using the
 	 * sequences between some specified indexes.
 	 * 
 	 * @param sequences
@@ -249,7 +249,7 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 	}
 
 	/**
-	 * Update the current predictions of a fold with the predictions for a new class
+	 * Updates the current predictions of a fold with the predictions for a new class
 	 * variable.
 	 * 
 	 * @param predictionsFold current predictions of the fold

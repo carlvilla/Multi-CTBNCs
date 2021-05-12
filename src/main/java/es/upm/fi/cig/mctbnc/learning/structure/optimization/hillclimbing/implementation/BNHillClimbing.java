@@ -25,7 +25,7 @@ public class BNHillClimbing implements HillClimbingImplementation {
 	/**
 	 * Constructor that receives the score function to optimize.
 	 * 
-	 * @param scoreFunction
+	 * @param scoreFunction score function for Bayesian networks
 	 */
 	public BNHillClimbing(BNScoreFunction scoreFunction) {
 		this.scoreFunction = scoreFunction;
@@ -70,16 +70,18 @@ public class BNHillClimbing implements HillClimbingImplementation {
 	}
 
 	/**
-	 * Find the best neighbor of the adjacency matrix "bestStructure" given an
-	 * operation to perform.
+	 * Finds the best neighbor of the adjacency matrix "bestStructure" given an
+	 * operation to perform (addition, deletion or reversal of arcs).
 	 * 
-	 * @param bestStructure
-	 * @param scores
-	 * @param adjacencyMatrices
-	 * @param cache
-	 * @param operation         Possible operations to perform over the adjacency
-	 *                          matrix. These are addition, deletion or reversal of
-	 *                          arcs.
+	 * @param bn                Bayesian network whose structure is being learned
+	 * @param bestStructure     best structure so far
+	 * @param scores            two-dimensional {@code double} array containing the
+	 *                          structure scores after applying each of the possible
+	 *                          operations over the adjacency matrix
+	 * @param adjacencyMatrices three-dimensional {@code boolean} array containing
+	 *                          the resulting adjacency matrices after applying each
+	 *                          of the possible operations over the original matrix
+	 * @param operation         operation to perform over the adjacency matrix
 	 */
 	private void findBestNeighbor(BN<? extends Node> bn, boolean[][] bestStructure, double[] scores,
 			boolean[][][] adjacencyMatrices, String operation) {
@@ -129,11 +131,11 @@ public class BNHillClimbing implements HillClimbingImplementation {
 	}
 
 	/**
-	 * Compute the score of a structure given an adjacency matrix.
+	 * Computes the score of a structure given an adjacency matrix.
 	 * 
-	 * @param indexNode
-	 * @param adjacencyMatrix
-	 * @return score
+	 * @param bn              Bayesian network whose structure is being learned
+	 * @param adjacencyMatrix adjacency matrix of the structure
+	 * @return score of the structure
 	 */
 	private double computeScore(BN<? extends Node> bn, boolean[][] adjacencyMatrix) {
 		// Establish the structure defined in an adjacency matrix and return its score
@@ -143,8 +145,8 @@ public class BNHillClimbing implements HillClimbingImplementation {
 
 	@Override
 	public Map<String, String> getInfoScoreFunction() {
-		return Map.of("scoreFunction", scoreFunction.getIdentifier(), "penalizationFunction",
-				scoreFunction.getPenalization());
+		return Map.of("scoreFunction", this.scoreFunction.getIdentifier(), "penalizationFunction",
+				this.scoreFunction.getPenalization());
 	}
 
 }

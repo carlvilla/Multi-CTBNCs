@@ -16,13 +16,13 @@ import es.upm.fi.cig.mctbnc.nodes.NodeIndexer;
 public class DAG extends AbstractStructureConstraints {
 
 	/**
-	 * Check if the structure (given by an adjacencyMatrix) is legal for a Bayesian
+	 * Checks if the structure (given by an adjacencyMatrix) is legal for a Bayesian
 	 * network without restrictions. The method determines if there are cycles in an
 	 * adjacency matrix. Modified version of code in
 	 * https://www.geeksforgeeks.org/detect-cycle-in-a-directed-graph-using-bfs/.
 	 * 
 	 * @param adjacencyMatrix adjacency matrix
-	 * @return boolean that determines if the structure is valid
+	 * @return true if the structure is valid, false otherwise
 	 */
 	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix, NodeIndexer<? extends Node> nodeIndexer) {

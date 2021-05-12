@@ -25,11 +25,11 @@ public class TxtClassificationWriter {
 	private static Logger logger = LogManager.getLogger(MCTBNC.class);
 
 	/**
-	 * Write predictions of a dataset in the specified folder.
+	 * Writes predictions of a dataset in the specified folder.
 	 * 
-	 * @param predictions
-	 * @param dataset
-	 * @param pathFolder
+	 * @param predictions {@code Prediction} array
+	 * @param dataset     dataset from which predictions were made
+	 * @param pathFolder  folder where the predictions will be stored
 	 */
 	public static void writePredictions(Prediction[] predictions, Dataset dataset, String pathFolder) {
 		String fileName = new SimpleDateFormat("yyyyMMddHHmm'.txt'").format(new Date());

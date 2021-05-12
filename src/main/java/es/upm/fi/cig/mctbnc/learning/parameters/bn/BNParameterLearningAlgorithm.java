@@ -12,7 +12,7 @@ import es.upm.fi.cig.mctbnc.nodes.DiscreteNode;
 import es.upm.fi.cig.mctbnc.nodes.Node;
 
 /**
- * Define methods for parameter learning algorithms of discrete Bayesian
+ * Defines methods for parameter learning algorithms of discrete Bayesian
  * networks.
  * 
  * @author Carlos Villa Blanco
@@ -34,11 +34,11 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	}
 
 	/**
-	 * Obtain for each variable i, the number of times its parents are in the state
-	 * j and the variable is in the state k.
+	 * Obtains for each node the number of times it takes a certain state while its
+	 * parents take a certain instantiation.
 	 * 
-	 * @param nodes
-	 * @param dataset
+	 * @param nodes   list of nodes
+	 * @param dataset dataset from which the sufficient statistics are extracted
 	 */
 	public void setSufficientStatistics(List<? extends Node> nodes, Dataset dataset) {
 		for (int i = 0; i < nodes.size(); i++) {
@@ -48,10 +48,10 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	}
 
 	/**
-	 * Obtain the sufficient statistics of a CTBN node.
+	 * Obtains the sufficient statistics of a node.
 	 * 
-	 * @param nodes
-	 * @param dataset
+	 * @param node    a {@code DiscreteNode}
+	 * @param dataset dataset from which the sufficient statistics are extracted
 	 */
 	private void setSufficientStatistics(DiscreteNode node, Dataset dataset) {
 		BNSufficientStatistics ssNode = getSufficientStatisticsNode(node, dataset);
@@ -59,10 +59,10 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	}
 
 	/**
-	 * Given a set of nodes whose sufficient statistics where estimated, compute
+	 * Given a set of nodes whose sufficient statistics where estimated, computes
 	 * their conditional probability tables (CPT).
 	 * 
-	 * @param nodes
+	 * @param nodes list of nodes
 	 */
 	public void setCPTs(List<? extends Node> nodes) {
 		// For each node it is created a new type of node that contains the CPTs.
@@ -77,10 +77,10 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	}
 
 	/**
-	 * Given a node whose sufficient statistics where estimated, compute its
+	 * Given a node whose sufficient statistics where estimated, computes its
 	 * conditional probability tables (CPT).
 	 * 
-	 * @param node
+	 * @param node a {@code CPTNode}
 	 */
 	public void setCPTs(CPTNode node) {
 		// Compute the parameters for the current node with its sufficient statistics
@@ -90,10 +90,10 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	}
 
 	/**
-	 * Estimate the parameters for a certain node from its previously computed
+	 * Estimates the parameters for a certain node from its previously computed
 	 * sufficient statistics.
 	 * 
-	 * @param node
+	 * @param node a {@code CPTNode}
 	 * @return array with probabilities of each possible state of a variable given
 	 *         its parents
 	 */

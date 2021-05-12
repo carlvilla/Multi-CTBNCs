@@ -10,11 +10,12 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
 
 /**
  * Implements the Bayesian Dirichlet equivalence metric for Bayesian networks
- * (Heckerman et al., 1995).
+ * with nodes that have CPTs (Heckerman et al., 1995).
  */
 public class BNBayesianScore implements BNScoreFunction {
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public double compute(BN<? extends Node> bn) {
 		// Obtain nodes of the Bayesian networks with the CPTs
 		List<CPTNode> nodes = (List<CPTNode>) bn.getLearnedNodes();

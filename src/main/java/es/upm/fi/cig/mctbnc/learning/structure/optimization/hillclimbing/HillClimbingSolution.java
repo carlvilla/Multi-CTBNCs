@@ -8,40 +8,40 @@ package es.upm.fi.cig.mctbnc.learning.structure.optimization.hillclimbing;
  *
  */
 public class HillClimbingSolution {
-	private boolean[][] adjacencyMatrix; 
+	private boolean[][] adjacencyMatrix;
 	private double score = Double.NEGATIVE_INFINITY;;
 
 	/**
-	 * Set adjacency matrix.
+	 * Sets the adjacency matrix of the structure.
 	 * 
-	 * @param adjacencyMatrix
+	 * @param adjacencyMatrix adjacency matrix of the structure
 	 */
 	public void setAdjacencyMatrix(boolean[][] adjacencyMatrix) {
 		this.adjacencyMatrix = adjacencyMatrix;
 	}
 
 	/**
-	 * Set score.
+	 * Sets the score of the found structure.
 	 * 
-	 * @param score
+	 * @param score score of the found structure
 	 */
 	public void setScore(double score) {
 		this.score = score;
 	}
 
 	/**
-	 * Return the adjacency matrix.
+	 * Returns the adjacency matrix of the structure.
 	 * 
-	 * @return adjacency matrix
+	 * @return adjacency matrix of the structure
 	 */
 	public boolean[][] getAdjacencyMatrix() {
 		return this.adjacencyMatrix;
 	}
 
 	/**
-	 * Return the score.
+	 * Returns the score of the found structure.
 	 * 
-	 * @return score
+	 * @return score of the found structure
 	 */
 	public double getScore() {
 		return this.score;

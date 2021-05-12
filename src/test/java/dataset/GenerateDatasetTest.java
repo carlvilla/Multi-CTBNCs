@@ -14,6 +14,12 @@ import es.upm.fi.cig.mctbnc.data.representation.Dataset;
 import es.upm.fi.cig.mctbnc.data.representation.Sequence;
 import es.upm.fi.cig.mctbnc.exceptions.ErroneousSequenceException;
 
+/**
+ * Tests the definition of {@code Dataset} objects.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 class GenerateDatasetTest {
 
 	private static Dataset dataset;
@@ -61,7 +67,6 @@ class GenerateDatasetTest {
 	/**
 	 * Defines a dataset with different order of variables for each sequence.
 	 */
-
 	@Test
 	public void testStatesVariables() {
 		assertEquals(8, dataset.getPossibleStatesVariable("V1").size());
@@ -103,10 +108,10 @@ class GenerateDatasetTest {
 		assertEquals(2, dataset.getNumDataPoints());
 	}
 
-	@Test
 	/**
-	 * Try to generate erroneous sequences.
+	 * Tries to generate erroneous sequences.
 	 */
+	@Test
 	public void generateDatasetWithErroneousSequences() {
 		List<String> nameVariables = List.of("Time", "V1", "V2", "V3", "V4");
 		List<String> nameClassVariables = List.of("V2", "V3");

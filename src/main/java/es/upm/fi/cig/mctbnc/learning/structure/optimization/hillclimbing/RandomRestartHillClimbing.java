@@ -21,10 +21,10 @@ public class RandomRestartHillClimbing extends HillClimbing {
 	/**
 	 * Constructs a {@code RandomRestartHillClimbing} by receiving the
 	 * implementation of the hill climbing algorithm (for a Bayesian network,
-	 * continuous time Bayesian network...).
+	 * continuous time Bayesian network...) and the number of restarts.
 	 * 
-	 * @param hcImplementation
-	 * @param numRestarts
+	 * @param hcImplementation implementation of the hill climbing algorithm
+	 * @param numRestarts      number of restarts
 	 */
 	public RandomRestartHillClimbing(HillClimbingImplementation hcImplementation, int numRestarts) {
 		this.hcImplementation = hcImplementation;
@@ -71,8 +71,9 @@ public class RandomRestartHillClimbing extends HillClimbing {
 
 	@Override
 	public Map<String, String> getParametersAlgorithm() {
-		Map<String, String> parametersAlgorithm = new HashMap<String, String>(hcImplementation.getInfoScoreFunction());
-		parametersAlgorithm.put("numRestarts", String.valueOf(numRestarts));
+		Map<String, String> parametersAlgorithm = new HashMap<String, String>(
+				this.hcImplementation.getInfoScoreFunction());
+		parametersAlgorithm.put("numRestarts", String.valueOf(this.numRestarts));
 		return parametersAlgorithm;
 	}
 

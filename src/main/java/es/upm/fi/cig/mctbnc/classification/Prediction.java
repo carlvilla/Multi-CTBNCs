@@ -17,28 +17,28 @@ public class Prediction {
 	Map<State, Double> probabilities;
 
 	/**
-	 * Set the predicted classes
+	 * Sets the predicted classes
 	 * 
-	 * @param predictedClasses
+	 * @param predictedClasses {@code State} object with the predicted classes
 	 */
 	public void setPredictedClasses(State predictedClasses) {
 		this.predictedClasses = predictedClasses;
 	}
 
 	/**
-	 * Set the probability of the prediction.
+	 * Sets the probability of the prediction.
 	 * 
-	 * @param probabilityPrediction
+	 * @param probabilityPrediction probability of the prediction
 	 */
 	public void setProbabilityPrediction(double probabilityPrediction) {
 		this.probabilityPrediction = probabilityPrediction;
 	}
 
 	/**
-	 * Set the probability of the specified classes.
+	 * Sets the probability of a class configuration.
 	 * 
-	 * @param classes
-	 * @param probability
+	 * @param classes     a {@code State} object with the class configuration
+	 * @param probability probability for the class configuration
 	 */
 	public void setProbability(State classes, double probability) {
 		if (this.probabilities == null)
@@ -47,25 +47,25 @@ public class Prediction {
 	}
 
 	/**
-	 * Return the prediction.
+	 * Returns the prediction.
 	 * 
-	 * @return prediction
+	 * @return prediction a {@code State} object with the prediction
 	 */
 	public State getPredictedClasses() {
 		return this.predictedClasses;
 	}
 
 	/**
-	 * Return the probability of the prediction.
+	 * Returns the probability of the prediction.
 	 * 
-	 * @return probability
+	 * @return probability probability of the prediction
 	 */
 	public double getProbabilityPrediction() {
 		return this.probabilityPrediction;
 	}
 
 	/**
-	 * Set the probabilities of every possible classes.
+	 * Sets the probabilities of every possible class configuration.
 	 * 
 	 * @param probabilities probabilities of each class configuration
 	 */
@@ -74,9 +74,9 @@ public class Prediction {
 	}
 
 	/**
-	 * Return the probabilities of every possible classes.
+	 * Returns the probabilities of every possible class configuration.
 	 * 
-	 * @return probability
+	 * @return probabilities of each class configuration
 	 */
 	public Map<State, Double> getProbabilities() {
 		return this.probabilities;

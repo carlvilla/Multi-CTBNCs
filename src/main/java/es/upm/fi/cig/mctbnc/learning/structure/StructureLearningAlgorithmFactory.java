@@ -25,14 +25,14 @@ import es.upm.fi.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNScor
 public class StructureLearningAlgorithmFactory {
 
 	/**
-	 * Build the specified structure learning algorithm for Bayesian networks.
+	 * Builds the specified structure learning algorithm for Bayesian networks.
 	 * 
-	 * @param algorithm
-	 * @param scoreFunction
-	 * @param penalizationFunction
+	 * @param algorithm            name of the structure learning algorithm
+	 * @param scoreFunction        name of the score function
+	 * @param penalizationFunction name of the penalization function
 	 * @param numRestarts          number of restarts for the random-restart hill
 	 *                             climbing
-	 * @return structure learning algorithm
+	 * @return structure learning algorithm for Bayesian networks
 	 */
 	public static StructureLearningAlgorithm getAlgorithmBN(String algorithm, String scoreFunction,
 			String penalizationFunction, int numRestarts) {
@@ -49,14 +49,15 @@ public class StructureLearningAlgorithmFactory {
 	}
 
 	/**
-	 * Build the specified structure learning algorithm for continuous time Bayesian
-	 * networks.
+	 * Builds the specified structure learning algorithm for continuous time
+	 * Bayesian networks.
 	 * 
-	 * @param algorithm
-	 * @param scoreFunction
-	 * @param penalizationFunction
-	 * @param numRestarts 
-	 * @return structure learning algorithm
+	 * @param algorithm            name of the structure learning algorithm
+	 * @param scoreFunction        name of the score function
+	 * @param penalizationFunction name of the penalization function
+	 * @param numRestarts          number of restarts for the random-restart hill
+	 *                             climbing
+	 * @return structure learning algorithm for continuous time Bayesian networks
 	 */
 	public static StructureLearningAlgorithm getAlgorithmCTBN(String algorithm, String scoreFunction,
 			String penalizationFunction, int numRestarts) {
@@ -76,7 +77,7 @@ public class StructureLearningAlgorithmFactory {
 	}
 
 	/**
-	 * Return the name of available optimization methods.
+	 * Returns the name of available optimization methods.
 	 * 
 	 * @return optimization methods
 	 */
@@ -84,6 +85,14 @@ public class StructureLearningAlgorithmFactory {
 		return List.of("Hill climbing", "Random-restart hill climbing");
 	}
 
+	/**
+	 * Returns a {@code BNScoreFunction} for the specified score function for
+	 * Bayesian networks.
+	 * 
+	 * @param scoreFunction        name of the score function
+	 * @param penalizationFunction name of the penalization function
+	 * @return a {@code BNScoreFunction}
+	 */
 	private static BNScoreFunction getScoreFunctionBN(String scoreFunction, String penalizationFunction) {
 		switch (scoreFunction) {
 		case ("Bayesian Dirichlet equivalent"):
@@ -93,6 +102,14 @@ public class StructureLearningAlgorithmFactory {
 		}
 	}
 
+	/**
+	 * Returns a {@code CTBNScoreFunction} for the specified score function for
+	 * continuous time Bayesian networks.
+	 * 
+	 * @param scoreFunction        name of the score function
+	 * @param penalizationFunction name of the penalization function
+	 * @return a {@code CTBNScoreFunction}
+	 */
 	private static CTBNScoreFunction getScoreFunctionCTBN(String scoreFunction, String penalizationFunction) {
 		switch (scoreFunction) {
 		case ("Conditional log-likelihood"):

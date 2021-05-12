@@ -20,8 +20,9 @@ public class CPTNode extends DiscreteNode {
 	/**
 	 * Constructor that receives the name of the variable and its possible states.
 	 * 
-	 * @param name
-	 * @param states
+	 * @param name   name of the node
+	 * @param states list of strings representing the states that the variable
+	 *               related to the node can take
 	 */
 	public CPTNode(String name, List<String> states) {
 		super(name, states);
@@ -31,9 +32,11 @@ public class CPTNode extends DiscreteNode {
 	 * Constructor that receives the name of the variable, a list of strings with
 	 * its possible states and if it is a class variable.
 	 * 
-	 * @param name
-	 * @param states
-	 * @param isClassVariable
+	 * @param name            name of the node
+	 * @param states          list of strings representing the states that the
+	 *                        variable related to the node can take
+	 * @param isClassVariable true if the node represent a class variable, false
+	 *                        otherwise
 	 * 
 	 */
 	public CPTNode(String name, List<String> states, boolean isClassVariable) {
@@ -41,9 +44,9 @@ public class CPTNode extends DiscreteNode {
 	}
 
 	/**
-	 * Establish the sufficient statistics of a CPT node.
+	 * Establishes the sufficient statistics of a CPT node.
 	 * 
-	 * @param sufficientStatistics
+	 * @param sufficientStatistics sufficient statistics of a CPT node
 	 */
 	@Override
 	public void setSufficientStatistics(SufficientStatistics sufficientStatistics) {
@@ -52,16 +55,16 @@ public class CPTNode extends DiscreteNode {
 	}
 
 	/**
-	 * Establish the CPT of the node.
+	 * Establishes the CPT of the node.
 	 * 
-	 * @param CPT
+	 * @param CPT CPT of the node
 	 */
 	public void setCPT(double[][] CPT) {
 		this.CPT = CPT;
 	}
 
 	/**
-	 * Return the conditional probability of a state of the node given the state of
+	 * Returns the conditional probability of a state of the node given the state of
 	 * the parents.
 	 * 
 	 * @param idxStateParents index of the parents state
@@ -80,7 +83,7 @@ public class CPTNode extends DiscreteNode {
 	}
 
 	/**
-	 * Return sufficient statistics of the node.
+	 * Returns sufficient statistics of the node.
 	 * 
 	 * @return sufficient statistics
 	 */
@@ -89,7 +92,7 @@ public class CPTNode extends DiscreteNode {
 	}
 
 	/**
-	 * Sample the state of the node given an evidence using forward sampling. First
+	 * Samples the state of the node given an evidence using forward sampling. First
 	 * it is sampled from a uniform distribution, then it is iterated over the state
 	 * of the nodes and accumulated the probability of each of them. Once this
 	 * accumulated probability is more than the sampled value from the uniform

@@ -9,7 +9,7 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
 import es.upm.fi.cig.mctbnc.nodes.NodeIndexer;
 
 /**
- * Define the structure of a continuous time Naive Bayes classifier. As it is
+ * Defines the structure of a continuous time Naive Bayes classifier. As it is
  * used for the construction of MCTBNC, it is allowed the existance of more than
  * one class variable.
  * 

@@ -17,15 +17,15 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
 public interface HillClimbingImplementation {
 
 	/**
-	 * Find a structure for a given model.
+	 * Finds a structure for a given PGM.
 	 * 
-	 * @param pgm
+	 * @param pgm a probabilistic graphical model
 	 * @return solution given by the hill climbing algorithm
 	 */
 	public HillClimbingSolution findStructure(PGM<? extends Node> pgm);
 
 	/**
-	 * Return a {@code Map} with the name of the score function that is optimized
+	 * Returns a {@code Map} with the name of the score function that is optimized
 	 * and the name of the penalization function that is applied (if any).
 	 * 
 	 * @return a {@code Map} with the name of the score function that is optimized

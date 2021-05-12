@@ -28,7 +28,7 @@ public class CTBNHillClimbing implements HillClimbingImplementation {
 	/**
 	 * Constructor that receives the score function to optimize.
 	 * 
-	 * @param scoreFunction
+	 * @param scoreFunction score function for continuous time Bayesian networks
 	 */
 	public CTBNHillClimbing(CTBNScoreFunction scoreFunction) {
 		this.scoreFunction = scoreFunction;
@@ -72,7 +72,7 @@ public class CTBNHillClimbing implements HillClimbingImplementation {
 	}
 
 	/**
-	 * Find the best neighbor of the adjacency matrix "bestStructure" given an
+	 * Finds the best neighbor of the adjacency matrix "bestStructure" given an
 	 * operation to perform.
 	 * 
 	 * @param bestStructure
@@ -135,7 +135,7 @@ public class CTBNHillClimbing implements HillClimbingImplementation {
 	}
 
 	/**
-	 * Check if an arc between two nodes can be added. Arcs from any node to a class
+	 * Checks if an arc between two nodes can be added. Arcs from any node to a class
 	 * variable cannot be added, removed or reversed, and self-loops are also
 	 * avoided.
 	 * 
@@ -149,7 +149,7 @@ public class CTBNHillClimbing implements HillClimbingImplementation {
 	}
 
 	/**
-	 * Compute the score of a structure given an adjacency matrix.
+	 * Computes the score of a structure given an adjacency matrix.
 	 * 
 	 * @param adjacencyMatrix
 	 * @param modifiedNodes
@@ -163,8 +163,8 @@ public class CTBNHillClimbing implements HillClimbingImplementation {
 
 	@Override
 	public Map<String, String> getInfoScoreFunction() {
-		return Map.of("scoreFunction", scoreFunction.getIdentifier(), "penalizationFunction",
-				scoreFunction.getPenalization());
+		return Map.of("scoreFunction", this.scoreFunction.getIdentifier(), "penalizationFunction",
+				this.scoreFunction.getPenalization());
 	}
 
 }

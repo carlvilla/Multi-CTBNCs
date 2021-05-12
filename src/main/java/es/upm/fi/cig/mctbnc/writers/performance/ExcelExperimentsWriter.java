@@ -31,7 +31,7 @@ import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgori
  *
  */
 public class ExcelExperimentsWriter extends MetricsWriter {
-	String path = "results/";
+	String path = "results/experiments";
 	XSSFWorkbook workbook;
 	XSSFSheet sheet;
 	FileOutputStream out = null;
@@ -47,17 +47,19 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 			"Micro-averaged F1 score", "Global Brier score");
 
 	/**
-	 * Initialize the writer.
+	 * Initializes the writer.
 	 * 
-	 * @param scoreFunctions
-	 * @param nameDatasets
-	 * @param nameModels
-	 * @param nameFeatureVariables
-	 * @param nameClassVariables
-	 * @param bnPLA
-	 * @param ctbnPLA
-	 * @param penalizationFunction
-	 * @param initialStructure
+	 * @param scoreFunctions       list of score functions
+	 * @param nameDatasets         list of dataset names
+	 * @param nameModels           list of model names
+	 * @param nameFeatureVariables names of feature variables
+	 * @param nameClassVariables   names of class variables
+	 * @param bnPLA                parameter learning algorithm for a Bayesian
+	 *                             network
+	 * @param ctbnPLA              parameter learning algorithm for a continuous
+	 *                             time Bayesian network
+	 * @param penalizationFunction name of the penalization function
+	 * @param initialStructure     name for the initial structure
 	 * @param seeds                seeds that are used to shuffle the datasets. It
 	 *                             is assumed that each dataset will be evaluated
 	 *                             with each of those seeds
@@ -89,7 +91,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 		// Conditions experiments
 		writeConditionsExperiment(bnPLA, ctbnPLA, nameFeatureVariables, penalizationFunction, initialStructure);
 		for (int i = 0; i < scoreFunctions.size(); i++) {
-			// Get initial row in the excel for score
+			// Get initial row in the excel file for the current score function
 			int initialRow = getInitialRowScore(i);
 			// Score function
 			setScoreFunction(initialRow, scoreFunctions.get(i));
@@ -172,10 +174,11 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	}
 
 	/**
-	 * Write in the excel the score function that is being used.
+	 * Writes in the excel the score function that is being used.
 	 * 
-	 * @param initialRow
-	 * @param scoreFunction
+	 * @param initialRow    initial row in the excel file for the current score
+	 *                      function
+	 * @param scoreFunction name of the score function
 	 */
 	private void setScoreFunction(int initialRow, String scoreFunction) {
 		this.sheet.addMergedRegion(new CellRangeAddress(initialRow, initialRow, 0, 4));
@@ -188,14 +191,16 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	}
 
 	/**
-	 * Write information about the conditions in which the experiments were
+	 * Writes information about the conditions in which the experiments were
 	 * performed.
 	 * 
-	 * @param bnPLA
-	 * @param ctbnPLA
-	 * @param nameFeatureVariables
-	 * @param penalizationFunction
-	 * @param initialStructure
+	 * @param bnPLA                parameter learning algorithm for a Bayesian
+	 *                             network
+	 * @param ctbnPLA              parameter learning algorithm for a continuous
+	 *                             time Bayesian network
+	 * @param nameFeatureVariables names of feature variables
+	 * @param penalizationFunction name of the penalization function
+	 * @param initialStructure     name for the initial structure
 	 */
 	private void writeConditionsExperiment(BNParameterLearningAlgorithm bnPLA, CTBNParameterLearningAlgorithm ctbnPLA,
 			List<String> nameFeatureVariables, String penalizationFunction, String initialStructure) {
@@ -217,8 +222,8 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	}
 
 	/**
-	 * Generate a table where it is shown the results of each model for each dataset
-	 * and evaluation metric.
+	 * Generates a table where it is shown the results of each model for each
+	 * dataset and evaluation metric.
 	 * 
 	 * @param seeds
 	 */
@@ -259,7 +264,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	}
 
 	/**
-	 * Generate a table where it is compare the results of each model.
+	 * Generates a table where it is compare the results of each model.
 	 */
 	private void generateTableComparionMetrics(int initialRow, List<String> nameModels) {
 		int initialRowTable = initialRow + this.metrics.size() + 6;
@@ -283,8 +288,8 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	}
 
 	/**
-	 * Generate a table where it is compare the results of each model for each class
-	 * variable.
+	 * Generates a table where it is compare the results of each model for each
+	 * class variable.
 	 */
 	private void generateTableComparionPerClassVariable(int initialRow, List<String> nameModels,
 			List<String> nameClassVariables) {
@@ -321,11 +326,12 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	}
 
 	/**
-	 * Set formulas in certain cells.
+	 * Sets formulas in certain cells.
 	 * 
-	 * @param initialRow
-	 * @param nameModels
-	 * @param nameClassVariables
+	 * @param initialRow         initial row in the excel file for the current score
+	 *                           function
+	 * @param nameModels         list of model names
+	 * @param nameClassVariables names of class variables
 	 */
 	private void setFormulas(int initialRow, List<String> nameModels, List<String> nameClassVariables) {
 		// Evaluation metrics
@@ -382,9 +388,10 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	}
 
 	/**
-	 * Define the conditional formating used for some cells.
+	 * Defines the conditional formating used for some cells.
 	 * 
-	 * @param initialRow
+	 * @param initialRow initial row in the excel file for the current score
+	 *                   function
 	 */
 	private void setConditionalFormating(int initialRow) {
 		XSSFSheetConditionalFormatting condFormat = this.sheet.getSheetConditionalFormatting();
@@ -411,7 +418,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	/**
 	 * Converts numeric index of a column to its corresponding letter.
 	 * 
-	 * @param index
+	 * @param index numeric index
 	 * @return column letter
 	 */
 	private String columnName(int index) {
@@ -419,9 +426,9 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	}
 
 	/**
-	 * Get the initial row in the excel for the score whose index is given.
+	 * Gets the initial row in the excel for the score whose index is given.
 	 * 
-	 * @param i
+	 * @param i score index
 	 * @return initial row for given score
 	 */
 	private int getInitialRowScore(int i) {

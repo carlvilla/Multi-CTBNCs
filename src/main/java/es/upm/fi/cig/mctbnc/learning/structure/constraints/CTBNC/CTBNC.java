@@ -8,7 +8,7 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
 import es.upm.fi.cig.mctbnc.nodes.NodeIndexer;
 
 /**
- * Specify the structure restrictions of a CTBNC. As it is used for the learning
+ * Specifies the structure restrictions of a CTBNC. As it is used for the learning
  * of MCTBNCs, it is assumed the possible existence of more than one class
  * variable.
  * 

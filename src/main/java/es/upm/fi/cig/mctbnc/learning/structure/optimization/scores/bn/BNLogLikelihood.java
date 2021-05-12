@@ -9,7 +9,8 @@ import es.upm.fi.cig.mctbnc.nodes.CPTNode;
 import es.upm.fi.cig.mctbnc.nodes.Node;
 
 /**
- * Implements the log-likelihood score for Bayesian networks.
+ * Implements the log-likelihood score for Bayesian networks with nodes that
+ * have CPTs.
  * 
  * @author Carlos Villa Blanco
  *
@@ -17,24 +18,24 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
 public class BNLogLikelihood extends AbstractLikelihood implements BNScoreFunction {
 
 	/**
-	 * Receives the name of the penalization function used for the structure
-	 * complexity.
+	 * Receives the name of the penalization function for the structure complexity.
 	 * 
-	 * @param penalizationFunction
+	 * @param penalizationFunction name of the penalization functio
 	 */
 	public BNLogLikelihood(String penalizationFunction) {
 		super(penalizationFunction);
 	}
 
 	/**
-	 * Compute the (penalized) log-likelihood score for a discrete Bayesian network.
-	 * This is done by computing the marginal log-likelihood of the graph. It is
-	 * assumed a uniform prior structure.
+	 * Computes the (penalized) log-likelihood score for a discrete Bayesian
+	 * network. This is done by computing the marginal log-likelihood of the graph.
+	 * It is assumed a uniform prior structure.
 	 * 
-	 * @param bn Bayesian network
+	 * @param bn a Bayesian network
 	 * @return penalized log-likelihood score
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public double compute(BN<? extends Node> bn) {
 		// Obtain nodes of the Bayesian networks with the CPTs
 		List<CPTNode> nodes = (List<CPTNode>) bn.getLearnedNodes();
@@ -65,8 +66,18 @@ public class BNLogLikelihood extends AbstractLikelihood implements BNScoreFuncti
 		return llScore;
 	}
 
+	@Override
+	public String getIdentifier() {
+		return "Log-likelihood";
+	}
+
+	@Override
+	public String getPenalization() {
+		return this.penalizationFunction;
+	}
+
 	/**
-	 * Estimate the probability of a class variable taking a provided state given
+	 * Estimates the probability of a class variable taking a provided state given
 	 * the state of its parents.
 	 * 
 	 * @param node            class variable node
@@ -83,15 +94,5 @@ public class BNLogLikelihood extends AbstractLikelihood implements BNScoreFuncti
 		if (Nijk != 0)
 			classProbability = Nijk * Math.log(node.getCP(idxStateParents, idxState));
 		return classProbability;
-	}
-
-	@Override
-	public String getIdentifier() {
-		return "Log-likelihood";
-	}
-
-	@Override
-	public String getPenalization() {
-		return penalizationFunction;
 	}
 }

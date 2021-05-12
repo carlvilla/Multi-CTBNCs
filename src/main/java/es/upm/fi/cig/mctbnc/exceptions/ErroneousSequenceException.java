@@ -13,7 +13,7 @@ public class ErroneousSequenceException extends Exception {
 	 * Constructs a {@code ErroneousSequenceException} with the specified detail
 	 * message.
 	 * 
-	 * @param msg
+	 * @param msg detail message
 	 */
 	public ErroneousSequenceException(String msg) {
 		super("Sequence not added - " + msg);

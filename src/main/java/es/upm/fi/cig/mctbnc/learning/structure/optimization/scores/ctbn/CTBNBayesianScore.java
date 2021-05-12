@@ -8,8 +8,8 @@ import es.upm.fi.cig.mctbnc.nodes.CIMNode;
 import es.upm.fi.cig.mctbnc.nodes.Node;
 
 /**
- * Implements the Bayesian Dirichlet equivalence metric for CTBNs (Nodelman et
- * al., 2003).
+ * Implements the Bayesian Dirichlet equivalence metric for CTBNs with nodes
+ * that have CIMs (Nodelman et al., 2003).
  */
 public class CTBNBayesianScore implements CTBNScoreFunction {
 

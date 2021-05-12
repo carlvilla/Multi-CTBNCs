@@ -11,17 +11,17 @@ import es.upm.fi.cig.mctbnc.nodes.DiscreteNode;
 import es.upm.fi.cig.mctbnc.util.Util;
 
 /**
- * Compute and store the sufficient statistics of a discrete CTBN node. The
+ * Computes and stores the sufficient statistics of a discrete CTBN node. The
  * sufficient statistics are:
  * 
  * (1) Mxy: number of times a variable transitions from a certain state to
- * another one while its parents take a certain value.
+ * another one while its parents take a certain instantiation.
  * 
  * (2) Mx: number of times a variable leaves a certain state (for any other
- * state) while its parents take a certain value.
+ * state) while its parents take a certain instantiation.
  * 
- * (3) T: time that a variable stays in a certain state while its parents take a
- * certain value.
+ * (3) Tx: time that a variable stays in a certain state while its parents take
+ * a certain instantiation.
  * 
  * @author Carlos Villa Blanco
  *
@@ -32,25 +32,28 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	private double[][] Mx;
 	private double[][] Tx;
 	// Hyperparameters of the Dirichlet prior distribution (zero if MLE is used)
-	private double MxyHP;
-	private double MxHP; // defined with MxyHP and the number of states of the variable
-	private double TxHP;
+	private double mxyHP;
+	private double mxHP; // defined with MxyHP and the number of states of the variable
+	private double txHP;
 	static Logger logger = LogManager.getLogger(CTBNSufficientStatistics.class);
 
 	/**
 	 * Receives the hyperparameters of the Dirichlet prior distribution over the
 	 * parameters that are necessary for Bayesian estimation.
 	 * 
-	 * @param MxyHP
-	 * @param TxHP
+	 * @param mxyHP number of times a variable transitions from a certain state to
+	 *              another one while its parents take a certain instantiation
+	 *              (hyperparameter)
+	 * @param txHP  time that a variable stays in a certain state while its parents
+	 *              take a certain instantiation (hyperparameter)
 	 */
-	public CTBNSufficientStatistics(double MxyHP, double TxHP) {
-		this.MxyHP = MxyHP;
-		this.TxHP = TxHP;
+	public CTBNSufficientStatistics(double mxyHP, double txHP) {
+		this.mxyHP = mxyHP;
+		this.txHP = txHP;
 	}
 
 	/**
-	 * Compute the sufficient statistics of a CTBN node.
+	 * Computes the sufficient statistics of a CTBN node.
 	 * 
 	 * @param dataset dataset from which sufficient statistics are extracted
 	 */
@@ -92,7 +95,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Return the sufficient statistic with the number of times the variable leaves
+	 * Returns the sufficient statistic with the number of times the variable leaves
 	 * every state (i.e., the state changes) while its parents have certain values.
 	 * 
 	 * @return number of times the variable leaves every state
@@ -104,7 +107,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Return the sufficient statistic with the number of times the variable
+	 * Returns the sufficient statistic with the number of times the variable
 	 * transition from a certain state to another while its parents have certain
 	 * values
 	 * 
@@ -117,8 +120,8 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Return the sufficient statistic with the time that the variable stay in every
-	 * state while its parents take different values.
+	 * Returns the sufficient statistic with the time that the variable stay in
+	 * every state while its parents take different values.
 	 * 
 	 * @return time that the variable stay for every state
 	 */
@@ -129,7 +132,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Return the value of the hyperparameter with the number of 'imaginary'
+	 * Returns the value of the hyperparameter with the number of 'imaginary'
 	 * transitions that occurred from a certain state to another before seen the
 	 * data.
 	 * 
@@ -137,50 +140,50 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 *         occurred from a certain state to another
 	 */
 	public double getMxyHyperparameter() {
-		return this.MxyHP;
+		return this.mxyHP;
 	}
 
 	/**
-	 * Return the value of the hyperparameter with the number of 'imaginary'
+	 * Returns the value of the hyperparameter with the number of 'imaginary'
 	 * transitions that occurred from a certain state before seen the data.
 	 * 
 	 * @return hyperparameter with the number of 'imaginary' transitions that
 	 *         occurred from a certain state
 	 */
 	public double getMxHyperparameter() {
-		return this.MxHP;
+		return this.mxHP;
 	}
 
 	/**
-	 * Return the value of the hyperparameter with the 'imaginary' time that was
+	 * Returns the value of the hyperparameter with the 'imaginary' time that was
 	 * spent in a certain state before seen the data.
 	 * 
 	 * @return hyperparameter with the 'imaginary' time that was spent in a certain
 	 *         state
 	 */
 	public double getTxHyperparameter() {
-		return this.TxHP;
+		return this.txHP;
 	}
 
 	/**
-	 * Initialize the structures to store the sufficient statistics of the node.
+	 * Initializes the structures to store the sufficient statistics of the node.
 	 * 
 	 * @param dataset dataset used to compute the sufficient statistics
 	 */
 	private void initializeSufficientStatistics(DiscreteNode node, Dataset dataset) {
 		// Hyperparameter MxPrior (number of transitions originating from certain state)
-		this.MxHP = this.MxyHP * (node.getNumStates() - 1);
+		this.mxHP = this.mxyHP * (node.getNumStates() - 1);
 		this.Mxy = new double[node.getNumStatesParents()][node.getNumStates()][node.getNumStates()];
 		this.Mx = new double[node.getNumStatesParents()][node.getNumStates()];
 		this.Tx = new double[node.getNumStatesParents()][node.getNumStates()];
 		// Adds the imaginary counts (hyperparameters) to the sufficient statistics
-		Util.fill3dArray(this.Mxy, this.MxyHP);
-		Util.fill2dArray(this.Mx, this.MxyHP * (node.getNumStates() - 1));
-		Util.fill2dArray(this.Tx, this.TxHP);
+		Util.fill3dArray(this.Mxy, this.mxyHP);
+		Util.fill2dArray(this.Mx, this.mxyHP * (node.getNumStates() - 1));
+		Util.fill2dArray(this.Tx, this.txHP);
 	}
 
 	/**
-	 * Update the number of occurrences where the node transitions from "fromState"
+	 * Updates the number of occurrences where the node transitions from "fromState"
 	 * (with the parents taking a certain value) to "toState".
 	 * 
 	 * @param fromState      current state
@@ -192,7 +195,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Update the number of occurrences where the node transitions from "fromState"
+	 * Updates the number of occurrences where the node transitions from "fromState"
 	 * (with the parents taking a certain value) to any other state.
 	 * 
 	 * @param fromState      current state
@@ -205,7 +208,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Update the time the node spends in state "state" while its parents are in
+	 * Updates the time the node spends in state "state" while its parents are in
 	 * certain state (information also included in "state").
 	 * 
 	 * @param state current state of the node and its parents

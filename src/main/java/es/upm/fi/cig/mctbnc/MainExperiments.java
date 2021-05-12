@@ -70,9 +70,9 @@ public class MainExperiments {
 	static Logger logger = LogManager.getLogger(MainExperiments.class);
 
 	/**
-	 * Class use to perform experiments.
+	 * Application entry point.
 	 * 
-	 * @param args
+	 * @param args command-line arguments
 	 */
 	public static void main(String[] args) {
 		// Retrieve experiment to perform

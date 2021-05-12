@@ -27,11 +27,12 @@ public final class Util {
 	}
 
 	/**
-	 * Return the elements of a list "a" except those in "b".
+	 * Returns the elements of a list "a" except those in "b".
 	 * 
-	 * @param a list
-	 * @param b list of elements to filter from "a"
-	 * @return list of "a" without elements "b"
+	 * @param <T> type of the elements
+	 * @param a   list
+	 * @param b   list of elements to filter from "a"
+	 * @return list of "a" without elements in "b"
 	 */
 	public static <T> List<T> filter(List<T> a, List<T> b) {
 		List<T> listA = new ArrayList<T>(a);
@@ -40,11 +41,12 @@ public final class Util {
 	}
 
 	/**
-	 * Return the elements of a list "a" except "b".
+	 * Returns the elements of a list "a" except "b".
 	 * 
-	 * @param a list
-	 * @param b element to filter from "a"
-	 * @return list of "a" without "b"
+	 * @param <T> type of the elements
+	 * @param a   list
+	 * @param b   element to filter from the list
+	 * @return list "a" without element "b"
 	 */
 	public static <T> List<T> filter(List<T> a, T b) {
 		List<T> listA = new ArrayList<T>(a);
@@ -53,9 +55,9 @@ public final class Util {
 	}
 
 	/**
-	 * Return the unique values of an array with Strings.
+	 * Returns the unique values of an {@code String} array.
 	 * 
-	 * @param array
+	 * @param array array of {@code String}
 	 * @return array with unique values
 	 */
 	public static String[] getUnique(String[] array) {
@@ -63,10 +65,10 @@ public final class Util {
 	}
 
 	/**
-	 * Return the index of a String in an array.
+	 * Returns the index of a {@code String} in an array.
 	 * 
-	 * @param array
-	 * @param element
+	 * @param array   array of Strings
+	 * @param element element whose index in the array is searched
 	 * @return index
 	 */
 	public static int getIndexElement(String[] array, String element) {
@@ -78,9 +80,9 @@ public final class Util {
 	}
 
 	/**
-	 * Return the index of the largest value in an array.
+	 * Returns the index of the largest value in an array.
 	 * 
-	 * @param array
+	 * @param array array of {@code double}
 	 * @return index of the largest value
 	 */
 	public static int getIndexLargestValue(double[] array) {
@@ -98,7 +100,7 @@ public final class Util {
 	/**
 	 * Returns the maximum value between those passed as parameters
 	 * 
-	 * @param values
+	 * @param values list of {@code double}
 	 * @return maximum value
 	 */
 	public static double getMaxValue(double... values) {
@@ -110,7 +112,7 @@ public final class Util {
 	}
 
 	/**
-	 * Create a deep copy of a 2D boolean array.
+	 * Creates a deep copy of a two-dimensional boolean array.
 	 * 
 	 * @param array array to copy
 	 * @return copy of the array
@@ -123,9 +125,11 @@ public final class Util {
 	}
 
 	/**
-	 * Return entry with the largest value of a map.
+	 * Returns entry with the largest value of a {@code Map}.
 	 * 
-	 * @param map
+	 * @param <k> key type of the {@code Map}
+	 * @param <v> value type of the {@code Map}
+	 * @param map a {@code Map}
 	 * @return entry of the largest value
 	 */
 	public static <k, v extends Comparable<v>> Entry<k, v> getEntryLargestValue(Map<k, v> map) {
@@ -135,22 +139,22 @@ public final class Util {
 	}
 
 	/**
-	 * Transform a list into an array of Strings.
+	 * Transforms a list into an {@code String} array.
 	 * 
-	 * @param list
-	 * @return array
+	 * @param list list
+	 * @return {@code String} array
 	 */
 	public static String[] listToArray(List<?> list) {
 		return list.stream().toArray(String[]::new);
 	}
 
 	/**
-	 * Objects in a list are shuffled. The seed is computed using the current system
-	 * time if the provided one is null.
+	 * Shuffles the elements of a list. The seed is computed using the current
+	 * system time if the provided one is null.
 	 * 
 	 * @param <T>  type of the elements to shuffle
-	 * @param list
-	 * @param seed
+	 * @param list list to shuffle
+	 * @param seed seed used to shuffle the sequences
 	 */
 	public static <T> void shuffle(List<T> list, Long seed) {
 		Random rd = new Random();
@@ -163,9 +167,9 @@ public final class Util {
 	 * Kronecker delta function. It returns 1 if 'a' and 'b' are equal and 0
 	 * otherwise.
 	 * 
-	 * @param a
-	 * @param b
-	 * @return 1 if 'a' and 'b' are equal and 0 otherwise
+	 * @param a a {@code String}
+	 * @param b a {@code String}
+	 * @return 1 if 'a' and 'b' are equal, 0 otherwise
 	 */
 	public static int kroneckerDelta(String[] a, String[] b) {
 		return Arrays.equals(a, b) ? 1 : 0;
@@ -209,7 +213,7 @@ public final class Util {
 	}
 
 	/**
-	 * Build a cache of a certain size with the specified key and value types.
+	 * Builds a cache of a certain size with the specified key and value types.
 	 * 
 	 * @param maxSize maximum size of the cache
 	 * @param <Key>   key type
@@ -222,10 +226,10 @@ public final class Util {
 	}
 
 	/**
-	 * Sum all the values in the specified row of an array.
+	 * Sums all the values in the specified row of an array.
 	 * 
-	 * @param array
-	 * @param row
+	 * @param array {@code double} array
+	 * @param row   row of the array
 	 * @return sum of all the values in the specified row of the array
 	 */
 	public static double sumRow(double[][] array, int row) {
@@ -236,10 +240,10 @@ public final class Util {
 	}
 
 	/**
-	 * Fill a double 2d array with the provided double.
+	 * Fills a two-dimensional {@code double} array with the provided {@code double}.
 	 * 
-	 * @param array
-	 * @param value
+	 * @param array a two-dimensional {@code double} array
+	 * @param value {@code double} used to fill the array
 	 */
 	public static void fill2dArray(double[][] array, double value) {
 		for (double[] row : array)
@@ -247,10 +251,11 @@ public final class Util {
 	}
 
 	/**
-	 * Fill a double 3d array with the provided double.
+	 * Fills a three-dimensional {@code double} array with the provided
+	 * {@code double}.
 	 * 
-	 * @param array
-	 * @param value
+	 * @param array a three-dimensional {@code double} array
+	 * @param value {@code double} used to fill the array
 	 */
 	public static void fill3dArray(double[][][] array, double value) {
 		for (double[][] matrix : array)
@@ -258,10 +263,11 @@ public final class Util {
 	}
 
 	/**
-	 * Set the state of a given node and its parents from a State object.
+	 * Sets the state of a given node and its parents from a {@code State} object.
 	 * 
-	 * @param node
-	 * @param statesNodes
+	 * @param node        node whose state is changed
+	 * @param statesNodes {@code State} object with state of the node and its
+	 *                    parents
 	 */
 	public static void setStateNodeAndParents(DiscreteNode node, State statesNodes) {
 		// Set state node

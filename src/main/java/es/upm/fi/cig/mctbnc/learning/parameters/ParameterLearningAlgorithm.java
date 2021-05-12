@@ -15,37 +15,37 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
 public interface ParameterLearningAlgorithm {
 
 	/**
-	 * Learn the parameters of a certain PGM.
+	 * Learns the parameters of a certain PGM.
 	 * 
-	 * @param nodes
-	 * @param dataset
+	 * @param nodes   nodes of the PGM
+	 * @param dataset dataset used to learn the parameters
 	 */
 	public void learn(List<? extends Node> nodes, Dataset dataset);
 
 	/**
-	 * Learn the parameters of a certain node of a PGM.
+	 * Learns the parameters of a certain node of a PGM.
 	 * 
-	 * @param node
-	 * @param dataset
+	 * @param node    node of the PGM
+	 * @param dataset dataset used to learn the parameters
 	 */
 	public void learn(Node node, Dataset dataset);
 
 	/**
-	 * Get the name of the method to learn the parameters.
+	 * Gets the name of the method to learn the parameters.
 	 * 
 	 * @return name of the method to learn the parameters
 	 */
 	public String getNameMethod();
 
 	/**
-	 * Return a unique identifier for the parameter learning algorithm.
+	 * Returns a unique identifier for the parameter learning algorithm.
 	 * 
 	 * @return unique identifier for the parameter learning algorithm
 	 */
 	public String getIdentifier();
 
 	/**
-	 * Return the parameters that are used by the algorithm.
+	 * Returns the parameters that are used by the algorithm.
 	 * 
 	 * @return a {@code Map} with the parameters used by the algorithm
 	 */

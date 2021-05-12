@@ -14,8 +14,7 @@ import es.upm.fi.cig.mctbnc.data.representation.State;
 import es.upm.fi.cig.mctbnc.performance.Metrics;
 
 /**
- * Test to evaluate the correct behavior of performance test over
- * multi-dimensional time series.
+ * Tests the evaluation metrics.
  * 
  * @author Carlos Villa Blanco
  *
@@ -28,7 +27,7 @@ public class MetricsTest {
 	static Prediction[] predictionsWithTwoCorrectClasses;
 
 	/**
-	 * Define some predictions and actual values that will be used to evaluate the
+	 * Defines some predictions and actual values that will be used to evaluate the
 	 * metrics. There are three classes, two binaries and one ternary.
 	 */
 	@BeforeAll
@@ -387,7 +386,7 @@ public class MetricsTest {
 	}
 
 	/**
-	 * Test the global accuracy metric.
+	 * Tests the global accuracy metric.
 	 */
 	@Test
 	public void testGlobalAccuracy() {
@@ -403,7 +402,7 @@ public class MetricsTest {
 	}
 
 	/**
-	 * Test the mean accuracy metric.
+	 * Tests the mean accuracy metric.
 	 */
 	@Test
 	public void testMeanAccuracy() {
@@ -419,7 +418,7 @@ public class MetricsTest {
 	}
 
 	/**
-	 * Test the global brier score.
+	 * Tests the global brier score.
 	 */
 	@Test
 	public void testGlobalBrierScore() {
@@ -435,7 +434,7 @@ public class MetricsTest {
 	}
 
 	/**
-	 * Test the macro-average precision. The class 'a' will be considered as the
+	 * Tests the macro-average precision. The class 'a' will be considered as the
 	 * positive class for "C1" and "C3", since they only have two classes and it is
 	 * the first class to appear.
 	 */
@@ -453,7 +452,7 @@ public class MetricsTest {
 	}
 
 	/**
-	 * Test the macro-average recall. The class 'a' will be considered as the
+	 * Tests the macro-average recall. The class 'a' will be considered as the
 	 * positive class for "C1" and "C3", since they only have two classes and it is
 	 * the first class to appear.
 	 */
@@ -471,7 +470,7 @@ public class MetricsTest {
 	}
 
 	/**
-	 * Test the macro-average F1 score. The class 'a' will be considered as the
+	 * Tests the macro-average F1 score. The class 'a' will be considered as the
 	 * positive class for "C1" and "C3", since they only have two classes and it is
 	 * the first class to appear.
 	 */
@@ -489,7 +488,7 @@ public class MetricsTest {
 	}
 
 	/**
-	 * Test the micro-average precision. The class 'a' will be considered as the
+	 * Tests the micro-average precision. The class 'a' will be considered as the
 	 * positive class for "C1" and "C3", since they only have two classes and it is
 	 * the first class to appear.
 	 */
@@ -507,7 +506,7 @@ public class MetricsTest {
 	}
 
 	/**
-	 * Test the micro-average recall. The class 'a' will be considered as the
+	 * Tests the micro-average recall. The class 'a' will be considered as the
 	 * positive class for "C1" and "C3", since they only have two classes and it is
 	 * the first class to appear.
 	 */
@@ -525,7 +524,7 @@ public class MetricsTest {
 	}
 
 	/**
-	 * Test the micro-average F1 score. The class 'a' will be considered as the
+	 * Tests the micro-average F1 score. The class 'a' will be considered as the
 	 * positive class for "C1" and "C3", since they only have two classes and it is
 	 * the first class to appear.
 	 */

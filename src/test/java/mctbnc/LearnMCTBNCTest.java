@@ -36,7 +36,6 @@ class LearnMCTBNCTest {
 	static CTBNLearningAlgorithms ctbnLearningAlgs;
 
 	/**
-	 * 
 	 * This method creates a dataset that will be used to generate MCTBNCs. The
 	 * dataset is formed by five discrete variables, three features (F1, F2 and F3)
 	 * and two class variables (C1 and C2). The states and relationships of the
@@ -193,8 +192,8 @@ class LearnMCTBNCTest {
 	}
 
 	/**
-	 * Learn a multidimensional continuous time Bayesian network using hill climbing
-	 * and log-likelihood as score.
+	 * Learns a multidimensional continuous time Bayesian network using hill
+	 * climbing and log-likelihood as score.
 	 */
 	@Test
 	public void learnModelLogLikelihood() {
@@ -229,8 +228,8 @@ class LearnMCTBNCTest {
 	}
 
 	/**
-	 * Learn a multidimensional continuous time Bayesian network using hill climbing
-	 * and conditional log-likelihood as score.
+	 * Learns a multidimensional continuous time Bayesian network using hill
+	 * climbing and conditional log-likelihood as score.
 	 */
 	@Test
 	public void learnModelConditionalLogLikelihood() {

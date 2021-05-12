@@ -13,46 +13,47 @@ import es.upm.fi.cig.mctbnc.learning.structure.constraints.StructureConstraints;
 import es.upm.fi.cig.mctbnc.nodes.Node;
 
 /**
+ * Implements a Bayesian network (BN).
  * 
  * @author Carlos Villa Blanco
  *
- * @param <NodeType> Type of nodes that will be learned, e.g., nodes with
- *                   conditional probability table (CPTNode)
+ * @param <NodeType> type of the nodes of the BN, e.g., nodes with conditional
+ *                   probability table (CPTNode)
  */
 public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	/**
-	 * Initialize a Bayesian network by receiving a list of nodes.
+	 * Initializes a Bayesian network by receiving a list of nodes.
 	 * 
-	 * @param nodes
+	 * @param nodes list of nodes
 	 */
 	public BN(List<NodeType> nodes) {
 		super(nodes);
 	}
 
 	/**
-	 * Initialize a Bayesian network by receiving a list of nodes and a dataset.
+	 * Initializes a Bayesian network by receiving a list of nodes and a dataset.
 	 * This constructor was thought to be used by the MCTBNC.
 	 * 
-	 * @param nodes
-	 * @param dataset
+	 * @param nodes   list of nodes
+	 * @param dataset dataset used to learn the Bayesian network
 	 */
 	public BN(List<NodeType> nodes, Dataset dataset) {
-		super(nodes);
-		this.dataset = dataset;
+		super(nodes, dataset);
 	}
 
 	/**
-	 * Initialize a Bayesian network by receiving a dataset, a list of variables to
+	 * Initializes a Bayesian network by receiving a dataset, a list of variables to
 	 * use and the algorithms for parameter and structure learning. This constructor
 	 * was thought to be used by the MCTBNC.
 	 * 
-	 * @param trainingDataset
-	 * @param nameVariables
-	 * @param bnLearningAlgs
-	 * @param structureConstraints
-	 * @param nodeClass
+	 * @param dataset              dataset used to learn the Bayesian network
+	 * @param nameVariables        name of the variables
+	 * @param bnLearningAlgs       parameter and structure learning algorithms
+	 * @param structureConstraints structure constrains to take into account during
+	 *                             the learning of the Bayesian network
+	 * @param nodeClass            type of the BN nodes
 	 */
-	public BN(Dataset trainingDataset, List<String> nameVariables, BNLearningAlgorithms bnLearningAlgs,
+	public BN(Dataset dataset, List<String> nameVariables, BNLearningAlgorithms bnLearningAlgs,
 			StructureConstraints structureConstraints, Class<NodeType> nodeClass) {
 		// Set variables to use
 		this.nameVariables = nameVariables;
@@ -63,11 +64,11 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		setStructureLearningAlgorithm(bnLearningAlgs.getStructureLearningAlgorithm());
 		setStructureConstraints(structureConstraints);
 		// Set the training dataset
-		setTrainingDataset(trainingDataset);
+		initializeModel(dataset);
 	}
 
 	/**
-	 * Return the nodes with the learned parameters. This can be, for example, a
+	 * Returns the nodes with the learned parameters. This can be, for example, a
 	 * list of CPTNode objects that store conditional probability tables.
 	 * 
 	 * @return nodes with learned parameters
@@ -77,7 +78,7 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 	}
 
 	/**
-	 * Obtain the topological ordering of the nodes with the Kahn's algorithm.
+	 * Obtains the topological ordering of the nodes with the Kahn's algorithm.
 	 * 
 	 * @return sorted nodes
 	 */

@@ -9,7 +9,7 @@ import es.upm.fi.cig.mctbnc.nodes.CIMNode;
 import es.upm.fi.cig.mctbnc.nodes.Node;
 
 /**
- * Implements the log-likelihood score for continuous time Bayesian networks.
+ * Implements the log-likelihood score for CTBNs with nodes that have CIMs.
  * 
  * @author Carlos Villa Blanco
  *
@@ -17,10 +17,9 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
 public class CTBNLogLikelihood extends AbstractLikelihood implements CTBNScoreFunction {
 
 	/**
-	 * Receives the name of the penalization function used for the structure
-	 * complexity.
+	 * Receives the name of the penalization function for the structure complexity.
 	 * 
-	 * @param penalizationFunction
+	 * @param penalizationFunction name of the penalization function
 	 */
 	public CTBNLogLikelihood(String penalizationFunction) {
 		super(penalizationFunction);
@@ -35,7 +34,7 @@ public class CTBNLogLikelihood extends AbstractLikelihood implements CTBNScoreFu
 	}
 
 	/**
-	 * Compute the (penalized) log-likelihood score at a given node of a discrete
+	 * Computes the (penalized) log-likelihood score at a given node of a discrete
 	 * continuous time Bayesian network.
 	 * 
 	 * @param ctbn      continuous time Bayesian network
@@ -63,7 +62,7 @@ public class CTBNLogLikelihood extends AbstractLikelihood implements CTBNScoreFu
 			int sampleSize = ctbn.getDataset().getNumDataPoints();
 			// Non-negative penalization
 			double penalization = penalizationFunction.applyAsDouble(sampleSize);
-			ll -= (double) networkComplexity * penalization;
+			ll -= networkComplexity * penalization;
 		}
 		return ll;
 	}
@@ -73,10 +72,20 @@ public class CTBNLogLikelihood extends AbstractLikelihood implements CTBNScoreFu
 		return true;
 	}
 
+	@Override
+	public String getIdentifier() {
+		return "Log-likelihood";
+	}
+
+	@Override
+	public String getPenalization() {
+		return this.penalizationFunction;
+	}
+
 	/**
-	 * Compute the log-likelihood for a certain CIM node.
+	 * Computes the log-likelihood for a certain {@code CIMNode}.
 	 * 
-	 * @param node
+	 * @param node a {@code CIMNode}
 	 * @return log likelihood
 	 */
 	private double logLikelihoodScore(CIMNode node) {
@@ -113,15 +122,4 @@ public class CTBNLogLikelihood extends AbstractLikelihood implements CTBNScoreFu
 		}
 		return ll;
 	}
-
-	@Override
-	public String getIdentifier() {
-		return "Log-likelihood";
-	}
-	
-	@Override
-	public String getPenalization() {
-		return penalizationFunction;
-	}
-
 }

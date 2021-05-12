@@ -58,7 +58,7 @@ public class Controller {
 	private Stage stage;
 
 	// Dataset readers
-	DatasetReader datasetReader;
+	DatasetReader dRTraining;
 	DatasetReader dRClassification;
 
 	// Selected model
@@ -177,7 +177,7 @@ public class Controller {
 	Logger logger = LogManager.getLogger(Controller.class);
 
 	/**
-	 * Initialize the controller.
+	 * Initializes the controller.
 	 */
 	@FXML
 	public void initialize() {
@@ -189,16 +189,16 @@ public class Controller {
 	}
 
 	/**
-	 * Define bindings between controls. For example, the evaluation button should
+	 * Defines bindings between controls. For example, the evaluation button should
 	 * be disabled if no dataset was selected.
 	 */
 	private void defineBindings() {
-		this.btnEvaluate.disableProperty().bind(this.fldPath.textProperty().isEqualTo(""));
-		this.btnClassify.disableProperty().bind(this.fldPathDatasetClassification.textProperty().isEqualTo(""));
+		this.btnEvaluate.disableProperty().bind(this.fldPath.textProperty().isEmpty());
+		this.btnClassify.disableProperty().bind(this.fldPathDatasetClassification.textProperty().isEmpty());
 	}
 
 	/**
-	 * Evaluate the selected model.
+	 * Evaluates the selected model.
 	 */
 	public void evaluate() {
 		// Get selected variables
@@ -206,7 +206,7 @@ public class Controller {
 		List<String> nameClassVariables = this.ckcmbClassVariables.getCheckModel().getCheckedItems();
 		List<String> nameSelectedFeatures = this.ckcmbFeatures.getCheckModel().getCheckedItems();
 		// Set the variables that will be used
-		this.datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
+		this.dRTraining.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
 		// Define model
 		MCTBNC<CPTNode, CIMNode> model = defineModel();
 		try {
@@ -228,7 +228,7 @@ public class Controller {
 	}
 
 	/**
-	 * Train the selected model.
+	 * Trains the selected model.
 	 */
 	public void trainModel() {
 		// Get selected variables
@@ -236,11 +236,11 @@ public class Controller {
 		List<String> nameClassVariables = this.ckcmbClassVariables.getCheckModel().getCheckedItems();
 		List<String> nameSelectedFeatures = this.ckcmbFeatures.getCheckModel().getCheckedItems();
 		// Set the variables that will be used
-		this.datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
+		this.dRTraining.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
 		// Define model
 		this.model = defineModel();
 		// Create service to train model in another thread
-		Service<Void> service = new TrainingService(this.model, this.datasetReader);
+		Service<Void> service = new TrainingService(this.model, this.dRTraining);
 		service.start();
 		// The status label will be updated with the progress of the service
 		this.status.textProperty().bind(service.messageProperty());
@@ -251,17 +251,21 @@ public class Controller {
 	}
 
 	/**
-	 * Perform classification over a provided dataset with a previously trained
+	 * Performs classification over a provided dataset with a previously trained
 	 * model.
 	 */
 	public void classify() {
 		if (this.model != null) {
-			// Get selected variables. These will be the same as those used for the training
-			String nameTimeVariable = this.datasetReader.getNameTimeVariable();
-			List<String> nameClassVariables = this.datasetReader.getNameClassVariables();
-			List<String> nameSelectedFeatures = this.datasetReader.getNameFeatures();
-			// Set the variables that will be used
-			this.dRClassification.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
+			// Retrieve time and feature variables that are necessary for the classification
+			String nameTimeVariable = this.dRTraining.getNameTimeVariable();
+
+			// List<String> nameClassVariables = this.dRTraining.getNameClassVariables();
+
+			List<String> nameSelectedFeatures = this.dRTraining.getNameFeatures();
+
+			// Set the variables.
+			this.dRClassification.setVariables(nameTimeVariable, nameSelectedFeatures);
+
 			// Check if probabilities of predicted class configurations should be estimated
 			boolean estimateProbabilities = this.chkProbabilitiesClassification.isSelected();
 			// Create service to train model in another thread
@@ -276,20 +280,20 @@ public class Controller {
 	}
 
 	/**
-	 * Establish the stage used by the application to show dialogs.
+	 * Establishes the stage used by the application to show dialogs.
 	 * 
-	 * @param stage
+	 * @param stage a {@code Stage}
 	 */
 	public void setStage(Stage stage) {
 		this.stage = stage;
 	}
 
 	/**
-	 * Open a dialog to select the folder where the dataset for training and
+	 * Opens a dialog to select the folder where the dataset for training and
 	 * evaluation is located.
 	 * 
-	 * @throws FileNotFoundException
-	 * @throws UnreadDatasetException
+	 * @throws FileNotFoundException  if the provided files were not found
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	public void setFolderDataset() throws FileNotFoundException, UnreadDatasetException {
 		// Open window to select the folder with the dataset
@@ -307,11 +311,11 @@ public class Controller {
 	}
 
 	/**
-	 * Open a dialog to select the folder where the dataset on which classification
+	 * Opens a dialog to select the folder where the dataset on which classification
 	 * is performed is located.
 	 * 
-	 * @throws FileNotFoundException
-	 * @throws UnreadDatasetException
+	 * @throws FileNotFoundException  if the provided files were not found
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	public void setFolderDatasetClassification() throws FileNotFoundException, UnreadDatasetException {
 		// Open window to select the folder with the dataset
@@ -327,7 +331,7 @@ public class Controller {
 	}
 
 	/**
-	 * Initialize the controllers of the model pane.
+	 * Initializes the controllers of the model pane.
 	 */
 	private void initializeDatasetPane() {
 		// Initialize options of comboBoxes
@@ -338,7 +342,7 @@ public class Controller {
 		this.cmbStrategy.getSelectionModel().selectFirst();
 		ControllerUtil.showNode(this.hbStrategy, false);
 		// Initialize text fields with default values
-		this.fldSizeSequences.setText("30");
+		this.fldSizeSequences.setText("100");
 		ControllerUtil.showNode(this.hbSizeSequences, false);
 		// Add listeners to checkcomboboxes
 		this.ckcmbClassVariables.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
@@ -358,7 +362,7 @@ public class Controller {
 	}
 
 	/**
-	 * Initialize the controllers of the model pane.
+	 * Initializes the controllers of the model pane.
 	 */
 	private void initializeModelPane() {
 		// Initialize options of comboBoxes
@@ -394,7 +398,7 @@ public class Controller {
 	}
 
 	/**
-	 * Initialize the controllers of the evaluation pane.
+	 * Initializes the controllers of the evaluation pane.
 	 */
 	private void initializeEvaluationPane() {
 		// Hold-out validation by default
@@ -410,6 +414,9 @@ public class Controller {
 		this.chkProbabilities.setSelected(true);
 	}
 
+	/**
+	 * Initializes the controllers of the classification pane.
+	 */
 	private void initializeClassificationPane() {
 		// Initialize options of comboBoxes
 		this.cmbDataFormatClassification.getItems().addAll(this.datasetReaders);
@@ -419,48 +426,48 @@ public class Controller {
 		this.cmbStrategyClassification.getSelectionModel().selectFirst();
 		ControllerUtil.showNode(this.hbStrategyClassification, false);
 		// Initialize text fields with default values
-		this.fldSizeSequences.setText("30");
+		this.fldSizeSequencesClassification.setText("100");
 		ControllerUtil.showNode(this.hbSizeSequencesClassification, false);
 		// Text fields are restricted to certain values
 		ControllerUtil.onlyPositiveInteger(this.fldSizeSequencesClassification);
 	}
 
 	/**
-	 * Initialize the dataset reader given the path of the dataset folder.
+	 * Initializes the dataset reader given the path of the dataset folder.
 	 * 
-	 * @param pathFolder
-	 * @throws FileNotFoundException
-	 * @throws UnreadDatasetException
+	 * @param pathFolder path of the dataset folder
+	 * @throws FileNotFoundException  if the provided files were not found
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	private void initializeDatasetReader(String pathFolder) throws FileNotFoundException, UnreadDatasetException {
 		String nameDatasetReader = this.cmbDataFormat.getValue();
 		int sizeSequence = Integer.valueOf(this.fldSizeSequences.getText());
-		this.datasetReader = DatasetReaderFactory.getDatasetReader(nameDatasetReader, pathFolder, sizeSequence);
+		this.dRTraining = DatasetReaderFactory.getDatasetReader(nameDatasetReader, pathFolder, sizeSequence);
 	}
 
 	/**
-	 * Initialize the dataset reader given the path of the dataset folder.
+	 * Initializes the dataset reader given the path of the dataset folder.
 	 * 
-	 * @param pathFolder
-	 * @throws FileNotFoundException
-	 * @throws UnreadDatasetException
+	 * @param pathFolder path of the dataset folder
+	 * @throws FileNotFoundException  if the provided files were not found
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	private void initializeDatasetReaderClassification(String pathFolder)
 			throws FileNotFoundException, UnreadDatasetException {
 		String nameDatasetReader = this.cmbDataFormatClassification.getValue();
-		int sizeSequence = Integer.valueOf(this.fldSizeSequences.getText());
+		int sizeSequence = Integer.valueOf(this.fldSizeSequencesClassification.getText());
 		this.dRClassification = DatasetReaderFactory.getDatasetReader(nameDatasetReader, pathFolder, sizeSequence);
 	}
 
 	/**
-	 * Obtain the variables of the selected dataset to added to the comboBoxes.
+	 * Obtains the variables of the selected dataset to added to the comboBoxes.
 	 * 
 	 * @param pathFolder
-	 * @throws FileNotFoundException
+	 * @throws FileNotFoundException if the provided files were not found
 	 */
 	private void readVariablesDataset(String pathFolder) throws FileNotFoundException {
 		// Names of the variables are retrieved
-		List<String> nameVariables = this.datasetReader.getNameVariables();
+		List<String> nameVariables = this.dRTraining.getNameVariables();
 		// If another dataset was used before, comboBoxes are reseted
 		resetCheckComboBoxes();
 		// Variables' names are added to the comboBoxes
@@ -510,8 +517,8 @@ public class Controller {
 		String nameCtbnPLA = this.cmbParameterCTBN.getValue();
 		String nameCtbnSLA = this.cmbStructure.getValue();
 		// Get hyperparameters
-		double mxy = Double.valueOf(this.fldMxy.getText());
-		double tx = Double.valueOf(this.fldTx.getText());
+		double mxyHP = Double.valueOf(this.fldMxy.getText());
+		double txHP = Double.valueOf(this.fldTx.getText());
 		// Get score function
 		String scoreFunction = this.cmbScoreFunction.getValue();
 		// Define penalization function (if any)
@@ -520,8 +527,8 @@ public class Controller {
 		int restarts = Integer.valueOf(this.fldRestarts.getText());
 		// Define learning algorithms for the feature and class subgraph (Continuous
 		// time Bayesian network)
-		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, mxy,
-				tx);
+		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, mxyHP,
+				txHP);
 		StructureLearningAlgorithm ctbnSLA = StructureLearningAlgorithmFactory.getAlgorithmCTBN(nameCtbnSLA,
 				scoreFunction, penalizationFunction, restarts);
 		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
@@ -529,11 +536,10 @@ public class Controller {
 	}
 
 	/**
-	 * Define the validation method.
+	 * Defines the validation method.
 	 * 
-	 * @param selectedValidationMethod
 	 * @return validation method
-	 * @throws UnreadDatasetException
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	private ValidationMethod defineValidationMethod() throws UnreadDatasetException {
 		// Get selected validation method
@@ -548,12 +554,12 @@ public class Controller {
 		int folds = Integer.valueOf(this.fldNumFolds.getText());
 		// Retrieve algorithm of the validation method
 		ValidationMethod validationMethod = ValidationMethodFactory.getValidationMethod(selectedValidationMethod,
-				this.datasetReader, trainingSize, folds, estimateProbabilities, shuffleSequences, null);
+				this.dRTraining, trainingSize, folds, estimateProbabilities, shuffleSequences, null);
 		return validationMethod;
 	}
 
 	/**
-	 * Reset the comboBoxes.
+	 * Resets the comboBoxes.
 	 */
 	private void resetCheckComboBoxes() {
 		this.ckcmbFeatures.getCheckModel().clearChecks();
@@ -566,21 +572,39 @@ public class Controller {
 	// ---------- onAction methods ----------
 
 	/**
-	 * The information of the dataset to load was modified, so the DatasetReader is
-	 * warned. This is useful to avoid the reloading of the same dataset.
+	 * The information of the dataset for training/evaluation was modified, so its
+	 * {@code DatasetReader} is warned. This is useful to avoid the reloading of the
+	 * same dataset.
 	 */
 	public void datasetModified() {
-		if (this.datasetReader != null)
-			this.datasetReader.setDatasetAsOutdated(true);
+		if (this.dRTraining != null)
+			this.dRTraining.setDatasetAsOutdated(true);
 	}
 
 	/**
-	 * A dataset reader was selected in the comboBox. Show its correspondent
-	 * options.
+	 * The information of the dataset used for classification was modified, so its
+	 * {@code DatasetReader} is warned. This is useful to avoid the reloading of the
+	 * same dataset.
 	 */
-	public void changeDatasetReader() {
+	public void datasetClassificationModified() {
+		if (this.dRClassification != null)
+			this.dRClassification.setDatasetAsOutdated(true);
+	}
+
+	/**
+	 * A dataset reader was selected in the comboBox. Shows its correspondent
+	 * options.
+	 * 
+	 * @throws UnreadDatasetException if the provided dataset could not be read
+	 * @throws FileNotFoundException  if the provided files were not found
+	 */
+	public void changeDatasetReader() throws FileNotFoundException, UnreadDatasetException {
 		// Define dataset as modified
-		datasetModified();
+		// datasetModified();
+
+		if (this.dRTraining != null)
+			initializeDatasetReader(this.fldPath.getText());
+
 		// Show or hide options
 		if (this.cmbDataFormat.getValue().equals("Single CSV")) {
 			ControllerUtil.showNode(this.hbStrategy, true);
@@ -595,9 +619,18 @@ public class Controller {
 
 	/**
 	 * A dataset reader for the classification dataset was selected in the comboBox.
-	 * Show its correspondent options.
+	 * Shows its correspondent options.
+	 * 
+	 * @throws UnreadDatasetException if the provided dataset could not be read
+	 * @throws FileNotFoundException  if the provided files were not found
 	 */
-	public void changeDatasetReaderClassification() {
+	public void changeDatasetReaderClassification() throws FileNotFoundException, UnreadDatasetException {
+		// Define dataset as modified
+		// datasetClassificationModified();
+
+		if (this.dRClassification != null)
+			initializeDatasetReaderClassification(this.fldPathDatasetClassification.getText());
+
 		// Show or hide options
 		if (this.cmbDataFormatClassification.getValue().equals("Single CSV")) {
 			ControllerUtil.showNode(this.hbStrategyClassification, true);
@@ -611,7 +644,7 @@ public class Controller {
 	}
 
 	/**
-	 * An strategy for the extraction of sequences was selected. Show its
+	 * An strategy for the extraction of sequences was selected. Shows its
 	 * correspondent options.
 	 */
 	public void changeDatasetReaderStrategy() {
@@ -625,10 +658,12 @@ public class Controller {
 	}
 
 	/**
-	 * An strategy for the extraction of sequences to classify was selected. Show
+	 * An strategy for the extraction of sequences to classify was selected. Shows
 	 * its correspondent options.
 	 */
 	public void changeDatasetReaderClassificationStrategy() {
+		// Define dataset as modified
+		datasetClassificationModified();
 		// Show or hide options
 		if (this.cmbStrategyClassification.getValue().equals("Fixed size"))
 			this.fldSizeSequencesClassification.setDisable(false);
@@ -637,7 +672,8 @@ public class Controller {
 	}
 
 	/**
-	 * A model was selected in the comboBox. Show its correspondent hyperparameters.
+	 * A model was selected in the comboBox. Shows its correspondent
+	 * hyperparameters.
 	 */
 	public void changeModel() {
 		String model = this.cmbModel.getValue();
@@ -661,8 +697,8 @@ public class Controller {
 	}
 
 	/**
-	 * A parameter learning algorithm for BNs was selected in the comboBox. Show its
-	 * correspondent parameters.
+	 * A parameter learning algorithm for BNs was selected in the comboBox. Shows
+	 * its correspondent parameters.
 	 */
 	public void changeParameterLearningAlgBN() {
 		if (this.cmbParameterBN.getValue().equals("Bayesian estimation"))
@@ -672,7 +708,7 @@ public class Controller {
 	}
 
 	/**
-	 * A parameter learning algorithm for CTBNs was selected in the comboBox. Show
+	 * A parameter learning algorithm for CTBNs was selected in the comboBox. Shows
 	 * its correspondent parameters.
 	 */
 	public void changeParameterLearningAlgCTBN() {
@@ -683,7 +719,7 @@ public class Controller {
 	}
 
 	/**
-	 * A structure learning algorithm was selected in the comboBox. Show its
+	 * A structure learning algorithm was selected in the comboBox. Shows its
 	 * correspondent parameters.
 	 */
 	public void changeStructureLearningAlg() {
@@ -695,7 +731,7 @@ public class Controller {
 	}
 
 	/**
-	 * A score function was selected in the comboBox. Show its correspondent
+	 * A score function was selected in the comboBox. Shows its correspondent
 	 * parameters.
 	 */
 	public void changeScoreFunction() {
@@ -707,7 +743,7 @@ public class Controller {
 	}
 
 	/**
-	 * Cross-validation method was selected. Show its correspondent parameters.
+	 * Cross-validation method was selected. Shows its correspondent parameters.
 	 */
 	public void selectCrossValidation() {
 		ControllerUtil.showNode(this.hbNumFolds, true);
@@ -715,7 +751,7 @@ public class Controller {
 	}
 
 	/**
-	 * Hold-out-validation method was selected. Show its correspondent parameters.
+	 * Hold-out-validation method was selected. Shows its correspondent parameters.
 	 */
 	public void selectHoldOutValidation() {
 		ControllerUtil.showNode(this.hbTrainingSize, true);

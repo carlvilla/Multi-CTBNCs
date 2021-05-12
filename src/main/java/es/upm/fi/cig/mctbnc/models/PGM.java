@@ -7,11 +7,11 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
 import es.upm.fi.cig.mctbnc.nodes.NodeIndexer;
 
 /**
- * Defines the methods of a probabilistic graphical model
+ * Defines the methods of a probabilistic graphical model (PGM)
  * 
  * @author Carlos Villa Blanco
  *
- * @param <NodeType>
+ * @param <NodeType> type of the nodes of the PGM
  */
 public interface PGM<NodeType extends Node> {
 
@@ -29,18 +29,18 @@ public interface PGM<NodeType extends Node> {
 	public void learn(Dataset dataset);
 
 	/**
-	 * Sets the training dataset that will be used to estimate the structure and
-	 * parameters of the model.
+	 * Sets the dataset that will be used to estimate the structure and parameters
+	 * of the model and creates its nodes.
 	 * 
 	 * @param dataset dataset used to learn the model
 	 */
-	void setTrainingDataset(Dataset dataset);
+	void initializeModel(Dataset dataset);
 
 	/**
-	 * Adds the nodes to list of the PGM. It is necessary to include a NodeIndexer
+	 * Adds the provided nodes to the PGM. It is necessary to include a NodeIndexer
 	 * object in order to keep track of their index.
 	 * 
-	 * @param nodes
+	 * @param nodes nodes to add
 	 */
 	public void addNodes(List<NodeType> nodes);
 
@@ -53,7 +53,7 @@ public interface PGM<NodeType extends Node> {
 	 * Modifies the structure of the PGM by changing the parents of the nodes and
 	 * their CPD.
 	 * 
-	 * @param newAdjacencyMatrix
+	 * @param newAdjacencyMatrix adjacency matrix with the new structure of the PGM
 	 */
 	public void setStructure(boolean[][] newAdjacencyMatrix);
 
@@ -62,16 +62,16 @@ public interface PGM<NodeType extends Node> {
 	 * nodes which have different parents between the current adjacency matrix and
 	 * the new one.
 	 * 
-	 * @param newAdjacencyMatrix
+	 * @param newAdjacencyMatrix new adjacency matrix
 	 */
 	void setStructureModifiedNodes(boolean[][] newAdjacencyMatrix);
 
 	/**
 	 * Checks if a structure is legal for the PGM.
 	 * 
-	 * @param adjacencyMatrix bidimensional boolean array representing the adjacency
-	 *                        matrix to Analyze
-	 * @return boolean that determines if the structure is legal
+	 * @param adjacencyMatrix two-dimensional {@code boolean} array representing the
+	 *                        adjacency matrix to Analyze
+	 * @return true if the structure is legal, false otherwise
 	 */
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix);
 
@@ -95,14 +95,14 @@ public interface PGM<NodeType extends Node> {
 	/**
 	 * Returns all the nodes in the model.
 	 * 
-	 * @return node list
+	 * @return list of nodes
 	 */
 	public List<NodeType> getNodes();
 
 	/**
 	 * Obtains the node (feature or class variable) with certain index.
 	 * 
-	 * @param index
+	 * @param index node index
 	 * @return node with the specified index
 	 */
 	public NodeType getNodeByIndex(int index);
@@ -147,7 +147,8 @@ public interface PGM<NodeType extends Node> {
 	/**
 	 * Returns the adjacency matrix.
 	 * 
-	 * @return bidimensional boolean array representing the adjacency matrix
+	 * @return two-dimensional {@code boolean} array representing the adjacency
+	 *         matrix
 	 */
 	public boolean[][] getAdjacencyMatrix();
 

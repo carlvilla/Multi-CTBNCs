@@ -14,10 +14,10 @@ plugins{
 	id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
-mainClassName = "com.cig.mctbnc.Main"
+mainClassName = 'es.upm.fi.cig.mctbnc.Main'
 
 repositories {
-	jcenter()
+	mavenCentral()
     maven { url 'https://jitpack.io' }	
 }
 
@@ -28,27 +28,20 @@ test {
 dependencies {
     // Google Core Libraries for Java
     implementation 'com.google.guava:guava:28.2-jre'
-    
     // GraphStream library. It is used to display graphs
 	implementation 'com.github.graphstream:gs-core:2.0'
 	implementation 'com.github.graphstream:gs-ui-javafx:2.0'
-    
     // LOG4j logging library
     implementation 'org.apache.logging.log4j:log4j-api:2.13.3'
   	implementation 'org.apache.logging.log4j:log4j-core:2.13.3'
-  	
   	// OpenCSV
-  	implementation 'com.opencsv:opencsv:3.7'
-  	
+  	implementation 'com.opencsv:opencsv:3.7'  	
   	// Extract controls for JavaFX
-  	implementation 'org.controlsfx:controlsfx:11.0.2'
-  	
+  	implementation 'org.controlsfx:controlsfx:11.0.2'  	
   	// The Apache Commons Math project 
-  	implementation 'org.apache.commons:commons-math3:3.6.1'
-  	
+  	implementation 'org.apache.commons:commons-math3:3.6.1'  	
   	// Apache POI
-  	implementation 'org.apache.poi:poi-ooxml:3.9'
-  	
+  	implementation 'org.apache.poi:poi-ooxml:5.0.0'  	
   	// Use JUnit test framework
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
@@ -63,7 +56,7 @@ task syntheticLL(type: JavaExec){
 	group 'MCTBNC Experiments'
 	description 'Runs synthetic experiments to compare the performance of CTBNCs and a MCTBNC when they are learnt with the log-likelihood score penalized with BIC'
 	classpath sourceSets.main.runtimeClasspath
-    main 'com.cig.mctbnc.MainExperiments'
+    main 'es.upm.fi.cig.mctbnc.MainExperiments'
     args 'synthetic', 'CTBNCs', 'MCTBNC', 'Log-likelihood', 'BIC'
 }
 
@@ -71,7 +64,7 @@ task syntheticCLL(type: JavaExec){
 	group 'MCTBNC Experiments'
 	description 'Runs synthetic experiments to compare the performance of CTBNCs and a MCTBNC when they are learnt with the conditional log-likelihood score penalized with BIC'
 	classpath sourceSets.main.runtimeClasspath
-    main 'com.cig.mctbnc.MainExperiments'
+    main 'es.upm.fi.cig.mctbnc.MainExperiments'
     args 'synthetic', 'CTBNCs', 'MCTBNC', 'Conditional log-likelihood', 'BIC'
 }
 
@@ -79,7 +72,7 @@ task syntheticBDe(type: JavaExec){
 	group 'MCTBNC Experiments'
 	description 'Runs synthetic experiments to compare the performance of CTBNCs and a MCTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
 	classpath sourceSets.main.runtimeClasspath
-    main 'com.cig.mctbnc.MainExperiments'
+    main 'es.upm.fi.cig.mctbnc.MainExperiments'
     args 'synthetic', 'CTBNCs', 'MCTBNC', 'Bayesian Dirichlet equivalent', 'No'
 }
 
@@ -87,7 +80,7 @@ task energyLL(type: JavaExec){
 	group 'MCTBNC Experiments'
 	description 'Runs experiments with the energy dataset to compare the performance of max1 CTBNCs and a DAG-max1 MCTBNC when they are learnt with the BIC-penalized log-likelihood score'
 	classpath sourceSets.main.runtimeClasspath
-    main 'com.cig.mctbnc.MainExperiments'
+    main 'es.upm.fi.cig.mctbnc.MainExperiments'
     args 'energy', 'maxK CTBNCs', 'DAG-maxK MCTBNC', 'Log-likelihood', 'BIC'
 }
 
@@ -95,7 +88,7 @@ task energyBDe(type: JavaExec){
 	group 'MCTBNC Experiments'
 	description 'Runs experiments with the energy dataset to compare the performance of max1 CTBNCs and a DAG-max1 MCTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
 	classpath sourceSets.main.runtimeClasspath
-    main 'com.cig.mctbnc.MainExperiments'
+    main 'es.upm.fi.cig.mctbnc.MainExperiments'
     args 'energy', 'maxK CTBNCs', 'DAG-maxK MCTBNC', 'Bayesian Dirichlet equivalent', 'No'
 }
 
@@ -103,7 +96,7 @@ task emptyDigraphMCTBNC(type: JavaExec){
 	group 'MCTBNC Experiments'
 	description 'Runs synthetic experiments to compare the performance of CTBNCs and an empty-digraph MCTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
 	classpath sourceSets.main.runtimeClasspath
-    main 'com.cig.mctbnc.MainExperiments'
+    main 'es.upm.fi.cig.mctbnc.MainExperiments'
     args 'synthetic', 'CTBNCs', 'Empty-digraph MCTBNC', 'Bayesian Dirichlet equivalent', 'No'
 }
 

@@ -23,26 +23,26 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	// Sufficient statistics
 	private double[][] Nx;
 	// Hyperparameters of the Dirichlet prior distribution (zero if MLE is used)
-	private double NxHP;
+	private double nxHP;
 	static Logger logger = LogManager.getLogger(BNSufficientStatistics.class);
 
 	/**
 	 * Constructs a {@code BNSufficientStatistics} by receiving the hyperparameter
 	 * of the Dirichlet prior distribution.
 	 * 
-	 * @param NxHP number of times the variables are in a certain state while its
-	 *             parents take a certain instantiation
+	 * @param nxHP number of times the variables are in a certain state while its
+	 *             parents take a certain instantiation (hyperparameter)
 	 */
-	public BNSufficientStatistics(double NxHP) {
-		this.NxHP = NxHP;
+	public BNSufficientStatistics(double nxHP) {
+		this.nxHP = nxHP;
 	}
 
 	/**
-	 * Compute the sufficient statistics of a node in a BN. This is the number of
+	 * Computes the sufficient statistics of a node in a BN. This is the number of
 	 * times the variable is in a certain state while its parents take a certain
-	 * value.
+	 * instantiation.
 	 * 
-	 * @param dataset
+	 * @param dataset dataset from which the sufficient statistics are extracted
 	 */
 	@Override
 	public void computeSufficientStatistics(DiscreteNode node, Dataset dataset) {
@@ -69,9 +69,8 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Return the sufficient statistics of the node. This is the number of times the
-	 * variable is in a certain state while its parents take a certain
-	 * instantiation.
+	 * Returns the sufficient statistics of the node. This is the number of times
+	 * the variable is in a certain state while its parents take a certain instantiation.
 	 * 
 	 * @return array with the number of appearances of each state of the node given
 	 *         an instantiation of the parents
@@ -81,12 +80,12 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Return the hyperparameter value of the Dirichlet prior distribution.
+	 * Returns the hyperparameter value of the Dirichlet prior distribution.
 	 * 
 	 * @return hyperparameter value
 	 */
 	public double getNxHyperparameter() {
-		return this.NxHP;
+		return this.nxHP;
 	}
 
 	private void updateNx(int idxStateParents, int idxState, int numOccurrences) {
@@ -94,7 +93,7 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	}
 
 	/**
-	 * Initialize the sufficient statistics.
+	 * Initializes the sufficient statistics.
 	 * 
 	 * @param node
 	 * @param dataset
@@ -102,7 +101,7 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	private void initializeSufficientStatistics(DiscreteNode node, Dataset dataset) {
 		this.Nx = new double[node.getNumStatesParents()][node.getNumStates()];
 		// Adds the imaginary counts (hyperparameters) to the sufficient statistics
-		Util.fill2dArray(this.Nx, this.NxHP);
+		Util.fill2dArray(this.Nx, this.nxHP);
 	}
 
 }

@@ -12,13 +12,13 @@ import es.upm.fi.cig.mctbnc.data.representation.Dataset;
 public interface Classifier {
 
 	/**
-	 * Predict the values of the class variables for each instance of a dataset.
+	 * Predicts the values of the class variables for each instance of a dataset.
 	 * 
 	 * @param dataset               dataset used to make predictions
-	 * @param estimateProbabilities determines if the probabilities of the classes
-	 *                              are estimated
-	 * @return predictions bidimensional string array with the predictions of the
-	 *         class variables for all the instances of the dataset
+	 * @param estimateProbabilities true to estimate the probabilities of the class
+	 *                              configurations, false otherwise
+	 * @return predictions two-dimensional {@code String} array with the predictions
+	 *         of the class variables for all the instances of the dataset
 	 */
 	public Prediction[] predict(Dataset dataset, boolean estimateProbabilities);
 

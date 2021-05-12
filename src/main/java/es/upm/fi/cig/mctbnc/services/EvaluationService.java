@@ -21,8 +21,8 @@ public class EvaluationService extends Service<Void> {
 	 * Constructs a {@code EvaluationService} that receives a
 	 * {@code ValidationMethod} and a {@code MCTBNC} model.
 	 * 
-	 * @param validationMethod
-	 * @param model
+	 * @param validationMethod validation method
+	 * @param model            model to evaluate
 	 */
 	public EvaluationService(ValidationMethod validationMethod, MCTBNC<?, ?> model) {
 		this.validationMethod = validationMethod;

@@ -12,7 +12,7 @@ import es.upm.fi.cig.mctbnc.nodes.DiscreteNode;
 public interface SufficientStatistics {
 
 	/**
-	 * Compute the sufficient statistics of a discrete node.
+	 * Computes the sufficient statistics of a discrete node.
 	 * 
 	 * @param node    node whose sufficient statistics are computed
 	 * @param dataset dataset from which is extracted the sufficient statistics

@@ -12,38 +12,38 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
 public interface CTBNScoreFunction {
 
 	/**
-	 * Compute score for provided continuous time Bayesian network.
+	 * Computes the score for a continuous time Bayesian network.
 	 * 
-	 * @param ctbn
+	 * @param ctbn a continuous time Bayesian network
 	 * @return score
 	 */
 	public double compute(CTBN<? extends Node> ctbn);
 
 	/**
-	 * Compute score for provided continuous time Bayesian network at defined node.
+	 * Computes the score for a continuous time Bayesian network at a given node.
 	 * 
-	 * @param ctbn
-	 * @param nodeIndex
+	 * @param ctbn      a continuous time Bayesian network
+	 * @param nodeIndex node index
 	 * @return score
 	 */
 	public double compute(CTBN<? extends Node> ctbn, int nodeIndex);
 
 	/**
-	 * Determine if the score is decomposable.
+	 * Determines if the score is decomposable.
 	 * 
 	 * @return true if the score is decomposable, false otherwise
 	 */
 	public boolean isDecomposable();
-	
+
 	/**
-	 * Get an identifier for the score function.
+	 * Gets an identifier for the score function.
 	 * 
 	 * @return identifier for the score function.
 	 */
 	public String getIdentifier();
-	
+
 	/**
-	 * Get the name of the penalization applied (if any) to the score function.
+	 * Gets the name of the penalization applied (if any) to the score function.
 	 * 
 	 * @return name of the penalization applied to the score function
 	 */

@@ -653,7 +653,7 @@ class ScoresCTBNTest {
 	}
 
 	/**
-	 * Reset the feature and bridge subgraphs after each method
+	 * Resets the feature and bridge subgraphs after each method
 	 */
 	@AfterEach
 	public void resetStructureAfterTest() {

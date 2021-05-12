@@ -4,7 +4,7 @@ import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgori
 import es.upm.fi.cig.mctbnc.learning.structure.StructureLearningAlgorithm;
 
 /**
- * Store the parameter and structure learning algorithms for a Continuous time
+ * Stores the parameter and structure learning algorithms for a Continuous time
  * Bayesian network.
  * 
  * @author Carlos Villa Blanco
@@ -15,10 +15,10 @@ public class CTBNLearningAlgorithms {
 	StructureLearningAlgorithm structureLearningAlg;
 
 	/**
-	 * Receive the learning algorithms for the parameters and the structure.
+	 * Receives the learning algorithms for the parameters and the structure.
 	 * 
-	 * @param parameterLearningAlg
-	 * @param structureLearningAlg
+	 * @param parameterLearningAlg parameter learning algorithm
+	 * @param structureLearningAlg structure learning algorithm
 	 */
 	public CTBNLearningAlgorithms(CTBNParameterLearningAlgorithm parameterLearningAlg,
 			StructureLearningAlgorithm structureLearningAlg) {
@@ -27,7 +27,7 @@ public class CTBNLearningAlgorithms {
 	}
 
 	/**
-	 * Return the parameter learning algorithm for a CTBN.
+	 * Returns the parameter learning algorithm for a CTBN.
 	 * 
 	 * @return parameter learning algorithm
 	 */
@@ -36,7 +36,7 @@ public class CTBNLearningAlgorithms {
 	}
 
 	/**
-	 * Return the structure learning algorithm for a CTBN.
+	 * Returns the structure learning algorithm for a CTBN.
 	 * 
 	 * @return structure learning algorithm
 	 */

@@ -18,6 +18,13 @@ import es.upm.fi.cig.mctbnc.models.MCTBNC;
 import es.upm.fi.cig.mctbnc.nodes.CIMNode;
 import es.upm.fi.cig.mctbnc.nodes.CPTNode;
 
+/**
+ * Tests the classification of sequences with a multidimensional continuous time
+ * Bayesian networks classifiers.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 class ClassificationTest {
 	static MCTBNC<CPTNode, CIMNode> mctbnc;
 	static Dataset dataset;

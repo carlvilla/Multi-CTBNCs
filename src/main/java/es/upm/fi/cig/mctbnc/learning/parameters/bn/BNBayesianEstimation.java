@@ -12,39 +12,40 @@ import es.upm.fi.cig.mctbnc.nodes.DiscreteNode;
  * Implements the Bayesian estimation to estimate the parameters of a BN. It is
  * assumed a Dirichlet prior distribution over the probabilities of each state
  * of the variables, given the state of their parents, with all of its
- * hyperparameters being equal to "NxHP". Thus, the posterior distribution will
+ * hyperparameters being equal to "nxHP". Thus, the posterior distribution will
  * be Dirichlet with hyperameters equal to the frequency of each state of the
- * variables plus "NxHP" (Lindstone rule).
+ * variables plus "nxHP" (Lindstone rule).
  * 
  * @author Carlos Villa Blanco
  *
  */
 public class BNBayesianEstimation extends BNParameterLearningAlgorithm {
 	// Hyperparameters of the Dirichlet prior distribution
-	private double NxHP;
+	private double nxHP;
 	static Logger logger = LogManager.getLogger(BNBayesianEstimation.class);
 
 	/**
-	 * Receive the hyperparameter of the Dirichlet prior distribution over the
+	 * Receives the hyperparameter of the Dirichlet prior distribution over the
 	 * parameters (i.e. imaginary counts).
 	 * 
-	 * @param NxHP
+	 * @param nxHP number of times the variables are in a certain state while its
+	 *             parents take a certain instantiation (hyperparameter)
 	 */
-	public BNBayesianEstimation(double NxHP) {
-		logger.info("Learning parameters of BN with Bayesian estimation (hyperparameter={})", NxHP);
-		this.NxHP = NxHP;
+	public BNBayesianEstimation(double nxHP) {
+		logger.info("Learning parameters of BN with Bayesian estimation (Nx={})", nxHP);
+		this.nxHP = nxHP;
 	}
 
 	@Override
 	protected BNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset) {
-		BNSufficientStatistics ssNode = new BNSufficientStatistics(this.NxHP);
+		BNSufficientStatistics ssNode = new BNSufficientStatistics(this.nxHP);
 		ssNode.computeSufficientStatistics(node, dataset);
 		return ssNode;
 	}
 
 	@Override
 	public String getNameMethod() {
-		return String.format("Bayesian estimation (Nx:%s)", this.NxHP);
+		return String.format("Bayesian estimation (Nx:%s)", this.nxHP);
 	}
 
 	@Override
@@ -54,7 +55,7 @@ public class BNBayesianEstimation extends BNParameterLearningAlgorithm {
 
 	@Override
 	public Map<String, String> getParametersAlgorithm() {
-		return Map.of("nx", String.valueOf(this.NxHP));
+		return Map.of("nx", String.valueOf(this.nxHP));
 	}
 
 }

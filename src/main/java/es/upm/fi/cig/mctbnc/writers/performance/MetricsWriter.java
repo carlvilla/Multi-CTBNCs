@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Define classes that write the results of the metrics on different outputs.
+ * Defines classes that write the results of evaluation metrics on different
+ * outputs.
  * 
  * @author Carlos Villa Blanco
  *
@@ -13,23 +14,23 @@ public abstract class MetricsWriter {
 	List<String> nameClassVariables;
 
 	/**
-	 * Write the given results.
+	 * Writes the given results.
 	 * 
-	 * @param results
+	 * @param results a {@code Map} with the results of the evaluation metrics
 	 */
 	public abstract void write(Map<String, Double> results);
 
 	/**
-	 * Close the writer.
+	 * Closes the writer.
 	 */
 	public void close() {
 		return;
 	}
 
 	/**
-	 * Establish the class variables that the writer should take into account.
+	 * Establishes the class variables that the writer should take into account.
 	 * 
-	 * @param nameClassVariables
+	 * @param nameClassVariables name of the class variables
 	 */
 	public void setClassVariables(List<String> nameClassVariables) {
 		this.nameClassVariables = nameClassVariables;

@@ -22,10 +22,9 @@ public class AbstractLikelihood {
 	};
 
 	/**
-	 * Receives the name of the penalization function used for the structure
-	 * complexity.
+	 * Receives the name of the penalization function for the structure complexity.
 	 * 
-	 * @param penalizationFunction
+	 * @param penalizationFunction name of the penalization function
 	 */
 	public AbstractLikelihood(String penalizationFunction) {
 		this.penalizationFunction = penalizationFunction;

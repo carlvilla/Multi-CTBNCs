@@ -30,9 +30,8 @@ public class ClassificationTask extends Task<Void> {
 	 * @param model                 model used to perform the classification
 	 * @param datasetReader         dataset reader that provides the sequences to
 	 *                              classify
-	 * @param estimateProbabilities boolean that determines if the probabilities of
-	 *                              the predicted class configurations should be
-	 *                              estimated
+	 * @param estimateProbabilities true to estimate the probabilities of the
+	 *                              predicted class configurations, false otherwise
 	 */
 	public ClassificationTask(MCTBNC<?, ?> model, DatasetReader datasetReader, boolean estimateProbabilities) {
 		this.model = model;
@@ -57,6 +56,19 @@ public class ClassificationTask extends Task<Void> {
 	@Override
 	protected void succeeded() {
 		updateMessage("Idle");
+	}
+
+	@Override
+	protected void failed() {
+		if (this.datasetReader.isDatasetOutdated()) {
+			this.logger.error(
+					"The dataset to be classified could not be read. Check if it contains the same variables as the training dataset");
+			updateMessage("Idle - The dataset to be classified could not be read");
+
+		}
+		this.logger.error("There was an error performing the classification");
+		updateMessage("Idle - There was an error performing the classification");
+
 	}
 
 }

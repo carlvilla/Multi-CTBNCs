@@ -11,12 +11,13 @@ import java.util.Map;
  *
  */
 public interface Metric {
+
 	/**
-	 * Compute the value of the evaluation metric given a Map containing a confusion
-	 * matrix. The Map should contain four keys "tp" (true positive), "fp" (false
-	 * positive), "tn" (true negative) and "fn" (false negative).
+	 * Computes the value of the evaluation metric given a Map containing a
+	 * confusion matrix. The Map should contain four keys "tp" (true positive), "fp"
+	 * (false positive), "tn" (true negative) and "fn" (false negative).
 	 * 
-	 * @param confusionMatrix
+	 * @param confusionMatrix a {@code Map} containing a confusion matrix
 	 * @return result of the evaluation metric.
 	 */
 	public double compute(Map<String, Integer> confusionMatrix);

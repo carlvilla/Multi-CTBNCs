@@ -23,7 +23,8 @@ public class MaxKCTBNC extends AbstractStructureConstraints {
 	 * Receives the maximum number of parents the nodes can have. If a positive
 	 * number is not given, a default value (1 parent) is used.
 	 * 
-	 * @param maxK
+	 * @param maxK maximum number of parents the nodes of feature variables can have
+	 *             (without including nodes of class variables)
 	 */
 	public MaxKCTBNC(int maxK) {
 		if (maxK < 1) {
@@ -36,7 +37,7 @@ public class MaxKCTBNC extends AbstractStructureConstraints {
 
 	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix, NodeIndexer<? extends Node> nodeIndexer) {
-		// Nodes can only have k parents (excluding class variables).
+		// Nodes can only have k parents (excluding class variables)
 		int numNodes = adjacencyMatrix.length;
 		for (int j = 0; j < numNodes; j++) {
 			int numParentsJ = 0;

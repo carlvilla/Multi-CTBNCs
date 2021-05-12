@@ -38,10 +38,8 @@ import es.upm.fi.cig.mctbnc.util.Util;
  * 
  * @author Carlos Villa Blanco
  * 
- * @param <NodeTypeBN>   Type of the nodes of the Bayesian network (discrete or
- *                       continuous)
- * @param <NodeTypeCTBN> Type of the nodes of the continuous time Bayesian
- *                       network (discrete or continuous)
+ * @param <NodeTypeBN>   type of the nodes of the BN (class subgraph)
+ * @param <NodeTypeCTBN> type of the nodes of the CTBN (feature subgraph)
  */
 public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends AbstractPGM<Node>
 		implements Classifier {
@@ -62,10 +60,12 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	/**
 	 * Receives learning algorithms for BNs and CTBNs to generate a MCTBNC.
 	 * 
-	 * @param bnLearningAlgs   algorithms used to learn a BN
-	 * @param ctbnLearningAlgs algorithms used to learn a CTBN
-	 * @param bnNodeClass      type of the BN nodes
-	 * @param ctbnNodeClass    type of the CTBN nodes
+	 * @param bnLearningAlgs   parameter and structure learning algorithms for
+	 *                         Bayesian networks
+	 * @param ctbnLearningAlgs parameter and structure learning algorithms for
+	 *                         continuous time Bayesian networks
+	 * @param bnNodeClass      Bayesian network node type
+	 * @param ctbnNodeClass    continuous time Bayesian network node type
 	 */
 	public MCTBNC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnLearningAlgs,
 			Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
@@ -165,7 +165,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Establish the approach that will be used to define the initial structure of
+	 * Establishes the approach that will be used to define the initial structure of
 	 * the MCTBNC. For now it is possible to define an empty structure or a naive
 	 * Bayes.
 	 * 
@@ -192,7 +192,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Sample a sequence given its duration.
+	 * Samples a sequence given its duration.
 	 * 
 	 * @param duration duration of the sequence
 	 * @return sampled sequence
@@ -207,7 +207,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Return learning algorithms for class subgraph (Bayesian network).
+	 * Returns learning algorithms for class subgraph (Bayesian network).
 	 * 
 	 * @return learning algorithms for class subgraph (Bayesian network)
 	 */
@@ -216,8 +216,8 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Return learning algorithms for bridge and features subgraphs (continuous time
-	 * Bayesian network).
+	 * Returns learning algorithms for bridge and features subgraphs (continuous
+	 * time Bayesian network).
 	 * 
 	 * @return learning algorithms for bridge and features subgraphs (continuous
 	 *         time Bayesian network)
@@ -227,7 +227,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Return the type of the class variable nodes.
+	 * Returns the type of the class variable nodes.
 	 * 
 	 * @return type of the class variable nodes
 	 */
@@ -236,7 +236,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Return the type of the feature nodes.
+	 * Returns the type of the feature nodes.
 	 * 
 	 * @return type of the feature nodes
 	 */
@@ -245,18 +245,18 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Return the structure constraints for the BN.
+	 * Returns the structure constraints for the BN.
 	 * 
-	 * @return StructureConstraint object
+	 * @return a {@code StructureConstraint}
 	 */
 	public StructureConstraints getStructureConstraintsBN() {
 		return new DAG();
 	}
 
 	/**
-	 * Return the structure constraints for the CTBN.
+	 * Returns the structure constraints for the CTBN.
 	 * 
-	 * @return StructureConstraint object
+	 * @return a {@code StructureConstraint}
 	 */
 	public StructureConstraints getStructureConstraintsCTBN() {
 		return new CTBNC();
@@ -275,17 +275,17 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Perform classification over the sequences of a dataset according to the
+	 * Performs classification over the sequences of a dataset according to the
 	 * maximum a posteriori probability, i.e., classes that obtain the highest
 	 * posterior probability given each sequence are predicted.
 	 * 
 	 * @param dataset               dataset from which the sequences to predict are
 	 *                              extracted
-	 * @param estimateProbabilities determines if the probabilities of the classes
-	 *                              are estimated
+	 * @param estimateProbabilities true to estimate the probabilities of the class
+	 *                              configurations, false otherwise
 	 * @return array of Prediction object (one per sequence) that contain the
 	 *         predicted classes and, if requested, the probabilities of all
-	 *         possible classes
+	 *         possible class configurations
 	 */
 	@Override
 	public Prediction[] predict(Dataset dataset, boolean estimateProbabilities) {
@@ -328,7 +328,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Sample the state of the class variables.
+	 * Samples the state of the class variables.
 	 */
 	private State sampleClassVariables() {
 		// Define topological order
@@ -347,16 +347,17 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Sample the transitions of a sequence given its duration and the state of the
+	 * Samples the transitions of a sequence given its duration and the state of the
 	 * class variables.
 	 * 
 	 * @param sampledCVs
 	 */
+	@SuppressWarnings("unchecked")
 	private Sequence sampleSequence(State sampledCVs, int duration) {
 		// Features whose transitions will be sampled
 		LinkedList<CIMNode> features = new LinkedList<CIMNode>((List<CIMNode>) this.ctbn.getNodes());
 		// List with the time when observations occur
-		List<Double> timestamp = new ArrayList<Double>();
+		List<Double> timestamps = new ArrayList<Double>();
 		// List of states with the observations (which form transitions) of the sequence
 		List<State> observations = new ArrayList<State>();
 		// Sample initial observation of the sequence
@@ -364,7 +365,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// Add the initial observation and time when it occurred to the results lists
 		observations.add(currentObservation);
 		double currentTime = 0.0;
-		timestamp.add(currentTime);
+		timestamps.add(currentTime);
 		// Keep the times when each of the nodes will change their state
 		TreeMap<Double, CIMNode> transitionTimes = new TreeMap<Double, CIMNode>();
 		// Generate transitions until the time of the current observation surpasses the
@@ -398,14 +399,14 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 			// Save the observation
 			observations.add(currentObservation);
 			// Save the time when the observation (transition) occurred
-			timestamp.add(currentTime);
+			timestamps.add(currentTime);
 			// Add the feature to the list to sample the time its next transition will occur
 			features.add(changingNode);
 		}
 		// Create sequence with the sampled transitions and state of the class variables
 		Sequence sequence = null;
 		try {
-			sequence = new Sequence(sampledCVs, observations, "t", timestamp);
+			sequence = new Sequence(sampledCVs, observations, "t", timestamps);
 		} catch (ErroneousSequenceException e) {
 			logger.warn(e.getMessage());
 		}
@@ -413,7 +414,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Sample the initial state of the sequence (first observation). Although,
+	 * Samples the initial state of the sequence (first observation). Although,
 	 * theoretically, it should be sampled from a multi-dimensional Bayesian network
 	 * classifier, a uniform distribution is used for simplicity.
 	 * 
@@ -439,7 +440,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Return State objects with all class configurations.
+	 * Returns State objects with all class configurations.
 	 * 
 	 * @param nodesCVs
 	 * @return states with all class configurations
@@ -456,13 +457,13 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Perform classification over a sequence according to the maximum a posteriori
+	 * Performs classification over a sequence according to the maximum a posteriori
 	 * probability.
 	 * 
 	 * @param sequence             sequence whose class variables are predicted
 	 * @param statesClassVariables possible class configurations
 	 * @return Prediction object that contains the predicted classes and, if
-	 *         requested, the probabilities of all possible classes
+	 *         requested, the probabilities of all possible class configurations
 	 */
 	private Prediction predict(Sequence sequence, List<State> statesClassVariables, boolean estimateProbabilities) {
 		// Obtain nodes of the Bayesian network and continuous time Bayesian network
@@ -506,10 +507,11 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
-	 * Establish the initial structure of a CTBN depending on the global variable
+	 * Establishes the initial structure of a CTBN depending on the global variable
 	 * "initialStructure".
 	 * 
-	 * @param ctbn
+	 * @param ctbn continuous time Bayesian network whose initial structure is
+	 *             defined
 	 */
 	private void setInitialStructure(CTBN<NodeTypeCTBN> ctbn) {
 		logger.info("Initial structure: {}", this.initialStructure);

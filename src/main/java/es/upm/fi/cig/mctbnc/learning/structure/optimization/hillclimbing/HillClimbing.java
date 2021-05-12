@@ -47,7 +47,7 @@ public abstract class HillClimbing implements StructureLearningAlgorithm {
 
 	@Override
 	public Map<String, String> getParametersAlgorithm() {
-		return hcImplementation.getInfoScoreFunction();
+		return this.hcImplementation.getInfoScoreFunction();
 	}
 
 }

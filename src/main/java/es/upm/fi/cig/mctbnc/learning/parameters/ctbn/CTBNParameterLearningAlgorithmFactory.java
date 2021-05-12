@@ -9,17 +9,19 @@ package es.upm.fi.cig.mctbnc.learning.parameters.ctbn;
 public class CTBNParameterLearningAlgorithmFactory {
 
 	/**
-	 * Build the specified parameter learning algorithm.
+	 * Builds the specified parameter learning algorithm.
 	 * 
-	 * @param algorithm
-	 * @param nxy
-	 * @param tx
+	 * @param algorithm name of the parameter learning algorithm
+	 * @param mxyHP     number of times a variable transitions from a certain state
+	 *                  to another one (hyperparameter)
+	 * @param txHP      time that a variable stays in a certain state
+	 *                  (hyperparameter)
 	 * @return parameter learning algorithm
 	 */
-	public static CTBNParameterLearningAlgorithm getAlgorithm(String algorithm, Double nxy, Double tx) {
+	public static CTBNParameterLearningAlgorithm getAlgorithm(String algorithm, Double mxyHP, Double txHP) {
 		switch (algorithm) {
 		case ("Bayesian estimation"):
-			return new CTBNBayesianEstimation(nxy, tx);
+			return new CTBNBayesianEstimation(mxyHP, txHP);
 		default:
 			// Maximum likelihood estimation
 			return new CTBNMaximumLikelihoodEstimation();

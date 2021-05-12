@@ -20,9 +20,8 @@ public class TrainingService extends Service<Void> {
 	/**
 	 * Constructs a {@code TrainingService} that receives a {@code MCTBNC} model.
 	 * 
-	 * @param validationMethod
-	 * @param model
-	 * @param datasetReader    {@code a DatasetReader} to read the training dataset
+	 * @param model         model to train
+	 * @param datasetReader {@code a DatasetReader} to read the training dataset
 	 */
 	public TrainingService(MCTBNC<?, ?> model, DatasetReader datasetReader) {
 		this.model = model;

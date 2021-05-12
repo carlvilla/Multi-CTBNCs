@@ -12,120 +12,115 @@ import es.upm.fi.cig.mctbnc.learning.parameters.SufficientStatistics;
  */
 public interface Node {
 	/**
-	 * Return the name of the node.
+	 * Returns the name of the node.
 	 * 
 	 * @return node name
 	 */
 	public String getName();
 
 	/**
-	 * Return the children of the node.
+	 * Returns the children of the node.
 	 * 
 	 * @return child node list
 	 */
 	public List<Node> getChildren();
 
 	/**
-	 * Return the parents of the node.
+	 * Returns the parents of the node.
 	 * 
 	 * @return parent node list
 	 */
 	public List<Node> getParents();
 
 	/**
-	 * Return the number of parents of the node.
+	 * Returns the number of parents of the node.
 	 * 
 	 * @return parent node list
 	 */
 	public int getNumParents();
 
 	/**
-	 * Return the name of the parents of the node.
+	 * Returns the name of the parents of the node.
 	 * 
 	 * @return list of parents' names
 	 */
 	public List<String> getNameParents();
 
 	/**
-	 * Define if the node is a class variable.
+	 * Defines if the node is a class variable.
 	 * 
-	 * @param isClassVariable boolean that determines if the node is a class
-	 *                        variable
+	 * @param isClassVariable true if the node is a class variable, false otherwise
 	 */
 	public void isClassVariable(boolean isClassVariable);
 
 	/**
-	 * Specify if the node is a class variable.
+	 * Specifies if the node is a class variable.
 	 * 
-	 * @return boolean that determines if the node is a class variable
+	 * @return true if the node is a class variable, false otherwise
 	 */
 	public boolean isClassVariable();
 
 	/**
-	 * Specify if the node has parents.
+	 * Specifies if the node has parents.
 	 * 
-	 * @return boolean that determines if the node has parents
+	 * @return true if the node has parents, false otherwise
 	 */
 	public boolean hasParents();
 
 	/**
-	 * Include nodeParent in the parent list of the node, while including the node
-	 * in the list of children of nodeParent.
+	 * Defines a provided node as a parent of this one.
 	 * 
-	 * @param parentNode
+	 * @param parentNode parent node
 	 */
 	public void setParent(Node parentNode);
 
 	/**
-	 * Include nodeChild in the children list of the node, while including the node
-	 * in the list of parents of nodeChild.
+	 * Defines a provided node as a child of this one.
 	 * 
-	 * @param childNode
+	 * @param childNode child node
 	 */
 	public void setChild(Node childNode);
 
 	/**
-	 * Remove a certain parent of the node. This implies that the node is removed
-	 * from the list of children of that parent.
+	 * Removes a certain parent of the node.
 	 * 
-	 * @param parentNode
+	 * @param parentNode parent node
 	 */
 	public void removeParent(Node parentNode);
 
 	/**
-	 * Remove a certain child of the node. This implies that the node is removed
-	 * from the list of parents of that child.
+	 * Removes a certain child of the node.
 	 * 
-	 * @param childNode
+	 * @param childNode child node
 	 */
 	public void removeChild(Node childNode);
 
 	/**
-	 * Remove the parents of the node.
+	 * Removes the parents of the node.
 	 */
 	public void removeParents();
 
 	/**
-	 * Remove the children of the node.
+	 * Removes the children of the node.
 	 */
 	public void removeChildren();
 
 	/**
-	 * Remove the children and parents of the node.
+	 * Removes the parents and children of the node.
 	 */
 	public void removeAllEdges();
 
 	/**
-	 * Establish the sufficient statistics of the node.
+	 * Establishes the sufficient statistics of the node.
 	 * 
 	 * @param ss sufficient statistics
 	 */
 	public void setSufficientStatistics(SufficientStatistics ss);
 
 	/**
-	 * Return true if the parameters of the node were estimated.
+	 * Returns true if the parameters of the node were estimated.
 	 * 
-	 * @return true if the parameters of the node were estimated
+	 * @return true if the parameters of the node were estimated, false otherwise
 	 */
 	public boolean areParametersEstimated();
 

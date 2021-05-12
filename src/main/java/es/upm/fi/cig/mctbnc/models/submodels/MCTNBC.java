@@ -9,25 +9,27 @@ import es.upm.fi.cig.mctbnc.models.MCTBNC;
 import es.upm.fi.cig.mctbnc.nodes.Node;
 
 /**
- * Specify the structure constraints of a multidimensional continuous time naive
+ * Specifies the structure constraints of a multidimensional continuous time naive
  * Bayes classifier (MCTBNC) where any subgraph has arcs except the bridge
  * subgraph (fully naive multi-dimensional classifier).
  * 
  * @author Carlos Villa Blanco
- * @param <NodeTypeBN>
- * @param <NodeTypeCTBN>
+ * @param <NodeTypeBN>   type of the nodes of the BN (class subgraph)
+ * @param <NodeTypeCTBN> type of the nodes of the CTBN (feature subgraph)
  *
  */
 public class MCTNBC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends MCTBNC<NodeTypeBN, NodeTypeCTBN> {
 
 	/**
-	 * Construct a multidimensional continuous time naive Bayes classifier given the
-	 * learning algorithms for BNs and CTBNs.
+	 * Constructs a multidimensional continuous time naive Bayes classifier given
+	 * the learning algorithms for BNs and CTBNs.
 	 * 
-	 * @param bnLearningAlgs
-	 * @param ctbnLearningAlgs
-	 * @param bnNodeClass
-	 * @param ctbnNodeClass
+	 * @param bnLearningAlgs   parameter and structure learning algorithms for a
+	 *                         Bayesian network
+	 * @param ctbnLearningAlgs parameter and structure learning algorithms for a
+	 *                         conntinuous time Bayesian network
+	 * @param bnNodeClass      Bayesian network node type
+	 * @param ctbnNodeClass    continuous time Bayesian network node type
 	 */
 	public MCTNBC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnLearningAlgs,
 			Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
@@ -50,7 +52,7 @@ public class MCTNBC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 			return "Continuous time naive Bayes classifier";
 		return "Multidimensional continuous time naive Bayes classifier";
 	}
-	
+
 	@Override
 	public String getModelIdentifier() {
 		return "MCTNBC";

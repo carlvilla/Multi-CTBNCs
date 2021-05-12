@@ -36,13 +36,14 @@ public class HoldOut extends ValidationMethod {
 	 * Constructs a {@code HoldOut} by receiving a {@code DatasetReader}, the size
 	 * of the training set and if the data should be shuffled.
 	 * 
-	 * @param datasetReader         read the dataset
+	 * @param datasetReader         a {@code DatasetReader} to read the dataset
 	 * @param trainingSize          size of the training dataset (percentage)
-	 * @param estimateProbabilities determines if the probabilities of the class
-	 *                              configurations are estimated
-	 * @param shuffle               determines if the data is shuffled before
-	 *                              splitting into training and testing
-	 * @param seed
+	 * @param estimateProbabilities true to estimate the probabilities of the class
+	 *                              configurations, false otherwise
+	 * @param shuffle               true to shuffle the sequences before splitting
+	 *                              them into training and testing datasets, false
+	 *                              otherwise
+	 * @param seed                  seed used to shuffle the sequences
 	 */
 	public HoldOut(DatasetReader datasetReader, double trainingSize, boolean estimateProbabilities, boolean shuffle,
 			Long seed) {
@@ -58,9 +59,10 @@ public class HoldOut extends ValidationMethod {
 	}
 
 	/**
-	 * Evaluate the performance of the specified model using hold-out validation.
+	 * Evaluates the performance of the specified model using hold-out validation.
 	 * 
 	 * @param model model to evaluate
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	@Override
 	public void evaluate(MCTBNC<?, ?> model) throws UnreadDatasetException {
@@ -80,9 +82,9 @@ public class HoldOut extends ValidationMethod {
 	}
 
 	/**
-	 * Generate a training and a testing dataset.
+	 * Generates a training and a testing dataset.
 	 * 
-	 * @throws UnreadDatasetException
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	public void generateTrainAndTest() throws UnreadDatasetException {
 		// Obtain entire dataset
@@ -112,7 +114,7 @@ public class HoldOut extends ValidationMethod {
 	}
 
 	/**
-	 * Return the training dataset.
+	 * Returns the training dataset.
 	 * 
 	 * @return training dataset
 	 */
@@ -124,7 +126,7 @@ public class HoldOut extends ValidationMethod {
 	}
 
 	/**
-	 * Return the testing dataset.
+	 * Returns the testing dataset.
 	 * 
 	 * @return testing dataset
 	 */

@@ -12,7 +12,7 @@ import es.upm.fi.cig.mctbnc.exceptions.UnreadDatasetException;
 import es.upm.fi.cig.mctbnc.exceptions.VariableNotFoundException;
 
 /**
- * Read time series data contained in a single CSV. It divides the dataset into
+ * Reads time series data contained in a single CSV. It divides the dataset into
  * several sequences depending on the selected strategy.
  * 
  * @author Carlos Villa Blanco
@@ -27,8 +27,8 @@ public class SingleCSVReader extends AbstractCSVReader {
 	 * specified folder.
 	 * 
 	 * @param datasetFolder folder path where the CSV file is stored
-	 * @param sizeSequence
-	 * @throws FileNotFoundException
+	 * @param sizeSequence  maximum size of the sequences
+	 * @throws FileNotFoundException if the CSV file was not found
 	 */
 	public SingleCSVReader(String datasetFolder, int sizeSequence) throws FileNotFoundException {
 		super(datasetFolder);
@@ -49,6 +49,7 @@ public class SingleCSVReader extends AbstractCSVReader {
 	@Override
 	public Dataset readDataset() throws UnreadDatasetException {
 		if (isDatasetOutdated()) {
+			logger.info("Reading dataset with sequences of size {} from the csv file {}", this.sizeSequence, this.file);
 			this.dataset = new Dataset(this.nameTimeVariable, this.nameClassVariables);
 			try {
 				// Read the entire CSV
@@ -69,19 +70,18 @@ public class SingleCSVReader extends AbstractCSVReader {
 	}
 
 	/**
-	 * Extract sequences that have the same length, which is specified by the user,
-	 * and add it to the specified dataset. As there cannot be different class
-	 * configurations in one sequence, sequences could contain less observation if a
-	 * transition of a class variable occurs before reaching the limit. It is
-	 * assumed that the names of the variables are in the first array of "dataCSV".
-	 * As there cannot be different class configurations in one sequence, sequences
-	 * could contain less observation.
+	 * Extracts sequences that have the same maximum length and add them to the
+	 * specified dataset. As there cannot be different class configurations in one
+	 * sequence, sequences could contain less observation if a transition of a class
+	 * variable occurs before reaching the limit. It is assumed that the names of
+	 * the variables are in the first array of "dataCSV".
 	 * 
-	 * @param dataset
-	 * @param dataCSV
-	 * @return dataset a {@code Dataset}
+	 * @param dataset a {@code Dataset} where sequences are stored
+	 * @param dataCSV list of String arrays with the data extracted from the CSV
+	 *                file. First array in the list must contain the name of the
+	 *                variables
 	 */
-	public Dataset extractFixedSequences(Dataset dataset, List<String[]> dataCSV) {
+	public void extractFixedSequences(Dataset dataset, List<String[]> dataCSV) {
 		int numInstances = dataCSV.size();
 		String[] namesVariables = dataCSV.get(0);
 		// Obtain the indexes of the class variables in the CSV
@@ -108,7 +108,8 @@ public class SingleCSVReader extends AbstractCSVReader {
 				dataSequence.add(observation);
 			else {
 				// Add sequence to dataset
-				dataset.addSequence(dataSequence, this.file.getAbsolutePath());
+				dataset.addSequence(dataSequence,
+						this.file.getAbsolutePath() + "(Row " + (i - dataSequence.size()) + " to " + i + ")");
 				if (!sameClassConfiguration)
 					// The class configuration changed
 					currentClassConfiguration = extractClassConfigurationObservation(indexClassVariables, observation);
@@ -120,17 +121,17 @@ public class SingleCSVReader extends AbstractCSVReader {
 				dataSequence.add(observation);
 			}
 		}
-		return dataset;
 	}
 
 	/**
-	 * Check if the class configuration of an observation is equal to another that
+	 * Checks if the class configuration of an observation is equal to another that
 	 * is given.
 	 * 
-	 * @param indexClassVariables
-	 * @param observation
-	 * @param classConfiguration
-	 * @return true if they are equal, false otherwise
+	 * @param indexClassVariables indexes of the class variables
+	 * @param observation         evaluated observation
+	 * @param classConfiguration  class configuration for the comparison
+	 * @return true if the observation has the provided class configuration, false
+	 *         otherwise
 	 */
 	private boolean sameClassConfiguration(int[] indexClassVariables, String[] observation,
 			String[] classConfiguration) {
@@ -141,12 +142,13 @@ public class SingleCSVReader extends AbstractCSVReader {
 	}
 
 	/**
-	 * Extract class configuration of the specified class variables from the given
-	 * observation.
+	 * Extracts the class configuration of the specified class variables from the
+	 * given observation.
 	 * 
-	 * @param indexClassVariables
-	 * @param observation
-	 * @return String array with state of the class variables
+	 * @param indexClassVariables indexes of the class variables
+	 * @param observation         evaluated observation
+	 * @return class configuration of the provided class variables in the given
+	 *         observation
 	 */
 	private String[] extractClassConfigurationObservation(int[] indexClassVariables, String[] observation) {
 		String[] classConfigurationObservation = new String[indexClassVariables.length];

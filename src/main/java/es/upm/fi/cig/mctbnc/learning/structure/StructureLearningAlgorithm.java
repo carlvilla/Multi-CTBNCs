@@ -15,21 +15,21 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
 public interface StructureLearningAlgorithm {
 
 	/**
-	 * Learn the structure of a certain PGM
+	 * Learns the structure of a certain PGM.
 	 * 
-	 * @param pgm
+	 * @param pgm a probabilistic graphical model
 	 */
 	public void learn(PGM<? extends Node> pgm);
 
 	/**
-	 * Return a unique identifier for the structure learning algorithm.
+	 * Returns a unique identifier for the structure learning algorithm.
 	 * 
 	 * @return unique identifier for the structure learning algorithm
 	 */
 	public String getIdentifier();
 
 	/**
-	 * Return the parameters that are used by the algorithm.
+	 * Returns the parameters that are used by the algorithm.
 	 * 
 	 * @return a {@code Map} with the parameters used by the algorithm
 	 */

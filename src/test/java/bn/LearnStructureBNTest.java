@@ -18,10 +18,16 @@ import es.upm.fi.cig.mctbnc.learning.structure.constraints.BN.DAG;
 import es.upm.fi.cig.mctbnc.models.BN;
 import es.upm.fi.cig.mctbnc.nodes.CPTNode;
 
+/**
+ * Tests the learning of the structure of a BN.
+ * 
+ * @author Carlos Villa Blanco
+ *
+ */
 class LearnStructureBNTest {
 
 	/**
-	 * Learn a Bayesian network. The dataset used is formed by binary variables
+	 * Learns a Bayesian network. The dataset used is formed by binary variables
 	 * V1,V2 and V3 (plus Time) such that V3 has value "a" iff V1 and V2 have both
 	 * value "a". Otherwise, it is value is "b" (AND gate). It is expected
 	 * dependencies from V1 and V2 to V3.

@@ -16,26 +16,27 @@ public abstract class ValidationMethod {
 	MetricsWriter metricsWriter;
 
 	/**
-	 * Evaluate the performance of the specified model.
+	 * Evaluates the performance of the specified model.
 	 * 
 	 * @param model model to evaluate
-	 * @throws UnreadDatasetException 
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	public abstract void evaluate(MCTBNC<?, ?> model) throws UnreadDatasetException;
 
 	/**
 	 * Defines the metrics writer used to save the results of the evaluation.
 	 * 
-	 * @param metricsWriter
+	 * @param metricsWriter a {@code MetricsWriter} used to save the results of the
+	 *                      evaluation
 	 */
 	public void setWriter(MetricsWriter metricsWriter) {
 		this.metricsWriter = metricsWriter;
 	}
 
 	/**
-	 * Display the results obtained with the validation method.
+	 * Displays the results obtained with the validation method.
 	 * 
-	 * @param results
+	 * @param results a {@code Map} with the results of the validation method
 	 */
 	public void displayResults(Map<String, Double> results) {
 		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
@@ -44,9 +45,9 @@ public abstract class ValidationMethod {
 	}
 
 	/**
-	 * Display the model obtained with the validation method.
+	 * Displays the model obtained with the validation method.
 	 *
-	 * @param model
+	 * @param model obtained model
 	 */
 	public void displayModel(MCTBNC<?, ?> model) {
 		System.out.println(model);

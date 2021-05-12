@@ -24,9 +24,9 @@ public class MultipleCSVReader extends AbstractCSVReader {
 	 * Constructs a {@code MultipleCSVReader} that extracts all the CSV files from
 	 * the specified folder.
 	 * 
-	 * @param datasetFolder folder path where the csv files are stored
-	 * @throws FileNotFoundException
-	 * @throws UnreadDatasetException
+	 * @param datasetFolder folder path where the CSV files are stored
+	 * @throws FileNotFoundException  if the CSV files were not found
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	public MultipleCSVReader(String datasetFolder) throws FileNotFoundException, UnreadDatasetException {
 		super(datasetFolder);
@@ -50,7 +50,7 @@ public class MultipleCSVReader extends AbstractCSVReader {
 	@Override
 	public Dataset readDataset() throws UnreadDatasetException {
 		if (isDatasetOutdated()) {
-			logger.info("Reading dataset from multiples csv files in {}", this.datasetFolder);
+			logger.info("Reading dataset from multiples csv files in {}", this.datasetFolder);			
 			this.dataset = new Dataset(this.nameTimeVariable, this.nameClassVariables);
 			for (File file : this.files)
 				readCSV(file);
@@ -68,10 +68,9 @@ public class MultipleCSVReader extends AbstractCSVReader {
 	}
 
 	/**
-	 * Read a single CSV file and .
+	 * Reads a single CSV file.
 	 * 
-	 * @param nameAcceptedFiles
-	 * @param file
+	 * @param file CSV file
 	 * @throws UnreadDatasetException
 	 */
 	private void readCSV(File file) throws UnreadDatasetException {

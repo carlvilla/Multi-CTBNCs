@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
- * Test the estimation of sufficient statistics and parameters of a BN. Maximum
+ * Tests the estimation of sufficient statistics and parameters of a BN. Maximum
  * likelihood estimation test is executed first so the sufficient statistics are
  * computed before their test starts.
  * 

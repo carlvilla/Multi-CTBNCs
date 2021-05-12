@@ -20,31 +20,32 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
 import es.upm.fi.cig.mctbnc.util.Util;
 
 /**
- * Implements the conditional log-likelihood score to perform a discriminative
- * training.
+ * Implements the conditional log-likelihood score for MCTBNCs with nodes that
+ * have CPTs and CIMs to define its bridge and feature subgraph (represented by
+ * a CTBN). This score is used to perform a discriminative training.
  */
 public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements CTBNScoreFunction {
 	// Store class configurations
 	List<State> statesCVs;
 
 	/**
-	 * Receives the name of the penalization function used for the structure
-	 * complexity.
+	 * Receives the name of the penalization function for the structure complexity.
 	 * 
-	 * @param penalizationFunction
+	 * @param penalizationFunction name of the penalization function
 	 */
 	public CTBNConditionalLogLikelihood(String penalizationFunction) {
 		super(penalizationFunction);
 	}
 
 	/**
-	 * Compute the (penalized) conditional log-likelihood score of a discrete
+	 * Computes the (penalized) conditional log-likelihood score of a discrete
 	 * continuous time Bayesian network. This is based on the idea of optimizing the
 	 * conditional log-likelihood proposed by Friedman et al., 1997.
 	 * 
-	 * @param ctbn continuous time Bayesian network
+	 * @param ctbn a continuous time Bayesian network
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public double compute(CTBN<? extends Node> ctbn) {
 		// Store the conditional log-likelihood score
 		double cll = 0.0;
@@ -62,6 +63,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public double compute(CTBN<? extends Node> ctbn, int nodeIndex) {
 		// Store the conditional log-likelihood score
 		double cll = 0.0;
@@ -83,11 +85,21 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 		return false;
 	}
 
+	@Override
+	public String getIdentifier() {
+		return "Conditional log-likelihood";
+	}
+
+	@Override
+	public String getPenalization() {
+		return this.penalizationFunction;
+	}
+
 	/**
-	 * Return State objects with all class configurations. They are saved as a
-	 * global variable to avoid recomputing them.
+	 * Returns {@code State} objects with all class configurations. They are saved
+	 * as a global variable to avoid recomputing them.
 	 * 
-	 * @param nodesCVs
+	 * @param nodesCVs nodes of the class variables
 	 * @return states with all class configurations
 	 */
 	private List<State> getClassConfigurations(List<CPTNode> nodesCVs) {
@@ -105,8 +117,9 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 	}
 
 	/**
-	 * Check if the saved class configurations are still valid.
+	 * Checks if the saved class configurations are still valid.
 	 * 
+	 * @param nodesCVs nodes of the class variables
 	 * @return true if the currently saved class configurations are still valid,
 	 *         false otherwise
 	 */
@@ -123,9 +136,10 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 	}
 
 	/**
-	 * Compute the log prior probability of the class variables.
+	 * Computes the log prior probability of the class variables.
 	 * 
-	 * @param nodesCVs
+	 * @param bnClassSubgraph Bayesian network with the class variables (class
+	 *                        subgraph)
 	 * @return log prior probability of the class variables
 	 */
 	private double logPriorProbabilityClassVariables(BN<CPTNode> bnClassSubgraph) {
@@ -155,13 +169,13 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 	}
 
 	/**
-	 * Compute the log-likelihood of the sequences at each feature node. Only
+	 * Computes the log-likelihood of the sequences at each feature node. Only
 	 * features and class variables that are parents of each node are relevant.
 	 * 
-	 * @param ctbn
-	 * @param statesCVs
+	 * @param ctbn a continuous time Bayesian network
 	 * @return log-likelihood of the sequences at each feature node
 	 */
+	@SuppressWarnings("unchecked")
 	private double logLikelihoodSequences(CTBN<? extends Node> ctbn) {
 		double lls = 0.0;
 		// Compute log-likelihood of the sequences given the class variables
@@ -201,7 +215,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 	}
 
 	/**
-	 * Compute the log-marginal-likelihoods of the sequences (denominator term).
+	 * Computes the log-marginal-likelihoods of the sequences (denominator term).
 	 * 
 	 * @param nodesCVs
 	 * @param ctbn
@@ -231,7 +245,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 	}
 
 	/**
-	 * Compute the log prior probability of every class configuration and stored
+	 * Computes the log prior probability of every class configuration and stored
 	 * them in Map 'uPs'.
 	 * 
 	 * @param nodesCVs
@@ -263,13 +277,14 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 	}
 
 	/**
-	 * Compute the log-likelihood of the sequences at the feature nodes given each
+	 * Computes the log-likelihood of the sequences at the feature nodes given each
 	 * possible class configuration and stored them in Map 'uPs'.
 	 * 
 	 * @param ctbn
 	 * @param statesCVs
 	 * @param uPs
 	 */
+	@SuppressWarnings("unchecked")
 	private void logLikelihoodSequencesGivenClassConfigurations(CTBN<? extends Node> ctbn, List<State> statesCVs,
 			Map<State, Double> uPs) {
 		for (State stateCVs : statesCVs) {
@@ -326,11 +341,12 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 	}
 
 	/**
-	 * Define the total penalization to apply to the given model.
+	 * Defines the total penalization to apply to the given model.
 	 * 
 	 * @param ctbn
 	 * @return penalization to apply to the given model
 	 */
+	@SuppressWarnings("unchecked")
 	private double getPenalization(CTBN<? extends Node> ctbn) {
 		double totalPenalization = 0.0;
 		DoubleUnaryOperator penalizationFunction = this.penalizationFunctionMap.get(this.penalizationFunction);
@@ -355,7 +371,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 	}
 
 	/**
-	 * Compute the log-likelihood of the sequences at specified feature node. Only
+	 * Computes the log-likelihood of the sequences at specified feature node. Only
 	 * features and class variables that are parents of each node are relevant.
 	 * 
 	 * @param ctbn
@@ -401,7 +417,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 	}
 
 	/**
-	 * Compute the log-marginal-likelihoods of the sequences (denominator term) at
+	 * Computes the log-marginal-likelihoods of the sequences (denominator term) at
 	 * the specified node.
 	 * 
 	 * @param nodesCVs
@@ -432,7 +448,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 	}
 
 	/**
-	 * Compute the log-likelihood of the sequences at the specified feature node
+	 * Computes the log-likelihood of the sequences at the specified feature node
 	 * given each possible class configuration and stored them in Map 'uPs'.
 	 * 
 	 * @param ctbn
@@ -494,7 +510,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 	}
 
 	/**
-	 * Define the total penalization to apply to the given model, considering only
+	 * Defines the total penalization to apply to the given model, considering only
 	 * the specified feature node.
 	 * 
 	 * @param ctbn
@@ -521,15 +537,4 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 		}
 		return totalPenalization;
 	}
-
-	@Override
-	public String getIdentifier() {
-		return "Conditional log-likelihood";
-	}
-
-	@Override
-	public String getPenalization() {
-		return penalizationFunction;
-	}
-
 }

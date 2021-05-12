@@ -15,7 +15,7 @@ public class FirstChoiceHillClimbing extends HillClimbing {
 	 * of the hill climbing algorithm (for a Bayesian network, continuous time
 	 * Bayesian network...).
 	 * 
-	 * @param hcImplementation
+	 * @param hcImplementation implementation of the hill climbing algorithm
 	 */
 	public FirstChoiceHillClimbing(HillClimbingImplementation hcImplementation) {
 		this.hcImplementation = hcImplementation;

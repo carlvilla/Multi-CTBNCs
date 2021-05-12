@@ -20,7 +20,7 @@ public class Observation {
 	private Map<String, String> variablesValues;
 
 	/**
-	 * Create an observation given the name of the variables and time variable, and
+	 * Creates an observation given the name of the variables and time variable, and
 	 * their values.
 	 * 
 	 * @param nameVariables    name of the variables
@@ -39,11 +39,11 @@ public class Observation {
 	}
 
 	/**
-	 * Create an observation given the value of the time variable separately.
+	 * Creates an observation given the value of the time variable separately.
 	 * 
-	 * @param nameVariables
-	 * @param values
-	 * @param timeValue
+	 * @param nameVariables name of the variables
+	 * @param values        values of all the variables (except time variable)
+	 * @param timeValue     value of the time variable
 	 */
 	public Observation(List<String> nameVariables, String[] values, double timeValue) {
 		// Store name of the variable and its value for the observation
@@ -55,16 +55,16 @@ public class Observation {
 	}
 
 	/**
-	 * Remove the value of a feature from the observation.
+	 * Removes the value of a feature from the observation.
 	 * 
-	 * @param nameFeature
+	 * @param nameFeature name of the feature variable
 	 */
 	public void removeFeatures(String nameFeature) {
 		this.variablesValues.remove(nameFeature);
 	}
 
 	/**
-	 * Return the name of the variables in the observation (except the time
+	 * Returns the name of the variables in the observation (except the time
 	 * variable).
 	 * 
 	 * @return name of the variables
@@ -75,7 +75,7 @@ public class Observation {
 	}
 
 	/**
-	 * Return the value of all the variables (except the time variable) for the
+	 * Returns the value of all the variables (except the time variable) for the
 	 * observation.
 	 * 
 	 * @return values of the variables
@@ -86,7 +86,7 @@ public class Observation {
 	}
 
 	/**
-	 * Return the value of the time variable for the observation.
+	 * Returns the value of the time variable for the observation.
 	 * 
 	 * @return value of the time variable
 	 */
@@ -95,7 +95,7 @@ public class Observation {
 	}
 
 	/**
-	 * Given the name of a variable, return its value for the observation.
+	 * Given the name of a variable, returns its value for the observation.
 	 * 
 	 * @param nameVariable name of the variable
 	 * @return value of the variable for the observation
@@ -105,7 +105,7 @@ public class Observation {
 	}
 
 	/**
-	 * Given the names of variables, return their value for the observation.
+	 * Given the names of variables, returns their value for the observation.
 	 * 
 	 * @param nameVariables names of the variable
 	 * @return values of the variables for the observation

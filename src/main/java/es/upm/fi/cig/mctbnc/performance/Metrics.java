@@ -17,7 +17,7 @@ import es.upm.fi.cig.mctbnc.data.representation.State;
 import es.upm.fi.cig.mctbnc.util.Util;
 
 /**
- * Compute different metrics for the evaluation of multi-dimensional
+ * Computes different metrics for the evaluation of multi-dimensional
  * classifications.
  * 
  * @author Carlos Villa Blanco
@@ -27,10 +27,10 @@ public class Metrics {
 	private static Logger logger = LogManager.getLogger(Metrics.class);
 
 	/**
-	 * Use different performance metrics to evaluate how good are the given
+	 * Uses different performance metrics to evaluate how good are the given
 	 * predictions.
 	 * 
-	 * @param predicted
+	 * @param predicted     {@code Prediction} array
 	 * @param actualDataset dataset with actual classes
 	 * @return Map with the name of the evaluation metrics and their values
 	 */
@@ -80,11 +80,8 @@ public class Metrics {
 		Map<String, Double> results = new LinkedHashMap<String, Double>();
 		double globalAccuracy = globalAccuracy(predicted, actualDataset);
 		double meanAccuracy = meanAccuracy(predicted, actualDataset, results);
-		System.out.println("-----PRECISION-----");
 		double macroPrecision = macroAverage(predicted, actualDataset, Metrics::precision);
-		System.out.println("-----RECALL-----");
 		double macroRecall = macroAverage(predicted, actualDataset, Metrics::recall);
-		System.out.println("-----F1 SCORE-----");
 		double macroF1Score = macroAverage(predicted, actualDataset, Metrics::f1score);
 		double microPrecision = microAverage(predicted, actualDataset, Metrics::precision);
 		double microRecall = microAverage(predicted, actualDataset, Metrics::recall);
@@ -106,9 +103,9 @@ public class Metrics {
 	}
 
 	/**
-	 * Display the predictions along with the actual values.
+	 * Displays the predictions along with the actual values.
 	 * 
-	 * @param predicted
+	 * @param predicted     {@code Prediction} array
 	 * @param actualDataset dataset with actual classes
 	 */
 	public static void showPredictions(Prediction[] predicted, Dataset actualDataset) {
@@ -134,30 +131,30 @@ public class Metrics {
 	}
 
 	/**
-	 * Compute the global accuracy, which is the ratio between the number of
+	 * Computes the global accuracy, which is the ratio between the number of
 	 * instances that were correctly classified for all the class variables and the
 	 * total number of instances. A partially correct classification will be
 	 * considered as an error (Bielza et al., 2011).
 	 * 
-	 * @param predicted     array of Prediction objects with predicted classes
+	 * @param predicted     {@code Prediction} array
 	 * @param actualDataset dataset with actual classes
 	 * @return 0/1 subset accuracy
 	 */
 	public static double globalAccuracy(Prediction[] predicted, Dataset actualDataset) {
 		State[] actualValues = actualDataset.getStatesClassVariables();
 		int numInstances = actualValues.length;
-		double globalAccuracy = 0;
+		double globalAccuracy = 0.0;
 		for (int i = 0; i < numInstances; i++)
 			if (predicted[i].getPredictedClasses().equals(actualValues[i]))
 				globalAccuracy += 1;
-		return (double) globalAccuracy / numInstances;
+		return globalAccuracy / numInstances;
 	}
 
 	/**
-	 * Compute the mean of the accuracies for each class variable (Bielza et al.,
+	 * Computes the mean of the accuracies for each class variable (Bielza et al.,
 	 * 2011).
 	 * 
-	 * @param predicted     array of Prediction objects with predicted classes
+	 * @param predicted     {@code Prediction} array
 	 * @param actualDataset dataset with actual classes
 	 * @return mean accuracy
 	 */
@@ -166,12 +163,13 @@ public class Metrics {
 	}
 
 	/**
-	 * Compute the mean of the accuracies for each class variable (Bielza et al.,
+	 * Computes the mean of the accuracies for each class variable (Bielza et al.,
 	 * 2011).
 	 * 
-	 * @param predicted     array of Prediction objects with predicted classes
+	 * @param predicted     {@code Prediction} array
 	 * @param actualDataset dataset with actual classes
-	 * @param results       map to store the accuracies of each class variables
+	 * @param results       a {@code Map} to store the accuracies of each class
+	 *                      variables
 	 * @return mean accuracy
 	 */
 	public static double meanAccuracy(Prediction[] predicted, Dataset actualDataset, Map<String, Double> results) {
@@ -183,13 +181,8 @@ public class Metrics {
 		double meanAccuracy = 0.0;
 		// Iterate over every class variable
 		List<String> nameCVs = predicted[0].getPredictedClasses().getNameVariables();
-
-		System.out.println("-----ACCURACY----- \n" + nameCVs);
-
 		for (String nameCV : nameCVs) {
-
-			double accuracyCV = 0;
-
+			double accuracyCV = 0.0;
 			// Iterate over every instance
 			for (int j = 0; j < numInstances; j++) {
 				String predictedClass = predicted[j].getPredictedClasses().getValueVariable(nameCV);
@@ -199,17 +192,11 @@ public class Metrics {
 					accuracyCV += 1;
 				}
 			}
-			accuracyCV = accuracyCV / (double) numInstances;
+			accuracyCV = accuracyCV / numInstances;
 			if (results != null)
 				results.put("Accuracy " + nameCV, accuracyCV);
-
-			System.out.print(accuracyCV + " ");
-
 		}
-
-		System.out.println();
-
-		meanAccuracy /= (double) numInstances;
+		meanAccuracy /= numInstances;
 		meanAccuracy /= nameCVs.size();
 		return meanAccuracy;
 	}
@@ -221,7 +208,7 @@ public class Metrics {
 	 * multi-dimensional problems, which rewards only the probability of the class
 	 * configuration where all classes are correct (Fernandes et al., 2013).
 	 * 
-	 * @param predicted     array of Prediction objects with predicted classes
+	 * @param predicted     {@code Prediction} array
 	 * @param actualDataset dataset with actual classes
 	 * @return global brier score
 	 */
@@ -255,7 +242,7 @@ public class Metrics {
 	}
 
 	/**
-	 * Compute the precision evaluation metric from a Map containing a confusion
+	 * Computes the precision evaluation metric from a Map containing a confusion
 	 * matrix. The Map should contain, at least, the keys "tp" (true positive) and
 	 * "fp" (false positive).
 	 * 
@@ -268,7 +255,7 @@ public class Metrics {
 	}
 
 	/**
-	 * Compute the recall evaluation metric from a Map containing a confusion
+	 * Computes the recall evaluation metric from a Map containing a confusion
 	 * matrix. The Map should contain, at least, the keys "tp" (true positive) and
 	 * "fn" (false negative).
 	 * 
@@ -292,11 +279,11 @@ public class Metrics {
 	}
 
 	/**
-	 * Compute the value of a given evaluation metric for a multi-dimensional
+	 * Computes the value of a given evaluation metric for a multi-dimensional
 	 * classification problem using a macro-average approach (Gil‑Begue et al.,
 	 * 2020).
 	 * 
-	 * @param predicted     array of Prediction objects with predicted classes
+	 * @param predicted     {@code Prediction} array
 	 * @param actualDataset dataset with actual classes
 	 * @param metric        evaluation metric
 	 * @return result of the evaluation metric
@@ -347,11 +334,11 @@ public class Metrics {
 	}
 
 	/**
-	 * Compute the value of a given evaluation metric for a multi-dimensional
+	 * Computes the value of a given evaluation metric for a multi-dimensional
 	 * classification problem using a micro-average approach (Gil‑Begue et al.,
 	 * 2020).
 	 * 
-	 * @param predicted     array of Prediction objects with predicted classes
+	 * @param predicted     {@code Prediction} array
 	 * @param actualDataset dataset with actual classes
 	 * @param metric        evaluation metric
 	 * @return result of the evaluation metric
@@ -404,11 +391,11 @@ public class Metrics {
 	}
 
 	/**
-	 * Return the positive class of a binary class variable. It is assumed that the
+	 * Returns the positive class of a binary class variable. It is assumed that the
 	 * class would be either 'True', 'Positive' or '1'. If it is not possible to
 	 * determine the positive class, the first one will be returned.
 	 * 
-	 * @param possibleClasses
+	 * @param possibleClasses possible classes
 	 * @return positive class
 	 */
 	private static String getPositiveClass(String[] possibleClasses) {
@@ -424,12 +411,12 @@ public class Metrics {
 	}
 
 	/**
-	 * Obtain a confusion matrix given a list of predicted values and their actual
+	 * Obtains a confusion matrix given a list of predicted values and their actual
 	 * values. It also needs to be specified which one is the positive class.
 	 * 
-	 * @param predicted
-	 * @param actual
-	 * @param positiveClass
+	 * @param predicted     {@code Prediction} array
+	 * @param actual        dataset with actual classes
+	 * @param positiveClass positive class
 	 * @return confusion matrix
 	 */
 	private static Map<String, Integer> getConfusionMatrix(String[] predicted, String[] actual, String positiveClass) {

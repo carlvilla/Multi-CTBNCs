@@ -35,7 +35,7 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 	}
 
 	/**
-	 * Obtain the sufficient statistics of each node of a CTBN.
+	 * Obtains the sufficient statistics of each node of a CTBN.
 	 * 
 	 * @param nodes
 	 * @param dataset
@@ -48,7 +48,7 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 	}
 
 	/**
-	 * Obtain the sufficient statistics of a CTBN node.
+	 * Obtains the sufficient statistics of a CTBN node.
 	 * 
 	 * @param nodes
 	 * @param dataset
@@ -59,7 +59,7 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 	}
 
 	/**
-	 * Set the conditional intensity matrices of the nodes of a CTBN.
+	 * Sets the conditional intensity matrices of the nodes of a CTBN.
 	 * 
 	 * @param nodes
 	 */
@@ -75,7 +75,7 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 	}
 
 	/**
-	 * Set the conditional intensity matrices of a CTBN node.
+	 * Sets the conditional intensity matrices of a CTBN node.
 	 * 
 	 * @param nodes
 	 * @param dataset
@@ -85,7 +85,7 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 	}
 
 	/**
-	 * Estimate the parameters for "node" from its computed sufficient statistics.
+	 * Estimates the parameters for "node" from its computed sufficient statistics.
 	 * It is estimated two parameters that summarize the CIMs of each variable. The
 	 * first one contains the probabilities of the variables leaving a state and the
 	 * second one the probabilities of leaving a state for a certain one.

@@ -21,7 +21,7 @@ public class VariableNotFoundException extends Exception {
 	 * Constructs a {@code VariableNotFoundException} with the specified detail
 	 * message.
 	 * 
-	 * @param str
+	 * @param str detail message
 	 */
 	public VariableNotFoundException(String str) {
 		super(str);

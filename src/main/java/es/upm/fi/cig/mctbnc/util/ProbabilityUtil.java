@@ -23,12 +23,12 @@ public final class ProbabilityUtil {
 	}
 
 	/**
-	 * Compute the logarithm of the prior probability of the class variables taking
+	 * Computes the logarithm of the prior probability of the class variables taking
 	 * certain values. Their probability is computed by using the Bayesian network.
 	 * 
-	 * @param <NodeTypeBN>
-	 * @param nodesBN
-	 * @param stateCVs
+	 * @param <NodeTypeBN> type of the nodes of the Bayesian network
+	 * @param nodesBN      nodes of a Bayesian network
+	 * @param stateCVs     class configuration
 	 * @return logarithm of the prior probability of the class variables
 	 */
 	public static <NodeTypeBN extends Node> double logPriorProbabilityClassVariables(List<NodeTypeBN> nodesBN,
@@ -49,14 +49,16 @@ public final class ProbabilityUtil {
 	}
 
 	/**
-	 * Compute the log-likelihood of a sequence, also known as temporal likelihood
+	 * Computes the log-likelihood of a sequence, also known as temporal likelihood
 	 * (Stella and Amer 2012), given the state of the class variables. This is done
 	 * by using the CTBN.
 	 * 
-	 * @param sequence
-	 * @param nodesCTBN
-	 * @param stateClassVariables
-	 * @return log-likelihood of the sequence given a class configuration
+	 * @param <NodeTypeCTBN>      type of the nodes of the continuous time Bayesian
+	 *                            network
+	 * @param sequence            sequence evaluated
+	 * @param nodesCTBN           nodes of a continuous time Bayesian network
+	 * @param stateClassVariables class configuration
+	 * @return log-likelihood of the sequence given the class configuration
 	 */
 	public static <NodeTypeCTBN> double logLikelihoodSequence(Sequence sequence, List<NodeTypeCTBN> nodesCTBN,
 			State stateClassVariables) {
@@ -128,7 +130,7 @@ public final class ProbabilityUtil {
 	}
 
 	/**
-	 * Compute the marginal log-likelihood of a sequence given the unnormalized
+	 * Computes the marginal log-likelihood of a sequence given the unnormalized
 	 * log-a-posteriori probability for each class configuration.
 	 * 
 	 * @param laps unnormalized log-a-posteriori probabilities
@@ -147,9 +149,9 @@ public final class ProbabilityUtil {
 	}
 
 	/**
-	 * Return a probability between 0 or 0.3, or between 0.7 and 1.
+	 * Returns a probability between 0 or 0.3, or between 0.7 and 1.
 	 * 
-	 * @return probability
+	 * @return a probability
 	 */
 	public static double extremeProbability() {
 		if (Math.random() < 0.5) {

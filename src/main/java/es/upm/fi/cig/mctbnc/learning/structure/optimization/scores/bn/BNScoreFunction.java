@@ -12,25 +12,25 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
 public interface BNScoreFunction {
 
 	/**
-	 * Compute score for a Bayesian network.
+	 * Computes the score of a Bayesian network.
 	 * 
-	 * @param bn
+	 * @param bn a Bayesian network
 	 * @return score
 	 */
 	public double compute(BN<? extends Node> bn);
 
 	/**
-	 * Get an identifier for the score function.
+	 * Gets an identifier for the score function.
 	 * 
 	 * @return identifier for the score function.
 	 */
 	public String getIdentifier();
-	
+
 	/**
-	 * Get the name of the penalization applied (if any) to the score function.
+	 * Gets the name of the penalization applied (if any) to the score function.
 	 * 
 	 * @return name of the penalization applied to the score function
 	 */
 	public String getPenalization();
-	
+
 }

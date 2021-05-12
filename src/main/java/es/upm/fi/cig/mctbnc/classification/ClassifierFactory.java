@@ -25,17 +25,20 @@ public class ClassifierFactory {
 	static Logger logger = LogManager.getLogger(ClassifierFactory.class);
 
 	/**
-	 * Build the specified classifier with the provided hyperparameters.
+	 * Builds the specified classifier with the provided hyperparameters.
 	 * 
-	 * @param <NodeTypeBN>
-	 * @param <NodeTypeCTBN>
-	 * @param nameClassifier
-	 * @param bnLearningAlgs
-	 * @param ctbnLearningAlgs
+	 * @param <NodeTypeBN>     type of the nodes of the Bayesian network
+	 * @param <NodeTypeCTBN>   type of the nodes of the continuous time Bayesian
+	 *                         network
+	 * @param nameClassifier   name of the classifier to build
+	 * @param bnLearningAlgs   parameter and structure learning algorithms for
+	 *                         Bayesian networks
+	 * @param ctbnLearningAlgs parameter and structure learning algorithms for
+	 *                         continuous time Bayesian networks
 	 * @param hyperparameters  specific hyperparameters for each type of classifier
-	 * @param bnNodeClass
-	 * @param ctbnNodeClass
-	 * @return classifier
+	 * @param bnNodeClass      Bayesian network node type
+	 * @param ctbnNodeClass    continuous time Bayesian network node type
+	 * @return a {@code MCTBNC}
 	 */
 	public static <NodeTypeBN extends Node, NodeTypeCTBN extends Node> MCTBNC<NodeTypeBN, NodeTypeCTBN> getMCTBNC(
 			String nameClassifier, BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnLearningAlgs,
@@ -66,7 +69,7 @@ public class ClassifierFactory {
 	}
 
 	/**
-	 * Return a list with the currently available classifiers.
+	 * Returns a list with the currently available classifiers.
 	 * 
 	 * @return list of available classifiers
 	 */

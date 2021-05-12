@@ -28,7 +28,9 @@ import javafx.stage.Stage;
  * 
  * @author Carlos Villa Blanco
  *
- * @param <NodeType>
+ * @param <NodeType> type of nodes used by the model, e.g., nodes with
+ *                   conditional probability tables ({@code CPTNode}) or
+ *                   conditional intensity matrices (@code CIMNode)
  */
 public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType> {
 	Dataset dataset;
@@ -43,9 +45,9 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	static Logger logger = LogManager.getLogger(AbstractPGM.class);
 
 	/**
-	 * Common initialization for PGM.
+	 * Common initialization for PGMs. References to the provided nodes are stored.
 	 * 
-	 * @param nodes
+	 * @param nodes nodes of the PGM
 	 */
 	public AbstractPGM(List<NodeType> nodes) {
 		addNodes(nodes);
@@ -55,7 +57,22 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Default constructor
+	 * Common initialization for PGMs. The provided dataset is used to learn the
+	 * model. References to the provided nodes are stored.
+	 * 
+	 * @param nodes   nodes of the PGM
+	 * @param dataset dataset used to learn the model
+	 */
+	public AbstractPGM(List<NodeType> nodes, Dataset dataset) {
+		addNodes(nodes);
+		this.nameVariables = new ArrayList<String>();
+		for (Node node : nodes)
+			this.nameVariables.add(node.getName());
+		this.dataset = dataset;
+	}
+
+	/**
+	 * Default constructor.
 	 */
 	public AbstractPGM() {
 	}
@@ -118,12 +135,13 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Return those nodes which have different parents in the provided adjacency
+	 * Returns those nodes with different parents in the provided adjacency
 	 * matrices.
 	 * 
-	 * @param adjacencyMatrix1
-	 * @param adjacencyMatrix2
-	 * @param modifiedNodes
+	 * @param adjacencyMatrix1 an adjacency matrix
+	 * @param adjacencyMatrix2 an adjacency matrix
+	 * @param modifiedNodes    nodes with different parents in the provided
+	 *                         adjacency matrices
 	 */
 	private List<Integer> getModifiedNodes(boolean[][] adjacencyMatrix1, boolean[][] adjacencyMatrix2) {
 		List<Integer> modifiedNodes = new ArrayList<Integer>();
@@ -152,38 +170,41 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Establish the algorithm that will be used to learn the parameters of the PGM.
+	 * Establishes the algorithm that will be used to learn the parameters of the
+	 * PGM.
 	 * 
-	 * @param parameterLearningAlg
+	 * @param parameterLearningAlg parameter learning algorithm
 	 */
 	public void setParameterLearningAlgorithm(ParameterLearningAlgorithm parameterLearningAlg) {
 		this.parameterLearningAlg = parameterLearningAlg;
 	}
 
 	/**
-	 * Establish the algorithm that will be used to learn the structure of the PGM.
+	 * Establishes the algorithm that will be used to learn the structure of the
+	 * PGM.
 	 * 
-	 * @param structureLearningAlg
+	 * @param structureLearningAlg structure learning algorithm
 	 */
 	public void setStructureLearningAlgorithm(StructureLearningAlgorithm structureLearningAlg) {
 		this.structureLearningAlg = structureLearningAlg;
 	}
 
 	/**
-	 * Establish the constraints that the PGM needs to meet.
+	 * Establishes the constraints that the PGM needs to meet.
 	 * 
-	 * @param structureConstraints
+	 * @param structureConstraints structure constrains to take into account during
+	 *                             the learning of the model
 	 */
 	public void setStructureConstraints(StructureConstraints structureConstraints) {
 		this.structureConstraints = structureConstraints;
 	}
 
 	@Override
-	public void setTrainingDataset(Dataset dataset) {
+	public void initializeModel(Dataset dataset) {
 		// Save dataset used to learn the model
 		this.dataset = dataset;
 		// Use node factory to create nodes of the specified type
-		this.nodeFactory = new NodeFactory<NodeType>(this.nodeClass);
+		this.nodeFactory = NodeFactory.createFactory(this.nodeClass);
 		// Clear the entire model
 		removeAllNodes();
 		// Create nodes using the dataset
@@ -214,15 +235,16 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 
 	@Override
 	public void learn(Dataset dataset) {
-		setTrainingDataset(dataset);
+		initializeModel(dataset);
 		learn();
 	}
 
 	/**
-	 * Return the adjacency matrix of the PGM by analyzing the children of each
+	 * Returns the adjacency matrix of the PGM by analyzing the children of each
 	 * node.
 	 * 
-	 * @return bidimensional boolean array representing the adjacency matrix
+	 * @return two-dimensional {@code boolean} array representing the adjacency
+	 *         matrix
 	 */
 	@Override
 	public boolean[][] getAdjacencyMatrix() {
@@ -260,7 +282,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Return the node indexer of the model.
+	 * Returns the node indexer of the model.
 	 * 
 	 * @return node indexer
 	 */
@@ -285,7 +307,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Return the names of the variables of the PGM.
+	 * Returns the names of the variables of the PGM.
 	 * 
 	 * @return names of the variables
 	 */
@@ -294,7 +316,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Return the algorithm that is used to learn the parameters of the PGM.
+	 * Returns the algorithm that is used to learn the parameters of the PGM.
 	 * 
 	 * @return parameter learning algorithm
 	 */
@@ -303,7 +325,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Return the algorithm that is used to learn the structure of the PGM.
+	 * Returns the algorithm that is used to learn the structure of the PGM.
 	 * 
 	 * @return structure learning algorithm
 	 */
@@ -312,7 +334,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Return the constraints that the PGM needs to meet.
+	 * Returns the constraints that the PGM needs to meet.
 	 * 
 	 * @return structure constraints
 	 * 
@@ -331,7 +353,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Return the type of the nodes.
+	 * Returns the type of the nodes.
 	 * 
 	 * @return type of the nodes
 	 */
@@ -340,7 +362,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Return the dataset used to learn the PGM.
+	 * Returns the dataset used to learn the PGM.
 	 * 
 	 * @return dataset
 	 */
@@ -349,7 +371,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Return the hyperparameters of the model that are set by the user.
+	 * Returns the hyperparameters of the model that are set by the user.
 	 * 
 	 * @return {@code a Map} with the hyperparameters
 	 */
@@ -358,10 +380,10 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Determine if the structure is legal.
+	 * Determines if the structure is legal.
 	 * 
-	 * @param adjacencyMatrix
-	 * @return boolean that determines if the structure is valid
+	 * @param adjacencyMatrix adjacency matrix
+	 * @return true if the structure is valid, false otherwise
 	 */
 	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix) {
@@ -369,7 +391,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Display the PGM using GraphStream.
+	 * Displays the PGM using GraphStream.
 	 */
 	@Override
 	public void display() {
@@ -391,10 +413,10 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Add nodes to a graphstream graph.
+	 * Adds nodes to a graphstream graph.
 	 * 
-	 * @param graph
-	 * @param nodes
+	 * @param graph graphstream graph
+	 * @param nodes list of nodes to add to the graph
 	 */
 	private void addNodes(Graph graph, List<NodeType> nodes) {
 		// Variables used to determine position of the node in the graph
@@ -421,10 +443,10 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	/**
-	 * Add edges to a graphstream graph.
+	 * Adds edges to a graphstream graph.
 	 * 
-	 * @param graph
-	 * @param nodes
+	 * @param graph graphstream graph
+	 * @param nodes nodes whose edges are added to the graph
 	 */
 	private void addEdges(Graph graph, List<NodeType> nodes) {
 		for (Node node : nodes) {

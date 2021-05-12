@@ -19,7 +19,7 @@ public final class ControllerUtil {
 	/**
 	 * Checks that the text field only contains positive integers.
 	 * 
-	 * @param textField
+	 * @param textField text field
 	 */
 	public static void onlyPositiveInteger(TextField textField) {
 		textField.textProperty().addListener(new ChangeListener<String>() {
@@ -35,8 +35,8 @@ public final class ControllerUtil {
 	 * Checks that the text field only contains positive integers greater than a
 	 * given number.
 	 * 
-	 * @param textField
-	 * @param minValue
+	 * @param textField text field
+	 * @param minValue  minimum value of the integers
 	 */
 	public static void onlyPositiveIntegerGreaterThan(TextField textField, int minValue) {
 		textField.textProperty().addListener(new ChangeListener<String>() {

@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * 
- * Represent the state of certain nodes/variables (events) by keeping their
+ * Represents the state of certain nodes/variables (events) by keeping their
  * names and values. A certain state can only contain one event for each
  * variable.
  * 
@@ -27,7 +27,7 @@ public class State {
 	}
 
 	/**
-	 * Create an State instance with some events.
+	 * Creates an State instance with some events.
 	 * 
 	 * @param events events to include to the State
 	 */
@@ -36,7 +36,7 @@ public class State {
 	}
 
 	/**
-	 * Create an State instance with one event.
+	 * Creates an State instance with one event.
 	 * 
 	 * @param nameVariable  name of the variable
 	 * @param valueVariable value of the variable
@@ -49,14 +49,14 @@ public class State {
 	/**
 	 * Constructor to clone states;
 	 * 
-	 * @param state
+	 * @param state {@code State} to clone
 	 */
 	public State(State state) {
 		this.events = new LinkedHashMap<String, String>(state.events);
 	}
 
 	/**
-	 * Add an event (a variable taking a certain value) to the state.
+	 * Adds an event (a variable taking a certain value) to the state.
 	 * 
 	 * @param nameVariable  name of the variable
 	 * @param valueVariable value of the variable
@@ -67,7 +67,7 @@ public class State {
 	}
 
 	/**
-	 * Add events to the state.
+	 * Adds events to the state.
 	 * 
 	 * @param events events to add
 	 */
@@ -78,7 +78,7 @@ public class State {
 	}
 
 	/**
-	 * Given the name of a variables, its value is modified.
+	 * Modifies the value of a given variable.
 	 * 
 	 * @param nameVariable name of the variable
 	 * @param newValue     new value for the variable in this state
@@ -89,7 +89,7 @@ public class State {
 	}
 
 	/**
-	 * Remove specified event.
+	 * Removes specified event.
 	 * 
 	 * @param nameVariable name of the variable whose event is removed.
 	 */
@@ -98,7 +98,7 @@ public class State {
 	}
 
 	/**
-	 * Remove all events except those whose variable name is specified.
+	 * Removes all events except those whose variable name is specified.
 	 * 
 	 * @param nameVariables names of the variables whose events should not be
 	 *                      removed.
@@ -108,7 +108,7 @@ public class State {
 	}
 
 	/**
-	 * Return the events of the state.
+	 * Returns the events of the state.
 	 * 
 	 * @return Map with events
 	 */
@@ -117,7 +117,7 @@ public class State {
 	}
 
 	/**
-	 * Return number of events.
+	 * Returns number of events.
 	 * 
 	 * @return number of events
 	 */
@@ -126,7 +126,7 @@ public class State {
 	}
 
 	/**
-	 * Return the names of the variables collected by the State object.
+	 * Returns the names of the variables collected by the {@code State} object.
 	 * 
 	 * @return names of the variables
 	 */
@@ -135,7 +135,7 @@ public class State {
 	}
 
 	/**
-	 * Return all the values in the State.
+	 * Returns all the values in the State.
 	 * 
 	 * @return value of the specified node for this state
 	 */
@@ -144,7 +144,7 @@ public class State {
 	}
 
 	/**
-	 * Return the value for a specific variable. Null is returned if the variable is
+	 * Returns the value for a specific variable. Null is returned if the variable is
 	 * not present.
 	 * 
 	 * @param nameVariable name of the variable
@@ -155,7 +155,7 @@ public class State {
 	}
 
 	/**
-	 * Return the values for some specific variables. Null is returned if the
+	 * Returns the values for some specific variables. Null is returned if the
 	 * variable is not present.
 	 * 
 	 * @param nameVariables names of the variables
@@ -192,7 +192,7 @@ public class State {
 	}
 
 	/**
-	 * Initialize the hashcode field. This method is used when the object is
+	 * Initializes the hashcode field. This method is used when the object is
 	 * modified, so the hashcode needs to be recomputed.
 	 */
 	private void initializeHashcode() {

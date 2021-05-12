@@ -36,13 +36,13 @@ public class CrossValidation extends ValidationMethod {
 	/**
 	 * Constructor for cross-validation method.
 	 * 
-	 * @param datasetReader         dataset reader
+	 * @param datasetReader         a {@code DatasetReader} to read the dataset
 	 * @param folds                 number of folds
-	 * @param estimateProbabilities determines if the probabilities of the class
-	 *                              configurations are estimated
-	 * @param shuffle               determines if the sequences should be shuffled
-	 * @param seed
-	 * @throws UnreadDatasetException
+	 * @param estimateProbabilities true to estimate the probabilities of the class
+	 *                              configurations, false otherwise
+	 * @param shuffle               true to shuffle the sequences, false otherwise
+	 * @param seed                  seed used to shuffle the sequences
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	public CrossValidation(DatasetReader datasetReader, int folds, boolean estimateProbabilities, boolean shuffle,
 			Long seed) throws UnreadDatasetException {
@@ -56,10 +56,10 @@ public class CrossValidation extends ValidationMethod {
 	}
 
 	/**
-	 * Evaluate the performance of the specified model using cross-validation.
+	 * Evaluates the performance of the specified model using cross-validation.
 	 * 
 	 * @param model model to evaluate
-	 * @throws UnreadDatasetException
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	@Override
 	public void evaluate(MCTBNC<?, ?> model) throws UnreadDatasetException {
@@ -114,9 +114,9 @@ public class CrossValidation extends ValidationMethod {
 	}
 
 	/**
-	 * Read dataset.
+	 * Reads the dataset.
 	 * 
-	 * @throws UnreadDatasetException
+	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
 	private void readDataset() throws UnreadDatasetException {
 		this.dataset = this.datasetReader.readDataset();
@@ -131,10 +131,10 @@ public class CrossValidation extends ValidationMethod {
 	}
 
 	/**
-	 * Given all the sequences of a dataset, create a training dataset that include
+	 * Given all the sequences of a dataset, creates a training dataset that include
 	 * all the sequences but those between some specified indexes.
 	 * 
-	 * @param sequences
+	 * @param sequences sequences of a dataset
 	 * @param fromIndex index of the first sequence to ignore
 	 * @param toIndex   index of the last sequence to ignore
 	 * @return training dataset
@@ -147,10 +147,10 @@ public class CrossValidation extends ValidationMethod {
 	}
 
 	/**
-	 * Given all the sequences of a dataset, create a testing dataset using the
+	 * Given all the sequences of a dataset, creates a testing dataset using the
 	 * sequences between some specified indexes.
 	 * 
-	 * @param sequences
+	 * @param sequences sequences of a dataset
 	 * @param fromIndex index of the first sequence of the extracted dataset
 	 * @param toIndex   index of the last sequence of the extracted dataset
 	 * @return testing dataset
@@ -161,9 +161,10 @@ public class CrossValidation extends ValidationMethod {
 	}
 
 	/**
-	 * Display the results of a fold.
+	 * Displays the results of a fold.
 	 * 
-	 * @param results
+	 * @param results a {@code Map} with the results obtained when testing on a fold
+	 * @param model   the {@code MCTBNC} used for testing
 	 */
 	private void displayResultsFold(Map<String, Double> results, MCTBNC<?, ?> model) {
 		results.forEach((metric, value) -> System.out.println(metric + " = " + value));

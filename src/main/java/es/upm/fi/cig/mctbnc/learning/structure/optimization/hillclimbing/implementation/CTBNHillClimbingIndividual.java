@@ -13,7 +13,9 @@ import es.upm.fi.cig.mctbnc.models.PGM;
 import es.upm.fi.cig.mctbnc.nodes.Node;
 
 /**
- * Implements hill climbing algorithm for CTBNs.
+ * Implements hill climbing algorithm for CTBNs. This class is used with scores
+ * that can be optimized by finding the best parent set for each node
+ * individually.
  * 
  * @author Carlos Villa Blanco
  *
@@ -23,7 +25,9 @@ public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 	static Logger logger = LogManager.getLogger(CTBNHillClimbingIndividual.class);
 
 	/**
-	 * @param scoreFunction
+	 * Constructor that receives the score function to optimize.
+	 * 
+	 * @param scoreFunction score function for continuous time Bayesian networks
 	 */
 	public CTBNHillClimbingIndividual(CTBNScoreFunction scoreFunction) {
 		this.scoreFunction = scoreFunction;
@@ -51,14 +55,16 @@ public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 		return solution;
 	}
 
-	private boolean[][] findStructureNode(CTBN<? extends Node> ctbn, int indexNode, boolean[][] bestAdjacencyMatrix) {
+	private boolean[][] findStructureNode(CTBN<? extends Node> ctbn, int indexNode, boolean[][] adjacencyMatrix) {
 		Node node = ctbn.getNodeByIndex(indexNode);
+		// Store best adjacency matrix found
+		boolean[][] bestAdjacencyMatrix = adjacencyMatrix.clone();
 		// As this code is used to build a MCTBNC, there can be class variables. These
 		// cannot have parents
 		if (!node.isClassVariable()) {
 			logger.info("Finding best parent set for node {}", node.getName());
 			// Set as initial best score the one obtained with the initial structure
-			double bestScore = computeScore(ctbn, indexNode, bestAdjacencyMatrix);
+			double bestScore = computeScore(ctbn, indexNode, adjacencyMatrix);
 			// Try to improve the current structure
 			boolean improvement = false;
 			do {
@@ -78,7 +84,7 @@ public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 	}
 
 	/**
-	 * Find the best neighbor for a CTBN node. It returns the score of the neighbor,
+	 * Finds the best neighbor for a CTBN node. It returns the score of the neighbor,
 	 * while the obtained adjacency matrix is stored in the parameter
 	 * 'adjacencyMatrix'.
 	 * 
@@ -116,7 +122,7 @@ public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 	}
 
 	/**
-	 * Compute the score at a certain node given an adjacency matrix. A cache is
+	 * Computes the score at a certain node given an adjacency matrix. A cache is
 	 * used to avoid recomputing a score.
 	 * 
 	 * @param indexNode
@@ -135,8 +141,8 @@ public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 
 	@Override
 	public Map<String, String> getInfoScoreFunction() {
-		return Map.of("scoreFunction", scoreFunction.getIdentifier(), "penalizationFunction",
-				scoreFunction.getPenalization());
+		return Map.of("scoreFunction", this.scoreFunction.getIdentifier(), "penalizationFunction",
+				this.scoreFunction.getPenalization());
 	}
 
 }

@@ -12,17 +12,16 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractNode implements Node {
 	private String name;
-	private boolean classVariable;
+	private boolean isClassVariable;
 	private List<Node> children;
 	protected List<Node> parents;
 
 	/**
-	 * Common initialization of a node. This constructor initializes the node as not
+	 * Common initialization for nodes. This constructor initializes the node as not
 	 * being a class variables, a type of variables that do not appear in those
-	 * models that are not meant for classification. It could be confusion to
-	 * specify this attribute for that kind of models.
+	 * models that are not meant for classification.
 	 * 
-	 * @param name
+	 * @param name name of the node
 	 */
 	public AbstractNode(String name) {
 		this.name = name;
@@ -31,15 +30,16 @@ public abstract class AbstractNode implements Node {
 	}
 
 	/**
-	 * Common initialization of a node. In this constructor is possible to specify
-	 * if the node is a class variable.
+	 * Common initialization for nodes. This constructor allows to specify if the
+	 * node is a class variable.
 	 * 
-	 * @param name
-	 * @param classVariable
+	 * @param name            name of the node
+	 * @param isClassVariable true if the node represent a class variable, false
+	 *                        otherwise
 	 */
-	public AbstractNode(String name, boolean classVariable) {
+	public AbstractNode(String name, boolean isClassVariable) {
 		this.name = name;
-		this.classVariable = classVariable;
+		this.isClassVariable = isClassVariable;
 		this.children = new ArrayList<Node>();
 		this.parents = new ArrayList<Node>();
 	}
@@ -101,12 +101,12 @@ public abstract class AbstractNode implements Node {
 
 	@Override
 	public void isClassVariable(boolean isClassVariable) {
-		this.classVariable = isClassVariable;
+		this.isClassVariable = isClassVariable;
 	}
 
 	@Override
 	public boolean isClassVariable() {
-		return this.classVariable;
+		return this.isClassVariable;
 	}
 
 	@Override

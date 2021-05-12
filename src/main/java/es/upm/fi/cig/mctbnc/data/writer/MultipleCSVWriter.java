@@ -18,7 +18,7 @@ import es.upm.fi.cig.mctbnc.data.representation.Sequence;
 import es.upm.fi.cig.mctbnc.util.Util;
 
 /**
- * Manage the writing of datasets into CSVs
+ * Manages the writing of datasets into CSV files
  * 
  * @author Carlos Villa Blanco
  *
@@ -27,11 +27,12 @@ public class MultipleCSVWriter {
 	static Logger logger = LogManager.getLogger(MultipleCSVWriter.class);
 
 	/**
-	 * Write the sequences of the provided dataset into multiple CSVs to the
+	 * Writes the sequences of the provided dataset to multiple CSV files in the
 	 * specified directory.
 	 * 
-	 * @param dataset
-	 * @param destinationPath
+	 * @param dataset         dataset whose sequences are written to multiple CSV
+	 *                        files
+	 * @param destinationPath path of the directory where the CSV are stored
 	 */
 	public static void write(Dataset dataset, String destinationPath) {
 		logger.info("Writing dataset with {} sequences into {}", dataset.getNumDataPoints(), destinationPath);

@@ -23,8 +23,8 @@ import es.upm.fi.cig.mctbnc.nodes.CIMNode;
 import es.upm.fi.cig.mctbnc.nodes.CPTNode;
 
 /**
- * Tests to evaluate the learning of multidimensional continuous time naive
- * Bayes classifiers.
+ * Tests the learning of multidimensional continuous time naive Bayes
+ * classifiers.
  * 
  * @author Carlos Villa Blanco
  *
@@ -66,7 +66,7 @@ class LearnMCTNBCTest {
 	}
 
 	/**
-	 * Learn a multidimensional continuous time Bayesian network.
+	 * Learns a multidimensional continuous time Bayesian network.
 	 */
 	@Test
 	public void learnModel() {

@@ -17,8 +17,8 @@ import es.upm.fi.cig.mctbnc.nodes.Node;
  * 
  * @author Carlos Villa Blanco
  *
- * @param <NodeTypeBN>
- * @param <NodeTypeCTBN>
+ * @param <NodeTypeBN>   type of the nodes of the BN (class subgraph)
+ * @param <NodeTypeCTBN> type of the nodes of the CTBN (feature subgraph)
  */
 public class Empty_maxK_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node>
 		extends MCTBNC<NodeTypeBN, NodeTypeCTBN> {
@@ -29,11 +29,15 @@ public class Empty_maxK_MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Nod
 	 * for Bayesian networks and continuous time Bayesian networks and the maximum
 	 * number of parents of the features (apart of the class variables).
 	 * 
-	 * @param bnLearningAlgs
-	 * @param ctbnLearningAlgs
-	 * @param maxK
-	 * @param bnNodeClass
-	 * @param ctbnNodeClass
+	 * @param bnLearningAlgs   parameter and structure learning algorithms for
+	 *                         Bayesian networks
+	 * @param ctbnLearningAlgs parameter and structure learning algorithms for
+	 *                         continuous time Bayesian networks
+	 * @param maxK             maximum number of parents the nodes of feature
+	 *                         variables can have (without including nodes of class
+	 *                         variables)
+	 * @param bnNodeClass      Bayesian network node type
+	 * @param ctbnNodeClass    continuous time Bayesian network node type
 	 */
 	public Empty_maxK_MCTBNC(BNLearningAlgorithms bnLearningAlgs, CTBNLearningAlgorithms ctbnLearningAlgs, int maxK,
 			Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
