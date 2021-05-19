@@ -297,7 +297,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	}
 
 	@Override
-	public List<NodeType> getNodesFeatures() {
+	public List<NodeType> getNodesFeatureVariables() {
 		return this.nodes.stream().filter(node -> !node.isClassVariable()).collect(Collectors.toList());
 	}
 
@@ -421,7 +421,7 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	private void addNodes(Graph graph, List<NodeType> nodes) {
 		// Variables used to determine position of the node in the graph
 		int numClassVariables = 0;
-		int numFeatures = 0;
+		int numFeatureVariables = 0;
 		for (int i = 0; i < nodes.size(); i++) {
 			// Retrieve node from the model
 			Node node = nodes.get(i);
@@ -436,8 +436,8 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 				numClassVariables++;
 			} else {
 				nodeGraph.setAttribute("y", 0);
-				nodeGraph.setAttribute("x", numFeatures);
-				numFeatures++;
+				nodeGraph.setAttribute("x", numFeatureVariables);
+				numFeatureVariables++;
 			}
 		}
 	}

@@ -28,10 +28,10 @@ public class MaxKCTBNC extends AbstractStructureConstraints {
 	 */
 	public MaxKCTBNC(int maxK) {
 		if (maxK < 1) {
-			logger.warn("Illegal max. number of parents - The maximum number of parents must be 1 or more");
+			logger.warn("Illegal maximum number of parents. The maximum number of parents must be 1 or more");
 			this.maxK = 1;
 		}
-		logger.warn("Max. number of parents: {}", maxK);
+		logger.trace("Max. number of parents: {}", maxK);
 		this.maxK = maxK;
 	}
 

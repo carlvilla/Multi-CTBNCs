@@ -34,7 +34,7 @@ public class EmptyBN extends AbstractStructureConstraints {
 	@Override
 	public void initializeStructure(PGM<? extends Node> pgm) {
 		// As it is a disconnected Bayesian network, it is not established any arc.
-		logger.info("Estimating parameters of empty Bayesian network");
+		logger.info("Estimating parameters of an empty Bayesian network");
 	}
 
 	@Override

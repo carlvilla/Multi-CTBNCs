@@ -12,7 +12,7 @@ import es.upm.fi.cig.mctbnc.exceptions.ErroneousSequenceException;
 import es.upm.fi.cig.mctbnc.util.Util;
 
 /**
- * Represent a sequence of multivariate data, i.e., a set of data points with
+ * Represents a sequence of multivariate data, i.e., a set of data points with
  * multiple variables where the order is relevant. In this case, a sequence
  * represent a time series, since the data is ordered by a time variable.
  * 
@@ -25,91 +25,146 @@ public class Sequence {
 	private String nameTimeVariable;
 	// It is necessary to store these names since the dataset can be created
 	// directly from sequences
-	private List<String> featureNames;
+	private List<String> namefeatureVariables;
 
 	// Path to the file from which the sequence was extracted (if it exists)
 	private String filePath;
 
 	/**
-	 * Constructor
+	 * Constructs a {@code Sequence}. It receives the names of all the variables and
+	 * those that are time and class variables, and the observations of the
+	 * sequence.
 	 * 
-	 * @param nameVariables
-	 * @param nameTimeVariable
-	 * @param nameClassVariables
-	 * @param valueObservations
-	 * @throws ErroneousSequenceException
+	 * @param nameVariables      names of all the variables in the sequence. It is
+	 *                           assumed that they are presented in the same order
+	 *                           as they appear in the data of the observations
+	 * @param nameTimeVariable   name of the time variable
+	 * @param nameClassVariables name of the class variables
+	 * @param dataObservations   list of arrays with the values of the observations
+	 * @throws ErroneousSequenceException if a valid sequence cannot be created with
+	 *                                    the provided data
 	 */
 	public Sequence(List<String> nameVariables, String nameTimeVariable, List<String> nameClassVariables,
-			List<String[]> valueObservations) throws ErroneousSequenceException {
+			List<String[]> dataObservations) throws ErroneousSequenceException {
 		// Set name of the time variable
 		this.nameTimeVariable = nameTimeVariable;
 		// Set the names of the features by filtering the names of the class variables
 		// and time variable
-		this.featureNames = Util.<String>filter(Util.<String>filter(nameVariables, nameClassVariables),
+		this.namefeatureVariables = Util.<String>filter(Util.<String>filter(nameVariables, nameClassVariables),
 				nameTimeVariable);
 		// Define values class variables for the sequence
-		setValuesClassVariables(nameVariables, nameClassVariables, valueObservations);
-		// Get observations with the values of all variables
+		setValuesClassVariables(nameVariables, nameClassVariables, dataObservations);
+		generateObservations(nameVariables, nameTimeVariable, dataObservations);
+	}
+
+	/**
+	 * Constructs a {@code Sequence}. It receives the names of allthe variables and
+	 * the observations of the sequence.
+	 * 
+	 * @param nameVariables        names of all the variables in the sequence. It is
+	 *                             assumed that they are presented in the same order
+	 *                             as they appear in the data of the observations
+	 * @param nameTimeVariable     name of the time variable
+	 * @param nameClassVariables   names of the class variables
+	 * @param nameFeatureVariables names of the feature variables
+	 * @param dataObservations     list of arrays with the values of the
+	 *                             observations
+	 * @throws ErroneousSequenceException if a valid sequence cannot be created with
+	 *                                    the provided data
+	 */
+	public Sequence(List<String> nameVariables, String nameTimeVariable, List<String> nameClassVariables,
+			List<String> nameFeatureVariables, List<String[]> dataObservations) throws ErroneousSequenceException {
+		// Set name of the time variable
+		this.nameTimeVariable = nameTimeVariable;
+		// Set the names of the features by filtering the names of the class variables
+		// and time variable
+		this.namefeatureVariables = nameFeatureVariables;
+		if (nameClassVariables != null)
+			// Define values class variables for the sequence
+			setValuesClassVariables(nameVariables, nameClassVariables, dataObservations);
+		// Generate the observations with the values of all variables
+		generateObservations(nameVariables, nameTimeVariable, dataObservations);
+	}
+
+	/**
+	 * Generate the observations of the sequence.
+	 * 
+	 * @param nameVariables    names of all the variables in the sequence. It is
+	 *                         assumed that they are presented in the same order as
+	 *                         they appear in the data of the observations
+	 * @param nameTimeVariable name of the time variable
+	 * @param dataObservations
+	 * @throws ErroneousSequenceException
+	 */
+	private void generateObservations(List<String> nameVariables, String nameTimeVariable,
+			List<String[]> dataObservations) throws ErroneousSequenceException {
 		this.observations = new ArrayList<Observation>();
-		for (String[] valueObservation : valueObservations) {
-			Observation observation = new Observation(nameVariables, nameTimeVariable, valueObservation);
+		for (String[] dataObservation : dataObservations) {
+			Observation observation = new Observation(nameVariables, nameTimeVariable, dataObservation);
 			checkIntegrityObservation(observation);
 			this.observations.add(observation);
 		}
 	}
 
 	/**
-	 * Constructor used for the models when generating sequences.
+	 * Constructs a {@code Sequence}. This constructor is used by the models to
+	 * sample sequences.
 	 * 
-	 * @param stateClassVariables
-	 * @param transitions
-	 * @param nameTimeVariable
-	 * @param time
-	 * @throws ErroneousSequenceException
+	 * @param stateClassVariables class configuration of the class variables
+	 * @param observations        list of {@code State} representing the
+	 *                            observations of the sequence
+	 * @param nameTimeVariable    name of the time variable
+	 * @param timestamps          list of {@code Double} representing the timestamps
+	 *                            when each observation of the sequence was obtained
+	 * @throws ErroneousSequenceException if a valid sequence cannot be created with
+	 *                                    the provided data
 	 * 
 	 */
-	public Sequence(State stateClassVariables, List<State> transitions, String nameTimeVariable, List<Double> time)
-			throws ErroneousSequenceException {
+	public Sequence(State stateClassVariables, List<State> observations, String nameTimeVariable,
+			List<Double> timestamps) throws ErroneousSequenceException {
+		if (observations.size() != timestamps.size())
+			throw new ErroneousSequenceException("The number of observations and timestamps differ");
 		// Set name of the time variable
 		this.nameTimeVariable = nameTimeVariable;
 		// Set names variables
-		List<String> nameVariables = transitions.get(0).getNameVariables();
-		// Get names features
-		this.featureNames = Util.<String>filter(
+		List<String> nameVariables = observations.get(0).getNameVariables();
+		// Get names feature variables
+		this.namefeatureVariables = Util.<String>filter(
 				Util.<String>filter(nameVariables, stateClassVariables.getNameVariables()), nameTimeVariable);
 		// Set values class variables
 		this.classVariablesValues = stateClassVariables.getEvents();
 		// Get observations with the values of all variables
 		this.observations = new ArrayList<Observation>();
-		for (int i = 0; i < time.size(); i++) {
-			Observation observation = new Observation(nameVariables, transitions.get(i).getValues(), time.get(i));
+		for (int i = 0; i < timestamps.size(); i++) {
+			Observation observation = new Observation(nameVariables, observations.get(i).getValues(),
+					timestamps.get(i));
 			checkIntegrityObservation(observation);
 			this.observations.add(observation);
 		}
 	}
 
 	/**
-	 * Remove a feature from the sequence.
+	 * Removes a feature from the sequence.
 	 * 
-	 * @param nameFeature
+	 * @param nameFeature name of the feature variable
 	 */
 	public void removeFeature(String nameFeature) {
 		for (Observation observation : this.observations)
-			observation.removeFeatures(nameFeature);
-		this.featureNames.remove(nameFeature);
+			observation.removeFeatureVariable(nameFeature);
+		this.namefeatureVariables.remove(nameFeature);
 	}
 
 	/**
-	 * Set the path of file from which the sequence was extracted.
+	 * Sets the path of the file from which the sequence was extracted.
 	 * 
-	 * @param filePath
+	 * @param filePath path of the file
 	 */
 	public void setFilePath(String filePath) {
 		this.filePath = filePath;
 	}
 
 	/**
-	 * Return a Map object with the names and the values of the class variables.
+	 * Returns a Map object with the names and the values of the class variables.
 	 * 
 	 * @return Map with names and values of the class variables
 	 */
@@ -118,7 +173,7 @@ public class Sequence {
 	}
 
 	/**
-	 * Return the values of the specified class variable.
+	 * Returns the values of the specified class variable.
 	 * 
 	 * @param nameClassVariable name of the class variable
 	 * @return values of the class variable
@@ -128,35 +183,35 @@ public class Sequence {
 	}
 
 	/**
-	 * Return the names of the class variables.
+	 * Returns the names of the class variables.
 	 * 
 	 * @return names of the class variables
 	 */
-	public List<String> getClassVariablesNames() {
+	public List<String> getNameClassVariables() {
 		Set<String> keys = this.classVariablesValues.keySet();
 		return new ArrayList<String>(keys);
 	}
 
 	/**
-	 * Return the names of the features.
+	 * Returns the names of the feature variables.
 	 * 
-	 * @return names of the features.
+	 * @return names of the feature variables.
 	 */
-	public List<String> getFeatureNames() {
-		return this.featureNames;
+	public List<String> getNameFeatureVariables() {
+		return this.namefeatureVariables;
 	}
 
 	/**
-	 * Return the name of the time variable.
+	 * Returns the name of the time variable.
 	 * 
 	 * @return name of the time variable
 	 */
-	public String getTimeVariableName() {
+	public String getNameTimeVariable() {
 		return this.nameTimeVariable;
 	}
 
 	/**
-	 * Return all the observations of the sequence.
+	 * Returns all the observations of the sequence.
 	 * 
 	 * @return list of observations
 	 */
@@ -165,7 +220,7 @@ public class Sequence {
 	}
 
 	/**
-	 * Return the number of observations that the sequence contains.
+	 * Returns the number of observations that the sequence contains.
 	 * 
 	 * @return number of observations
 	 */
@@ -174,7 +229,7 @@ public class Sequence {
 	}
 
 	/**
-	 * Get all the possible states of a specific variable.
+	 * Gets all the possible states of a specific variable.
 	 * 
 	 * @param nameVariable name of the variable whose possible states we want to
 	 *                     know
@@ -182,7 +237,7 @@ public class Sequence {
 	 */
 	public String[] getStates(String nameVariable) {
 		// If it is a class variable, there can only be one value per sequence.
-		if (this.classVariablesValues.containsKey(nameVariable)) {
+		if (this.classVariablesValues != null && this.classVariablesValues.containsKey(nameVariable)) {
 			return new String[] { this.classVariablesValues.get(nameVariable) };
 		}
 		// If it is a feature, it is stored in set all its possible unique values.
@@ -194,7 +249,7 @@ public class Sequence {
 	}
 
 	/**
-	 * Return the path of file from which the sequence was extracted.
+	 * Returns the path of file from which the sequence was extracted.
 	 * 
 	 * @return path of file from which the sequence was extracted
 	 */
@@ -218,8 +273,8 @@ public class Sequence {
 		sb.append("\n");
 		sb.append(String.join(",", this.classVariablesValues.values()));
 		sb.append("\n");
-		sb.append("----- FEATURES -----\n");
-		sb.append(Arrays.toString(this.featureNames.toArray()));
+		sb.append("----- FEATURE VARIABLES -----\n");
+		sb.append(Arrays.toString(this.namefeatureVariables.toArray()));
 		sb.append("\n");
 		for (Observation observation : this.observations) {
 			sb.append(Arrays.toString(observation.getValues()));
@@ -232,39 +287,41 @@ public class Sequence {
 	 * A sequence has a unique value for each class variable, so the values of the
 	 * class variables for the first observation are stored.
 	 * 
-	 * @param nameVariables
-	 * @param nameClassVariables
-	 * @param valueObservations
+	 * @param nameVariables      names of all variables
+	 * @param nameClassVariables names of the class variables
+	 * @param dataObservations   list of arrays with the values of the observations
 	 */
 	private void setValuesClassVariables(List<String> nameVariables, List<String> nameClassVariables,
-			List<String[]> valueObservations) {
+			List<String[]> dataObservations) {
 		// LinkedHashMap maintains the order of the class variables as in the dataset
 		this.classVariablesValues = new LinkedHashMap<String, String>();
 		for (String nameClassVariable : nameClassVariables) {
 			// It is obtained the index of each class variable in the observations
 			for (int i = 0; i < nameVariables.size(); i++) {
 				if (nameVariables.get(i).equals(nameClassVariable)) {
-					this.classVariablesValues.put(nameClassVariable, valueObservations.get(0)[i]);
+					this.classVariablesValues.put(nameClassVariable, dataObservations.get(0)[i]);
 				}
 			}
 		}
 	}
 
 	/**
-	 * Check if the observation has different values for the class variables than
-	 * those defined for the sequence. In such a case, the sequence is erroneous and
-	 * an exception is thrown
+	 * Checks if the observation has different values for the class variables (if
+	 * any) than those defined for the sequence. In such a case, the sequence is
+	 * erroneous and an exception is thrown
 	 * 
 	 * @param observation observation to analyze
-	 * @throws ErroneousSequenceException
+	 * @throws ErroneousSequenceException if a valid sequence cannot be created with
+	 *                                    the provided data
 	 */
 	private void checkIntegrityObservation(Observation observation) throws ErroneousSequenceException {
-		for (String nameClassVariable : this.classVariablesValues.keySet()) {
-			if (!observation.getValueVariable(nameClassVariable)
-					.equals(this.classVariablesValues.get(nameClassVariable))) {
-				throw new ErroneousSequenceException("Observations have different values for the class variables");
+		if (this.classVariablesValues != null)
+			for (String nameClassVariable : this.classVariablesValues.keySet()) {
+				if (!observation.getValueVariable(nameClassVariable)
+						.equals(this.classVariablesValues.get(nameClassVariable))) {
+					throw new ErroneousSequenceException("Observations have different values for the class variables");
+				}
 			}
-		}
 
 	}
 }

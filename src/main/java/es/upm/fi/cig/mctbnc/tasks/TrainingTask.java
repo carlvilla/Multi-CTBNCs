@@ -49,4 +49,12 @@ public class TrainingTask extends Task<Void> {
 		this.model.display();
 		updateMessage("Idle");
 	}
+
+	@Override
+	protected void failed() {
+		String msg = "An error occurred while training the model";
+		this.logger.error(msg);
+		updateMessage("Idle - " + msg);
+	}
+
 }

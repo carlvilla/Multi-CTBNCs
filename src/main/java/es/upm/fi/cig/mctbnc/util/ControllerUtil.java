@@ -1,9 +1,11 @@
 package es.upm.fi.cig.mctbnc.util;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import java.util.function.UnaryOperator;
+
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.TextFormatter.Change;
 
 /**
  * Utility class with methods related to controlling the UI behaviour.
@@ -22,32 +24,82 @@ public final class ControllerUtil {
 	 * @param textField text field
 	 */
 	public static void onlyPositiveInteger(TextField textField) {
-		textField.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (!newValue.matches("\\d*"))
-					textField.setText(newValue.replaceAll("[^\\d]", ""));
-			}
-		});
+		// Define filter to allow only positive integers
+		UnaryOperator<Change> filter = change -> {
+			if (change.getControlNewText().matches("([1-9][0-9]*)?"))
+				return change;
+			return null;
+		};
+		textField.setTextFormatter(new TextFormatter<>(filter));
 	}
 
 	/**
-	 * Checks that the text field only contains positive integers greater than a
-	 * given number.
+	 * Checks that the text field only contains a positive integer that is greater
+	 * than or equal to a given number.
 	 * 
 	 * @param textField text field
 	 * @param minValue  minimum value of the integers
 	 */
-	public static void onlyPositiveIntegerGreaterThan(TextField textField, int minValue) {
-		textField.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (!newValue.matches("\\d+"))
-					textField.setText(newValue.replaceAll("[^\\d+]", ""));
-				if (newValue.matches("\\d+") && Integer.valueOf(newValue) < minValue)
-					textField.setText(newValue.replaceAll("[^\\d+]", ""));
-			}
-		});
+	public static void onlyPositiveIntegerGTE(TextField textField, int minValue) {
+		// Define filter to allow only positive integers >= to a given value
+		UnaryOperator<Change> filter = change -> {
+			String currentText = change.getControlNewText();
+			if (currentText.isEmpty()
+					|| currentText.matches("([1-9][0-9]*)?") && Integer.valueOf(currentText) >= minValue)
+				return change;
+			return null;
+		};
+		textField.setTextFormatter(new TextFormatter<>(filter));
+	}
+
+	/**
+	 * Checks that the text field only contains positive decimals.
+	 * 
+	 * @param textField text field
+	 */
+	public static void onlyPositiveDouble(TextField textField) {
+		// Define filter to allow only positive doubles
+		UnaryOperator<Change> filter = change -> {
+			String changeText = change.getText();
+			String currentText = change.getControlText();
+			if (currentText.contains(".") && changeText.matches("[^0-9]") || changeText.matches("[^0-9.]"))
+				return null;
+			return change;
+		};
+		textField.setTextFormatter(new TextFormatter<>(filter));
+	}
+
+	/**
+	 * Receives an {@code String} and tries to convert it to a {@code double}. If it
+	 * is not possible, the provided default value is returned.
+	 * 
+	 * @param text         {@code String} from which the {@code double} is extracted
+	 * @param defaultValue default value
+	 * @return extracted {@code double}
+	 */
+	public static double extractDecimal(String text, double defaultValue) {
+		try {
+			return Double.valueOf(text);
+		} catch (NumberFormatException e) {
+			return defaultValue;
+		}
+	}
+
+	/**
+	 * Receives an {@code String} and tries to convert it to an {@code Integer}. If
+	 * it is not possible, the provided default value is returned.
+	 * 
+	 * @param text         {@code String} from which the {@code Integer} is
+	 *                     extracted
+	 * @param defaultValue default value
+	 * @return extracted {@code Integer}
+	 */
+	public static int extractInteger(String text, int defaultValue) {
+		try {
+			return Integer.valueOf(text);
+		} catch (NumberFormatException e) {
+			return defaultValue;
+		}
 	}
 
 	/**

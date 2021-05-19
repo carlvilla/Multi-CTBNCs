@@ -82,7 +82,7 @@ public class MainSampling {
 		CPTNode C3 = new CPTNode("C3", List.of("C3_A", "C3_B"), true);
 		CPTNode C4 = new CPTNode("C4", List.of("C4_A", "C4_B"), true);
 		CPTNode C5 = new CPTNode("C5", List.of("C5_A", "C5_B"), true);
-		// Define features
+		// Define feature variables
 		CIMNode X1 = new CIMNode("X1", List.of("X1_A", "X1_B", "X1_C"), false);
 		CIMNode X2 = new CIMNode("X2", List.of("X2_A", "X2_B", "X2_C"), false);
 		CIMNode X3 = new CIMNode("X3", List.of("X3_A", "X3_B", "X3_C"), false);

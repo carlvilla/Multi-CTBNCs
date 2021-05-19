@@ -60,15 +60,13 @@ public class ClassificationTask extends Task<Void> {
 
 	@Override
 	protected void failed() {
-		if (this.datasetReader.isDatasetOutdated()) {
-			this.logger.error(
-					"The dataset to be classified could not be read. Check if it contains the same variables as the training dataset");
-			updateMessage("Idle - The dataset to be classified could not be read");
-
-		}
-		this.logger.error("There was an error performing the classification");
-		updateMessage("Idle - There was an error performing the classification");
-
+		String msg;
+		if (this.datasetReader.isDatasetOutdated())
+			msg = "The dataset to classify could not be read. Check if it contains the same variables as the training dataset";
+		else
+			msg = "An error occurred while performing the classification";
+		this.logger.error(msg);
+		updateMessage("Idle - " + msg);
 	}
 
 }

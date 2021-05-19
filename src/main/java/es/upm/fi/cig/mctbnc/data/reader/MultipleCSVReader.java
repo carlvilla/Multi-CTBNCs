@@ -50,15 +50,13 @@ public class MultipleCSVReader extends AbstractCSVReader {
 	@Override
 	public Dataset readDataset() throws UnreadDatasetException {
 		if (isDatasetOutdated()) {
-			logger.info("Reading dataset from multiples csv files in {}", this.datasetFolder);			
+			logger.info("Reading dataset from multiples csv files in {}", this.datasetFolder);
 			this.dataset = new Dataset(this.nameTimeVariable, this.nameClassVariables);
 			for (File file : this.files)
 				readCSV(file);
 			// Check if any sequence was added to the dataset
 			if (this.dataset.getNumDataPoints() == 0)
 				throw new UnreadDatasetException("Any sequence was succesfully processed");
-			if (this.dataset.getNumDataPoints() < this.files.length)
-				logger.warn("Some sequences not added. They may not have valid variables or enough observations");
 			// Remove variables with zero variance
 			this.dataset.removeZeroVarianceFeatures();
 			// Set the dataset as not out-of-date
@@ -78,7 +76,7 @@ public class MultipleCSVReader extends AbstractCSVReader {
 			List<String[]> dataSequence = readCSV(file.getAbsolutePath(), this.excludeVariables);
 			this.dataset.addSequence(dataSequence, file.getAbsolutePath());
 		} catch (FileNotFoundException e) {
-			throw new UnreadDatasetException("There was an error reading the files of the dataset");
+			throw new UnreadDatasetException("An error occurred while reading the files of the dataset");
 		} catch (VariableNotFoundException e) {
 			logger.warn(e.getMessage());
 		}

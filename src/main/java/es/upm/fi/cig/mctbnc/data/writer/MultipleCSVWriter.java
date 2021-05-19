@@ -70,8 +70,7 @@ public class MultipleCSVWriter {
 				csvWriter.writeAll(dataSequence);
 				csvWriter.close();
 			} catch (IOException e) {
-				e.printStackTrace();
-				logger.error("Error creating CSV to write sequence");
+				logger.error("An error occurred while creating CSV to write sequence {}", nameFile);
 			}
 
 		}

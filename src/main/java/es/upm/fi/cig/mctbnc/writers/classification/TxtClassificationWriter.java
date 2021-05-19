@@ -49,7 +49,7 @@ public class TxtClassificationWriter {
 			writer.close();
 			logger.info("Classifications saved in {}", file.getAbsoluteFile());
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
-			logger.error("There was an error creating the file for the classifications");
+			logger.error("An error occurred while creating the file for the classifications");
 		}
 	}
 }

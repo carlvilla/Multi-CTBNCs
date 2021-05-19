@@ -55,12 +55,12 @@ public class Observation {
 	}
 
 	/**
-	 * Removes the value of a feature from the observation.
+	 * Removes the value of a feature variable from the observation.
 	 * 
-	 * @param nameFeature name of the feature variable
+	 * @param nameFeatureVariable name of the feature variable
 	 */
-	public void removeFeatures(String nameFeature) {
-		this.variablesValues.remove(nameFeature);
+	public void removeFeatureVariable(String nameFeatureVariable) {
+		this.variablesValues.remove(nameFeatureVariable);
 	}
 
 	/**

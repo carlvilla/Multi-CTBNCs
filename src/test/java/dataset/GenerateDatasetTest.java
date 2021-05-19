@@ -150,7 +150,7 @@ class GenerateDatasetTest {
 		dataSequence6.add(new String[] { "0.0", "a", "a", "c", "c", "b", "a" });
 		dataSequence6.add(new String[] { "0.1", "b", "a", "c", "d", "b", "a" });
 
-		// Sequence with less features
+		// Sequence with less feature variables
 		List<String[]> dataSequence7 = new ArrayList<String[]>();
 		dataSequence7.add(new String[] { "Time", "V1", "V2", "V3" });
 		dataSequence7.add(new String[] { "0.0", "a", "b", "c" });

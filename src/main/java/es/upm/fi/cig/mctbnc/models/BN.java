@@ -93,7 +93,7 @@ public class BN<NodeType extends Node> extends AbstractPGM<NodeType> {
 		while (!nodesWithoutParents.isEmpty()) {
 			Node node = nodesWithoutParents.poll();
 			sortedNodes.add(node);
-			// Iterate over the children of the node (features are ignored)
+			// Iterate over the children of the node (feature variables are ignored)
 			List<Node> childrenNodes = node.getChildren().stream().filter(child -> child.isClassVariable())
 					.collect(Collectors.toList());
 			for (Node childNode : childrenNodes) {

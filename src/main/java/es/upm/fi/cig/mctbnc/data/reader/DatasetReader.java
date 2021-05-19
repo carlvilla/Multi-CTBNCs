@@ -17,21 +17,22 @@ public interface DatasetReader {
 	 * Receives the names of the time variable and feature variables of a dataset.
 	 * This method can be used, for example, when reading datasets to be classified.
 	 * 
-	 * @param nameTimeVariable name of the time variable
-	 * @param nameFeatures     name of the feature variables
+	 * @param nameTimeVariable     name of the time variable
+	 * @param nameFeatureVariables name of the feature variables
 	 */
-	public void setVariables(String nameTimeVariable, List<String> nameFeatures);
+	public void setVariables(String nameTimeVariable, List<String> nameFeatureVariables);
 
 	/**
 	 * Receives the names of the time variable, feature variables and class
 	 * variables of a dataset. This method can be used, for example, when read
 	 * training datasets.
 	 * 
-	 * @param nameTimeVariable   name of the time variable
-	 * @param nameClassVariables names of the class variables
-	 * @param nameFeatures       names of the feature variables
+	 * @param nameTimeVariable     name of the time variable
+	 * @param nameClassVariables   names of the class variables
+	 * @param nameFeatureVariables names of the feature variables
 	 */
-	public void setVariables(String nameTimeVariable, List<String> nameClassVariables, List<String> nameFeatures);
+	public void setVariables(String nameTimeVariable, List<String> nameClassVariables,
+			List<String> nameFeatureVariables);
 
 	/**
 	 * Returns a dataset.
@@ -56,11 +57,11 @@ public interface DatasetReader {
 	public List<String> getNameClassVariables();
 
 	/**
-	 * Returns the name of the features.
+	 * Returns the name of the feature variables.
 	 * 
-	 * @return name of the features.
+	 * @return name of the feature variables.
 	 */
-	public List<String> getNameFeatures();
+	public List<String> getNameFeatureVariables();
 
 	/**
 	 * Returns the names of all the variables of the dataset, included those are are

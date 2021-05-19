@@ -74,7 +74,7 @@ public class Controller {
 	@FXML
 	private CheckComboBox<String> ckcmbClassVariables;
 	@FXML
-	private CheckComboBox<String> ckcmbFeatures;
+	private CheckComboBox<String> ckcmbFeatureVariables;
 	@FXML
 	private TextField fldSizeSequences;
 	@FXML
@@ -204,9 +204,9 @@ public class Controller {
 		// Get selected variables
 		String nameTimeVariable = this.cmbTimeVariable.getValue();
 		List<String> nameClassVariables = this.ckcmbClassVariables.getCheckModel().getCheckedItems();
-		List<String> nameSelectedFeatures = this.ckcmbFeatures.getCheckModel().getCheckedItems();
+		List<String> nameFeatureVariables = this.ckcmbFeatureVariables.getCheckModel().getCheckedItems();
 		// Set the variables that will be used
-		this.dRTraining.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
+		this.dRTraining.setVariables(nameTimeVariable, nameClassVariables, nameFeatureVariables);
 		// Define model
 		MCTBNC<CPTNode, CIMNode> model = defineModel();
 		try {
@@ -231,23 +231,26 @@ public class Controller {
 	 * Trains the selected model.
 	 */
 	public void trainModel() {
-		// Get selected variables
-		String nameTimeVariable = this.cmbTimeVariable.getValue();
-		List<String> nameClassVariables = this.ckcmbClassVariables.getCheckModel().getCheckedItems();
-		List<String> nameSelectedFeatures = this.ckcmbFeatures.getCheckModel().getCheckedItems();
-		// Set the variables that will be used
-		this.dRTraining.setVariables(nameTimeVariable, nameClassVariables, nameSelectedFeatures);
-		// Define model
-		this.model = defineModel();
-		// Create service to train model in another thread
-		Service<Void> service = new TrainingService(this.model, this.dRTraining);
-		service.start();
-		// The status label will be updated with the progress of the service
-		this.status.textProperty().bind(service.messageProperty());
-		// Disable training button while the model is being trained
-		this.btnTraining.disableProperty().bind(service.runningProperty());
-		// Disable classification button while the dataset is being classified
-		this.btnClassify.disableProperty().bind(service.runningProperty());
+		if (this.dRTraining != null) {
+			// Get selected variables
+			String nameTimeVariable = this.cmbTimeVariable.getValue();
+			List<String> nameClassVariables = this.ckcmbClassVariables.getCheckModel().getCheckedItems();
+			List<String> nameFeatureVariables = this.ckcmbFeatureVariables.getCheckModel().getCheckedItems();
+			// Set the variables that will be used
+			this.dRTraining.setVariables(nameTimeVariable, nameClassVariables, nameFeatureVariables);
+			// Define model
+			this.model = defineModel();
+			// Create service to train model in another thread
+			Service<Void> service = new TrainingService(this.model, this.dRTraining);
+			service.start();
+			// The status label will be updated with the progress of the service
+			this.status.textProperty().bind(service.messageProperty());
+			// Disable training button while the model is being trained
+			this.btnTraining.disableProperty().bind(service.runningProperty());
+			// Disable classification button while the dataset is being classified
+			this.btnClassify.disableProperty().bind(service.runningProperty());
+		} else
+			this.logger.warn("The training was not performed. No training dataset has been provided.");
 	}
 
 	/**
@@ -255,17 +258,12 @@ public class Controller {
 	 * model.
 	 */
 	public void classify() {
-		if (this.model != null) {
+		if (this.model != null && this.dRClassification != null) {
 			// Retrieve time and feature variables that are necessary for the classification
 			String nameTimeVariable = this.dRTraining.getNameTimeVariable();
-
-			// List<String> nameClassVariables = this.dRTraining.getNameClassVariables();
-
-			List<String> nameSelectedFeatures = this.dRTraining.getNameFeatures();
-
-			// Set the variables.
-			this.dRClassification.setVariables(nameTimeVariable, nameSelectedFeatures);
-
+			List<String> nameFeatureVariables = this.dRTraining.getNameFeatureVariables();
+			// Set the variables
+			this.dRClassification.setVariables(nameTimeVariable, nameFeatureVariables);
 			// Check if probabilities of predicted class configurations should be estimated
 			boolean estimateProbabilities = this.chkProbabilitiesClassification.isSelected();
 			// Create service to train model in another thread
@@ -275,8 +273,10 @@ public class Controller {
 			this.status.textProperty().bind(service.messageProperty());
 			// Disable classification button while the dataset is being classified
 			this.btnClassify.disableProperty().bind(service.runningProperty());
-		} else
-			this.logger.error("The classification was not performed. There is no trained model.");
+		} else if (this.model != null)
+			this.logger.warn("The classification was not performed. No model has been trained.");
+		else
+			this.logger.warn("The classification was not performed. No dataset to classify has been provided.");
 	}
 
 	/**
@@ -351,7 +351,7 @@ public class Controller {
 				datasetModified();
 			}
 		});
-		this.ckcmbFeatures.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
+		this.ckcmbFeatureVariables.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
 			@Override
 			public void onChanged(Change<? extends String> c) {
 				datasetModified();
@@ -395,6 +395,9 @@ public class Controller {
 		// Text fields are restricted to certain values
 		ControllerUtil.onlyPositiveInteger(this.fldKParents);
 		ControllerUtil.onlyPositiveInteger(this.fldRestarts);
+		ControllerUtil.onlyPositiveDouble(this.fldNx);
+		ControllerUtil.onlyPositiveDouble(this.fldMxy);
+		ControllerUtil.onlyPositiveDouble(this.fldTx);
 	}
 
 	/**
@@ -407,7 +410,7 @@ public class Controller {
 		this.sldTrainingSize.setValue(0.7);
 		this.fldNumFolds.setText("5");
 		// Text values are restricted to certain values
-		ControllerUtil.onlyPositiveIntegerGreaterThan(this.fldNumFolds, 2);
+		ControllerUtil.onlyPositiveIntegerGTE(this.fldNumFolds, 2);
 		// By default the sequences are shuffled
 		this.chkShuffle.setSelected(true);
 		// By default the probabilities of the class configurations are estimated
@@ -441,7 +444,7 @@ public class Controller {
 	 */
 	private void initializeDatasetReader(String pathFolder) throws FileNotFoundException, UnreadDatasetException {
 		String nameDatasetReader = this.cmbDataFormat.getValue();
-		int sizeSequence = Integer.valueOf(this.fldSizeSequences.getText());
+		int sizeSequence = ControllerUtil.extractInteger(this.fldSizeSequences.getText(), 0);
 		this.dRTraining = DatasetReaderFactory.getDatasetReader(nameDatasetReader, pathFolder, sizeSequence);
 	}
 
@@ -471,7 +474,7 @@ public class Controller {
 		// If another dataset was used before, comboBoxes are reseted
 		resetCheckComboBoxes();
 		// Variables' names are added to the comboBoxes
-		this.ckcmbFeatures.getItems().addAll(nameVariables);
+		this.ckcmbFeatureVariables.getItems().addAll(nameVariables);
 		this.cmbTimeVariable.getItems().addAll(nameVariables);
 		this.ckcmbClassVariables.getItems().addAll(nameVariables);
 	}
@@ -497,13 +500,13 @@ public class Controller {
 		String nameBnPLA = this.cmbParameterBN.getValue();
 		String nameBnSLA = this.cmbStructure.getValue();
 		// Get hyperparameters
-		double nx = Double.valueOf(this.fldNx.getText());
+		double nx = ControllerUtil.extractDecimal(this.fldNx.getText(), 0);
 		// Get score function
 		String scoreFunction = this.cmbScoreFunction.getValue();
 		// Define penalization function (if any)
 		String penalizationFunction = this.cmbPenalization.getValue();
 		// Get number of restarts (for random restart hill climbing)
-		int restarts = Integer.valueOf(this.fldRestarts.getText());
+		int restarts = ControllerUtil.extractInteger(this.fldRestarts.getText(), 2);
 		// Define learning algorithms for the class subgraph (Bayesian network)
 		BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(nameBnPLA, nx);
 		StructureLearningAlgorithm bnSLA = StructureLearningAlgorithmFactory.getAlgorithmBN(nameBnSLA, scoreFunction,
@@ -517,14 +520,14 @@ public class Controller {
 		String nameCtbnPLA = this.cmbParameterCTBN.getValue();
 		String nameCtbnSLA = this.cmbStructure.getValue();
 		// Get hyperparameters
-		double mxyHP = Double.valueOf(this.fldMxy.getText());
-		double txHP = Double.valueOf(this.fldTx.getText());
+		double mxyHP = ControllerUtil.extractDecimal(this.fldMxy.getText(), 0);
+		double txHP = ControllerUtil.extractDecimal(this.fldTx.getText(), 0);
 		// Get score function
 		String scoreFunction = this.cmbScoreFunction.getValue();
 		// Define penalization function (if any)
 		String penalizationFunction = this.cmbPenalization.getValue();
 		// Get number of restarts (for random restart hill climbing)
-		int restarts = Integer.valueOf(this.fldRestarts.getText());
+		int restarts = ControllerUtil.extractInteger(this.fldRestarts.getText(), 2);
 		// Define learning algorithms for the feature and class subgraph (Continuous
 		// time Bayesian network)
 		CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(nameCtbnPLA, mxyHP,
@@ -562,9 +565,9 @@ public class Controller {
 	 * Resets the comboBoxes.
 	 */
 	private void resetCheckComboBoxes() {
-		this.ckcmbFeatures.getCheckModel().clearChecks();
+		this.ckcmbFeatureVariables.getCheckModel().clearChecks();
 		this.ckcmbClassVariables.getCheckModel().clearChecks();
-		this.ckcmbFeatures.getItems().clear();
+		this.ckcmbFeatureVariables.getItems().clear();
 		this.cmbTimeVariable.getItems().clear();
 		this.ckcmbClassVariables.getItems().clear();
 	}
@@ -599,12 +602,8 @@ public class Controller {
 	 * @throws FileNotFoundException  if the provided files were not found
 	 */
 	public void changeDatasetReader() throws FileNotFoundException, UnreadDatasetException {
-		// Define dataset as modified
-		// datasetModified();
-
 		if (this.dRTraining != null)
 			initializeDatasetReader(this.fldPath.getText());
-
 		// Show or hide options
 		if (this.cmbDataFormat.getValue().equals("Single CSV")) {
 			ControllerUtil.showNode(this.hbStrategy, true);
@@ -625,12 +624,8 @@ public class Controller {
 	 * @throws FileNotFoundException  if the provided files were not found
 	 */
 	public void changeDatasetReaderClassification() throws FileNotFoundException, UnreadDatasetException {
-		// Define dataset as modified
-		// datasetClassificationModified();
-
 		if (this.dRClassification != null)
 			initializeDatasetReaderClassification(this.fldPathDatasetClassification.getText());
-
 		// Show or hide options
 		if (this.cmbDataFormatClassification.getValue().equals("Single CSV")) {
 			ControllerUtil.showNode(this.hbStrategyClassification, true);
@@ -678,7 +673,7 @@ public class Controller {
 	public void changeModel() {
 		String model = this.cmbModel.getValue();
 		if (model.equals("DAG-maxK MCTBNC") || model.equals("Empty-maxK MCTBNC"))
-			// Enable selecting the number of maximum parents
+			// Enable selecting the maximum number of parents
 			ControllerUtil.showNode(this.hbKParents, true);
 		else
 			ControllerUtil.showNode(this.hbKParents, false);

@@ -68,7 +68,7 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 		// Obtain dataset and the number of sequence it contains
 		this.dataset = datasetReader.readDataset();
 		this.logger.info("Time variable: {}", this.dataset.getNameTimeVariable());
-		this.logger.info("Features: {}", this.dataset.getNameFeatures());
+		this.logger.info("Feature variables: {}", this.dataset.getNameFeatureVariables());
 		this.logger.info("Class variables: {}", (this.dataset.getNameClassVariables()));
 		// Check that the specified number of folds is valid
 		if (folds < 2 || folds > this.dataset.getNumDataPoints())
@@ -105,7 +105,7 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 		// Iterate over each fold
 		int fromIndex = 0;
 		for (int i = 0; i < this.folds; i++) {
-			System.out.println("+++++++++++++++++++++++ Testing on fold " + i + " +++++++++++++++++++++++");
+			System.out.println("Testing model on fold " + i);
 			// Prepare training and testing datasets for current fold
 			int toIndex = fromIndex + sizeFolds[i];
 			// Prepare training dataset for current fold
@@ -249,8 +249,8 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 	}
 
 	/**
-	 * Updates the current predictions of a fold with the predictions for a new class
-	 * variable.
+	 * Updates the current predictions of a fold with the predictions for a new
+	 * class variable.
 	 * 
 	 * @param predictionsFold current predictions of the fold
 	 * @param nameCV          name of the class variable whose predictions are

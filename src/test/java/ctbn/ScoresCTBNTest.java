@@ -123,7 +123,7 @@ class ScoresCTBNTest {
 
 		// Define features' nodes
 		nodesFs = new ArrayList<CIMNode>();
-		for (String nameClassVariable : dataset.getNameFeatures()) {
+		for (String nameClassVariable : dataset.getNameFeatureVariables()) {
 			nodesFs.add(new CIMNode(nameClassVariable, dataset.getPossibleStatesVariable(nameClassVariable)));
 		}
 

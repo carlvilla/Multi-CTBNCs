@@ -37,9 +37,9 @@ class LearnMCTBNCTest {
 
 	/**
 	 * This method creates a dataset that will be used to generate MCTBNCs. The
-	 * dataset is formed by five discrete variables, three features (F1, F2 and F3)
-	 * and two class variables (C1 and C2). The states and relationships of the
-	 * variable are as follows:
+	 * dataset is formed by five discrete variables, three feature variables (F1, F2
+	 * and F3) and two class variables (C1 and C2). The states and relationships of
+	 * the variable are as follows:
 	 * 
 	 * F1: it can take states 'a', 'b' and 'c', and its transitions depend on the
 	 * state of C1. If C1='1', the transitions of F1 are always 'a'->'b'->'c'->'a',
@@ -55,8 +55,9 @@ class LearnMCTBNCTest {
 	 * stays with state 'a'.
 	 * 
 	 * F3: it can take states 'a', 'b', 'c' and 'd', and its transitions depend on
-	 * the state of F1 and F2. If both features are equal, F3 will transition to the
-	 * same state of their parents. Otherwise, F3 will transition to state 'd'.
+	 * the state of F1 and F2. If both feature variables are equal, F3 will
+	 * transition to the same state of their parents. Otherwise, F3 will transition
+	 * to state 'd'.
 	 * 
 	 * C1: it can take states '1' and '2'. It does not depend on any variable.
 	 * 

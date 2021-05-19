@@ -54,7 +54,7 @@ class ClassificationTest {
 
 		BN<CPTNode> bn = new BN<CPTNode>(List.of(C1, C2));
 
-		// Define features
+		// Define feature variables
 		CIMNode X1 = new CIMNode("X1", List.of("X1_A", "X1_B", "X1_C"), false);
 		CIMNode X2 = new CIMNode("X2", List.of("X2_A", "X2_B"), false);
 

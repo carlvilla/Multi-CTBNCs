@@ -49,7 +49,7 @@ public class NaiveBayes extends AbstractStructureConstraints {
 
 	@Override
 	public void initializeStructure(PGM<? extends Node> pgm) {
-		logger.info("Estimating parameters of naive Bayes");
+		logger.info("Estimating parameters of a naive Bayes structure");
 		// There is only one structure for a naive Bayes
 		for (int i = 0; i < pgm.getNumNodes(); i++) {
 			Node nodeI = pgm.getNodes().get(i);

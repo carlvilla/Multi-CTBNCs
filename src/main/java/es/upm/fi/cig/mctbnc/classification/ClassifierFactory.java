@@ -45,25 +45,25 @@ public class ClassifierFactory {
 			Map<String, String> hyperparameters, Class<NodeTypeBN> bnNodeClass, Class<NodeTypeCTBN> ctbnNodeClass) {
 		switch (nameClassifier) {
 		case "MCTNBC":
-			logger.info("Creating a multi-dimensional continuous naive Bayes classifier (MCTBNC)");
+			logger.info("Learning a multi-dimensional continuous naive Bayes classifier (MCTBNC)");
 			return new MCTNBC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
 		case "DAG-maxK MCTBNC":
-			int maxK = Integer.valueOf(hyperparameters.get("maxK"));
-			logger.info("Creating a DAG-{}DB multi-dimensional continuous Bayesian network classifier", maxK);
+			int maxK = extractMaxK(hyperparameters);
+			logger.info("Learning a DAG-max{} multi-dimensional continuous Bayesian network classifier", maxK);
 			return new DAG_maxK_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);
 		case "Empty-maxK MCTBNC":
-			maxK = Integer.valueOf(hyperparameters.get("maxK"));
-			logger.info("Creating a Empty-{}DB multi-dimensional continuous Bayesian network classifier", maxK);
+			maxK = extractMaxK(hyperparameters);
+			logger.info("Learning an empty-max{} multi-dimensional continuous Bayesian network classifier", maxK);
 			return new Empty_maxK_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, maxK, bnNodeClass,
 					ctbnNodeClass);
 		case "Empty-digraph MCTBNC":
-			logger.info("Creating a Empty-digraph multi-dimensional continuous Bayesian network classifier");
+			logger.info("Learning an empty-digraph multi-dimensional continuous Bayesian network classifier");
 			return new Empty_digraph_MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass,
 					ctbnNodeClass);
 		default:
 			// If the specified classifier is not found, a MCTBNC is created
-			logger.info("Creating a multi-dimensional continuous time Bayesian network classifier (MCTBNC)");
+			logger.info("Learning a multi-dimensional continuous time Bayesian network classifier (MCTBNC)");
 			return new MCTBNC<NodeTypeBN, NodeTypeCTBN>(bnLearningAlgs, ctbnLearningAlgs, bnNodeClass, ctbnNodeClass);
 		}
 	}
@@ -75,6 +75,23 @@ public class ClassifierFactory {
 	 */
 	public static List<String> getAvailableModels() {
 		return List.of("MCTBNC", "MCTNBC", "DAG-maxK MCTBNC", "Empty-digraph MCTBNC", "Empty-maxK MCTBNC");
+	}
+
+	/**
+	 * Extracts the maximum number of parents of the feature variables. The value 2
+	 * is returned if an erroneous number is provided.
+	 * 
+	 * @param hyperparameters a {@code Map} containing a key "maxK" with the maximum
+	 *                        number of parents
+	 * @return maximum number of parents of the feature variables.
+	 */
+	private static int extractMaxK(Map<String, String> hyperparameters) {
+		try {
+			return Integer.valueOf(hyperparameters.getOrDefault("maxK", "2"));
+		} catch (NumberFormatException e) {
+			logger.warn("Illegal maximum number of parents. The maximum number of parents must be 1 or more");
+			return 2;
+		}
 	}
 
 }

@@ -107,7 +107,7 @@ public class HoldOut extends ValidationMethod {
 		// now, categorical variable are assumed)
 		this.trainingDataset.setStatesVariables(dataset.getStatesVariables());
 		this.logger.info("Time variable: {}", this.trainingDataset.getNameTimeVariable());
-		this.logger.info("Features: {}", this.trainingDataset.getNameFeatures());
+		this.logger.info("Feature variables: {}", this.trainingDataset.getNameFeatureVariables());
 		this.logger.info("Class variables: {}", (this.trainingDataset.getNameClassVariables()));
 		this.logger.info("Sequences for training {}", this.trainingDataset.getNumDataPoints());
 		this.logger.info("Sequences for testing {}", this.testingDataset.getNumDataPoints());

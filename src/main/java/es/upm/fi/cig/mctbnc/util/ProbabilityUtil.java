@@ -78,19 +78,19 @@ public final class ProbabilityUtil {
 			for (NodeTypeCTBN node : nodesCTBN) {
 				// Obtain node of CTBN
 				CIMNode nodeCTBN = (CIMNode) node;
-				// Check that the node is from a feature
+				// Check that the node is from a feature variable
 				if (!nodeCTBN.isClassVariable()) {
 					// Obtain current state of the feature node
 					String currentValue = currentObservation.getValueVariable(nodeCTBN.getName());
-					// Set current state in features node
+					// Set current state in feature node
 					nodeCTBN.setState(currentValue);
 					// Set current state in parents of feature node
 					for (Node nodeParent : nodeCTBN.getParents()) {
-						// Obtain node from model (class variable or feature)
+						// Obtain node from model (class or feature variable)
 						DiscreteNode nodeParentCTBN = (DiscreteNode) nodeParent;
 						String nameParent = nodeParentCTBN.getName();
 						String currentValueParent;
-						// Check if the parent is a class variable or a feature to retrieve its state
+						// Check if the parent is a class or a feature variable to retrieve its state
 						if (nodeParentCTBN.isClassVariable())
 							currentValueParent = stateClassVariables.getValueVariable(nameParent);
 						else
@@ -112,7 +112,7 @@ public final class ProbabilityUtil {
 					// If the feature transitions to another state, get the probability that this
 					// occurs given the state of the parents
 					if (!currentValue.equals(nextValue)) {
-						// Set next state in features node
+						// Set next state in feature node
 						nodeCTBN.setState(nextValue);
 						int idxToState = nodeCTBN.getIdxState();
 						// Probability that the feature transitions from one state to another while its

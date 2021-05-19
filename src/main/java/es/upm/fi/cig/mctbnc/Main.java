@@ -30,7 +30,9 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		logger.debug("Initializing MCTBNCs application");
+		String startMsg = "   __  _________________  _  _______  \n" + "  /  |/  / ___/_  __/ _ )/ |/ / ___/__\n"
+				+ " / /|_/ / /__  / / / _  /    / /__(_-<\n" + "/_/  /_/\\___/ /_/ /____/_/|_/\\___/___/\n";
+		System.out.println(startMsg);
 		System.setProperty("org.graphstream.ui", "javafx");
 		// Extract main scene from fxml file
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));

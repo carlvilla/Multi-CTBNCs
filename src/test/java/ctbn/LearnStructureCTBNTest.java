@@ -28,13 +28,13 @@ class LearnStructureCTBNTest {
 
 	/**
 	 * Learns a continuous time Bayesian network. The dataset is formed by four
-	 * binary features V1, V2, V3 and V4. Each of the features depends on one
-	 * variable in the following way V1->V2->V3->V4->V1. Thus, if V1 changes its
+	 * binary feature variables V1, V2, V3 and V4. Each of the features depends on
+	 * one variable in the following way V1->V2->V3->V4->V1. Thus, if V1 changes its
 	 * state, the variable V2 will transition to another state.
 	 */
 	@Test
 	public void learnContinuousTimeBayesianNetwork() {
-		List<String> nameFeatures = List.of("V1", "V2", "V3", "V4");
+		List<String> nameFeatureVariables = List.of("V1", "V2", "V3", "V4");
 		String nameTimeVariable = "Time";
 		List<String> nameClassVariables = List.of();
 
@@ -88,7 +88,7 @@ class LearnStructureCTBNTest {
 				ctbnStructureLearningAlgorithm);
 		StructureConstraints strucConst = new CTBNC();
 
-		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(dataset, nameFeatures, learningAlgs, strucConst, CIMNode.class);
+		CTBN<CIMNode> ctbn = new CTBN<CIMNode>(dataset, nameFeatureVariables, learningAlgs, strucConst, CIMNode.class);
 		ctbn.learn();
 
 		boolean[][] expectedAdjacencyMatrix = new boolean[][] { { false, true, false, false },

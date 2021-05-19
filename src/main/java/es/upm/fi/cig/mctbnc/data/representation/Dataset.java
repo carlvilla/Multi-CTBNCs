@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,7 +25,7 @@ import es.upm.fi.cig.mctbnc.exceptions.ErroneousSequenceException;
 public class Dataset {
 	private List<Sequence> sequences;
 	private String nameTimeVariable;
-	private List<String> nameFeatures;
+	private List<String> nameFeatureVariables;
 	private List<String> nameClassVariables;
 	// A list of class variables that should be ignored
 	private List<String> ignoredClassVariables;
@@ -33,11 +34,11 @@ public class Dataset {
 	static Logger logger = LogManager.getLogger(Dataset.class);
 
 	/**
-	 * Constructor that create an empty dataset with the names of the time variable
+	 * Constructor that creates an empty dataset with the names of the time variable
 	 * and class variables.
 	 * 
-	 * @param nameTimeVariable
-	 * @param nameClassVariables
+	 * @param nameTimeVariable   name of the time variable
+	 * @param nameClassVariables names of the class variables
 	 */
 	public Dataset(String nameTimeVariable, List<String> nameClassVariables) {
 		this.sequences = new ArrayList<Sequence>();
@@ -49,13 +50,13 @@ public class Dataset {
 	/**
 	 * Constructor that creates a dataset with a list of sequences.
 	 * 
-	 * @param sequences
+	 * @param sequences list of {@code Sequence}
 	 */
 	public Dataset(List<Sequence> sequences) {
 		this.sequences = sequences;
-		this.nameFeatures = sequences.get(0).getFeatureNames();
-		this.nameClassVariables = sequences.get(0).getClassVariablesNames();
-		this.nameTimeVariable = sequences.get(0).getTimeVariableName();
+		this.nameFeatureVariables = sequences.get(0).getNameFeatureVariables();
+		this.nameClassVariables = sequences.get(0).getNameClassVariables();
+		this.nameTimeVariable = sequences.get(0).getNameTimeVariable();
 		initialiazeStructures();
 	}
 
@@ -64,7 +65,7 @@ public class Dataset {
 	}
 
 	/**
-	 * Receive a list of Strings (a sequence) from which a {@code Sequence} is
+	 * Receives a list of Strings (a sequence) from which a {@code Sequence} is
 	 * created, and add it to the dataset. The first array of Strings has to contain
 	 * the name of the variables.
 	 * 
@@ -78,10 +79,10 @@ public class Dataset {
 	}
 
 	/**
-	 * Receive a list of Strings (a sequence) and the path of the file from which it
-	 * was extracted. Then create a {@code Sequence} and add it to the dataset. The
-	 * first array of Strings representing the sequence has to contain the name of
-	 * the variables.
+	 * Receives a list of Strings (a sequence) and the path of the file from which
+	 * it was extracted. Then create a {@code Sequence} and add it to the dataset.
+	 * The first array of Strings representing the sequence has to contain the name
+	 * of the variables.
 	 * 
 	 * @param data     list of Strings (a sequence) where the first array contains
 	 *                 the name of the variables
@@ -96,13 +97,13 @@ public class Dataset {
 			this.sequences.add(sequence);
 			return true;
 		} catch (ErroneousSequenceException e) {
-			logger.trace(e.getMessage());
+			logger.warn("Sequence {} not added. {}", filePath, e.getMessage());
 			return false;
 		}
 	}
 
 	/**
-	 * Receive a list of Strings (a sequence) from which a {@code Sequence} is
+	 * Receives a list of Strings (a sequence) from which a {@code Sequence} is
 	 * created.
 	 * 
 	 * @param data data from which the {@code Sequence} is generated
@@ -115,58 +116,70 @@ public class Dataset {
 		// Obtain names of variables
 		List<String> nameVariablesSequence = Arrays.asList(data.get(0));
 		// If there are no sequences in the dataset, it is stored the name of the
-		// features. They are given by the names of the variables that were not
+		// feature variables. They are given by the names of the variables that were not
 		// defined as the time variable or class variable.
-		if (getSequences().size() == 0) {
-			this.nameFeatures = nameVariablesSequence.stream()
-					.filter(name -> !name.equals(this.nameTimeVariable) && !this.nameClassVariables.contains(name))
-					.collect(Collectors.toList());
-		}
+		if (getSequences().size() == 0)
+			this.nameFeatureVariables = extractFeatureNames(nameVariablesSequence);
 		// Drop names of variables
 		data.remove(0);
-		// Create and add sequence to the dataset
-		Sequence sequence = new Sequence(nameVariablesSequence, this.nameTimeVariable, this.nameClassVariables, data);
-		return sequence;
+		// Create sequence. Check if information about class variables is provided
+		return new Sequence(nameVariablesSequence, this.nameTimeVariable, this.nameClassVariables,
+				this.nameFeatureVariables, data);
+
 	}
 
 	/**
-	 * Those features with zero variance are removed from the dataset.
+	 * Extract the name of the feature variables knowing which are the time and
+	 * class variables.
+	 * 
+	 * @param nameVariablesSequence names of all variables
+	 * @return names of the feature variables
+	 */
+	private List<String> extractFeatureNames(List<String> nameVariablesSequence) {
+		return nameVariablesSequence.stream()
+				.filter(name -> !name.equals(this.nameTimeVariable)
+						&& (this.nameClassVariables == null || !this.nameClassVariables.contains(name)))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Removes from the dataset those feature variables with zero variance.
 	 */
 	public void removeZeroVarianceFeatures() {
 		// Use temporal list to avoid a concurrent modification exception
-		List<String> tempList = new ArrayList<String>(this.nameFeatures);
+		List<String> tempList = new ArrayList<String>(this.nameFeatureVariables);
 		for (String nameFeature : tempList) {
 			if (getPossibleStatesVariable(nameFeature).size() == 1) {
-				logger.warn("Features {} is removed since its variance is zero.", nameFeature);
+				logger.warn("Feature variable {} is removed since its variance is zero.", nameFeature);
 				removeFeature(nameFeature);
 			}
 		}
 	}
 
 	/**
-	 * Remove a feature from the dataset.
+	 * Removes a feature from the dataset.
 	 * 
-	 * @param nameFeature
+	 * @param nameFeature name of the feature variable to remove
 	 */
 	private void removeFeature(String nameFeature) {
 		// Remove the feature from all the sequences of the dataset
 		for (Sequence sequence : this.sequences)
 			sequence.removeFeature(nameFeature);
 		// Remove the name of the feature from the dataset
-		this.nameFeatures.remove(nameFeature);
+		this.nameFeatureVariables.remove(nameFeature);
 	}
 
 	/**
-	 * Set the class variables that should be ignored.
+	 * Sets the class variables to ignored.
 	 * 
-	 * @param ignoredClassVariables
+	 * @param ignoredClassVariables names of the class variables to ignore
 	 */
 	public void setIgnoredClassVariables(List<String> ignoredClassVariables) {
 		this.ignoredClassVariables = ignoredClassVariables;
 	}
 
 	/**
-	 * Return the sequences of the dataset.
+	 * Returns the sequences of the dataset.
 	 * 
 	 * @return list with the sequences of the dataset
 	 */
@@ -175,7 +188,7 @@ public class Dataset {
 	}
 
 	/**
-	 * Return the name of the time variable.
+	 * Returns the name of the time variable.
 	 * 
 	 * @return name of time variable
 	 */
@@ -184,16 +197,16 @@ public class Dataset {
 	}
 
 	/**
-	 * Return the names of the features,
+	 * Returns the names of the feature variables.
 	 * 
-	 * @return list with the names of the features
+	 * @return list with the names of the feature variables
 	 */
-	public List<String> getNameFeatures() {
-		return this.nameFeatures;
+	public List<String> getNameFeatureVariables() {
+		return this.nameFeatureVariables;
 	}
 
 	/**
-	 * Return the name of the class variables. It is filtered those class variables
+	 * Returns the name of the class variables. It is filtered those class variables
 	 * that should be ignored.
 	 * 
 	 * @return list with the names of the class variables
@@ -206,20 +219,21 @@ public class Dataset {
 	}
 
 	/**
-	 * Return the name of all the variables except the time variable. The returned
+	 * Returns the name of all the variables except the time variable. The returned
 	 * list contains first the features and then the class variables.
 	 * 
 	 * @return name of all the variables except the time variable
 	 */
 	public List<String> getNameVariables() {
 		List<String> nameVariables = new ArrayList<String>();
-		nameVariables.addAll(getNameFeatures());
-		nameVariables.addAll(getNameClassVariables());
+		nameVariables.addAll(getNameFeatureVariables());
+		// If there are class variables, add them to the list
+		Optional.ofNullable(getNameClassVariables()).ifPresent(nameVariables::addAll);
 		return nameVariables;
 	}
 
 	/**
-	 * Return the name of all the variables, including the time variable.
+	 * Returns the name of all the variables, including the time variable.
 	 * 
 	 * @return name of all the variables
 	 */
@@ -231,16 +245,16 @@ public class Dataset {
 	}
 
 	/**
-	 * Return the number of features.
+	 * Returns the number of feature variables.
 	 * 
-	 * @return number of features
+	 * @return number of feature variables
 	 */
-	public int getNumFeatures() {
-		return this.nameFeatures.size();
+	public int getNumFeatureVariables() {
+		return this.nameFeatureVariables.size();
 	}
 
 	/**
-	 * Return the number of class variables.
+	 * Returns the number of class variables.
 	 * 
 	 * @return number of class variables.
 	 */
@@ -249,16 +263,16 @@ public class Dataset {
 	}
 
 	/**
-	 * Return the number of variables (without the variable for the time).
+	 * Returns the number of variables (without the variable for the time).
 	 * 
 	 * @return the number of variables
 	 */
 	public int getNumVariables() {
-		return getNumClassVariables() + getNumFeatures();
+		return getNumClassVariables() + getNumFeatureVariables();
 	}
 
 	/**
-	 * Return the number of data points. In this case, this is the number of
+	 * Returns the number of data points. In this case, this is the number of
 	 * sequences.
 	 * 
 	 * @return number of sequences
@@ -268,7 +282,7 @@ public class Dataset {
 	}
 
 	/**
-	 * Return the number of observations in the dataset, i.e., the number of
+	 * Returns the number of observations in the dataset, i.e., the number of
 	 * transitions that occur in all the sequences.
 	 * 
 	 * @return number of observations
@@ -278,9 +292,9 @@ public class Dataset {
 	}
 
 	/**
-	 * Get the states of the class variables for each of the sequences.
+	 * Gets the states of the class variables for each of the sequences.
 	 * 
-	 * @return array of State objects
+	 * @return array of {@code State} objects
 	 */
 	public State[] getStatesClassVariables() {
 		State[] stateClassVariables = new State[getSequences().size()];
@@ -290,11 +304,12 @@ public class Dataset {
 	}
 
 	/**
-	 * Set states of all variables. This method is used when a training and testing
+	 * Sets states of all variables. This method is used when a training and testing
 	 * dataset is defined and the training dataset needs to know all possible
 	 * states.
 	 * 
-	 * @param statesVariables
+	 * @param statesVariables a {code Map} linking the names of the variables with
+	 *                        their possible states
 	 * 
 	 */
 	public void setStatesVariables(Map<String, List<String>> statesVariables) {
@@ -302,21 +317,21 @@ public class Dataset {
 	}
 
 	/**
-	 * Get the possible states of all variables.
+	 * Gets the possible states of all variables.
 	 * 
-	 * @return array of State objects
+	 * @return array of {@code State} objects
 	 */
 	public Map<String, List<String>> getStatesVariables() {
 		return this.statesVariables;
 	}
 
 	/**
-	 * Return the possible states of the specified variable. The states of the
+	 * Returns the possible states of the specified variable. The states of the
 	 * variable are extracted once and stored in a map to avoid recomputations. In
 	 * order to not return always a reference to the same State list, the State
 	 * objects from the map are copied.
 	 * 
-	 * @param nameVariable
+	 * @param nameVariable variable name
 	 * @return states of the variable
 	 */
 	public List<String> getPossibleStatesVariable(String nameVariable) {
@@ -338,10 +353,11 @@ public class Dataset {
 	}
 
 	/**
-	 * Count the number of times in the dataset that the specified variables (in
-	 * State object "query") take certain values.
+	 * Counts the number of times in the dataset that the specified variables (in
+	 * {@code State} object "query") take certain values.
 	 * 
-	 * @param query State object that specifies the variables and their values
+	 * @param query {@code State} object that specifies the variables and their
+	 *              values
 	 * @return number of times specified values take a certain state together
 	 */
 	public int getNumOccurrences(State query) {
@@ -363,17 +379,17 @@ public class Dataset {
 				if (occurrence)
 					numOccurrences++;
 			}
-		// If there are features, it is necessary to study the observations
+		// If there are feature variables, it is necessary to study the observations
 		else
 			throw new UnsupportedOperationException();
 		return numOccurrences;
 	}
 
 	/**
-	 * Count the number of times in the dataset that a certain variable transitions
+	 * Counts the number of times in the dataset that a certain variable transitions
 	 * from a certain state ("fromState") to another ("toState"), while its parents
 	 * take a certain state ("fromState"). It is assumed that the studied variable
-	 * is the first one of the State objects.
+	 * is the first one of the {@code State} objects.
 	 * 
 	 * @param fromState give the original states of the variable and its parents
 	 * @param toState   give the state of the variable after the transition
@@ -419,7 +435,7 @@ public class Dataset {
 	}
 
 	/**
-	 * Return how much time some variables stay in a certain state.
+	 * Returns how much time some variables stay in a certain state.
 	 * 
 	 * @param state state that contains the variables and the values to study
 	 * @return time the state is maintained
@@ -442,13 +458,11 @@ public class Dataset {
 						isInStudiedState = observationInState(subsequentObservation, state);
 						// If the subsequent observation has the studied state too, the time is computed
 						// if it is the last observation of the sequence
-						if (isInStudiedState) {
-							if (j == sequence.getNumObservations() - 1) {
-								time += subsequentObservation.getTimeValue() - pivotObservation.getTimeValue();
-								// As it is the last observation of the sequence, it is moved the pivot
-								// observation to the last one to move to the following sequence
-								i = sequence.getNumObservations();
-							}
+						if (isInStudiedState && j == sequence.getNumObservations() - 1) {
+							time += subsequentObservation.getTimeValue() - pivotObservation.getTimeValue();
+							// As it is the last observation of the sequence, it is moved the pivot
+							// observation to the last one to move to the following sequence
+							i = sequence.getNumObservations();
 						}
 						// If the subsequent observation has a different state, the time is computed and
 						// the pivot observation will be the following one
@@ -465,11 +479,12 @@ public class Dataset {
 	}
 
 	/**
-	 * Check if it is possible to create a sequence with the specified data. It will
+	 * Checks if it is possible to create a sequence with the provided data. It will
 	 * be throw and exception if this is not the case.
 	 * 
 	 * @param data list of arrays that contains the data of the sequence
-	 * @throws ErroneousSequenceException
+	 * @throws ErroneousSequenceException if a valid sequence cannot be created with
+	 *                                    the provided data
 	 */
 	private void checkIntegrityData(List<String[]> data) throws ErroneousSequenceException {
 		// Check content data. There should be at least two arrays, one for the names of
@@ -483,7 +498,8 @@ public class Dataset {
 		if (!nameVariablesSequence.contains(this.nameTimeVariable)) {
 			String message = String.format("Time variable '%s' not specified", this.nameTimeVariable);
 			throw new ErroneousSequenceException(message);
-		} else if (!nameVariablesSequence.containsAll(this.nameClassVariables)) {
+		} else if (this.nameClassVariables != null && !nameVariablesSequence.containsAll(this.nameClassVariables)) {
+			// There are no class variables if the dataset is for classification
 			String message = "One or more specified class variables are not present in the sequence";
 			throw new ErroneousSequenceException(message);
 		} else if (getNumDataPoints() > 0 && (!nameVariablesSequence.containsAll(getNameAllVariables())
@@ -495,13 +511,13 @@ public class Dataset {
 	}
 
 	/**
-	 * Check if an observation is in a specified state, i.e., if the values of the
-	 * variables specified in the state object are the same as the values specified
-	 * for those same variables in the observation object.
+	 * Checks if an observation is in a specified {@code State}, i.e., if the values
+	 * of the variables specified in the {@code State} object are the same as the
+	 * values specified for those same variables in the {@code Observation} object.
 	 * 
 	 * @param observation observation to study
 	 * @param state       state that is checked in the observation
-	 * @return boolean that determines if the observation has the specified state
+	 * @return true if the observation has the specified state, false otherwise
 	 */
 	private boolean observationInState(Observation observation, State state) {
 		List<String> nameVariables = state.getNameVariables();
@@ -509,11 +525,9 @@ public class Dataset {
 		for (String nameVariable : nameVariables) {
 			ObservationHasState = ObservationHasState
 					& observation.getValueVariable(nameVariable).equals(state.getValueVariable(nameVariable));
-			// If any variable has a different state, it is not necessary to check the
-			// others
-			if (!ObservationHasState) {
+			// If one variable has a different state, the others are not checked
+			if (!ObservationHasState)
 				break;
-			}
 		}
 		return ObservationHasState;
 	}

@@ -131,23 +131,24 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	}
 
 	@Override
-	public void setVariables(String nameTimeVariable, List<String> nameFeatures) {
+	public void setVariables(String nameTimeVariable, List<String> nameFeatureVariables) {
 		this.nameTimeVariable = nameTimeVariable;
 		// Variables that should be ignored
 		this.excludeVariables = new ArrayList<String>(getNameVariables());
 		this.excludeVariables.remove(nameTimeVariable);
-		this.excludeVariables.removeAll(nameFeatures);
+		this.excludeVariables.removeAll(nameFeatureVariables);
 	}
 
 	@Override
-	public void setVariables(String nameTimeVariable, List<String> nameClassVariables, List<String> nameFeatures) {
+	public void setVariables(String nameTimeVariable, List<String> nameClassVariables,
+			List<String> nameFeatureVariables) {
 		this.nameTimeVariable = nameTimeVariable;
 		this.nameClassVariables = nameClassVariables;
 		// Variables that should be ignored
 		this.excludeVariables = new ArrayList<String>(getNameVariables());
 		this.excludeVariables.remove(nameTimeVariable);
 		this.excludeVariables.removeAll(nameClassVariables);
-		this.excludeVariables.removeAll(nameFeatures);
+		this.excludeVariables.removeAll(nameFeatureVariables);
 	}
 
 	@Override
@@ -161,12 +162,12 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	}
 
 	@Override
-	public List<String> getNameFeatures() {
-		List<String> nameFeatures = new ArrayList<String>(this.nameVariables);
-		nameFeatures.remove(this.nameTimeVariable);
-		nameFeatures.removeAll(this.nameClassVariables);
-		nameFeatures.removeAll(this.excludeVariables);
-		return nameFeatures;
+	public List<String> getNameFeatureVariables() {
+		List<String> nameFeatureVariables = new ArrayList<String>(this.nameVariables);
+		nameFeatureVariables.remove(this.nameTimeVariable);
+		nameFeatureVariables.removeAll(this.nameClassVariables);
+		nameFeatureVariables.removeAll(this.excludeVariables);
+		return nameFeatureVariables;
 	}
 
 	@Override
@@ -188,7 +189,7 @@ public abstract class AbstractCSVReader implements DatasetReader {
 		try {
 			reader.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("An error occurred while closing the CSV reader: {}", e.getMessage());
 		}
 	}
 

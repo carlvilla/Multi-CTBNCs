@@ -16,6 +16,6 @@ public class ErroneousSequenceException extends Exception {
 	 * @param msg detail message
 	 */
 	public ErroneousSequenceException(String msg) {
-		super("Sequence not added - " + msg);
+		super(msg);
 	}
 }

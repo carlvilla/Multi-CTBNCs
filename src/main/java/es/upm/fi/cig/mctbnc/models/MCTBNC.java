@@ -125,7 +125,7 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		// Join class subgraph with feature and bridge subgraphs
 		setStructure();
 		Instant end = Instant.now();
-		logger.info("MCTBNC model learnt in {} seconds", Duration.between(start, end));
+		logger.info("Model learnt in {} seconds", Duration.between(start, end));
 	}
 
 	/**
@@ -519,17 +519,17 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 		if (this.initialStructure.equals("Naive Bayes")) {
 			// Obtain names class variables
 			List<String> nameCVs = this.dataset.getNameClassVariables();
-			// Obtain names features
-			List<String> nameFs = this.dataset.getNameFeatures();
+			// Obtain names feature variables
+			List<String> nameFVs = this.dataset.getNameFeatureVariables();
 			// Get the node indexer of the CTBN
 			NodeIndexer<NodeTypeCTBN> nodeIndexer = ctbn.getNodeIndexer();
-			// Get the indexes of the class variables and features in the ctbn
+			// Get the indexes of the class and feature variables in the ctbn
 			int[] idxCVs = nameCVs.stream().mapToInt(nameCV -> nodeIndexer.getIndexNodeByName(nameCV)).toArray();
-			int[] idxFs = nameFs.stream().mapToInt(nameF -> nodeIndexer.getIndexNodeByName(nameF)).toArray();
+			int[] idxFVs = nameFVs.stream().mapToInt(nameFV -> nodeIndexer.getIndexNodeByName(nameFV)).toArray();
 			// Each class variables is defined as parent of all features
 			for (int idxCV : idxCVs)
-				for (int idxF : idxFs)
-					initialAdjMatrix[idxCV][idxF] = true;
+				for (int idxFV : idxFVs)
+					initialAdjMatrix[idxCV][idxFV] = true;
 		} else
 			// An empty structure will be used
 			return;

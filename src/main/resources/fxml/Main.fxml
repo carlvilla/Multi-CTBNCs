@@ -60,7 +60,10 @@
                                                       <Insets right="8.0" />
                                                    </HBox.margin>
                                                 </Label>
-                                                <TextField fx:id="fldSizeSequences" maxWidth="1.7976931348623157E308" onKeyTyped="#datasetModified" prefHeight="27.0" prefWidth="60.0" HBox.hgrow="ALWAYS" />
+                                                <TextField fx:id="fldSizeSequences" maxWidth="1.7976931348623157E308" onKeyTyped="#changeDatasetReader" prefHeight="27.0" prefWidth="60.0" HBox.hgrow="ALWAYS">
+                                                   <tooltip>
+                                                      <Tooltip style="-fx-show-duration: 20s;" text="Maximum size of the sequences extracted from the CSV" />
+                                                   </tooltip></TextField>
                                              </children>
                                           </HBox>
                                        </children>
@@ -88,7 +91,7 @@
                                           <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                                              <children>
                                                 <Label maxWidth="150.0" minWidth="150.0" text="Select feature variables:" HBox.hgrow="ALWAYS" />
-                                                <CheckComboBox fx:id="ckcmbFeatures" maxWidth="1.7976931348623157E308" title="Features" HBox.hgrow="ALWAYS" />
+                                                <CheckComboBox fx:id="ckcmbFeatureVariables" maxWidth="1.7976931348623157E308" title="Feature variables" HBox.hgrow="ALWAYS" />
                                              </children>
                                           </HBox>
                                        </children>
@@ -380,7 +383,10 @@
                                                       <Insets right="8.0" />
                                                    </HBox.margin>
                                                 </Label>
-                                                <TextField fx:id="fldSizeSequencesClassification" maxWidth="1.7976931348623157E308" onKeyTyped="#datasetClassificationModified" prefHeight="27.0" prefWidth="60.0" HBox.hgrow="ALWAYS" />
+                                                <TextField fx:id="fldSizeSequencesClassification" maxWidth="1.7976931348623157E308" onKeyTyped="#changeDatasetReaderClassification" prefHeight="27.0" prefWidth="60.0" HBox.hgrow="ALWAYS">
+                                                   <tooltip>
+                                                      <Tooltip style="-fx-show-duration: 20s;" text="Size of the sequences to classify extracted from the CSV" />
+                                                   </tooltip></TextField>
                                              </children>
                                           </HBox>
                                        </children>
@@ -409,10 +415,7 @@
                                              </tooltip></Button>
                                           <Button fx:id="btnClassify" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#classify" prefWidth="220.0" text="Classify">
                                              <tooltip>
-                                                <Tooltip text="Classify above dataset with the trained model">
-                                                   <graphic>
-                                                      <HBox prefHeight="100.0" prefWidth="200.0" />
-                                                   </graphic>
+                                                <Tooltip text="Classify the above dataset with the trained model">
                                                 </Tooltip>
                                              </tooltip></Button>
                                        </children>

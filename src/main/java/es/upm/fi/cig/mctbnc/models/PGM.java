@@ -131,11 +131,11 @@ public interface PGM<NodeType extends Node> {
 	public List<NodeType> getNodesClassVariables();
 
 	/**
-	 * Returns the list of nodes for the features.
+	 * Returns the list of nodes for the feature variables.
 	 * 
-	 * @return list of nodes for the features
+	 * @return list of nodes for the feature variables
 	 */
-	public List<NodeType> getNodesFeatures();
+	public List<NodeType> getNodesFeatureVariables();
 
 	/**
 	 * Returns the number of nodes.

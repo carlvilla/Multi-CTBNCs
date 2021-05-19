@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.ComparisonOperator;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -45,6 +47,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	List<String> metrics = List.of("Global accuracy", "Mean accuracy", "Macro-averaged precision",
 			"Macro-averaged recall", "Macro-averaged F1 score", "Micro-averaged precision", "Micro-averaged recall",
 			"Micro-averaged F1 score", "Global Brier score");
+	static Logger logger = LogManager.getLogger(ExcelExperimentsWriter.class);
 
 	/**
 	 * Initializes the writer.
@@ -85,30 +88,30 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 			File file = new File(this.path + fileName);
 			file.getParentFile().mkdirs();
 			this.out = new FileOutputStream(file);
+			// Conditions experiments
+			writeConditionsExperiment(bnPLA, ctbnPLA, nameFeatureVariables, penalizationFunction, initialStructure);
+			for (int i = 0; i < scoreFunctions.size(); i++) {
+				// Get initial row in the excel file for the current score function
+				int initialRow = getInitialRowScore(i);
+				// Score function
+				setScoreFunction(initialRow, scoreFunctions.get(i));
+				// Table with results
+				generateTableDatasets(initialRow, nameDatasets, nameModels, seeds);
+				// Comparison of evaluation metrics
+				generateTableComparionMetrics(initialRow, nameModels);
+				// Comparison of evaluation metrics per class variable
+				generateTableComparionPerClassVariable(initialRow, nameModels, nameClassVariables);
+				// Set formulas
+				setFormulas(initialRow, nameModels, nameClassVariables);
+				// Conditional formatting
+				setConditionalFormating(initialRow);
+			}
+			// Merge title dataset
+			this.sheet.autoSizeColumn(10);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("An error occurred while creating an Excel file to write the experimment results: {}",
+					e.getMessage());
 		}
-		// Conditions experiments
-		writeConditionsExperiment(bnPLA, ctbnPLA, nameFeatureVariables, penalizationFunction, initialStructure);
-		for (int i = 0; i < scoreFunctions.size(); i++) {
-			// Get initial row in the excel file for the current score function
-			int initialRow = getInitialRowScore(i);
-			// Score function
-			setScoreFunction(initialRow, scoreFunctions.get(i));
-			// Table with results
-			generateTableDatasets(initialRow, nameDatasets, nameModels, seeds);
-			// Comparison of evaluation metrics
-			generateTableComparionMetrics(initialRow, nameModels);
-			// Comparison of evaluation metrics per class variable
-			generateTableComparionPerClassVariable(initialRow, nameModels, nameClassVariables);
-			// Set formulas
-			setFormulas(initialRow, nameModels, nameClassVariables);
-			// Conditional formatting
-			setConditionalFormating(initialRow);
-		}
-		// Merge title dataset
-		this.sheet.autoSizeColumn(10);
-
 	}
 
 	@Override
@@ -169,7 +172,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 			this.out.flush();
 			this.out.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("An error occurred while closing the Excel experiment writer: {}", e.getMessage());
 		}
 	}
 

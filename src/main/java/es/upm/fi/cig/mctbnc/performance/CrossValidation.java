@@ -84,7 +84,7 @@ public class CrossValidation extends ValidationMethod {
 		// Iterate over each fold
 		int fromIndex = 0;
 		for (int i = 0; i < this.folds; i++) {
-			System.out.println("+++++++++++++++++++++++ Testing on fold " + i + " +++++++++++++++++++++++");
+			this.logger.info("Testing model on fold " + i);
 			// Prepare training and testing datasets for current fold
 			int toIndex = fromIndex + sizeFolds[i];
 			// Prepare training dataset for current fold
@@ -126,7 +126,7 @@ public class CrossValidation extends ValidationMethod {
 			this.folds = 2;
 		}
 		this.logger.info("Time variable: {}", this.dataset.getNameTimeVariable());
-		this.logger.info("Features: {}", this.dataset.getNameFeatures());
+		this.logger.info("Feature variables: {}", this.dataset.getNameFeatureVariables());
 		this.logger.info("Class variables: {}", (this.dataset.getNameClassVariables()));
 	}
 

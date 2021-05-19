@@ -32,8 +32,6 @@ public class SingleCSVReader extends AbstractCSVReader {
 	 */
 	public SingleCSVReader(String datasetFolder, int sizeSequence) throws FileNotFoundException {
 		super(datasetFolder);
-		this.sizeSequence = sizeSequence;
-		logger.info("Generating CSV reader for single csv file in {}", datasetFolder);
 		// Read all csv files from the specified folder
 		File folder = new File(datasetFolder);
 		this.file = folder.listFiles(new FilenameFilter() {
@@ -42,6 +40,15 @@ public class SingleCSVReader extends AbstractCSVReader {
 				return name.endsWith(".csv");
 			}
 		})[0];
+		logger.info("Generating CSV reader for single csv file {}", this.file.getAbsoluteFile());
+		// Check if the size of the sequences is correct
+		if (sizeSequence > 1)
+			this.sizeSequence = sizeSequence;
+		else {
+			logger.warn(
+					"The size of the extracted sequences must be greater than 1. Ten observations will be extracted per sequence.");
+			this.sizeSequence = 10;
+		}
 		// Extract variables names from the CSV file
 		extractVariableNames(this.file);
 	}
@@ -54,14 +61,17 @@ public class SingleCSVReader extends AbstractCSVReader {
 			try {
 				// Read the entire CSV
 				List<String[]> dataCSV = readCSV(this.file.getAbsolutePath(), this.excludeVariables);
-				// Extract the sequences from the CSV by using the selected strategy
-				extractFixedSequences(this.dataset, dataCSV);
-				// Remove zero variance features
+				// Extract the sequences from the CSV
+				if (this.nameClassVariables != null)
+					extractFixedSequencesSameCC(this.dataset, dataCSV);
+				else
+					extractFixedSequences(this.dataset, dataCSV);
+				// Remove zero variance feature variables
 				this.dataset.removeZeroVarianceFeatures();
 				// Set the dataset as not out-of-dates
 				setDatasetAsOutdated(false);
 			} catch (FileNotFoundException e) {
-				throw new UnreadDatasetException("There was an error reading the file of the dataset");
+				throw new UnreadDatasetException("An error occurred while reading the file of the dataset");
 			} catch (VariableNotFoundException e) {
 				logger.warn(e.getMessage());
 			}
@@ -71,18 +81,20 @@ public class SingleCSVReader extends AbstractCSVReader {
 
 	/**
 	 * Extracts sequences that have the same maximum length and add them to the
-	 * specified dataset. As there cannot be different class configurations in one
-	 * sequence, sequences could contain less observation if a transition of a class
-	 * variable occurs before reaching the limit. It is assumed that the names of
-	 * the variables are in the first array of "dataCSV".
+	 * specified dataset. Observations of a sequence must belong to the same class
+	 * configuration. Therefore, sequences could contain less observation if a
+	 * transition of a class variable occurs before reaching the maximum sequence
+	 * size. It is assumed that the names of the variables are in the first array of
+	 * "dataCSV".
 	 * 
 	 * @param dataset a {@code Dataset} where sequences are stored
 	 * @param dataCSV list of String arrays with the data extracted from the CSV
 	 *                file. First array in the list must contain the name of the
 	 *                variables
 	 */
-	public void extractFixedSequences(Dataset dataset, List<String[]> dataCSV) {
-		int numInstances = dataCSV.size();
+	public void extractFixedSequencesSameCC(Dataset dataset, List<String[]> dataCSV) {
+		// Extract number of observations
+		int numObservations = dataCSV.size() - 1;
 		String[] namesVariables = dataCSV.get(0);
 		// Obtain the indexes of the class variables in the CSV
 		int[] indexClassVariables = this.nameClassVariables.stream()
@@ -92,7 +104,7 @@ public class SingleCSVReader extends AbstractCSVReader {
 		// Store the transitions for a sequence
 		List<String[]> dataSequence = new ArrayList<String[]>();
 		// Iterate over all the observations
-		for (int i = 1; i < numInstances; i++) {
+		for (int i = 1; i <= numObservations; i++) {
 			// Add observations to the sequence until the size limit is reached or the class
 			// variables transition
 			// Extract observation
@@ -103,13 +115,14 @@ public class SingleCSVReader extends AbstractCSVReader {
 			// Check if any of the class variables transitioned to another state
 			boolean sameClassConfiguration = sameClassConfiguration(indexClassVariables, observation,
 					currentClassConfiguration);
-			if (dataSequence.size() < this.sizeSequence && sameClassConfiguration)
+			if (dataSequence.size() <= this.sizeSequence && sameClassConfiguration)
 				// Add transition
 				dataSequence.add(observation);
 			else {
 				// Add sequence to dataset
-				dataset.addSequence(dataSequence,
-						this.file.getAbsolutePath() + "(Row " + (i - dataSequence.size()) + " to " + i + ")");
+				String filePath = this.file.getAbsolutePath() + "(Row " + (i - dataSequence.size()) + " to " + (i - 2)
+						+ ")";
+				dataset.addSequence(dataSequence, filePath);
 				if (!sameClassConfiguration)
 					// The class configuration changed
 					currentClassConfiguration = extractClassConfigurationObservation(indexClassVariables, observation);
@@ -121,6 +134,51 @@ public class SingleCSVReader extends AbstractCSVReader {
 				dataSequence.add(observation);
 			}
 		}
+		// Add observations that could not make a complete sequence
+		addRemainingObservations(dataset, numObservations, dataSequence);
+	}
+
+	/**
+	 * Extracts sequences that have the same maximum length and add them to the
+	 * specified dataset. It is assumed that the names of the variables are in the
+	 * first array of "dataCSV".
+	 * 
+	 * @param dataset a {@code Dataset} where sequences are stored
+	 * @param dataCSV list of String arrays with the data extracted from the CSV
+	 *                file. First array in the list must contain the name of the
+	 *                variables
+	 */
+	public void extractFixedSequences(Dataset dataset, List<String[]> dataCSV) {
+		// Extract number of observations
+		int numObservations = dataCSV.size() - 1;
+		String[] namesVariables = dataCSV.get(0);
+		// Store the transitions for a sequence
+		List<String[]> dataSequence = new ArrayList<String[]>();
+		// Iterate over all the observations
+		for (int i = 1; i <= numObservations; i++) {
+			// Add observations to the sequence until the size limit is reached
+			// Extract observation
+			String[] observation = dataCSV.get(i);
+			if (dataSequence.size() == 0)
+				// Add names of the variables
+				dataSequence.add(namesVariables);
+			if (dataSequence.size() <= this.sizeSequence)
+				// Add transition
+				dataSequence.add(observation);
+			else {
+				// Add sequence to dataset
+				String filePath = this.file.getAbsolutePath() + "(Row " + (i - dataSequence.size()) + " to " + (i - 2)
+						+ ")";
+				dataset.addSequence(dataSequence, filePath);
+				// Create new sequence
+				dataSequence = new ArrayList<String[]>();
+				// Add names of the variables
+				dataSequence.add(namesVariables);
+				// The observation is added to the new sequence
+				dataSequence.add(observation);
+			}
+		}
+		addRemainingObservations(dataset, numObservations, dataSequence);
 	}
 
 	/**
@@ -155,6 +213,21 @@ public class SingleCSVReader extends AbstractCSVReader {
 		for (int i = 0; i < indexClassVariables.length; i++)
 			classConfigurationObservation[i] = observation[indexClassVariables[i]];
 		return classConfigurationObservation;
+	}
+
+	/**
+	 * Adds the remaining observations to the dataset.
+	 * 
+	 * @param dataset         a {@code Dataset} where sequences are stored
+	 * @param numObservations total number of observations to add to the dataset
+	 * @param dataSequence    data of the remaining observations
+	 */
+	private void addRemainingObservations(Dataset dataset, int numObservations, List<String[]> dataSequence) {
+		if (dataSequence.size() > 0) {
+			String filePath = this.file.getAbsolutePath() + "(Row " + (numObservations - dataSequence.size() + 1)
+					+ " to " + (numObservations - 1) + ")";
+			dataset.addSequence(dataSequence, filePath);
+		}
 	}
 
 }
