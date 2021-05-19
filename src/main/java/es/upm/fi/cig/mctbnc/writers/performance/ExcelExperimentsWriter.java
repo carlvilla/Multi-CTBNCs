@@ -33,7 +33,7 @@ import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgori
  *
  */
 public class ExcelExperimentsWriter extends MetricsWriter {
-	String path = "results/experiments";
+	String path = "results/experiments/";
 	XSSFWorkbook workbook;
 	XSSFSheet sheet;
 	FileOutputStream out = null;
