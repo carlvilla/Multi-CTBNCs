@@ -28,25 +28,31 @@ public class SingleCSVReader extends AbstractCSVReader {
 	 * 
 	 * @param datasetFolder folder path where the CSV file is stored
 	 * @param sizeSequence  maximum size of the sequences
-	 * @throws FileNotFoundException if the CSV file was not found
+	 * @throws FileNotFoundException  if the CSV file was not found
+	 * @throws UnreadDatasetException
 	 */
-	public SingleCSVReader(String datasetFolder, int sizeSequence) throws FileNotFoundException {
+	public SingleCSVReader(String datasetFolder, int sizeSequence)
+			throws FileNotFoundException, UnreadDatasetException {
 		super(datasetFolder);
 		// Read all csv files from the specified folder
 		File folder = new File(datasetFolder);
-		this.file = folder.listFiles(new FilenameFilter() {
+		File[] files = folder.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File folder, String name) {
 				return name.endsWith(".csv");
 			}
-		})[0];
+		});
+		if (files == null || files.length == 0)
+			throw new UnreadDatasetException("No CSV files found in the specified folder");
+		// Only the first CSV found will be used
+		this.file = files[0];
 		logger.info("Generating CSV reader for single csv file {}", this.file.getAbsoluteFile());
 		// Check if the size of the sequences is correct
 		if (sizeSequence > 1)
 			this.sizeSequence = sizeSequence;
 		else {
 			logger.warn(
-					"The size of the extracted sequences must be greater than 1. Ten observations will be extracted per sequence.");
+					"The size of the extracted sequences must be greater than 1. Ten observations will be extracted per sequence");
 			this.sizeSequence = 10;
 		}
 		// Extract variables names from the CSV file

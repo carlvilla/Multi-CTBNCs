@@ -71,7 +71,7 @@
                                     <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="90.0" prefWidth="592.0" spacing="20.0" VBox.vgrow="ALWAYS">
                                        <children>
                   								<Button mnemonicParsing="false" onAction="#setFolderDataset" prefHeight="27.0" text="Select folder dataset" HBox.hgrow="ALWAYS" />
-                                          <TextField fx:id="fldPath" editable="false" minWidth="344.0" prefHeight="27.0" prefWidth="382.0" HBox.hgrow="ALWAYS" />
+                                          <TextField fx:id="fldPathDataset" editable="false" minWidth="344.0" prefHeight="27.0" prefWidth="382.0" HBox.hgrow="ALWAYS" />
                                        </children>
                                     </HBox>
                                     <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="100.0" VBox.vgrow="ALWAYS">

@@ -150,7 +150,7 @@ public class Dataset {
 		List<String> tempList = new ArrayList<String>(this.nameFeatureVariables);
 		for (String nameFeature : tempList) {
 			if (getPossibleStatesVariable(nameFeature).size() == 1) {
-				logger.warn("Feature variable {} is removed since its variance is zero.", nameFeature);
+				logger.warn("Feature variable {} is removed since its variance is zero", nameFeature);
 				removeFeature(nameFeature);
 			}
 		}

@@ -19,7 +19,9 @@ public class ClassificationService extends Service<Void> {
 	boolean estimateProbabilities;
 
 	/**
-	 * Constructs a {@code TrainingService} that receives a {@code MCTBNC} model.
+	 * Initializes the {@code ClassificationService} by receiving the learned
+	 * {@code MCTBNC} model and a {@code DatasetReader} to read the dataset to
+	 * classify.
 	 * 
 	 * @param model                 {@code MCTBNC} model
 	 * @param datasetReader         {@code a DatasetReader} to read the dataset to
@@ -27,7 +29,7 @@ public class ClassificationService extends Service<Void> {
 	 * @param estimateProbabilities true to estimate the probabilities of the class
 	 *                              configurations, false otherwise
 	 */
-	public ClassificationService(MCTBNC<?, ?> model, DatasetReader datasetReader, boolean estimateProbabilities) {
+	public void initializeService(MCTBNC<?, ?> model, DatasetReader datasetReader, boolean estimateProbabilities) {
 		this.model = model;
 		this.datasetReader = datasetReader;
 		this.estimateProbabilities = estimateProbabilities;

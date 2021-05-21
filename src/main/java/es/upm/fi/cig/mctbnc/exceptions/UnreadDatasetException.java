@@ -18,6 +18,6 @@ public class UnreadDatasetException extends Exception {
 	 * @param msg detail message
 	 */
 	public UnreadDatasetException(String msg) {
-		super("Dataset not created - " + msg);
+		super("Dataset was not created - " + msg);
 	}
 }

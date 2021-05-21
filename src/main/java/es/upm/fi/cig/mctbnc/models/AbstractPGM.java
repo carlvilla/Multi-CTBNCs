@@ -395,21 +395,25 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 	 */
 	@Override
 	public void display() {
-		// Create GraphStram graph
-		Graph graph = new SingleGraph("PGM");
-		addNodes(graph, this.nodes);
-		addEdges(graph, this.nodes);
-		// Define style of the graph
-		graph.setAttribute("ui.stylesheet", "url(src/main/resources/css/graph-style.css);");
-		// Define viewer
-		FxViewer viewer = new FxViewer(graph, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-		FxViewPanel panel = (FxViewPanel) viewer.addDefaultView(false, new FxGraphRenderer());
-		// Create stage and scene to visualize the graph
-		Stage stage = new Stage();
-		stage.setTitle(getType());
-		Scene scene = new Scene(panel);
-		stage.setScene(scene);
-		stage.show();
+		if (this.nodes != null && !this.nodes.isEmpty()) {
+			// Create GraphStram graph
+			Graph graph = new SingleGraph("PGM");
+			addNodes(graph, this.nodes);
+			addEdges(graph, this.nodes);
+			// Define style of the graph
+			graph.setAttribute("ui.stylesheet", "url(src/main/resources/css/graph-style.css);");
+			// Define viewer
+			FxViewer viewer = new FxViewer(graph, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+			FxViewPanel panel = (FxViewPanel) viewer.addDefaultView(false, new FxGraphRenderer());
+			// Create stage and scene to visualize the graph
+			Stage stage = new Stage();
+			stage.setTitle(getType());
+			Scene scene = new Scene(panel);
+			stage.setScene(scene);
+			stage.show();
+		} else {
+			logger.warn("The model cannot be displayed as it does not contain nodes");
+		}
 	}
 
 	/**

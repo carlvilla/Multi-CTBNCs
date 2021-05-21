@@ -18,12 +18,13 @@ public class TrainingService extends Service<Void> {
 	DatasetReader datasetReader;
 
 	/**
-	 * Constructs a {@code TrainingService} that receives a {@code MCTBNC} model.
+	 * Initializes the {@code TrainingService} receiving the model to learn and the
+	 * {@code a DatasetReader} to read the training dataset.
 	 * 
 	 * @param model         model to train
 	 * @param datasetReader {@code a DatasetReader} to read the training dataset
 	 */
-	public TrainingService(MCTBNC<?, ?> model, DatasetReader datasetReader) {
+	public void initializeService(MCTBNC<?, ?> model, DatasetReader datasetReader) {
 		this.model = model;
 		this.datasetReader = datasetReader;
 	}

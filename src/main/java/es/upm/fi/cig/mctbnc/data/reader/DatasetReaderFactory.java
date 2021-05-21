@@ -3,6 +3,9 @@ package es.upm.fi.cig.mctbnc.data.reader;
 import java.io.FileNotFoundException;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import es.upm.fi.cig.mctbnc.exceptions.UnreadDatasetException;
 
 /**
@@ -12,6 +15,7 @@ import es.upm.fi.cig.mctbnc.exceptions.UnreadDatasetException;
  *
  */
 public abstract class DatasetReaderFactory {
+	static Logger logger = LogManager.getLogger(DatasetReaderFactory.class);
 
 	/**
 	 * Generates the correct dataset reader for the given dataset path.
@@ -27,12 +31,17 @@ public abstract class DatasetReaderFactory {
 	 */
 	public static DatasetReader getDatasetReader(String datasetReader, String pathDataset, int sizeSequence)
 			throws FileNotFoundException, UnreadDatasetException {
-		switch (datasetReader) {
-		case ("Multiple CSV"):
-			return new MultipleCSVReader(pathDataset);
-		default:
-			// Unique CSV
-			return new SingleCSVReader(pathDataset, sizeSequence);
+		try {
+			switch (datasetReader) {
+			case ("Multiple CSV"):
+				return new MultipleCSVReader(pathDataset);
+			default:
+				// Unique CSV
+				return new SingleCSVReader(pathDataset, sizeSequence);
+			}
+		} catch (UnreadDatasetException e) {
+			logger.error(e.getMessage());
+			return null;
 		}
 	}
 

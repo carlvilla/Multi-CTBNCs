@@ -50,7 +50,7 @@ public class EvaluationTask extends Task<Void> {
 		this.model.display();
 		updateMessage("Idle");
 	}
-	
+
 	@Override
 	protected void failed() {
 		String msg = "An error occurred while evaluating the model";

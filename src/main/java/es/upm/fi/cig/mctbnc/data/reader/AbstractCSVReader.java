@@ -97,7 +97,7 @@ public abstract class AbstractCSVReader implements DatasetReader {
 					int index = head.indexOf(excludeVariable);
 					if (index == -1) {
 						// The variable to exclude does not exist in the analysed CSV
-						String message = String.format("Variable %s not found in file %s. The file will be ignored.",
+						String message = String.format("Variable %s not found in file %s. The file will be ignored",
 								excludeVariable, pathFile);
 						throw new VariableNotFoundException(message);
 					}

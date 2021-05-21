@@ -30,7 +30,6 @@ public class MultipleCSVReader extends AbstractCSVReader {
 	 */
 	public MultipleCSVReader(String datasetFolder) throws FileNotFoundException, UnreadDatasetException {
 		super(datasetFolder);
-		logger.info("Generating CSV reader for multiples csv files in {}", datasetFolder);
 		// Read all csv files from the specified folder
 		File folder = new File(datasetFolder);
 		this.files = folder.listFiles(new FilenameFilter() {
@@ -39,8 +38,9 @@ public class MultipleCSVReader extends AbstractCSVReader {
 				return name.endsWith(".csv");
 			}
 		});
-		if (this.files == null)
+		if (this.files == null || this.files.length == 0)
 			throw new UnreadDatasetException("No CSV files found in the specified folder");
+		logger.info("Generating CSV reader for multiples csv files in {}", datasetFolder);
 		// Order the files by name
 		Arrays.sort(this.files);
 		// Extract variables names from first CSV file

@@ -38,7 +38,7 @@ public class RandomRestartHillClimbing extends HillClimbing {
 		int numNodes = initialStructure.length;
 		if (this.numRestarts == 0) {
 			this.numRestarts = 5;
-			logger.warn("No number of random restarts provided. Five random restarts will be performed.");
+			logger.warn("No number of random restarts provided. Five random restarts will be performed");
 		}
 		for (int restart = 0; restart < this.numRestarts; restart++) {
 			logger.info("Random-restart: {}", restart);

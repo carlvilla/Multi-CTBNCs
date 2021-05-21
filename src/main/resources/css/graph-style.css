@@ -1,8 +1,6 @@
 node {
-    size:         20px;
     fill-color:   #FFFFFF;
     stroke-mode:  plain;
-    stroke-color: black;
-    text-size:    10;
-    text-alignment: center;
+    size:30px;
+    text-size:15px;
 }

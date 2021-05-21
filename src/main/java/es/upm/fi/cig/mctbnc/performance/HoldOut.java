@@ -120,7 +120,7 @@ public class HoldOut extends ValidationMethod {
 	 */
 	public Dataset getTraining() {
 		if (this.trainingDataset == null) {
-			this.logger.warn("The training dataset was not generated.");
+			this.logger.warn("The training dataset was not generated");
 		}
 		return this.trainingDataset;
 	}
@@ -132,7 +132,7 @@ public class HoldOut extends ValidationMethod {
 	 */
 	public Dataset getTesting() {
 		if (this.trainingDataset == null) {
-			this.logger.warn("The testing dataset was not generated.");
+			this.logger.warn("The testing dataset was not generated");
 		}
 		return this.testingDataset;
 	}

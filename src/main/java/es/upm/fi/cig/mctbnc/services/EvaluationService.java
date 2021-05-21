@@ -18,13 +18,13 @@ public class EvaluationService extends Service<Void> {
 	MCTBNC<?, ?> model;
 
 	/**
-	 * Constructs a {@code EvaluationService} that receives a
+	 * Initializes the {@code EvaluationService} by receiving a
 	 * {@code ValidationMethod} and a {@code MCTBNC} model.
 	 * 
 	 * @param validationMethod validation method
 	 * @param model            model to evaluate
 	 */
-	public EvaluationService(ValidationMethod validationMethod, MCTBNC<?, ?> model) {
+	public void initializeService(ValidationMethod validationMethod, MCTBNC<?, ?> model) {
 		this.validationMethod = validationMethod;
 		this.model = model;
 	}

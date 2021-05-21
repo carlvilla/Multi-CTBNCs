@@ -31,8 +31,11 @@ import es.upm.fi.cig.mctbnc.services.ClassificationService;
 import es.upm.fi.cig.mctbnc.services.EvaluationService;
 import es.upm.fi.cig.mctbnc.services.TrainingService;
 import es.upm.fi.cig.mctbnc.util.ControllerUtil;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
-import javafx.concurrent.Service;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -61,8 +64,13 @@ public class Controller {
 	DatasetReader dRTraining;
 	DatasetReader dRClassification;
 
-	// Selected model
-	MCTBNC<CPTNode, CIMNode> model;
+	// Trained model wrapped with ObjectProperty to allow binding with controls
+	ObjectProperty<MCTBNC<CPTNode, CIMNode>> model = new SimpleObjectProperty<>();
+
+	// Services. They allow to use and update the interface while performing tasks
+	TrainingService trainingService = new TrainingService();
+	EvaluationService evaluationService = new EvaluationService();
+	ClassificationService classificationService = new ClassificationService();
 
 	// Dataset tab
 	@FXML
@@ -78,7 +86,7 @@ public class Controller {
 	@FXML
 	private TextField fldSizeSequences;
 	@FXML
-	private TextField fldPath;
+	private TextField fldPathDataset;
 	@FXML
 	private HBox hbStrategy;
 	@FXML
@@ -185,16 +193,7 @@ public class Controller {
 		initializeModelPane();
 		initializeEvaluationPane();
 		initializeClassificationPane();
-		defineBindings();
-	}
-
-	/**
-	 * Defines bindings between controls. For example, the evaluation button should
-	 * be disabled if no dataset was selected.
-	 */
-	private void defineBindings() {
-		this.btnEvaluate.disableProperty().bind(this.fldPath.textProperty().isEmpty());
-		this.btnClassify.disableProperty().bind(this.fldPathDatasetClassification.textProperty().isEmpty());
+		setBindings();
 	}
 
 	/**
@@ -205,52 +204,45 @@ public class Controller {
 		String nameTimeVariable = this.cmbTimeVariable.getValue();
 		List<String> nameClassVariables = this.ckcmbClassVariables.getCheckModel().getCheckedItems();
 		List<String> nameFeatureVariables = this.ckcmbFeatureVariables.getCheckModel().getCheckedItems();
-		// Set the variables that will be used
-		this.dRTraining.setVariables(nameTimeVariable, nameClassVariables, nameFeatureVariables);
-		// Define model
-		MCTBNC<CPTNode, CIMNode> model = defineModel();
-		try {
-			// Define the validation method
-			ValidationMethod validationMethod = defineValidationMethod();
-			// Create service to evaluate model in another thread. This will allow to update
-			// and keep using the user interface
-			Service<Void> service = new EvaluationService(validationMethod, model);
-			service.start();
-			// The status label will be updated with the progress of the service
-			this.status.textProperty().bind(service.messageProperty());
-			// Disable evaluation button while the model is being trained and evaluated
-			this.btnEvaluate.disableProperty().bind(service.runningProperty());
-		} catch (UnreadDatasetException e) {
-			// The dataset could not be read due to a problem with the provided files
-			this.logger.error(e.getMessage());
-			this.status.setText(e.getMessage());
-		}
+		if (datasetIsValid(this.dRTraining, nameTimeVariable, nameClassVariables, nameFeatureVariables)) {
+			// Set the variables that will be used
+			this.dRTraining.setVariables(nameTimeVariable, nameClassVariables, nameFeatureVariables);
+			try {
+				// Initialize and restart service to evaluate the selected model in another
+				// thread
+				this.evaluationService.initializeService(getValidationMethod(), getModel());
+				this.evaluationService.restart();
+				// The status label will be updated with the progress of the service
+				this.status.textProperty().bind(this.evaluationService.messageProperty());
+			} catch (UnreadDatasetException e) {
+				// The dataset could not be read due to a problem with the provided files
+				this.logger.error(e.getMessage());
+				this.status.setText(e.getMessage());
+			}
+		} else
+			this.logger.warn("The evaluation was not performed");
 	}
 
 	/**
 	 * Trains the selected model.
 	 */
 	public void trainModel() {
-		if (this.dRTraining != null) {
-			// Get selected variables
-			String nameTimeVariable = this.cmbTimeVariable.getValue();
-			List<String> nameClassVariables = this.ckcmbClassVariables.getCheckModel().getCheckedItems();
-			List<String> nameFeatureVariables = this.ckcmbFeatureVariables.getCheckModel().getCheckedItems();
+		// Get selected variables
+		String nameTimeVariable = this.cmbTimeVariable.getValue();
+		List<String> nameClassVariables = this.ckcmbClassVariables.getCheckModel().getCheckedItems();
+		List<String> nameFeatureVariables = this.ckcmbFeatureVariables.getCheckModel().getCheckedItems();
+		if (datasetIsValid(this.dRTraining, nameTimeVariable, nameClassVariables, nameFeatureVariables)) {
 			// Set the variables that will be used
 			this.dRTraining.setVariables(nameTimeVariable, nameClassVariables, nameFeatureVariables);
-			// Define model
-			this.model = defineModel();
-			// Create service to train model in another thread
-			Service<Void> service = new TrainingService(this.model, this.dRTraining);
-			service.start();
+			// Define model to train
+			this.model.set(getModel());
+			// Initialize and restart service to train the model in another thread
+			this.trainingService.initializeService(this.model.get(), this.dRTraining);
+			this.trainingService.restart();
 			// The status label will be updated with the progress of the service
-			this.status.textProperty().bind(service.messageProperty());
-			// Disable training button while the model is being trained
-			this.btnTraining.disableProperty().bind(service.runningProperty());
-			// Disable classification button while the dataset is being classified
-			this.btnClassify.disableProperty().bind(service.runningProperty());
+			this.status.textProperty().bind(this.trainingService.messageProperty());
 		} else
-			this.logger.warn("The training was not performed. No training dataset has been provided.");
+			this.logger.warn("The training was not performed");
 	}
 
 	/**
@@ -258,7 +250,7 @@ public class Controller {
 	 * model.
 	 */
 	public void classify() {
-		if (this.model != null && this.dRClassification != null) {
+		if (this.model.get() != null && this.dRClassification != null) {
 			// Retrieve time and feature variables that are necessary for the classification
 			String nameTimeVariable = this.dRTraining.getNameTimeVariable();
 			List<String> nameFeatureVariables = this.dRTraining.getNameFeatureVariables();
@@ -266,17 +258,16 @@ public class Controller {
 			this.dRClassification.setVariables(nameTimeVariable, nameFeatureVariables);
 			// Check if probabilities of predicted class configurations should be estimated
 			boolean estimateProbabilities = this.chkProbabilitiesClassification.isSelected();
-			// Create service to train model in another thread
-			Service<Void> service = new ClassificationService(this.model, this.dRClassification, estimateProbabilities);
-			service.start();
+			// Initialize and restart service to classify the dataset in another thread
+			this.classificationService.initializeService(this.model.get(), this.dRClassification,
+					estimateProbabilities);
+			this.classificationService.restart();
 			// The status label will be updated with the progress of the service
-			this.status.textProperty().bind(service.messageProperty());
-			// Disable classification button while the dataset is being classified
-			this.btnClassify.disableProperty().bind(service.runningProperty());
-		} else if (this.model != null)
-			this.logger.warn("The classification was not performed. No model has been trained.");
+			this.status.textProperty().bind(this.classificationService.messageProperty());
+		} else if (this.model.get() == null)
+			this.logger.warn("The classification was not performed. No model has been trained");
 		else
-			this.logger.warn("The classification was not performed. No dataset to classify has been provided.");
+			this.logger.warn("The classification was not performed. No dataset to classify has been provided");
 	}
 
 	/**
@@ -302,11 +293,14 @@ public class Controller {
 		if (selectedDirectory != null) {
 			// Show the selected directory
 			String pathFolder = selectedDirectory.getAbsolutePath();
-			this.fldPath.setText(pathFolder);
 			// Define dataset reader
 			initializeDatasetReader(pathFolder);
-			// Read the variables
-			readVariablesDataset(pathFolder);
+			if (this.dRTraining != null) {
+				// Read the variables
+				readVariablesDataset();
+				// Show dataset folder path in text field
+				this.fldPathDataset.setText(pathFolder);
+			}
 		}
 	}
 
@@ -324,9 +318,12 @@ public class Controller {
 		if (selectedDirectory != null) {
 			// Show the selected directory
 			String pathFolder = selectedDirectory.getAbsolutePath();
-			this.fldPathDatasetClassification.setText(pathFolder);
 			// Define dataset reader
 			initializeDatasetReaderClassification(pathFolder);
+			if (this.dRClassification != null) {
+				// Show folder path of the dataset to classify in text field
+				this.fldPathDatasetClassification.setText(pathFolder);
+			}
 		}
 	}
 
@@ -465,24 +462,80 @@ public class Controller {
 	/**
 	 * Obtains the variables of the selected dataset to added to the comboBoxes.
 	 * 
-	 * @param pathFolder
 	 * @throws FileNotFoundException if the provided files were not found
 	 */
-	private void readVariablesDataset(String pathFolder) throws FileNotFoundException {
-		// Names of the variables are retrieved
-		List<String> nameVariables = this.dRTraining.getNameVariables();
-		// If another dataset was used before, comboBoxes are reseted
-		resetCheckComboBoxes();
-		// Variables' names are added to the comboBoxes
-		this.ckcmbFeatureVariables.getItems().addAll(nameVariables);
-		this.cmbTimeVariable.getItems().addAll(nameVariables);
-		this.ckcmbClassVariables.getItems().addAll(nameVariables);
+	private void readVariablesDataset() throws FileNotFoundException {
+		if (this.dRTraining != null) {
+			// Names of the variables are retrieved
+			List<String> nameVariables = this.dRTraining.getNameVariables();
+			// If another dataset was used before, comboBoxes are reseted
+			resetCheckComboBoxes();
+			// Variables' names are added to the comboBoxes
+			this.ckcmbFeatureVariables.getItems().addAll(nameVariables);
+			this.cmbTimeVariable.getItems().addAll(nameVariables);
+			this.ckcmbClassVariables.getItems().addAll(nameVariables);
+		}
 	}
 
-	private MCTBNC<CPTNode, CIMNode> defineModel() {
+	/**
+	 * Set the bindings of the buttons.
+	 */
+	private void setBindings() {
+		// Set the bindings for the evaluation button
+		this.btnEvaluate.disableProperty().bind(getBindingEvaluateBtn());
+		// Set the bindings for the training button
+		this.btnTraining.disableProperty().bind(getBindingTrainBtn());
+		// Set the bindings for the classification button
+		this.btnClassify.disableProperty().bind(getBindingClassifyBtn());
+	}
+
+	/**
+	 * Returns a {@code BooleanBinding} for the evaluation button. It checks if the
+	 * model is being evaluated and if a dataset was not provided. If one of these
+	 * conditions is met, the button should be disabled.
+	 * 
+	 * @return {@code BooleanBinding} for the evaluation button
+	 */
+	private BooleanBinding getBindingEvaluateBtn() {
+		return Bindings.or(this.fldPathDataset.textProperty().isEmpty(), this.evaluationService.runningProperty());
+
+	}
+
+	/**
+	 * Returns a {@code BooleanBinding} for the training button. It checks if the
+	 * model is being trained, if a dataset is being classified and if a training
+	 * dataset was not provided. If one of these conditions is met, the button
+	 * should be disabled.
+	 * 
+	 * @return {@code BooleanBinding} for the training button
+	 */
+	private BooleanBinding getBindingTrainBtn() {
+		return this.fldPathDataset.textProperty().isEmpty().or(this.trainingService.runningProperty())
+				.or(this.classificationService.runningProperty());
+	}
+
+	/**
+	 * Returns a {@code BooleanBinding} for the classification button. It checks if
+	 * the model was not trained or is being trained, if a dataset is being
+	 * classified and if a training dataset was not provided. If one of these
+	 * conditions is met, the button should be disabled.
+	 * 
+	 * @return {@code BooleanBinding} for the classification button
+	 */
+	private BooleanBinding getBindingClassifyBtn() {
+		return this.model.isNull().or(this.fldPathDatasetClassification.textProperty().isEmpty())
+				.or(this.trainingService.runningProperty()).or(this.classificationService.runningProperty());
+	}
+
+	/**
+	 * Return the selected model.
+	 * 
+	 * @return a {@code MCTBNC<CPTNode, CIMNode>}
+	 */
+	private MCTBNC<CPTNode, CIMNode> getModel() {
 		// Retrieve learning algorithms
-		BNLearningAlgorithms bnLearningAlgs = defineAlgorithmsBN();
-		CTBNLearningAlgorithms ctbnLearningAlgs = defineAlgorithmsCTBN();
+		BNLearningAlgorithms bnLearningAlgs = getAlgorithmsBN();
+		CTBNLearningAlgorithms ctbnLearningAlgs = getAlgorithmsCTBN();
 		// Hyperparameters that could be necessary for the generation of the model
 		Map<String, String> hyperparameters = new WeakHashMap<String, String>();
 		hyperparameters.put("maxK", this.fldKParents.getText());
@@ -495,7 +548,12 @@ public class Controller {
 		return model;
 	}
 
-	private BNLearningAlgorithms defineAlgorithmsBN() {
+	/**
+	 * Return the selected learning algorithms for the Bayesian network.
+	 * 
+	 * @return a {@code BNLearningAlgorithms}
+	 */
+	private BNLearningAlgorithms getAlgorithmsBN() {
 		// Get names learning algorithms
 		String nameBnPLA = this.cmbParameterBN.getValue();
 		String nameBnSLA = this.cmbStructure.getValue();
@@ -515,7 +573,13 @@ public class Controller {
 		return bnLearningAlgs;
 	}
 
-	private CTBNLearningAlgorithms defineAlgorithmsCTBN() {
+	/**
+	 * Return the selected learning algorithms for the continuous time Bayesian
+	 * network.
+	 * 
+	 * @return a {@code CTBNLearningAlgorithms}
+	 */
+	private CTBNLearningAlgorithms getAlgorithmsCTBN() {
 		// Get names learning algorithms
 		String nameCtbnPLA = this.cmbParameterCTBN.getValue();
 		String nameCtbnSLA = this.cmbStructure.getValue();
@@ -539,12 +603,12 @@ public class Controller {
 	}
 
 	/**
-	 * Defines the validation method.
+	 * Return the selected validation method.
 	 * 
 	 * @return validation method
 	 * @throws UnreadDatasetException if the provided dataset could not be read
 	 */
-	private ValidationMethod defineValidationMethod() throws UnreadDatasetException {
+	private ValidationMethod getValidationMethod() throws UnreadDatasetException {
 		// Get selected validation method
 		RadioButton rbValidationMethod = (RadioButton) this.tgValidationMethod.getSelectedToggle();
 		String selectedValidationMethod = rbValidationMethod.getText();
@@ -559,6 +623,33 @@ public class Controller {
 		ValidationMethod validationMethod = ValidationMethodFactory.getValidationMethod(selectedValidationMethod,
 				this.dRTraining, trainingSize, folds, estimateProbabilities, shuffleSequences, null);
 		return validationMethod;
+	}
+
+	/**
+	 * Check if a dataset and variables were provided.
+	 * 
+	 * @param datasetReader        a {@code DatasetReader} to read the dataset
+	 * @param nameTimeVariable     name of the time variable
+	 * @param nameClassVariables   names of the class variables
+	 * @param nameFeatureVariables names of the feature variables
+	 * @return true if a dataset and variables were provided, false otherwise
+	 */
+	private boolean datasetIsValid(DatasetReader datasetReader, String nameTimeVariable,
+			List<String> nameClassVariables, List<String> nameFeatureVariables) {
+		if (datasetReader == null) {
+			this.logger.warn("A dataset must be provided");
+			return false;
+		} else if (nameTimeVariable == null) {
+			this.logger.warn("A time variable must be provided");
+			return false;
+		} else if (nameClassVariables.isEmpty()) {
+			this.logger.warn("At least one class variable must be provided");
+			return false;
+		} else if (nameFeatureVariables.isEmpty()) {
+			this.logger.warn("At least one feature variable must be provided");
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -603,7 +694,7 @@ public class Controller {
 	 */
 	public void changeDatasetReader() throws FileNotFoundException, UnreadDatasetException {
 		if (this.dRTraining != null)
-			initializeDatasetReader(this.fldPath.getText());
+			initializeDatasetReader(this.fldPathDataset.getText());
 		// Show or hide options
 		if (this.cmbDataFormat.getValue().equals("Single CSV")) {
 			ControllerUtil.showNode(this.hbStrategy, true);
