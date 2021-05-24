@@ -32,7 +32,7 @@ public class MainSampling {
 		int numSequences = 10000;
 		// Duration of the sequences
 		int durationSequences = 10;
-		// Extreme probabilities
+		// Extreme probabilities (only for binary class variables)
 		boolean forceExtremeProb = false;
 		// Minimum and maximum values of the intensities
 		int minIntensity = 0;
@@ -343,11 +343,12 @@ public class MainSampling {
 
 	/**
 	 * Generate uniformly distributed random conditional probability tables for a
-	 * Bayesian network. Variables are assumed binary for simplicity.
+	 * Bayesian network.
 	 * 
-	 * @param bn               Bayesian network
-	 * @param forceExtremeProb force the probabilities to be extreme (0 to 0.3 or
-	 *                         0.7 to 1)
+	 * @param bn               a Bayesian network
+	 * @param forceExtremeProb true to force the probabilities to be extreme (0 to
+	 *                         0.3 or 0.7 to 1) if the size of the sample space of
+	 *                         the class variables is 2, false otherwise
 	 * 
 	 */
 	private static void generateRandomCPTs(BN<CPTNode> bn, boolean forceExtremeProb) {
@@ -360,11 +361,25 @@ public class MainSampling {
 			double[][] CPT = new double[numStatesParents][numStates];
 			// Iterate over states of the node and its parents
 			for (int idxStateParents = 0; idxStateParents < numStatesParents; idxStateParents++) {
-				// Obtain probability of node state given the parents from uniform distribution
-				double prob = forceExtremeProb ? ProbabilityUtil.extremeProbability() : Math.random();
-				for (int idxState = 0; idxState < numStates; idxState++) {
-					CPT[idxStateParents][idxState] = prob;
-					prob = 1 - prob;
+				if (numStates == 2) {
+					// Obtain probability of the node state given the parents from an uniform
+					// distribution
+					double prob = forceExtremeProb ? ProbabilityUtil.extremeProbability() : Math.random();
+					for (int idxState = 0; idxState < numStates; idxState++) {
+						CPT[idxStateParents][idxState] = prob;
+						prob = 1 - prob;
+					}
+				} else {
+					// Generate a random vector uniformly distributed over a numStates-dimensional
+					// simplex (Rubinstein, 1982)
+					double x[] = new double[numStates];
+					double sum = 0.0;
+					for (int idxState = 0; idxState < numStates; idxState++) {
+						x[idxState] = -Math.log(1.0 - Math.random());
+						sum += x[idxState];
+					}
+					for (int idxState = 0; idxState < numStates; idxState++)
+						CPT[idxStateParents][idxState] = x[idxState] / sum;
 				}
 			}
 			node.setCPT(CPT);
