@@ -105,3 +105,10 @@ task runAllExperiments(type: GradleBuild){
 	description 'Runs all the experiments with the synthetic and energy datasets'
 	tasks = ['syntheticLL', 'syntheticBDe', 'syntheticCLL', 'emptyDigraphMCTBNC', 'energyLL']
 }
+
+task sampleDataset(type: JavaExec){
+	group 'Application'
+	description 'Samples a discrete state multi-variate time series dataset with multiple class variables'
+	classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.mctbnc.MainSampling'
+}

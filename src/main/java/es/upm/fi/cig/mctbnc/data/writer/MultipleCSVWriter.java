@@ -35,7 +35,7 @@ public class MultipleCSVWriter {
 	 * @param destinationPath path of the directory where the CSV are stored
 	 */
 	public static void write(Dataset dataset, String destinationPath) {
-		logger.info("Writing dataset with {} sequences into {}", dataset.getNumDataPoints(), destinationPath);
+		logger.info("Writing dataset with {} sequences to {}", dataset.getNumDataPoints(), destinationPath);
 		List<Sequence> sequences = dataset.getSequences();
 		List<String> header = dataset.getNameAllVariables();
 		// Create folders of provided path if they do not exist

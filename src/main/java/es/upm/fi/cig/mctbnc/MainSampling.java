@@ -3,6 +3,9 @@ package es.upm.fi.cig.mctbnc;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import es.upm.fi.cig.mctbnc.data.representation.Dataset;
 import es.upm.fi.cig.mctbnc.data.representation.Sequence;
 import es.upm.fi.cig.mctbnc.data.writer.MultipleCSVWriter;
@@ -15,12 +18,13 @@ import es.upm.fi.cig.mctbnc.util.ProbabilityUtil;
 import es.upm.fi.cig.mctbnc.util.Util;
 
 /**
- * Class use to sample sequences from a MCTBNC.
+ * Class used to sample sequences from a MCTBNC.
  * 
  * @author Carlos Villa Blanco
  *
  */
 public class MainSampling {
+	static Logger logger = LogManager.getLogger(MainSampling.class);
 
 	/**
 	 * Application entry point.
@@ -61,7 +65,7 @@ public class MainSampling {
 		// Save dataset in provided path
 		MultipleCSVWriter.write(dataset, path);
 
-		System.out.println("Dataset generated!");
+		logger.info("Dataset generated!");
 	}
 
 	/**
@@ -76,13 +80,13 @@ public class MainSampling {
 	 */
 	private static MCTBNC<CPTNode, CIMNode> generateModelSelectedExperiment(String selectedExperiment,
 			boolean forceExtremeProb, int minIntensity, int maxIntensity) {
-		// Define class variables
-		CPTNode C1 = new CPTNode("C1", List.of("C1_A", "C1_B"), true);
-		CPTNode C2 = new CPTNode("C2", List.of("C2_A", "C2_B"), true);
-		CPTNode C3 = new CPTNode("C3", List.of("C3_A", "C3_B"), true);
-		CPTNode C4 = new CPTNode("C4", List.of("C4_A", "C4_B"), true);
-		CPTNode C5 = new CPTNode("C5", List.of("C5_A", "C5_B"), true);
-		// Define feature variables
+		// Define class variables. Specify their names and sample spaces.
+		CPTNode C1 = new CPTNode("C1", List.of("C1_A", "C1_B", "C1_C"), true);
+		CPTNode C2 = new CPTNode("C2", List.of("C2_A", "C2_B", "C2_C"), true);
+		CPTNode C3 = new CPTNode("C3", List.of("C3_A", "C3_B", "C3_C"), true);
+		CPTNode C4 = new CPTNode("C4", List.of("C4_A", "C4_B", "C4_C"), true);
+		CPTNode C5 = new CPTNode("C5", List.of("C5_A", "C5_B", "C5_C"), true);
+		// Define feature variables. Specify their names and sample spaces.
 		CIMNode X1 = new CIMNode("X1", List.of("X1_A", "X1_B", "X1_C"), false);
 		CIMNode X2 = new CIMNode("X2", List.of("X2_A", "X2_B", "X2_C"), false);
 		CIMNode X3 = new CIMNode("X3", List.of("X3_A", "X3_B", "X3_C"), false);

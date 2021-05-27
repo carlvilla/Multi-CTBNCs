@@ -26,6 +26,7 @@ This software provides an easy-to-use tool, so anyone can apply MCTBNCs in their
         - [Score functions](#score-functions)
         - [Available models by structure constraints](#available-models-by-structure-constraints)
 - [Reproducibility of experiments](#reproducibility-of-experiments)
+- [Sampling synthetic datasets](#sampling-synthetic-datasets)
 
 ## Installation
 This software has been developed as a Gradle project to facilitate its usage and the management of its dependencies. As the Gradle Wrapper is provided, only a Java Development Kit (JDK) needs to be installed ([Java SE Downloads](https://www.oracle.com/java/technologies/javase-downloads.html)).
@@ -47,11 +48,11 @@ This software has been developed as a Gradle project to facilitate its usage and
 
 3. Run the application:
 
-      Run on Linux / macOS:
+      On Linux / macOS:
       ```sh
       ./gradlew run
       ```
-      Run on Windows:
+      On Windows:
       ```bat
       gradlew.bat run 
       ```
@@ -61,8 +62,8 @@ These steps will open the application interface, through which you can specify y
 
 * The **Dataset tab**: allows to specify the data to train and evaluate an MCTBNC. We can specify how the sequences will be extracted and which time, class and feature variables will be used.
 * The **Model tab**: allows to specify the model that will be trained. 
-* The **Evaluation tab**: allows to define how the model selected in the "Model" tab will be evaluated using the data provided in the "Dataset" tab.
-* The **Classification tab**: allows to train the model selected in the "Model" tab with the data provided in the "Dataset" tab and to classify a second dataset with this model. The classification results are saved in the folder *results/classifications* in the project root directory.
+* The **Evaluation tab**: allows to define how the model selected in the *Model* tab will be evaluated using the data provided in the *Dataset* tab.
+* The **Classification tab**: allows to train the model selected in the *Model* tab with the data provided in the *Dataset* tab and to classify a second dataset with this model. The classification results are saved in the folder *results/classifications* in the project root directory.
 
 <p align="center"><img src="./imgs/demo.gif" alt="Software demo" /></p>
 
@@ -118,7 +119,7 @@ Different families of MCTBNCs can be proposed depending on the search spaces con
 
 ## Reproducibility of experiments
 
-Datasets used in the article Carlos et al. (2021), <em>Multi-dimensional Continuous Time Bayesian Network Classifiers</em> can be found in the repository https://github.com/carlvilla/MCTBNCs-Experiments. The following Gradle tasks perform the experiments of the article if the "dataset" folder is placed in the root directory of this project:
+Datasets used in the article Carlos et al. (2021), <em>Multi-dimensional Continuous Time Bayesian Network Classifiers</em> can be found in the repository https://github.com/carlvilla/MCTBNCs-Experiments. The following Gradle tasks perform the experiments of the article if the *dataset* folder is placed in the root directory of this project:
 
 
 * **emptyDigraphMCTBNC** - Compares the performance of CTBNCs and an empty-digraph MCTBNC on the synthetic datasets when they are learned with the Bayesian Dirichlet equivalent score.
@@ -130,8 +131,27 @@ Datasets used in the article Carlos et al. (2021), <em>Multi-dimensional Continu
 * **syntheticLL** - Compares the performance of CTBNCs and an MCTBNC when learned with the log-likelihood score penalized with BIC.
 
 The tasks can be executed with the following command:
+
+On Linux / macOS:
 ```sh
 ./gradlew <task>
 ```
+On Windows:
+```bat
+gradlew.bat <task>
+```
 
 Excel files with the results of the experiments will be saved in the folder *results/experiments* in the project root directory. The same experiments are always performed since predefined seeds are used to shuffle the datasets.
+
+## Sampling synthetic datasets
+
+This software provides the tools to sample discrete state multi-variate time series datasets with multiple class variables. To do so, first specify the characteristics of your dataset in the class *src/main/java/es/upm/fi/cig/mctbnc/MainSampling.java*. These are, among others, the number of feature and class variables and their sample space and dependencies, the number of sequences and their maximum duration or the destination path of the dataset. Then, the dataset can be generated with the following command:
+
+On Linux / macOS:
+```sh
+./gradlew sampleDataset
+```
+On Windows:
+```bat
+gradlew.bat sampleDataset
+```
