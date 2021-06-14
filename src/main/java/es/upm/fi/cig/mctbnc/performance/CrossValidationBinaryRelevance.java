@@ -170,8 +170,11 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 			BNLearningAlgorithms bnLearningAlgs = getLearningAlgorithmsBN(model);
 			CTBNLearningAlgorithms ctbnLearningAlgs = getLearningAlgorithmsCTBN(model);
 			// Define model for one class variable
-			models.add(ClassifierFactory.getMCTBNC(model.getModelIdentifier(), bnLearningAlgs, ctbnLearningAlgs,
-					model.getHyperparameters(), model.getTypeNodeClassVariable(), model.getTypeNodeFeature()));
+			MCTBNC<?, ?> modelCV = ClassifierFactory.getMCTBNC(model.getModelIdentifier(), bnLearningAlgs,
+					ctbnLearningAlgs, model.getHyperparameters(), model.getTypeNodeClassVariable(),
+					model.getTypeNodeFeature());
+			modelCV.setIntialStructure(model.getInitialStructure());
+			models.add(modelCV);
 			// Define training dataset that ignore all class variables except one
 			Dataset dataset = new Dataset(trainingDataset.getSequences());
 			List<String> nameClassVariables = new ArrayList<String>(nameCVs);

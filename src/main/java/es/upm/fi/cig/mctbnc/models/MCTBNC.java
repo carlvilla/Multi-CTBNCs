@@ -275,6 +275,17 @@ public class MCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> extends 
 	}
 
 	/**
+	 * Return the name of the initial structure of the model. This can be, for
+	 * example, an empty structure (Empty) or a naive Bayes where all features are
+	 * children of all class variables (Naive Bayes).
+	 * 
+	 * @return name of the initial structure
+	 */
+	public String getInitialStructure() {
+		return this.initialStructure;
+	}
+
+	/**
 	 * Performs classification over the sequences of a dataset according to the
 	 * maximum a posteriori probability, i.e., classes that obtain the highest
 	 * posterior probability given each sequence are predicted.
