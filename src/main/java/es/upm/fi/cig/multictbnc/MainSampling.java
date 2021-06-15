@@ -87,11 +87,11 @@ public class MainSampling {
 		CPTNode C4 = new CPTNode("C4", List.of("C4_A", "C4_B", "C4_C"), true);
 		CPTNode C5 = new CPTNode("C5", List.of("C5_A", "C5_B", "C5_C"), true);
 		// Define feature variables. Specify their names and sample spaces.
-		CIMNode X1 = new CIMNode("X1", List.of("X1_A", "X1_B", "X1_C"), false);
-		CIMNode X2 = new CIMNode("X2", List.of("X2_A", "X2_B", "X2_C"), false);
-		CIMNode X3 = new CIMNode("X3", List.of("X3_A", "X3_B", "X3_C"), false);
-		CIMNode X4 = new CIMNode("X4", List.of("X4_A", "X4_B", "X4_C"), false);
-		CIMNode X5 = new CIMNode("X5", List.of("X5_A", "X5_B", "X5_C"), false);
+		CIMNode X1 = new CIMNode("X1", List.of("X1_A", "X1_B", "X1_C", "X1_D"), false);
+		CIMNode X2 = new CIMNode("X2", List.of("X2_A", "X2_B", "X2_C", "X2_D"), false);
+		CIMNode X3 = new CIMNode("X3", List.of("X3_A", "X3_B", "X3_C", "X3_D"), false);
+		CIMNode X4 = new CIMNode("X4", List.of("X4_A", "X4_B", "X4_C", "X4_D"), false);
+		CIMNode X5 = new CIMNode("X5", List.of("X5_A", "X5_B", "X5_C", "X5_D"), false);
 
 		switch (selectedExperiment) {
 		// ------------------- Experiment 1 (Figure 1a)-------------------
