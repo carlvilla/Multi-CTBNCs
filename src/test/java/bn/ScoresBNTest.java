@@ -11,15 +11,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import es.upm.fi.cig.mctbnc.data.representation.Dataset;
-import es.upm.fi.cig.mctbnc.learning.parameters.bn.BNBayesianEstimation;
-import es.upm.fi.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
-import es.upm.fi.cig.mctbnc.learning.structure.optimization.scores.bn.BNBayesianScore;
-import es.upm.fi.cig.mctbnc.learning.structure.optimization.scores.bn.BNLogLikelihood;
-import es.upm.fi.cig.mctbnc.learning.structure.optimization.scores.bn.BNScoreFunction;
-import es.upm.fi.cig.mctbnc.models.BN;
-import es.upm.fi.cig.mctbnc.nodes.CPTNode;
-import es.upm.fi.cig.mctbnc.nodes.Node;
+import es.upm.fi.cig.multictbnc.data.representation.Dataset;
+import es.upm.fi.cig.multictbnc.learning.parameters.bn.BNBayesianEstimation;
+import es.upm.fi.cig.multictbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
+import es.upm.fi.cig.multictbnc.learning.structure.optimization.scores.bn.BNBayesianScore;
+import es.upm.fi.cig.multictbnc.learning.structure.optimization.scores.bn.BNLogLikelihood;
+import es.upm.fi.cig.multictbnc.learning.structure.optimization.scores.bn.BNScoreFunction;
+import es.upm.fi.cig.multictbnc.models.BN;
+import es.upm.fi.cig.multictbnc.nodes.CPTNode;
+import es.upm.fi.cig.multictbnc.nodes.Node;
 
 /**
  * Tests over the score functions for BNs. Some structures are built and their

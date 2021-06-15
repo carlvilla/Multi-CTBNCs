@@ -10,9 +10,9 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import es.upm.fi.cig.mctbnc.data.representation.Dataset;
-import es.upm.fi.cig.mctbnc.data.representation.Sequence;
-import es.upm.fi.cig.mctbnc.exceptions.ErroneousSequenceException;
+import es.upm.fi.cig.multictbnc.data.representation.Dataset;
+import es.upm.fi.cig.multictbnc.data.representation.Sequence;
+import es.upm.fi.cig.multictbnc.exceptions.ErroneousSequenceException;
 
 /**
  * Tests the definition of {@code Dataset} objects.

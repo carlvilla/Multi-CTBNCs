@@ -8,11 +8,11 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
-import es.upm.fi.cig.mctbnc.data.representation.Dataset;
-import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
-import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
-import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
-import es.upm.fi.cig.mctbnc.nodes.CIMNode;
+import es.upm.fi.cig.multictbnc.data.representation.Dataset;
+import es.upm.fi.cig.multictbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
+import es.upm.fi.cig.multictbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
+import es.upm.fi.cig.multictbnc.learning.parameters.ctbn.CTBNParameterLearningAlgorithm;
+import es.upm.fi.cig.multictbnc.nodes.CIMNode;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;

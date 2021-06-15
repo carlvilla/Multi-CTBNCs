@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.CheckComboBox?>
 
-<BorderPane prefHeight="618.0" prefWidth="656.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="es.upm.fi.cig.mctbnc.gui.Controller">
+<BorderPane prefHeight="618.0" prefWidth="656.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="es.upm.fi.cig.multictbnc.gui.Controller">
 	<top>
       <AnchorPane prefHeight="429.0" prefWidth="656.0" BorderPane.alignment="CENTER">
          <children>

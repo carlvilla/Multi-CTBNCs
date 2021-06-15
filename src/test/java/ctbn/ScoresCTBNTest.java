@@ -11,26 +11,26 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import es.upm.fi.cig.mctbnc.data.representation.Dataset;
-import es.upm.fi.cig.mctbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
-import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
-import es.upm.fi.cig.mctbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
-import es.upm.fi.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNBayesianScore;
-import es.upm.fi.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNConditionalLogLikelihood;
-import es.upm.fi.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNLogLikelihood;
-import es.upm.fi.cig.mctbnc.learning.structure.optimization.scores.ctbn.CTBNScoreFunction;
-import es.upm.fi.cig.mctbnc.models.BN;
-import es.upm.fi.cig.mctbnc.models.CTBN;
-import es.upm.fi.cig.mctbnc.nodes.CIMNode;
-import es.upm.fi.cig.mctbnc.nodes.CPTNode;
-import es.upm.fi.cig.mctbnc.nodes.Node;
-import es.upm.fi.cig.mctbnc.util.Util;
+import es.upm.fi.cig.multictbnc.data.representation.Dataset;
+import es.upm.fi.cig.multictbnc.learning.parameters.bn.BNMaximumLikelihoodEstimation;
+import es.upm.fi.cig.multictbnc.learning.parameters.ctbn.CTBNBayesianEstimation;
+import es.upm.fi.cig.multictbnc.learning.parameters.ctbn.CTBNMaximumLikelihoodEstimation;
+import es.upm.fi.cig.multictbnc.learning.structure.optimization.scores.ctbn.CTBNBayesianScore;
+import es.upm.fi.cig.multictbnc.learning.structure.optimization.scores.ctbn.CTBNConditionalLogLikelihood;
+import es.upm.fi.cig.multictbnc.learning.structure.optimization.scores.ctbn.CTBNLogLikelihood;
+import es.upm.fi.cig.multictbnc.learning.structure.optimization.scores.ctbn.CTBNScoreFunction;
+import es.upm.fi.cig.multictbnc.models.BN;
+import es.upm.fi.cig.multictbnc.models.CTBN;
+import es.upm.fi.cig.multictbnc.nodes.CIMNode;
+import es.upm.fi.cig.multictbnc.nodes.CPTNode;
+import es.upm.fi.cig.multictbnc.nodes.Node;
+import es.upm.fi.cig.multictbnc.util.Util;
 
 /**
  * Tests over the score functions for CTBNs. Some structures are built and their
  * scores manually estimated in order to verify the correct behavior of the
  * score functions. As the CTBNs are used to define the bridge and feature
- * subgraphs of a MCTBNC, there can exist nodes for class variables.
+ * subgraphs of a Multi-CTBNC, there can exist nodes for class variables.
  * 
  * @author Carlos Villa Blanco
  *

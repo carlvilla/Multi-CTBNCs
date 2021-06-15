@@ -8,10 +8,10 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import es.upm.fi.cig.mctbnc.classification.Prediction;
-import es.upm.fi.cig.mctbnc.data.representation.Dataset;
-import es.upm.fi.cig.mctbnc.data.representation.State;
-import es.upm.fi.cig.mctbnc.performance.Metrics;
+import es.upm.fi.cig.multictbnc.classification.Prediction;
+import es.upm.fi.cig.multictbnc.data.representation.Dataset;
+import es.upm.fi.cig.multictbnc.data.representation.State;
+import es.upm.fi.cig.multictbnc.performance.Metrics;
 
 /**
  * Tests the evaluation metrics.
