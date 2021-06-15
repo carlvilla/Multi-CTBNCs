@@ -4,7 +4,7 @@
 <p align="center"> <img src="./imgs/Multi-CTBNC.png" width="40%" style="border-radius: 3%;"/> </p>
 <p align="center">Multi-dimensional continuous time Bayesian network classifiers</p>
 <p align="center">
-<a href="https://travis-ci.com/carlvilla/MCTBNCs"> <img align="center" hspace="10" src="https://travis-ci.com/carlvilla/MCTBNCs.svg?token=aJzHjLbR53QnhrMdqpW5&branch=master" alt="Build Status"> </a>     
+<a href="https://travis-ci.com/carlvilla/Multi-CTBNCs"> <img align="center" hspace="10" src="https://travis-ci.com/carlvilla/Multi-CTBNCs.svg?token=aJzHjLbR53QnhrMdqpW5&branch=master" alt="Build Status"> </a>     
 <a href="http://cig.fi.upm.es"> <img align="center" src="http://cig.fi.upm.es/sites/default/files/logo_CIG.png" width="35" height="50"> </a>
 </p>
 
@@ -37,7 +37,7 @@ This software has been developed as a Gradle project to facilitate its usage and
 1. Download the repository:
 
     ```sh
-    git clone https://github.com/carlvilla/MCTBNCs.git
+    git clone https://github.com/carlvilla/Multi-CTBNCs.git
     ```
   
 2. Navigate to the repository's root directory:
@@ -119,7 +119,7 @@ Different families of Multi-CTBNCs can be proposed depending on the search space
 
 ## Reproducibility of experiments
 
-Datasets used in the article Carlos et al. (2021), <em>Multi-dimensional Continuous Time Bayesian Network Classifiers</em> can be found in the repository https://github.com/carlvilla/MCTBNCs-Experiments. The following Gradle tasks perform the experiments of the article if the *dataset* folder is placed in the root directory of this project:
+Datasets used in the article Carlos et al. (2021), <em>Multi-dimensional Continuous Time Bayesian Network Classifiers</em> can be found in the repository https://github.com/carlvilla/Multi-CTBNCs_Experiments. The following Gradle tasks perform the experiments of the article if the *dataset* folder is placed in the root directory of this project:
 
 
 * **emptyDigraphMultiCTBNC** - Compares the performance of CTBNCs and an empty-digraph Multi-CTBNC on the synthetic datasets when they are learned with the Bayesian Dirichlet equivalent score.
