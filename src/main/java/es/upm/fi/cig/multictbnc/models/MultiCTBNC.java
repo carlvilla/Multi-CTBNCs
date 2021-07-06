@@ -125,7 +125,7 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 		// Join class subgraph with feature and bridge subgraphs
 		setStructure();
 		Instant end = Instant.now();
-		logger.info("Model learnt in {} seconds", Duration.between(start, end));
+		logger.info("Model learnt in {}", Duration.between(start, end));
 	}
 
 	/**

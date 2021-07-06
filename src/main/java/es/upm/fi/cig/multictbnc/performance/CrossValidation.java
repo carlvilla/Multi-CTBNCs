@@ -100,17 +100,17 @@ public class CrossValidation extends ValidationMethod {
 			// Update the final results of the metrics after seeing all the folds
 			resultsFold.forEach((metric, value) -> resultsCV.merge(metric, value, (a, b) -> a + b));
 			// Display results fold
-			System.out.println(MessageFormat.format("--------------------Results fold {0}--------------------", i));
+			System.out.println(MessageFormat.format("---------------------------------Results fold {0}---------------------------------", i));
 			displayResultsFold(resultsFold, model);
-			System.out.println("------------------------------------------------------");
+			System.out.println("--------------------------------------------------------------------------------");
 			fromIndex += sizeFolds[i];
 		}
 		// The average of each metric is computed
 		resultsCV.forEach((metric, value) -> resultsCV.put(metric, value / this.folds));
 		// Display results
-		System.out.println("--------------------Results cross-validation--------------------");
+		System.out.println("----------------------------Results cross-validation----------------------------");
 		displayResults(resultsCV);
-		System.out.println("----------------------------------------------------------------");
+		System.out.println("--------------------------------------------------------------------------------");
 	}
 
 	/**

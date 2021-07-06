@@ -75,10 +75,10 @@ public class HoldOut extends ValidationMethod {
 		// Evaluate the performance of the model
 		Map<String, Double> results = Metrics.evaluate(predictions, this.testingDataset);
 		// Display results
-		System.out.println("--------------------Results hold-out validation--------------------");
+		System.out.println("--------------------------Results hold-out validation--------------------------");
 		displayResults(results);
 		displayModel(model);
-		System.out.println("-------------------------------------------------------------------");
+		System.out.println("-------------------------------------------------------------------------------");
 	}
 
 	/**

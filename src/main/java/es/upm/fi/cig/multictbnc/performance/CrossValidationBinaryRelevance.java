@@ -306,15 +306,15 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 	}
 
 	private void displayResultsFold(int foldNumber, Map<String, Double> resultsFold) {
-		System.out.println(MessageFormat.format("-------------------Results fold {0}-------------------", foldNumber));
+		System.out.println(MessageFormat.format("---------------------------------Results fold {0}---------------------------------", foldNumber));
 		resultsFold.forEach((metric, value) -> System.out.println(metric + " = " + value));
-		System.out.println("-----------------------------------------------------");
+		System.out.println("--------------------------------------------------------------------------------");
 	}
 
 	private void displayResultsCV(Map<String, Double> resultsCrossValidation) {
-		System.out.println("-------------------Results cross-validation-------------------");
+		System.out.println("----------------------------Results cross-validation----------------------------");
 		displayResults(resultsCrossValidation);
-		System.out.println("--------------------------------------------------------------");
+		System.out.println("--------------------------------------------------------------------------------");
 	}
 
 }
