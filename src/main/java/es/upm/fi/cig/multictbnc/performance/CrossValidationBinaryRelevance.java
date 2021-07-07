@@ -105,7 +105,7 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 		// Iterate over each fold
 		int fromIndex = 0;
 		for (int i = 0; i < this.folds; i++) {
-			System.out.println("Testing model on fold " + i);
+			this.logger.info("Testing model on fold " + i);
 			// Prepare training and testing datasets for current fold
 			int toIndex = fromIndex + sizeFolds[i];
 			// Prepare training dataset for current fold
@@ -241,9 +241,9 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 		for (int i = 0; i < models.size(); i++) {
 			// Display learned model
 			System.out.println(MessageFormat
-					.format("--------------------Model for class variable {0}--------------------", nameCVs.get(i)));
+					.format("------------------------Model for class variable {0}------------------------", nameCVs.get(i)));
 			displayModel(models.get(i));
-			System.out.println("------------------------------------------------------");
+			System.out.println("---------------------------------------------------------------------------");
 			Prediction[] predictionsCV = models.get(i).predict(testingDataset, this.estimateProbabilities);
 			predictionsFold = updatePredictionsFold(predictionsFold, this.dataset.getNameClassVariables().get(i),
 					predictionsCV);
