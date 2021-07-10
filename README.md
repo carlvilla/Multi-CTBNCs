@@ -54,7 +54,7 @@ This software has been developed as a Gradle project to facilitate its usage and
       ```
       On Windows:
       ```bat
-      gradlew.bat run 
+      .\gradlew.bat run
       ```
   
 
