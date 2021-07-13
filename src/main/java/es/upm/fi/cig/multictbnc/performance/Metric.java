@@ -20,5 +20,5 @@ public interface Metric {
 	 * @param confusionMatrix a {@code Map} containing a confusion matrix
 	 * @return result of the evaluation metric.
 	 */
-	public double compute(Map<String, Integer> confusionMatrix);
+	public double compute(Map<String, Double> confusionMatrix);
 }

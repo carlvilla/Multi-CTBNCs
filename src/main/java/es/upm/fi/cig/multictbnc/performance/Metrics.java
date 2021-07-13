@@ -244,8 +244,8 @@ public class Metrics {
 	 * @param cm Map representing a confusion matrix
 	 * @return precision
 	 */
-	public static double precision(Map<String, Integer> cm) {
-		double precision = (double) cm.get("tp") / (cm.get("tp") + cm.get("fp"));
+	public static double precision(Map<String, Double> cm) {
+		double precision = cm.get("tp") / (cm.get("tp") + cm.get("fp"));
 		return Double.isNaN(precision) ? 0 : precision;
 	}
 
@@ -257,8 +257,8 @@ public class Metrics {
 	 * @param cm Map representing a confusion matrix
 	 * @return recall
 	 */
-	public static double recall(Map<String, Integer> cm) {
-		return (double) cm.get("tp") / (cm.get("tp") + cm.get("fn"));
+	public static double recall(Map<String, Double> cm) {
+		return cm.get("tp") / (cm.get("tp") + cm.get("fn"));
 	}
 
 	/**
@@ -269,8 +269,8 @@ public class Metrics {
 	 * @param cm Map representing a confusion matrix
 	 * @return F1 score
 	 */
-	public static double f1score(Map<String, Integer> cm) {
-		return (double) 2 * cm.get("tp") / (2 * cm.get("tp") + cm.get("fn") + cm.get("fp"));
+	public static double f1score(Map<String, Double> cm) {
+		return 2 * cm.get("tp") / (2 * cm.get("tp") + cm.get("fn") + cm.get("fp"));
 	}
 
 	/**
@@ -308,7 +308,7 @@ public class Metrics {
 				// Categorical variable
 				for (String classCV : possibleClassesCV) {
 					// Obtain confusion matrix for each class
-					Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, classCV);
+					Map<String, Double> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, classCV);
 					// Result of the metric for each class
 					metricResultCV += metric.compute(cm);
 				}
@@ -317,7 +317,7 @@ public class Metrics {
 				// Binary variable
 				String positiveClass = getPositiveClass(possibleClassesCV);
 				logger.trace("Using {} as positive class of '{}'", positiveClass, nameCV);
-				Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, positiveClass);
+				Map<String, Double> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, positiveClass);
 				metricResultCV = metric.compute(cm);
 			}
 			metricResult += metricResultCV;
@@ -344,7 +344,7 @@ public class Metrics {
 				.toArray(State[]::new);
 		State[] actualClasses = actualDataset.getStatesClassVariables();
 		// Confusion matrix to keep the combined results of each class variable
-		int tp = 0, fp = 0, tn = 0, fn = 0;
+		double tp = 0, fp = 0, tn = 0, fn = 0;
 		for (String nameCV : nameCVs) {
 			// Predicted classes of each class variables
 			String[] predictedClassesCV = Arrays.stream(predictedClasses).map(state -> state.getValueVariable(nameCV))
@@ -354,24 +354,30 @@ public class Metrics {
 					.toArray(String[]::new);
 			// Obtain possible classes of the class variable
 			String[] possibleClassesCV = Util.getUnique(actualClassesCV);
-			if (possibleClassesCV.length > 2)
-				// Categorical variable. If all class variables are multi-class, the precision
-				// and recall (and therefore F1 score) will be the same
+			if (possibleClassesCV.length > 2) {
+				// Categorical variable. If all class variables are multi-class (with same
+				// number of classes), the precision and recall (and therefore F1 score) will be
+				// the same
+				double tpCV = 0, fpCV = 0, tnCV = 0, fnCV = 0;
 				for (String classCV : possibleClassesCV) {
 					// Obtain confusion matrix for each class
-					Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, classCV);
+					Map<String, Double> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, classCV);
 					// Update confusion matrix with results of each class variable and positive
 					// class
-					tp += cm.get("tp");
-					fp += cm.get("fp");
-					tn += cm.get("tn");
-					fn += cm.get("fn");
+					tpCV += cm.get("tp");
+					fpCV += cm.get("fp");
+					tnCV += cm.get("tn");
+					fnCV += cm.get("fn");
 				}
-			else {
+				tp += tpCV / possibleClassesCV.length;  
+				fp += fpCV / possibleClassesCV.length;  
+				tn += tnCV / possibleClassesCV.length;
+				fn += fnCV / possibleClassesCV.length;
+			} else {
 				// Binary variable
 				String positiveClass = getPositiveClass(possibleClassesCV);
 				logger.trace("Using {} as positive class of '{}'", positiveClass, nameCV);
-				Map<String, Integer> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, positiveClass);
+				Map<String, Double> cm = getConfusionMatrix(predictedClassesCV, actualClassesCV, positiveClass);
 				tp += cm.get("tp");
 				fp += cm.get("fp");
 				tn += cm.get("tn");
@@ -379,7 +385,7 @@ public class Metrics {
 			}
 		}
 		// Apply the metric to the aggregated confusion matrix
-		Map<String, Integer> cm = Map.of("tp", tp, "fp", fp, "tn", tn, "fn", fn);
+		Map<String, Double> cm = Map.of("tp", tp, "fp", fp, "tn", tn, "fn", fn);
 		return metric.compute(cm);
 	}
 
@@ -411,9 +417,9 @@ public class Metrics {
 	 * @param positiveClass positive class
 	 * @return confusion matrix
 	 */
-	private static Map<String, Integer> getConfusionMatrix(String[] predicted, String[] actual, String positiveClass) {
+	private static Map<String, Double> getConfusionMatrix(String[] predicted, String[] actual, String positiveClass) {
 		// Compute true positives, false positives, true negatives and false negatives
-		int tp = 0, fp = 0, tn = 0, fn = 0;
+		double tp = 0, fp = 0, tn = 0, fn = 0;
 		for (int i = 0; i < predicted.length; i++)
 			if (predicted[i].equals(positiveClass) && predicted[i].equals(actual[i]))
 				tp++;
@@ -424,7 +430,7 @@ public class Metrics {
 			else
 				tn++;
 		// Save the four possible outcomes in a Map object
-		Map<String, Integer> confusionMatrix = Map.of("tp", tp, "fp", fp, "tn", tn, "fn", fn);
+		Map<String, Double> confusionMatrix = Map.of("tp", tp, "fp", fp, "tn", tn, "fn", fn);
 		return confusionMatrix;
 	}
 

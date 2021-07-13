@@ -499,10 +499,10 @@ public class MetricsTest {
 		assertEquals(1, microPrecision, 0.01);
 		// Two class variables correct, one wrong
 		microPrecision = Metrics.microAverage(predictionsWithTwoCorrectClasses, actualDataset, Metrics::precision);
-		assertEquals(0.72, microPrecision, 0.01);
+		assertEquals(0.60, microPrecision, 0.01);
 		// All instances are correct except two that are partially wrong
 		microPrecision = Metrics.microAverage(twoPartiallyIncorrectPrediction, actualDataset, Metrics::precision);
-		assertEquals(0.88, microPrecision, 0.01);
+		assertEquals(0.94, microPrecision, 0.01);
 	}
 
 	/**
@@ -517,7 +517,7 @@ public class MetricsTest {
 		assertEquals(1, microRecall, 0.01);
 		// Two class variables correct, one wrong
 		microRecall = Metrics.microAverage(predictionsWithTwoCorrectClasses, actualDataset, Metrics::recall);
-		assertEquals(0.8, microRecall, 0.01);
+		assertEquals(0.7, microRecall, 0.01);
 		// All instances are correct except two that are partially wrong
 		microRecall = Metrics.microAverage(twoPartiallyIncorrectPrediction, actualDataset, Metrics::recall);
 		assertEquals(0.8, microRecall, 0.01);
@@ -535,10 +535,10 @@ public class MetricsTest {
 		assertEquals(1, microF1Score, 0.01);
 		// Two class variables correct, one wrong
 		microF1Score = Metrics.microAverage(predictionsWithTwoCorrectClasses, actualDataset, Metrics::f1score);
-		assertEquals(0.76, microF1Score, 0.01);
+		assertEquals(0.65, microF1Score, 0.01);
 		// All instances are correct except two that are partially wrong
 		microF1Score = Metrics.microAverage(twoPartiallyIncorrectPrediction, actualDataset, Metrics::f1score);
-		assertEquals(0.84, microF1Score, 0.01);
+		assertEquals(0.86, microF1Score, 0.01);
 	}
 
 }
