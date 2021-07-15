@@ -65,11 +65,13 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 		this.logger.info(
 				"Preparing {}-cross validation for independent CTBNCs / Shuffle: {} / Estimate probabilities: {}",
 				folds, shuffle, estimateProbabilities);
-		// Obtain dataset and the number of sequence it contains
+		// Obtain dataset and number of sequences it contains
 		this.dataset = datasetReader.readDataset();
 		this.logger.info("Time variable: {}", this.dataset.getNameTimeVariable());
 		this.logger.info("Feature variables: {}", this.dataset.getNameFeatureVariables());
 		this.logger.info("Class variables: {}", (this.dataset.getNameClassVariables()));
+		// Define all the states of the class variables in the dataset
+		this.dataset.initialiazeStatesClassVariables();
 		// Check that the specified number of folds is valid
 		if (folds < 2 || folds > this.dataset.getNumDataPoints())
 			this.logger.warn("Number of folds must be between 2 and the dataset size (leave-one-out cross validation)");
@@ -112,6 +114,10 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 			Dataset trainingDataset = extractTrainingDataset(sequences, fromIndex, toIndex);
 			// Prepare testing dataset for current fold
 			Dataset testingDataset = extractTestingDataset(sequences, fromIndex, toIndex);
+			// Warn both the training and testing set about all the possible states the
+			// variables can take (categorical variable are assumed for now)
+			trainingDataset.setStatesVariables(this.dataset.getStatesVariables());
+			testingDataset.setStatesVariables(this.dataset.getStatesVariables());
 			// Learn one model per class variable in parallel
 			List<MultiCTBNC<?, ?>> models = learnModels(model, trainingDataset);
 			// Perform predictions with each model and merge the results
@@ -240,8 +246,8 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 		Prediction[] predictionsFold = null;
 		for (int i = 0; i < models.size(); i++) {
 			// Display learned model
-			System.out.println(MessageFormat
-					.format("------------------------Model for class variable {0}------------------------", nameCVs.get(i)));
+			System.out.println(MessageFormat.format(
+					"------------------------Model for class variable {0}------------------------", nameCVs.get(i)));
 			displayModel(models.get(i));
 			System.out.println("---------------------------------------------------------------------------");
 			Prediction[] predictionsCV = models.get(i).predict(testingDataset, this.estimateProbabilities);
@@ -306,7 +312,8 @@ public class CrossValidationBinaryRelevance extends ValidationMethod {
 	}
 
 	private void displayResultsFold(int foldNumber, Map<String, Double> resultsFold) {
-		System.out.println(MessageFormat.format("---------------------------------Results fold {0}---------------------------------", foldNumber));
+		System.out.println(MessageFormat.format(
+				"---------------------------------Results fold {0}---------------------------------", foldNumber));
 		resultsFold.forEach((metric, value) -> System.out.println(metric + " = " + value));
 		System.out.println("--------------------------------------------------------------------------------");
 	}

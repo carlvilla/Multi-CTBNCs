@@ -30,7 +30,7 @@ public class Metrics {
 	 * 
 	 * @param predicted     {@code Prediction} array
 	 * @param actualDataset dataset with actual classes
-	 * @return Map with the name of the evaluation metrics and their values
+	 * @return {@code Map} with the name of the evaluation metrics and their values
 	 */
 	public static Map<String, Double> evaluate(Prediction[] predicted, Dataset actualDataset) {
 		if (predicted.length != actualDataset.getNumDataPoints()) {
@@ -237,11 +237,13 @@ public class Metrics {
 	}
 
 	/**
-	 * Computes the precision evaluation metric from a Map containing a confusion
-	 * matrix. The Map should contain, at least, the keys "tp" (true positive) and
-	 * "fp" (false positive).
+	 * Computes the precision evaluation metric from a {@code Map} containing a
+	 * confusion matrix. The {@code Map} should contain, at least, the keys "tp"
+	 * (true positive) and "fp" (false positive). If there are no cases predicted as
+	 * positive (tp = 0 and fp = 0), a division by 0 will occur. In those cases, the
+	 * precision is ill-defined and set to 0.
 	 * 
-	 * @param cm Map representing a confusion matrix
+	 * @param cm {@code Map} representing a confusion matrix
 	 * @return precision
 	 */
 	public static double precision(Map<String, Double> cm) {
@@ -250,32 +252,39 @@ public class Metrics {
 	}
 
 	/**
-	 * Computes the recall evaluation metric from a Map containing a confusion
-	 * matrix. The Map should contain, at least, the keys "tp" (true positive) and
-	 * "fn" (false negative).
+	 * Computes the recall evaluation metric from a {@code Map} containing a
+	 * confusion matrix. The {@code Map} should contain, at least, the keys "tp"
+	 * (true positive) and "fn" (false negative). If there are no positive examples
+	 * in the testing dataset (tp = 0 and fn = 0), a division by 0 will occur. In
+	 * those cases, the recall is ill-defined and set to 0.
 	 * 
-	 * @param cm Map representing a confusion matrix
+	 * @param cm {@code Map} representing a confusion matrix
 	 * @return recall
 	 */
 	public static double recall(Map<String, Double> cm) {
-		return cm.get("tp") / (cm.get("tp") + cm.get("fn"));
+		double recall = cm.get("tp") / (cm.get("tp") + cm.get("fn"));
+		return Double.isNaN(recall) ? 0 : recall;
 	}
 
 	/**
-	 * Compute the F1 score from a Map containing a confusion matrix. The Map should
-	 * contain, at least, the keys "tp" (true positive), "fp" (false positive) and
-	 * "fn" (false negative).
+	 * Compute the F1 score from a {@code Map} containing a confusion matrix. The
+	 * {@code Map} should contain, at least, the keys "tp" (true positive), "fp"
+	 * (false positive) and "fn" (false negative). If there are no positive examples
+	 * in the testing dataset (tp = 0 and fn = 0) and no false positives (fp = 0), a
+	 * division by 0 will occur. In those cases, the F1 score is ill-defined and set
+	 * to 0.
 	 * 
-	 * @param cm Map representing a confusion matrix
+	 * @param cm {@code Map} representing a confusion matrix
 	 * @return F1 score
 	 */
 	public static double f1score(Map<String, Double> cm) {
-		return 2 * cm.get("tp") / (2 * cm.get("tp") + cm.get("fn") + cm.get("fp"));
+		double f1Score = 2 * cm.get("tp") / (2 * cm.get("tp") + cm.get("fn") + cm.get("fp"));
+		return Double.isNaN(f1Score) ? 0 : f1Score;
 	}
 
 	/**
 	 * Computes the value of a given evaluation metric for a multi-dimensional
-	 * classification problem using a macro-average approach (Gil‑Begue et al.,
+	 * classification problem using a macro-average approach (Gil-Begue et al.,
 	 * 2020).
 	 * 
 	 * @param predicted     {@code Prediction} array
@@ -301,10 +310,10 @@ public class Metrics {
 			String[] actualClassesCV = Arrays.stream(actualClasses).map(state -> state.getValueVariable(nameCV))
 					.toArray(String[]::new);
 			// Obtain possible classes of the class variable
-			String[] possibleClassesCV = Util.getUnique(actualClassesCV);
+			List<String> possibleClassesCV = actualDataset.getPossibleStatesVariable(nameCV);
 			// Apply the metric to the class variable
 			double metricResultCV = 0.0;
-			if (possibleClassesCV.length > 2) {
+			if (possibleClassesCV.size() > 2) {
 				// Categorical variable
 				for (String classCV : possibleClassesCV) {
 					// Obtain confusion matrix for each class
@@ -312,7 +321,7 @@ public class Metrics {
 					// Result of the metric for each class
 					metricResultCV += metric.compute(cm);
 				}
-				metricResultCV /= possibleClassesCV.length;
+				metricResultCV /= possibleClassesCV.size();
 			} else {
 				// Binary variable
 				String positiveClass = getPositiveClass(possibleClassesCV);
@@ -353,8 +362,8 @@ public class Metrics {
 			String[] actualClassesCV = Arrays.stream(actualClasses).map(state -> state.getValueVariable(nameCV))
 					.toArray(String[]::new);
 			// Obtain possible classes of the class variable
-			String[] possibleClassesCV = Util.getUnique(actualClassesCV);
-			if (possibleClassesCV.length > 2) {
+			List<String> possibleClassesCV = actualDataset.getPossibleStatesVariable(nameCV);
+			if (possibleClassesCV.size() > 2) {
 				// Categorical variable. If all class variables are multi-class (with same
 				// number of classes), the precision and recall (and therefore F1 score) will be
 				// the same
@@ -369,10 +378,10 @@ public class Metrics {
 					tnCV += cm.get("tn");
 					fnCV += cm.get("fn");
 				}
-				tp += tpCV / possibleClassesCV.length;  
-				fp += fpCV / possibleClassesCV.length;  
-				tn += tnCV / possibleClassesCV.length;
-				fn += fnCV / possibleClassesCV.length;
+				tp += tpCV / possibleClassesCV.size();
+				fp += fpCV / possibleClassesCV.size();
+				tn += tnCV / possibleClassesCV.size();
+				fn += fnCV / possibleClassesCV.size();
 			} else {
 				// Binary variable
 				String positiveClass = getPositiveClass(possibleClassesCV);
@@ -397,15 +406,15 @@ public class Metrics {
 	 * @param possibleClasses possible classes
 	 * @return positive class
 	 */
-	private static String getPositiveClass(String[] possibleClasses) {
-		for (int i = 0; i < possibleClasses.length; i++) {
-			String classI = possibleClasses[i];
+	private static String getPositiveClass(List<String> possibleClasses) {
+		for (int i = 0; i < possibleClasses.size(); i++) {
+			String classI = possibleClasses.get(i);
 			if (classI.equalsIgnoreCase("True") || classI.equalsIgnoreCase("Positive") || classI.equals("1")
 					|| classI.contains("A")) {
 				return classI;
 			}
 		}
-		return possibleClasses[0];
+		return possibleClasses.get(0);
 	}
 
 	/**

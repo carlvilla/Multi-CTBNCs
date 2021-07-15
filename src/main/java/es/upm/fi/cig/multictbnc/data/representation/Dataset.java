@@ -44,7 +44,7 @@ public class Dataset {
 		this.sequences = new ArrayList<Sequence>();
 		this.nameTimeVariable = nameTimeVariable;
 		this.nameClassVariables = nameClassVariables;
-		initialiazeStructures();
+		this.statesVariables = new HashMap<String, List<String>>();
 	}
 
 	/**
@@ -57,11 +57,24 @@ public class Dataset {
 		this.nameFeatureVariables = sequences.get(0).getNameFeatureVariables();
 		this.nameClassVariables = sequences.get(0).getNameClassVariables();
 		this.nameTimeVariable = sequences.get(0).getNameTimeVariable();
-		initialiazeStructures();
+		this.statesVariables = new HashMap<String, List<String>>();
 	}
 
-	private void initialiazeStructures() {
-		this.statesVariables = new HashMap<String, List<String>>();
+	/**
+	 * Retrieves the states of the class variables and store them in a {@code Map}.
+	 */
+	public void initialiazeStatesClassVariables() {
+		for (String nameClassVariable : this.nameClassVariables) {
+			// Use a HashSet to save each state just once
+			Set<String> statesSet = new HashSet<String>();
+			for (Sequence sequence : getSequences()) {
+				String[] statesSequence = sequence.getStates(nameClassVariable);
+				for (int i = 0; i < statesSequence.length; i++) {
+					statesSet.add(statesSequence[i]);
+				}
+			}
+			this.statesVariables.put(nameClassVariable, new ArrayList<String>(statesSet));
+		}
 	}
 
 	/**
@@ -125,7 +138,6 @@ public class Dataset {
 		// Create sequence. Check if information about class variables is provided
 		return new Sequence(nameVariablesSequence, this.nameTimeVariable, this.nameClassVariables,
 				this.nameFeatureVariables, data);
-
 	}
 
 	/**

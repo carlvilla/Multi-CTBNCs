@@ -91,6 +91,10 @@ public class CrossValidation extends ValidationMethod {
 			Dataset trainingDataset = extractTrainingDataset(sequences, fromIndex, toIndex);
 			// Prepare testing dataset for current fold
 			Dataset testingDataset = extractTestingDataset(sequences, fromIndex, toIndex);
+			// Warn both the training and testing set about all the possible states the
+			// variables can take (categorical variable are assumed for now)
+			trainingDataset.setStatesVariables(this.dataset.getStatesVariables());
+			testingDataset.setStatesVariables(this.dataset.getStatesVariables());
 			// Train the model
 			model.learn(trainingDataset);
 			// Make predictions over the current fold
@@ -100,7 +104,8 @@ public class CrossValidation extends ValidationMethod {
 			// Update the final results of the metrics after seeing all the folds
 			resultsFold.forEach((metric, value) -> resultsCV.merge(metric, value, (a, b) -> a + b));
 			// Display results fold
-			System.out.println(MessageFormat.format("---------------------------------Results fold {0}---------------------------------", i));
+			System.out.println(MessageFormat
+					.format("---------------------------------Results fold {0}---------------------------------", i));
 			displayResultsFold(resultsFold, model);
 			System.out.println("--------------------------------------------------------------------------------");
 			fromIndex += sizeFolds[i];
@@ -120,6 +125,8 @@ public class CrossValidation extends ValidationMethod {
 	 */
 	private void readDataset() throws UnreadDatasetException {
 		this.dataset = this.datasetReader.readDataset();
+		// Define all the states of the class variables in the dataset
+		this.dataset.initialiazeStatesClassVariables();
 		// Check that the specified number of folds is valid
 		if (this.folds < 2 || this.folds > this.dataset.getNumDataPoints()) {
 			this.logger.warn("Number of folds must be between 2 and the dataset size (2 folds will be used)");
