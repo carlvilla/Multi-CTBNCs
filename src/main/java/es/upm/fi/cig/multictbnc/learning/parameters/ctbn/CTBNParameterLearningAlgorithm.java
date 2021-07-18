@@ -132,6 +132,14 @@ public abstract class CTBNParameterLearningAlgorithm implements ParameterLearnin
 		node.setParameters(Qx, Oxx);
 	}
 
+	/**
+	 * Returns the sufficient statistics of a {@code DiscreteNode} for a given
+	 * {@code Dataset}.
+	 * 
+	 * @param node    a {@code DiscreteNode}
+	 * @param dataset dataset from which the sufficient statistics are extracted
+	 * @return sufficient statistics of the provided node
+	 */
 	protected abstract CTBNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset);
 
 }

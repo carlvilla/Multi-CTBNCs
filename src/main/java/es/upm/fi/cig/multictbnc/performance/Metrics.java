@@ -285,7 +285,7 @@ public class Metrics {
 	/**
 	 * Computes the value of a given evaluation metric for a multi-dimensional
 	 * classification problem using a macro-average approach (Gil-Begue et al.,
-	 * 2020).
+	 * 2021).
 	 * 
 	 * @param predicted     {@code Prediction} array
 	 * @param actualDataset dataset with actual classes
@@ -338,7 +338,7 @@ public class Metrics {
 	/**
 	 * Computes the value of a given evaluation metric for a multi-dimensional
 	 * classification problem using a micro-average approach (Gil‑Begue et al.,
-	 * 2020).
+	 * 2021).
 	 * 
 	 * @param predicted     {@code Prediction} array
 	 * @param actualDataset dataset with actual classes

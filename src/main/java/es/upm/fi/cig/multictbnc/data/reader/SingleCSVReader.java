@@ -29,7 +29,8 @@ public class SingleCSVReader extends AbstractCSVReader {
 	 * @param datasetFolder folder path where the CSV file is stored
 	 * @param sizeSequence  maximum size of the sequences
 	 * @throws FileNotFoundException  if the CSV file was not found
-	 * @throws UnreadDatasetException
+	 * @throws UnreadDatasetException if a dataset could not be read from the
+	 *                                specified folder
 	 */
 	public SingleCSVReader(String datasetFolder, int sizeSequence)
 			throws FileNotFoundException, UnreadDatasetException {

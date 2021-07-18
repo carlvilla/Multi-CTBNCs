@@ -130,5 +130,13 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 		return CPT;
 	}
 
+	/**
+	 * Returns the sufficient statistics of a {@code DiscreteNode} for a given
+	 * {@code Dataset}.
+	 * 
+	 * @param node    a {@code DiscreteNode}
+	 * @param dataset dataset from which the sufficient statistics are extracted
+	 * @return sufficient statistics of the provided node
+	 */
 	protected abstract BNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset);
 }
