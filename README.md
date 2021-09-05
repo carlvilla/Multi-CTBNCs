@@ -27,6 +27,7 @@ This software provides an easy-to-use tool, so anyone can apply Multi-CTBNCs in 
         - [Available models by structure constraints](#available-models-by-structure-constraints)
 - [Reproducibility of experiments](#reproducibility-of-experiments)
 - [Sampling synthetic datasets](#sampling-synthetic-datasets)
+- [References](#references)
 
 ## Installation
 This software has been developed as a Gradle project to facilitate its usage and the management of its dependencies. As the Gradle Wrapper is provided, only a Java Development Kit (JDK) needs to be installed ([Java SE Downloads](https://www.oracle.com/java/technologies/javase-downloads.html)).
@@ -119,7 +120,7 @@ Different families of Multi-CTBNCs can be proposed depending on the search space
 
 ## Reproducibility of experiments
 
-Datasets used in the article Carlos et al. (2021), <em>Multi-dimensional Continuous Time Bayesian Network Classifiers</em> can be found at this [link](https://upm365%2Dmy.sharepoint.com/:u:/g/personal/carlos_villa_upm_es/EYvXkGE0i3ZNtxWRcILKyPoBcdA9Ka8ACuGfLNHafDpVlQ). The following Gradle tasks perform the experiments of the article if the *dataset* folder is placed in the root directory of this project:
+Datasets used in the article [[1]](#1) can be found at this [link](https://upm365-my.sharepoint.com/:u:/g/personal/carlos_villa_upm_es/EYvXkGE0i3ZNtxWRcILKyPoB6Vq-spGVxZOUJjtOZy4eLQ). The following Gradle tasks perform the experiments of the article if the *dataset* folder is placed in the root directory of this project:
 
 * **emptyDigraphMultiCTBNC** - Compares the performance of CTBNCs and an empty-digraph Multi-CTBNC on the synthetic datasets when they are learned with the Bayesian Dirichlet equivalent score.
 * **energyBDe** - Compares the performance of max1 CTBNCs and a DAG-max1 Multi-CTBNC on the energy dataset when they are learned with the Bayesian Dirichlet equivalent score.
@@ -154,3 +155,9 @@ On Windows:
 ```bat
 gradlew.bat sampleDataset
 ```
+
+## References
+
+
+<a id="1">[1]</a> 
+Villa‐Blanco C, Larrañaga P, Bielza C. Multidimensional continuous time Bayesian network classifiers. <em>Int J Intell Syst.</em> 2021;1‐28. https://doi.org/10.1002/int.22611.
