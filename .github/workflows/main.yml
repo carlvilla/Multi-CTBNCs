@@ -8,42 +8,47 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        java: [ '14.0.1' ]
+        java: [ '15.0.1' ]
       fail-fast: false
     name: ${{ matrix.os }}
     steps:
-    - name: Git checkout
-      uses: actions/checkout@v2
-    - name: Set up JDK
-      uses: actions/setup-java@v1
-      with:
-        java-version: ${{ matrix.java }}
-    - name: Execute build
-      run: ./gradlew --info --stacktrace build
-    - name: Execute jpackage
-      run: ./gradlew --info --stacktrace jpackage
-    - name: Upload DMG as an artifact
-      if: ${{ matrix.os }} == macOS-latest
-      uses: actions/upload-artifact@v2
-      with:
-        name: Multi-CTBNCs_jdk${{ matrix.java }}_${{ matrix.os }}
-        path: build/jpackage/*.app
-    - name: Upload EXE as an artifact
-      if: ${{ matrix.os }} == windows-latest
-      uses: actions/upload-artifact@v2
-      uses: vimtor/action-zip@v1
-      with:
-        name: Multi-CTBNCs_jdk${{ matrix.java }}_${{ matrix.os }}
-        path: build/jpackage/Multi-CTBNCs/*
-    - name: Upload DEB as an artifact
-      if: ${{ matrix.os }} == ubuntu-latest
-      uses: actions/upload-artifact@v2
-      with:
-        name: Multi-CTBNCs_jdk${{ matrix.java }}_${{ matrix.os }}_deb
-        path: build/jpackage/*.deb
-    - name: Upload RPM as an artifact
-      if: ${{ matrix.os }} == ubuntu-latest
-      uses: actions/upload-artifact@v2
-      with:
-        name: Multi-CTBNCs_jdk${{ matrix.java }}_${{ matrix.os }}_rpm
-        path: build/jpackage/*.rpm
+      - name: Git checkout
+        uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+      - name: Execute build
+        run: ./gradlew --info --stacktrace build
+      - name: Execute jpackage
+        run: ./gradlew --info --stacktrace jpackage
+      - name: Upload DMG as an artifact
+        if: matrix.os == 'macOS-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: Multi-CTBNCs_jdk${{ matrix.java }}_${{ matrix.os }}
+          path: build/jpackage/*.app
+      - name: Zip files EXE
+        if: matrix.os == 'windows-latest'
+        uses: vimtor/action-zip@v1
+        with:
+          dest: Multi-CTBNCs_jdk${{ matrix.java }}_${{ matrix.os }}.zip
+          files: build/jpackage/Multi-CTBNCs/*
+      - name: Upload EXE as an artifact
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: Multi-CTBNCs_jdk${{ matrix.java }}_${{ matrix.os }}
+          path: build/jpackage/Multi-CTBNCs/*
+      - name: Upload DEB as an artifact
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: Multi-CTBNCs_jdk${{ matrix.java }}_${{ matrix.os }}_deb
+          path: build/jpackage/*.deb
+      - name: Upload RPM as an artifact
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: Multi-CTBNCs_jdk${{ matrix.java }}_${{ matrix.os }}_rpm
+          path: build/jpackage/*.rpm
