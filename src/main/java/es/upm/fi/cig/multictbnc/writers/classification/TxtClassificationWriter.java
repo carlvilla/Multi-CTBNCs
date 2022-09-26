@@ -18,8 +18,8 @@ import java.util.Date;
  *
  * @author Carlos Villa Blanco
  */
-public class TXTClassificationWriter {
-	private static final Logger logger = LogManager.getLogger(TXTClassificationWriter.class);
+public class TxtClassificationWriter {
+	private static final Logger logger = LogManager.getLogger(TxtClassificationWriter.class);
 
 	/**
 	 * Writes predictions of a dataset in the specified folder.

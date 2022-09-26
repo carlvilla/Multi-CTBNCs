@@ -6,7 +6,7 @@ import es.upm.fi.cig.multictbnc.data.representation.Dataset;
 import es.upm.fi.cig.multictbnc.exceptions.ErroneousValueException;
 import es.upm.fi.cig.multictbnc.models.MultiCTBNC;
 import es.upm.fi.cig.multictbnc.util.Util;
-import es.upm.fi.cig.multictbnc.writers.classification.TXTClassificationWriter;
+import es.upm.fi.cig.multictbnc.writers.classification.TxtClassificationWriter;
 import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,7 +49,7 @@ public class ClassificationTask extends Task<Void> {
 			throw new ErroneousValueException("Any sequence of the test dataset could be predicted.");
 		// Write predictions to a file
 		String pathFolderFile = "results/classifications/";
-		TXTClassificationWriter.writePredictions(predictions, dataset, pathFolderFile);
+		TxtClassificationWriter.writePredictions(predictions, dataset, pathFolderFile);
 		return null;
 	}
 
