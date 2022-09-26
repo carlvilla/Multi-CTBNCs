@@ -1,33 +1,31 @@
 package es.upm.fi.cig.multictbnc.learning.structure.constraints.BN;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import es.upm.fi.cig.multictbnc.learning.structure.constraints.AbstractStructureConstraints;
 import es.upm.fi.cig.multictbnc.nodes.Node;
 import es.upm.fi.cig.multictbnc.nodes.NodeIndexer;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * Defines the restrictions of a general directed acyclic graph.
- * 
- * @author Carlos Villa Blanco
  *
+ * @author Carlos Villa Blanco
  */
 public class DAG extends AbstractStructureConstraints {
 
 	/**
-	 * Checks if the structure (given by an adjacencyMatrix) is legal for a Bayesian
-	 * network without restrictions. The method determines if there are cycles in an
-	 * adjacency matrix. Modified version of code in
+	 * Checks if the structure (given by an adjacencyMatrix) is legal for a Bayesian network without restrictions. The
+	 * method determines if there are cycles in an adjacency matrix. A modified version of the code in
 	 * https://www.geeksforgeeks.org/detect-cycle-in-a-directed-graph-using-bfs/.
-	 * 
+	 *
 	 * @param adjacencyMatrix adjacency matrix
 	 * @return true if the structure is valid, false otherwise
 	 */
 	@Override
 	public boolean isStructureLegal(boolean[][] adjacencyMatrix, NodeIndexer<? extends Node> nodeIndexer) {
 		int numNodes = adjacencyMatrix.length;
-		// Indegrees of all nodes.
+		// The in-degree of all nodes.
 		int[] inDegree = new int[numNodes];
 		for (int i = 0; i < numNodes; i++) {
 			for (int j = 0; j < numNodes; j++) {
@@ -36,15 +34,15 @@ public class DAG extends AbstractStructureConstraints {
 				}
 			}
 		}
-		// Enqueue all nodes with indegree 0
-		Queue<Integer> q = new LinkedList<Integer>();
+		// Enqueue all nodes with in-degree 0
+		Queue<Integer> q = new LinkedList<>();
 		for (int i = 0; i < numNodes; i++)
 			if (inDegree[i] == 0)
 				q.add(i);
-		// Initialize count of visited vertices
+		// Initialise count of visited vertices
 		int countVisitedNodes = 0;
-		// One by one dequeue vertices from queue and enqueue
-		// adjacents if indegree of adjacent becomes 0
+		// One by one dequeue vertices from the queue and enqueue adjacent vertices if
+		// in-degree of adjacent becomes 0
 		while (!q.isEmpty()) {
 			// Extract node from queue
 			int i = q.poll();
@@ -55,7 +53,7 @@ public class DAG extends AbstractStructureConstraints {
 					q.add(j);
 			countVisitedNodes++;
 		}
-		// There are cycles if the number of visited nodes are different from the number
+		// There are cycles if the number of visited nodes is different from the number
 		// of nodes in the graph
 		return countVisitedNodes == numNodes;
 	}

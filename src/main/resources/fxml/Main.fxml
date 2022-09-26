@@ -199,11 +199,11 @@
                                           <Insets bottom="10.0" />
                                        </VBox.margin>
                                     </HBox>
-                                    <HBox fx:id="hbRestarts" alignment="CENTER" maxHeight="1.7976931348623157E308" prefHeight="45.0" prefWidth="390.0" spacing="5.0" style="-fx-background-color: #e6e6e6;" VBox.vgrow="ALWAYS">
+                                    <HBox fx:id="hbRestarts" alignment="CENTER" maxHeight="1.7976931348623157E308" prefHeight="45.0" prefWidth="390.0" style="-fx-background-color: #e6e6e6;" VBox.vgrow="ALWAYS">
                                        <children>
                                           <Label alignment="CENTER" text="Number of random restarts:">
                                              <HBox.margin>
-                                                <Insets />
+                                                <Insets right="8.0" />
                                              </HBox.margin>
                                           </Label>
                                           <TextField fx:id="fldRestarts" prefWidth="60.0" />
@@ -212,7 +212,64 @@
                                           <Insets bottom="10.0" left="210.0" />
                                        </VBox.margin>
                                     </HBox>
-                                    <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                    <HBox fx:id="hbSignificanceLevel" alignment="CENTER" spacing="5.0" VBox.vgrow="ALWAYS">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
+                                       <children>
+                                          <Label maxWidth="1.7976931348623157E308" prefWidth="215.0" text="Significance level:" />
+                                          <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" prefHeight="45.0" prefWidth="405.0" style="-fx-background-color: #e6e6e6 #e6e6e6 #e6e6e6 #e6e6e6;" HBox.hgrow="ALWAYS">
+                                             <children>
+                                                <Label text="Class subgraph:">
+                                                   <HBox.margin>
+                                                      <Insets right="8.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="fldSigClassSubgraph" prefWidth="65.0">
+                                                   <HBox.margin>
+                                                      <Insets right="10.0" />
+                                                   </HBox.margin>
+                                                </TextField>
+                                                <Label text="Feature/bridge subgraph:">
+                                                   <HBox.margin>
+                                                      <Insets right="8.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="fldSigFeatureBridgeSubgraph" prefWidth="65.0" />
+                                             </children>
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                          </HBox>
+                                       </children>
+                                    </HBox>
+                                    <HBox fx:id="hbSizeTabuList" alignment="CENTER" maxHeight="1.7976931348623157E308" prefHeight="45.0" prefWidth="390.0" style="-fx-background-color: #e6e6e6 #e6e6e6;" VBox.vgrow="ALWAYS">
+                                       <children>
+                                          <Label text="Size tabu list:">
+                                             <HBox.margin>
+                                                <Insets right="8.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <TextField fx:id="fldSizeTabuList" prefHeight="27.0" prefWidth="60.0" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="210.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox fx:id="hbMaxSizeSepSet" alignment="CENTER" maxHeight="1.7976931348623157E308" prefHeight="45.0" prefWidth="390.0" style="-fx-background-color: #e6e6e6 #e6e6e6 #e6e6e6 #e6e6e6;" VBox.vgrow="ALWAYS">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="210.0" />
+                                       </VBox.margin>
+                                       <children>
+                                          <Label text="Max.  size separating set:">
+                                             <HBox.margin>
+                                                <Insets right="8.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <TextField fx:id="fldMaxSizeSepSet" prefHeight="27.0" prefWidth="60.0" />
+                                       </children>
+                                    </HBox>
+                                    <HBox fx:id="hbInitialStructure" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                                        <children>
                                           <Label maxWidth="1.7976931348623157E308" prefWidth="210.0" text="Initial structure:" />
                                           <ComboBox fx:id="cmbInitialStructure" maxWidth="1.7976931348623157E308" prefHeight="27.0" prefWidth="390.0" HBox.hgrow="ALWAYS" />
@@ -221,7 +278,7 @@
                                           <Insets bottom="10.0" />
                                        </VBox.margin>
                                     </HBox>
-                                    <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                    <HBox fx:id="hbScore" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                                        <children>
                                           <Label maxWidth="1.7976931348623157E308" prefWidth="210.0" text="Score:" />
                                           <ComboBox fx:id="cmbScoreFunction" maxWidth="1.7976931348623157E308" onAction="#changeScoreFunction" prefHeight="27.0" prefWidth="390.0" HBox.hgrow="ALWAYS" />
@@ -230,14 +287,14 @@
                                           <Insets bottom="10.0" />
                                        </VBox.margin>
                                     </HBox>
-                                    <HBox fx:id="hbPenalization" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                    <HBox fx:id="hbPenalisation" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                                        <children>
-                  								<Label maxWidth="1.7976931348623157E308" prefWidth="210.0" text="Penalization:">
+                  								<Label maxWidth="1.7976931348623157E308" prefWidth="210.0" text="Penalisation:">
                                              <HBox.margin>
                                                 <Insets />
                                              </HBox.margin>
                                           </Label>
-                  								<ComboBox fx:id="cmbPenalization" maxWidth="1.7976931348623157E308" prefHeight="27.0" prefWidth="390.0" HBox.hgrow="ALWAYS" />
+                  								<ComboBox fx:id="cmbPenalisation" maxWidth="1.7976931348623157E308" prefHeight="27.0" prefWidth="390.0" HBox.hgrow="ALWAYS" />
                                        </children>
                                        <VBox.margin>
                                           <Insets bottom="10.0" />
@@ -272,8 +329,9 @@
                   								</RadioButton>
                   								<RadioButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#selectCrossValidation" text="Cross-validation" toggleGroup="$tgValidationMethod" VBox.vgrow="ALWAYS">
                                              <VBox.margin>
-                                                <Insets />
+                                                <Insets bottom="12.0" />
                                              </VBox.margin></RadioButton>
+                                          <RadioButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#selectTestDataset" text="Test dataset" toggleGroup="$tgValidationMethod" />
                                        </children>
                                        <padding>
                                           <Insets left="15.0" />
@@ -287,14 +345,16 @@
                                           <Label style="-fx-background-color: #f4f4f4;" text="Evaluation method parameters" translateX="10.0" translateY="-20.0">
                                              <VBox.margin>
                                                 <Insets />
-                                             </VBox.margin></Label>
+                                             </VBox.margin>
+                                          </Label>
                                           <HBox fx:id="hbTrainingSize" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                                              <children>
                         								<Label maxWidth="-Infinity" minWidth="-Infinity" prefWidth="180.0" text="Training size (%):" HBox.hgrow="ALWAYS" />
                                                 <Slider fx:id="sldTrainingSize" max="0.9" maxWidth="150.0" min="0.1" showTickLabels="true" showTickMarks="true" HBox.hgrow="ALWAYS">
                                                    <HBox.margin>
                                                       <Insets right="15.0" />
-                                                   </HBox.margin></Slider>
+                                                   </HBox.margin>
+                                                </Slider>
                                                 <TextField disable="true" maxWidth="60.0" text="${sldTrainingSize.value}" HBox.hgrow="ALWAYS" />
                                              </children>
                                           </HBox>
@@ -304,13 +364,23 @@
                         								<TextField fx:id="fldNumFolds" maxWidth="60.0" />
                                              </children>
                                           </HBox>
-                                          <HBox maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                          <HBox fx:id="hbTestDataset" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                             <children>
+                                                <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#setFolderTestDataset" prefWidth="160.0" text="Select folder test dataset">
+                                                   <HBox.margin>
+                                                      <Insets right="20.0" />
+                                                   </HBox.margin></Button>
+                                                <TextField fx:id="fldPathTestDataset" maxWidth="350.0" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                          <HBox fx:id="hbShuffle" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                                              <children>
                                                 <Label maxWidth="-Infinity" minWidth="-Infinity" prefWidth="180.0" text="Shuffle sequences:" />
                                                 <CheckBox fx:id="chkShuffle" maxWidth="1.7976931348623157E308" mnemonicParsing="false">
                                                    <tooltip>
                                                       <Tooltip style="-fx-show-duration: 20s;" text="Sequences are shuffled before applying the evaluation method" />
-                                                   </tooltip></CheckBox>
+                                                   </tooltip>
+                                                </CheckBox>
                                              </children>
                                           </HBox>
                                           <HBox maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
@@ -319,7 +389,8 @@
                                                 <CheckBox fx:id="chkProbabilities" mnemonicParsing="false">
                                                    <tooltip>
                                                       <Tooltip style="-fx-show-duration: 20s;" text="Estimate probabilities of each class configuration (may increase prediction time)" />
-                                                   </tooltip></CheckBox>
+                                                   </tooltip>
+                                                </CheckBox>
                                              </children>
                                           </HBox>
                                        </children>

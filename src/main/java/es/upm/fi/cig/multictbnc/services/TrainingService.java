@@ -7,24 +7,22 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
 /**
- * 
  * Service that creates and manages a {@code TrainingTask}.
- * 
- * @author Carlos Villa Blanco
  *
+ * @author Carlos Villa Blanco
  */
 public class TrainingService extends Service<Void> {
-	MultiCTBNC<?, ?> model;
-	DatasetReader datasetReader;
+	private MultiCTBNC<?, ?> model;
+	private DatasetReader datasetReader;
 
 	/**
-	 * Initializes the {@code TrainingService} receiving the model to learn and the
-	 * {@code a DatasetReader} to read the training dataset.
-	 * 
+	 * Initialises the {@code TrainingService} receiving the model to learn and the {@code a DatasetReader} to read the
+	 * training dataset.
+	 *
 	 * @param model         model to train
 	 * @param datasetReader {@code a DatasetReader} to read the training dataset
 	 */
-	public void initializeService(MultiCTBNC<?, ?> model, DatasetReader datasetReader) {
+	public void initialiseService(MultiCTBNC<?, ?> model, DatasetReader datasetReader) {
 		this.model = model;
 		this.datasetReader = datasetReader;
 	}

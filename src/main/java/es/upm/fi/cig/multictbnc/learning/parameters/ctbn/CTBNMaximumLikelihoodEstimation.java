@@ -1,23 +1,20 @@
 package es.upm.fi.cig.multictbnc.learning.parameters.ctbn;
 
-import java.util.Map;
-
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
 import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
 
+import java.util.Map;
+
 /**
  * Maximum likelihood estimation of CTBN parameters.
- * 
- * @author Carlos Villa Blanco
  *
+ * @author Carlos Villa Blanco
  */
 public class CTBNMaximumLikelihoodEstimation extends CTBNParameterLearningAlgorithm {
 
 	@Override
-	protected CTBNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset) {
-		CTBNSufficientStatistics ssNode = new CTBNSufficientStatistics(0, 0);
-		ssNode.computeSufficientStatistics(node, dataset);
-		return ssNode;
+	public String getIdentifier() {
+		return getNameMethod();
 	}
 
 	@Override
@@ -26,13 +23,15 @@ public class CTBNMaximumLikelihoodEstimation extends CTBNParameterLearningAlgori
 	}
 
 	@Override
-	public String getIdentifier() {
-		return getNameMethod();
+	public Map<String, String> getParametersAlgorithm() {
+		return Map.of();
 	}
 
 	@Override
-	public Map<String, String> getParametersAlgorithm() {
-		return Map.of();
+	protected CTBNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset) {
+		CTBNSufficientStatistics ssNode = new CTBNSufficientStatistics(0, 0);
+		ssNode.computeSufficientStatistics(node, dataset);
+		return ssNode;
 	}
 
 }

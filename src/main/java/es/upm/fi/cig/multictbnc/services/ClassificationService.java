@@ -7,29 +7,24 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
 /**
- * 
  * Service that creates and manages a {@code ClassificaionTask}.
- * 
- * @author Carlos Villa Blanco
  *
+ * @author Carlos Villa Blanco
  */
 public class ClassificationService extends Service<Void> {
-	MultiCTBNC<?, ?> model;
-	DatasetReader datasetReader;
-	boolean estimateProbabilities;
+	private MultiCTBNC<?, ?> model;
+	private DatasetReader datasetReader;
+	private boolean estimateProbabilities;
 
 	/**
-	 * Initializes the {@code ClassificationService} by receiving the learned
-	 * {@code MultiCTBNC} model and a {@code DatasetReader} to read the dataset to
-	 * classify.
-	 * 
+	 * Initialises the {@code ClassificationService} by receiving the learnt {@code MultiCTBNC} model and a {@code
+	 * DatasetReader} to read the dataset to classify.
+	 *
 	 * @param model                 {@code MultiCTBNC} model
-	 * @param datasetReader         {@code a DatasetReader} to read the dataset to
-	 *                              classify
-	 * @param estimateProbabilities true to estimate the probabilities of the class
-	 *                              configurations, false otherwise
+	 * @param datasetReader         {@code a DatasetReader} to read the dataset to classify
+	 * @param estimateProbabilities true to estimate the probabilities of the class configurations, false otherwise
 	 */
-	public void initializeService(MultiCTBNC<?, ?> model, DatasetReader datasetReader, boolean estimateProbabilities) {
+	public void initialiseService(MultiCTBNC<?, ?> model, DatasetReader datasetReader, boolean estimateProbabilities) {
 		this.model = model;
 		this.datasetReader = datasetReader;
 		this.estimateProbabilities = estimateProbabilities;

@@ -1,13 +1,14 @@
 package es.upm.fi.cig.multictbnc.exceptions;
 
+import java.io.Serial;
+
 /**
  * Thrown when an expected variable is not found in a provided dataset.
- * 
- * @author Carlos Villa Blanco
  *
+ * @author Carlos Villa Blanco
  */
 public class VariableNotFoundException extends Exception {
-
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -18,9 +19,8 @@ public class VariableNotFoundException extends Exception {
 	}
 
 	/**
-	 * Constructs a {@code VariableNotFoundException} with the specified detail
-	 * message.
-	 * 
+	 * Constructs a {@code VariableNotFoundException} with the specified detail message.
+	 *
 	 * @param str detail message
 	 */
 	public VariableNotFoundException(String str) {

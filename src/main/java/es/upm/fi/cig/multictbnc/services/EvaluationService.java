@@ -7,24 +7,22 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
 /**
- * 
  * Service that creates and manages an {@code EvaluationTask}.
- * 
- * @author Carlos Villa Blanco
  *
+ * @author Carlos Villa Blanco
  */
 public class EvaluationService extends Service<Void> {
-	ValidationMethod validationMethod;
-	MultiCTBNC<?, ?> model;
+	private ValidationMethod validationMethod;
+	private MultiCTBNC<?, ?> model;
 
 	/**
-	 * Initializes the {@code EvaluationService} by receiving a
-	 * {@code ValidationMethod} and a {@code MultiCTBNC} model.
-	 * 
+	 * Initialises the {@code EvaluationService} by receiving a {@code ValidationMethod} and a {@code MultiCTBNC}
+	 * model.
+	 *
 	 * @param validationMethod validation method
 	 * @param model            model to evaluate
 	 */
-	public void initializeService(ValidationMethod validationMethod, MultiCTBNC<?, ?> model) {
+	public void initialiseService(ValidationMethod validationMethod, MultiCTBNC<?, ?> model) {
 		this.validationMethod = validationMethod;
 		this.model = model;
 	}

@@ -1,5 +1,11 @@
 package es.upm.fi.cig.multictbnc.writers.classification;
 
+import es.upm.fi.cig.multictbnc.classification.Prediction;
+import es.upm.fi.cig.multictbnc.data.representation.Dataset;
+import es.upm.fi.cig.multictbnc.data.representation.State;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -7,32 +13,23 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import es.upm.fi.cig.multictbnc.classification.Prediction;
-import es.upm.fi.cig.multictbnc.data.representation.Dataset;
-import es.upm.fi.cig.multictbnc.data.representation.State;
-import es.upm.fi.cig.multictbnc.models.MultiCTBNC;
-
 /**
- * Class to write the predictions made on a dataset in a txt file.
- * 
- * @author Carlos Villa Blanco
+ * Class to write the predictions made on a dataset in a TXT file.
  *
+ * @author Carlos Villa Blanco
  */
-public class TxtClassificationWriter {
-	private static Logger logger = LogManager.getLogger(MultiCTBNC.class);
+public class TXTClassificationWriter {
+	private static final Logger logger = LogManager.getLogger(TXTClassificationWriter.class);
 
 	/**
 	 * Writes predictions of a dataset in the specified folder.
-	 * 
+	 *
 	 * @param predictions {@code Prediction} array
 	 * @param dataset     dataset from which predictions were made
 	 * @param pathFolder  folder where the predictions will be stored
 	 */
 	public static void writePredictions(Prediction[] predictions, Dataset dataset, String pathFolder) {
-		String fileName = new SimpleDateFormat("yyyyMMddHHmm'.txt'").format(new Date());
+		String fileName = new SimpleDateFormat("yyyyMMddHHmmSS'.txt'").format(new Date());
 		File file = new File(pathFolder + fileName);
 		file.getParentFile().mkdirs();
 		try {

@@ -1,103 +1,128 @@
 package es.upm.fi.cig.multictbnc.nodes;
 
-import java.util.List;
-
 import es.upm.fi.cig.multictbnc.data.representation.State;
 import es.upm.fi.cig.multictbnc.learning.parameters.SufficientStatistics;
 import es.upm.fi.cig.multictbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
+import es.upm.fi.cig.multictbnc.util.Util;
+
+import java.util.List;
 
 /**
- * Extends the DiscreteNode class in order to store a CIM and the sufficient
- * statistics for a CTBN. Ø
- * 
- * @author Carlos Villa Blanco
+ * Extends the DiscreteNode class to store a CIM and the sufficient statistics for a CTBN.
  *
+ * @author Carlos Villa Blanco
  */
 public class CIMNode extends DiscreteNode {
-	// The conditional intensity matrix can be summarized by two types of parameters
+	CTBNSufficientStatistics sufficientStatistics;
+	// The conditional intensity matrix can be summarised by two types of parameters
 	// (Nodelman et al., 2012):
 	// (1) intensity of the variable leaving a certain state while its parents take
 	// a certain instantiation
-	double[][] Qx;
+	private double[][] Qx;
 	// (2) probability of the variable leaving a certain state for another one while
 	// its parents take a certain instantiation
-	double[][][] Oxy;
-
-	CTBNSufficientStatistics sufficientStatistics;
+	private double[][][] Oxy;
 
 	/**
 	 * Constructs a CIMNode given its name and possible states.
-	 * 
+	 *
 	 * @param name   name of the node
-	 * @param states list of strings representing the states that the variable
-	 *               related to the node can take
+	 * @param states list of strings representing the states that the variable related to the node can take
 	 */
 	public CIMNode(String name, List<String> states) {
 		super(name, states);
 	}
 
 	/**
-	 * Initializes a CIMNode given its name, possible states and if it is a class
-	 * variable.
-	 * 
+	 * Initialises a CIMNode given its name, possible states and if it is a class variable.
+	 *
 	 * @param name            name of the node
-	 * @param states          list of strings representing the states that the
-	 *                        variable related to the node can take
-	 * @param isClassVariable true if the node represent a class variable, false
-	 *                        otherwise
+	 * @param states          list of strings representing the states that the variable related to the node can take
+	 * @param isClassVariable true if the node represent a class variable, false otherwise
 	 */
 	public CIMNode(String name, List<String> states, boolean isClassVariable) {
 		super(name, states, isClassVariable);
 	}
 
-	@Override
-	public void setSufficientStatistics(SufficientStatistics sufficientStatistics) {
-		this.sufficientStatistics = (CTBNSufficientStatistics) sufficientStatistics;
-	}
-
 	/**
-	 * Sets the parameters of a node.
-	 * 
-	 * @param Qx  intensity of the variable leaving a certain state while its
-	 *            parents take a certain instantiation
-	 * @param Oxy probability of the variable leaving a certain state for another
-	 *            one while its parents take a certain instantiation
+	 * Constructor to clone a CIM node. The parameters and sufficient statistics are not cloned.
+	 *
+	 * @param node a {@code CIMNode}
 	 */
-	public void setParameters(double[][] Qx, double[][][] Oxy) {
-		this.Qx = Qx;
-		this.Oxy = Oxy;
+	public CIMNode(CIMNode node) {
+		super(node.getName(), node.getStates(), node.isClassVariable());
+		setParameters(Util.clone2DArray(node.getQx()), Util.clone3DArray(node.getOxy()));
 	}
 
 	/**
-	 * Samples the time that the node stays in its current state given the state of
-	 * its parents.
-	 * 
-	 * @return sampled time
+	 * Return matrix with the probabilities of the variable leaving a certain state for another one while their parents
+	 * take a certain instantiation
+	 *
+	 * @return probability matrix
 	 */
-	public double sampleTimeState() {
-		// Get indexes states node and parents
-		int idxState = getIdxState();
-		int idxStateParents = getIdxStateParents();
-		// Intensity of the node of transitioning from the state specified in "evidence"
-		// (parameter exponential distribution)
-		double q = getQx(idxStateParents, idxState);
-		// If the parameter is 0, the node is in an absorbing state that cannot be left
-		if (q == 0)
-			return Double.POSITIVE_INFINITY;
-		// Sample from uniform distribution to obtain the probability of the time that
-		// will be sampled
-		double prob = Math.random();
-		// Use the quantile function of the exponential distribution with parameter 'q'
-		// to sample the time with the previous obtained probability
-		return -Math.log(1 - prob) / q;
+	public double[][][] getOxy() {
+		return Oxy;
 	}
 
 	/**
-	 * Samples the next state of the node given the current one and that of its
-	 * parents. Returns null if not all the parents were instantiated.
-	 * 
+	 * Returns the probability of the variable leaving a state for a certain one given the state of its parents
+	 *
+	 * @param idxStateParents  index of the state of the node's parents
+	 * @param idxFromStateNode leaving state index
+	 * @param idxToStateNode   incoming state index
+	 * @return parameter Oxy
+	 */
+	public double getOxy(int idxStateParents, int idxFromStateNode, int idxToStateNode) {
+		try {
+			return this.Oxy[idxStateParents][idxFromStateNode][idxToStateNode];
+		} catch (IndexOutOfBoundsException iobe) {
+			// One of the index states was never seen during prediction. The model will not
+			// be retrained, so 0 is reported
+			return 0;
+		}
+	}
+
+	/**
+	 * Returns the intensity of the variable leaving a certain state given the state of its parents
+	 *
+	 * @param idxStateParents index of the state of the node's parents
+	 * @param idxStateNode    leaving state index
+	 * @return parameter Qx
+	 */
+	public double getQx(int idxStateParents, int idxStateNode) {
+		try {
+			return this.Qx[idxStateParents][idxStateNode];
+		} catch (IndexOutOfBoundsException iobe) {
+			// One of the index states was never seen during prediction. The model will not
+			// be retrained, so 0 is reported
+			return 0;
+		}
+	}
+
+	/**
+	 * Return matrix with the intensities of the variables leaving a certain state while their parents take a certain
+	 * instantiation.
+	 *
+	 * @return intensity matrix
+	 */
+	public double[][] getQx() {
+		return Qx;
+	}
+
+	/**
+	 * Gets the sufficient statistics of a CIM node.
+	 *
+	 * @return sufficient statistics.
+	 */
+	public CTBNSufficientStatistics getSufficientStatistics() {
+		return this.sufficientStatistics;
+	}
+
+	/**
+	 * Samples the next state of the node given the current one and that of its parents. Returns null if not all the
+	 * parents were instantiated.
+	 *
 	 * @return sampled state
-	 * 
 	 */
 	public State sampleNextState() {
 		// Get indexes states node and parents
@@ -125,56 +150,81 @@ public class CIMNode extends DiscreteNode {
 	}
 
 	/**
-	 * Gets the sufficient statistics of a CIM node.
-	 * 
-	 * @return sufficient statistics.
+	 * Samples the time that the node stays in its current state given the state of its parents.
+	 *
+	 * @return sampled time
 	 */
-	public CTBNSufficientStatistics getSufficientStatistics() {
-		return this.sufficientStatistics;
+	public double sampleTimeState() {
+		// Get indexes states node and parents
+		int idxState = getIdxState();
+		int idxStateParents = getIdxStateParents();
+		// Intensity of the node of transitioning from the state specified in "evidence"
+		// (parameter exponential distribution)
+		double q = getQx(idxStateParents, idxState);
+		// If the parameter is 0, the node is in an absorbing state that cannot be left
+		if (q == 0)
+			return Double.POSITIVE_INFINITY;
+		// Sample from a uniform distribution to obtain the probability of the time that
+		// will be sampled
+		double prob = Math.random();
+		// Use the quantile function of the exponential distribution with parameter 'q'
+		// to sample the time with the previously obtained probability
+		return -Math.log(1 - prob) / q;
 	}
 
 	/**
-	 * Returns the intensity of the variable leaving a certain state given the state
-	 * of its parents
-	 * 
-	 * @param idxStateParents index of the state of the node's parents
-	 * @param idxStateNode    leaving state index
-	 * 
-	 * @return parameter Qx
+	 * Sets the parameters of a node.
+	 *
+	 * @param Qx  intensity of the variable leaving a certain state while its parents take a certain instantiation
+	 * @param Oxy probability of the variable leaving a certain state for another one while its parents take a certain
+	 *            instantiation
 	 */
-	public double getQx(int idxStateParents, int idxStateNode) {
-		try {
-			return this.Qx[idxStateParents][idxStateNode];
-		} catch (IndexOutOfBoundsException e) {
-			// One of the index state was never seen during prediction. The model will not
-			// be retrain, so 0 is reported.
-			return 0;
-		}
-	}
-
-	/**
-	 * Returns the probability of the variable leaving a state for a certain one
-	 * given the state of its parents
-	 * 
-	 * @param idxStateParents  index of the state of the node's parents
-	 * @param idxFromStateNode leaving state index
-	 * @param idxToStateNode   incoming state index
-	 * 
-	 * @return parameter Oxy
-	 */
-	public double getOxy(int idxStateParents, int idxFromStateNode, int idxToStateNode) {
-		try {
-			return this.Oxy[idxStateParents][idxFromStateNode][idxToStateNode];
-		} catch (IndexOutOfBoundsException e) {
-			// One of the index state was never seen during prediction. The model will not
-			// be retrain, so 0 is reported.
-			return 0;
-		}
+	public void setParameters(double[][] Qx, double[][][] Oxy) {
+		this.Qx = Qx;
+		this.Oxy = Oxy;
 	}
 
 	@Override
 	public boolean areParametersEstimated() {
 		return !(this.Qx == null || this.Oxy == null);
+	}
+
+	@Override
+	public double estimateLogLikelihood() {
+		// Retrieve sufficient statistics of the node
+		CTBNSufficientStatistics ss = getSufficientStatistics();
+		// Store marginal log-likelihood
+		double ll = 0.0;
+		for (int idxStateParents = 0; idxStateParents < getNumStatesParents(); idxStateParents++) {
+			for (int idxFromState = 0; idxFromState < getNumStates(); idxFromState++) {
+				double qx = getQx(idxStateParents, idxFromState);
+				// Cases where there are no transitions are ignored to avoid NaNs
+				if (qx > 0) {
+					double mx = ss.getMx()[idxStateParents][idxFromState];
+					double tx = ss.getTx()[idxStateParents][idxFromState];
+					// Log probability density function of the exponential distribution
+					ll += mx * Math.log(qx) - qx * tx;
+					for (int idxToState = 0; idxToState < getNumStates(); idxToState++) {
+						if (idxToState != idxFromState) {
+							// Probability of transitioning from "state" to "toState"
+							double oxx = getOxy(idxStateParents, idxFromState, idxToState);
+							// Cases without transitions between the states are ignored to avoid NaNs
+							if (oxx != 0) {
+								// Number of times the variable transitions from "idxFromState" to "idxToState"
+								double mxx = ss.getMxy()[idxStateParents][idxFromState][idxToState];
+								ll += mxx * Math.log(oxx);
+							}
+						}
+					}
+				}
+			}
+		}
+		return ll;
+	}
+
+	@Override
+	public void setSufficientStatistics(SufficientStatistics sufficientStatistics) {
+		this.sufficientStatistics = (CTBNSufficientStatistics) sufficientStatistics;
 	}
 
 	@Override

@@ -1,30 +1,27 @@
 package es.upm.fi.cig.multictbnc.learning.structure.constraints.CTBNC;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import es.upm.fi.cig.multictbnc.learning.structure.constraints.AbstractStructureConstraints;
 import es.upm.fi.cig.multictbnc.nodes.Node;
 import es.upm.fi.cig.multictbnc.nodes.NodeIndexer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Implements the structure constrains of a Max-k continuous time Bayesian
- * network classifier, i.e., a CTBNC where the number of parents of the feature
- * nodes is bounded by a positive number (Codecasa and Stella, 2014).
- * 
- * @author Carlos Villa Blanco
+ * Implements the structure constraints of a Max-k continuous-time Bayesian network classifier, i.e., a CTBNC where the
+ * number of parents of the feature nodes is bounded by a positive number (Codecasa and Stella, 2014).
  *
+ * @author Carlos Villa Blanco
  */
 public class MaxKCTBNC extends AbstractStructureConstraints {
+	private static final Logger logger = LogManager.getLogger(MaxKCTBNC.class);
 	int maxK;
-	static Logger logger = LogManager.getLogger(MaxKCTBNC.class);
 
 	/**
-	 * Receives the maximum number of parents the nodes can have. If a positive
-	 * number is not given, a default value (1 parent) is used.
-	 * 
-	 * @param maxK maximum number of parents the nodes of feature variables can have
-	 *             (without including nodes of class variables)
+	 * Receives the maximum number of parents the nodes can have. If a positive number is not given, one parent is
+	 * used.
+	 *
+	 * @param maxK maximum number of parents the nodes of feature variables can have (without including nodes of class
+	 *             variables)
 	 */
 	public MaxKCTBNC(int maxK) {
 		if (maxK < 1) {

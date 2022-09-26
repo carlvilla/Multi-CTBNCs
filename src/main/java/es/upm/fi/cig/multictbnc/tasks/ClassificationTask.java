@@ -1,37 +1,35 @@
 package es.upm.fi.cig.multictbnc.tasks;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import es.upm.fi.cig.multictbnc.classification.Prediction;
 import es.upm.fi.cig.multictbnc.data.reader.DatasetReader;
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
+import es.upm.fi.cig.multictbnc.exceptions.ErroneousValueException;
 import es.upm.fi.cig.multictbnc.models.MultiCTBNC;
-import es.upm.fi.cig.multictbnc.writers.classification.TxtClassificationWriter;
+import es.upm.fi.cig.multictbnc.util.Util;
+import es.upm.fi.cig.multictbnc.writers.classification.TXTClassificationWriter;
 import javafx.concurrent.Task;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Task that allows to execute the classification of sequences in a background
- * thread. This prevents the UI from freezing.
- * 
- * @author Carlos Villa Blanco
+ * Task that allows executing the classification of sequences in a background thread. This prevents the UI from
+ * freezing.
  *
+ * @author Carlos Villa Blanco
  */
 public class ClassificationTask extends Task<Void> {
-	MultiCTBNC<?, ?> model;
-	DatasetReader datasetReader;
-	boolean estimateProbabilities;
-	Logger logger = LogManager.getLogger(TrainingTask.class);
+	private final Logger logger = LogManager.getLogger(TrainingTask.class);
+	private MultiCTBNC<?, ?> model;
+	private DatasetReader datasetReader;
+	private boolean estimateProbabilities;
 
 	/**
-	 * Constructs a {@code ClassificationTask} that receives an {@code MultiCTBNC} model
-	 * and a {@code datasetReader}.
-	 * 
+	 * Constructs a {@code ClassificationTask} that receives an {@code MultiCTBNC} model and a {@code datasetReader}.
+	 *
 	 * @param model                 model used to perform the classification
-	 * @param datasetReader         dataset reader that provides the sequences to
-	 *                              classify
-	 * @param estimateProbabilities true to estimate the probabilities of the
-	 *                              predicted class configurations, false otherwise
+	 * @param datasetReader         dataset reader that provides the sequences to classify
+	 * @param estimateProbabilities true to estimate the probabilities of the predicted class configurations, false
+	 *                              otherwise
 	 */
 	public ClassificationTask(MultiCTBNC<?, ?> model, DatasetReader datasetReader, boolean estimateProbabilities) {
 		this.model = model;
@@ -47,9 +45,11 @@ public class ClassificationTask extends Task<Void> {
 		updateMessage("Classifying sequences...");
 		// Evaluate the performance of the model
 		Prediction[] predictions = this.model.predict(dataset, this.estimateProbabilities);
+		if (Util.isArrayEmpty(predictions))
+			throw new ErroneousValueException("Any sequence of the test dataset could be predicted.");
 		// Write predictions to a file
 		String pathFolderFile = "results/classifications/";
-		TxtClassificationWriter.writePredictions(predictions, dataset, pathFolderFile);
+		TXTClassificationWriter.writePredictions(predictions, dataset, pathFolderFile);
 		return null;
 	}
 
@@ -60,12 +60,8 @@ public class ClassificationTask extends Task<Void> {
 
 	@Override
 	protected void failed() {
-		String msg;
-		if (this.datasetReader.isDatasetOutdated())
-			msg = "The dataset to classify could not be read. Check if it contains the same variables as the training dataset";
-		else
-			msg = "An error occurred while performing the classification";
-		this.logger.error(msg);
+		this.logger.error(getException().getMessage());
+		String msg = "An error occurred while training the model. Check application log for details.";
 		updateMessage("Idle - " + msg);
 	}
 

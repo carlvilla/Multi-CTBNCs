@@ -1,21 +1,20 @@
 package es.upm.fi.cig.multictbnc.util;
 
-import java.util.Arrays;
-import java.util.List;
-
-import es.upm.fi.cig.multictbnc.data.representation.Observation;
 import es.upm.fi.cig.multictbnc.data.representation.Sequence;
 import es.upm.fi.cig.multictbnc.data.representation.State;
+import es.upm.fi.cig.multictbnc.exceptions.ErroneousValueException;
 import es.upm.fi.cig.multictbnc.nodes.CIMNode;
 import es.upm.fi.cig.multictbnc.nodes.CPTNode;
 import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
 import es.upm.fi.cig.multictbnc.nodes.Node;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Utility class with methods related to the estimation of probabilities.
- * 
- * @author Carlos Villa Blanco
  *
+ * @author Carlos Villa Blanco
  */
 public final class ProbabilityUtil {
 
@@ -23,65 +22,44 @@ public final class ProbabilityUtil {
 	}
 
 	/**
-	 * Computes the logarithm of the prior probability of the class variables taking
-	 * certain values. Their probability is computed by using the Bayesian network.
-	 * 
-	 * @param <NodeTypeBN> type of the nodes of the Bayesian network
-	 * @param nodesBN      nodes of a Bayesian network
-	 * @param stateCVs     class configuration
-	 * @return logarithm of the prior probability of the class variables
+	 * Returns a probability between 0 or 0.3, or between 0.7 and 1.
+	 *
+	 * @return a probability
 	 */
-	public static <NodeTypeBN extends Node> double logPriorProbabilityClassVariables(List<NodeTypeBN> nodesBN,
-			State stateCVs) {
-		double lpriorProbability = 0.0;
-		for (NodeTypeBN node : nodesBN) {
-			// Obtain class variable node from the BN
-			CPTNode nodeBN = (CPTNode) node;
-			// Set the state of the node and its parents
-			Util.setStateNodeAndParents(nodeBN, stateCVs);
-			int idxState = nodeBN.getIdxState();
-			int idxStateParents = nodeBN.getIdxStateParents();
-			// Probability of the class variable and its parents having a certain state
-			double Ox = nodeBN.getCP(idxStateParents, idxState);
-			lpriorProbability += Ox > 0 ? Math.log(Ox) : 0;
+	public static double extremeProbability() {
+		if (Math.random() < 0.5) {
+			return Math.random() * 0.3;
 		}
-		return lpriorProbability;
+		return 0.7 + Math.random() * (1 - 0.7);
 	}
 
 	/**
-	 * Computes the log-likelihood of a sequence, also known as temporal likelihood
-	 * (Stella and Amer 2012), given the state of the class variables. This is done
-	 * by using the CTBN.
-	 * 
-	 * @param <NodeTypeCTBN>      type of the nodes of the continuous time Bayesian
-	 *                            network
+	 * Computes the log-likelihood of a sequence, also known as temporal likelihood (Stella and Amer 2012), given the
+	 * state of the class variables. This is done by using the CTBN.
+	 *
+	 * @param <NodeTypeCTBN>      type of the nodes of the continuous-time Bayesian network
 	 * @param sequence            sequence evaluated
-	 * @param nodesCTBN           nodes of a continuous time Bayesian network
+	 * @param nodesCTBN           nodes of a continuous-time Bayesian network
 	 * @param stateClassVariables class configuration
 	 * @return log-likelihood of the sequence given the class configuration
 	 */
 	public static <NodeTypeCTBN> double logLikelihoodSequence(Sequence sequence, List<NodeTypeCTBN> nodesCTBN,
-			State stateClassVariables) {
-		// Get observations of the sequence
-		List<Observation> observations = sequence.getObservations();
-		// Initialize likelihood
+															  State stateClassVariables) {
+		// Initialise likelihood
 		double ll = 0;
 		// Iterate over all the observations of the sequence
-		for (int j = 1; j < observations.size(); j++) {
-			// Get observations 'j-1' (current) and 'j' (next) of the sequence
-			Observation currentObservation = observations.get(j - 1);
-			Observation nextObservation = observations.get(j);
+		for (int j = 1; j < sequence.getNumObservations(); j++) {
 			// Time difference between 'j' and 'j-1' observations
-			double currentTimePoint = currentObservation.getTimeValue();
-			double nextTimePoint = nextObservation.getTimeValue();
+			double currentTimePoint = sequence.getTimeValue(j - 1);
+			double nextTimePoint = sequence.getTimeValue(j);
 			double deltaTime = nextTimePoint - currentTimePoint;
 			for (NodeTypeCTBN node : nodesCTBN) {
 				// Obtain node of CTBN
 				CIMNode nodeCTBN = (CIMNode) node;
 				// Check that the node is from a feature variable
 				if (!nodeCTBN.isClassVariable()) {
-					// Obtain current state of the feature node
-					String currentValue = currentObservation.getValueVariable(nodeCTBN.getName());
+					// Obtain the current state of the feature node
+					String currentValue = sequence.getValueVariable(j - 1, nodeCTBN.getName());
 					// Set current state in feature node
 					nodeCTBN.setState(currentValue);
 					// Set current state in parents of feature node
@@ -94,7 +72,7 @@ public final class ProbabilityUtil {
 						if (nodeParentCTBN.isClassVariable())
 							currentValueParent = stateClassVariables.getValueVariable(nameParent);
 						else
-							currentValueParent = currentObservation.getValueVariable(nameParent);
+							currentValueParent = sequence.getValueFeatureVariable(j - 1, nameParent);
 						nodeParentCTBN.setState(currentValueParent);
 					}
 					int idxState = nodeCTBN.getIdxState();
@@ -107,8 +85,8 @@ public final class ProbabilityUtil {
 					// a particular state) for an amount of time 'deltaTime' is exponentially
 					// distributed with parameter 'qx'
 					ll += -qx * deltaTime;
-					// Get value of the node for the following observation
-					String nextValue = nextObservation.getValueVariable(nodeCTBN.getName());
+					// Get the value of the node for the following observation
+					String nextValue = sequence.getValueVariable(j, nodeCTBN.getName());
 					// If the feature transitions to another state, get the probability that this
 					// occurs given the state of the parents
 					if (!currentValue.equals(nextValue)) {
@@ -130,10 +108,36 @@ public final class ProbabilityUtil {
 	}
 
 	/**
-	 * Computes the marginal log-likelihood of a sequence given the unnormalized
-	 * log-a-posteriori probability for each class configuration.
-	 * 
-	 * @param laps unnormalized log-a-posteriori probabilities
+	 * Computes the logarithm of the prior probability of the class variables taking certain values. Their probability
+	 * is computed by using the Bayesian network.
+	 *
+	 * @param <NodeTypeBN> type of the nodes of the Bayesian network
+	 * @param nodesBN      nodes of a Bayesian network
+	 * @param stateCVs     class configuration
+	 * @return logarithm of the prior probability of the class variables
+	 */
+	public static <NodeTypeBN extends Node> double logPriorProbabilityClassVariables(List<NodeTypeBN> nodesBN,
+																					 State stateCVs) {
+		double lpriorProbability = 0.0;
+		for (NodeTypeBN node : nodesBN) {
+			// Obtain class variable node from the BN
+			CPTNode nodeBN = (CPTNode) node;
+			// Set the state of the node and its parents
+			Util.setStateNodeAndParents(nodeBN, stateCVs);
+			int idxState = nodeBN.getIdxState();
+			int idxStateParents = nodeBN.getIdxStateParents();
+			// Probability of the class variable and its parents having a certain state
+			double Ox = nodeBN.getCP(idxStateParents, idxState);
+			lpriorProbability += Ox > 0 ? Math.log(Ox) : 0;
+		}
+		return lpriorProbability;
+	}
+
+	/**
+	 * Computes the marginal log-likelihood of a sequence given the unnormalised log-a-posteriori probability for each
+	 * class configuration.
+	 *
+	 * @param laps unnormalised log-a-posteriori probabilities
 	 * @return marginal log-likelihood of a sequence
 	 */
 	public static double marginalLogLikelihoodSequence(double[] laps) {
@@ -144,20 +148,7 @@ public final class ProbabilityUtil {
 		// largest log-a-posteriori
 		double sum = Arrays.stream(laps).map(lap -> Math.exp(lap - largestLap)).sum();
 		// Estimate marginal log-likelihood
-		double mll = largestLap + Math.log(sum);
-		return mll;
-	}
-
-	/**
-	 * Returns a probability between 0 or 0.3, or between 0.7 and 1.
-	 * 
-	 * @return a probability
-	 */
-	public static double extremeProbability() {
-		if (Math.random() < 0.5) {
-			return Math.random() * 0.3;
-		}
-		return 0.7 + Math.random() * (1 - 0.7);
+		return largestLap + Math.log(sum);
 	}
 
 }

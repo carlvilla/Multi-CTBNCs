@@ -1,25 +1,39 @@
 package es.upm.fi.cig.multictbnc.learning.parameters.bn;
 
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
 import es.upm.fi.cig.multictbnc.learning.parameters.ParameterLearningAlgorithm;
 import es.upm.fi.cig.multictbnc.nodes.CPTNode;
 import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
 import es.upm.fi.cig.multictbnc.nodes.Node;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.List;
 
 /**
- * Defines methods for parameter learning algorithms of discrete Bayesian
- * networks.
- * 
- * @author Carlos Villa Blanco
+ * Defines methods for parameter learning algorithms of discrete Bayesian networks.
  *
+ * @author Carlos Villa Blanco
  */
 public abstract class BNParameterLearningAlgorithm implements ParameterLearningAlgorithm {
 	static Logger logger = LogManager.getLogger(BNParameterLearningAlgorithm.class);
+
+	/**
+	 * Obtains for each node the number of times it takes a certain state while its parents take a certain
+	 * instantiation.
+	 *
+	 * @param nodes   list of nodes
+	 * @param dataset dataset from which the sufficient statistics are extracted
+	 */
+	public void setSufficientStatistics(List<? extends Node> nodes, Dataset dataset) {
+		for (int i = 0; i < nodes.size(); i++)
+			setSufficientStatistics(nodes.get(i), dataset);
+	}
+
+	@Override
+	public void learn(Node node, Dataset dataset) {
+		learn(List.of(node), dataset);
+	}
 
 	@Override
 	public void learn(List<? extends Node> nodes, Dataset dataset) {
@@ -28,76 +42,27 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	}
 
 	@Override
-	public void learn(Node node, Dataset dataset) {
-		setSufficientStatistics((CPTNode) node, dataset);
-		setCPTs((CPTNode) node);
-	}
-
-	/**
-	 * Obtains for each node the number of times it takes a certain state while its
-	 * parents take a certain instantiation.
-	 * 
-	 * @param nodes   list of nodes
-	 * @param dataset dataset from which the sufficient statistics are extracted
-	 */
-	public void setSufficientStatistics(List<? extends Node> nodes, Dataset dataset) {
-		for (int i = 0; i < nodes.size(); i++) {
-			BNSufficientStatistics ssNode = getSufficientStatisticsNode((CPTNode) nodes.get(i), dataset);
-			nodes.get(i).setSufficientStatistics(ssNode);
-		}
-	}
-
-	/**
-	 * Obtains the sufficient statistics of a node.
-	 * 
-	 * @param node    a {@code DiscreteNode}
-	 * @param dataset dataset from which the sufficient statistics are extracted
-	 */
-	private void setSufficientStatistics(DiscreteNode node, Dataset dataset) {
-		BNSufficientStatistics ssNode = getSufficientStatisticsNode(node, dataset);
+	public void setSufficientStatistics(Node node, Dataset dataset) {
+		BNSufficientStatistics ssNode = getSufficientStatisticsNode((DiscreteNode) node, dataset);
 		node.setSufficientStatistics(ssNode);
 	}
 
 	/**
-	 * Given a set of nodes whose sufficient statistics where estimated, computes
-	 * their conditional probability tables (CPT).
-	 * 
-	 * @param nodes list of nodes
+	 * Returns the sufficient statistics of a {@code DiscreteNode} for a given {@code Dataset}.
+	 *
+	 * @param node    a {@code DiscreteNode}
+	 * @param dataset dataset from which the sufficient statistics are extracted
+	 * @return sufficient statistics of the provided node
 	 */
-	public void setCPTs(List<? extends Node> nodes) {
-		// For each node it is created a new type of node that contains the CPTs.
-		for (int i = 0; i < nodes.size(); i++) {
-			// The node has to have a CPT
-			CPTNode node = (CPTNode) nodes.get(i);
-			// Compute the parameters for the current node with its sufficient statistics
-			double[][] CPT = estimateCPT(node);
-			// CPTNode stores the computed CPT
-			node.setCPT(CPT);
-		}
-	}
+	protected abstract BNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset);
 
 	/**
-	 * Given a node whose sufficient statistics where estimated, computes its
-	 * conditional probability tables (CPT).
-	 * 
+	 * Estimates the parameters for a certain node from its previously computed sufficient statistics.
+	 *
 	 * @param node a {@code CPTNode}
+	 * @return array with probabilities of each possible state of a variable given its parents
 	 */
-	public void setCPTs(CPTNode node) {
-		// Compute the parameters for the current node with its sufficient statistics
-		double[][] CPT = estimateCPT(node);
-		// CPTNode stores the computed CPT
-		node.setCPT(CPT);
-	}
-
-	/**
-	 * Estimates the parameters for a certain node from its previously computed
-	 * sufficient statistics.
-	 * 
-	 * @param node a {@code CPTNode}
-	 * @return array with probabilities of each possible state of a variable given
-	 *         its parents
-	 */
-	public double[][] estimateCPT(CPTNode node) {
+	private double[][] estimateCPT(CPTNode node) {
 		logger.trace("Learning parameters of BN node {} with maximum likelihood estimation", node.getName());
 		// Retrieve sufficient statistics
 		double[][] Nx = node.getSufficientStatistics().getNx();
@@ -112,15 +77,15 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 				double NxState = Nx[idxStateParents][idxState];
 				// Number of sequences where the parents take the given states
 				double NState = 0;
-				// Iterate over states of the node to get number of times parents take given
-				// state independently of node state
+				// Iterate over states of the node to get the number of times that its parents
+				// take a given state independently of the node state
 				for (int idxAnyState = 0; idxAnyState < numStates; idxAnyState++)
 					NState += Nx[idxStateParents][idxAnyState];
-				// Probability that the studied variable has the state 'idxState' given the
+				// Probability that the studied node has the state 'idxState' given the
 				// state 'idxStateParents' of the parents
 				double prob = NxState / NState;
-				// The state may not occur in the training dataset. In that case the probability
-				// is set to 0.
+				// The state may not occur in the training dataset. In that case, the
+				// probability is set to 0.
 				if (Double.isNaN(prob))
 					prob = 0;
 				// Save the probability of the state
@@ -131,12 +96,20 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	}
 
 	/**
-	 * Returns the sufficient statistics of a {@code DiscreteNode} for a given
-	 * {@code Dataset}.
-	 * 
-	 * @param node    a {@code DiscreteNode}
-	 * @param dataset dataset from which the sufficient statistics are extracted
-	 * @return sufficient statistics of the provided node
+	 * Given a set of nodes whose sufficient statistics were estimated, the method computes their conditional
+	 * probability tables (CPT).
+	 *
+	 * @param nodes list of nodes
 	 */
-	protected abstract BNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset);
+	private void setCPTs(List<? extends Node> nodes) {
+		// The CPTs are estimated and stored in each node
+		nodes.parallelStream().forEach(node -> {
+			// The node has to have a CPT
+			CPTNode nodeAux = (CPTNode) node;
+			// Compute the parameters for the current node with its sufficient statistics
+			double[][] CPT = estimateCPT(nodeAux);
+			// CPTNode stores the computed CPT
+			nodeAux.setCPT(CPT);
+		});
+	}
 }

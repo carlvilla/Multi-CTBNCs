@@ -1,41 +1,32 @@
 package es.upm.fi.cig.multictbnc.performance;
 
-import java.util.Map;
-
+import es.upm.fi.cig.multictbnc.exceptions.ErroneousValueException;
 import es.upm.fi.cig.multictbnc.exceptions.UnreadDatasetException;
 import es.upm.fi.cig.multictbnc.models.MultiCTBNC;
 import es.upm.fi.cig.multictbnc.writers.performance.MetricsWriter;
 
+import java.util.Map;
+
 /**
  * Abstract class defining common methods for validation algorithms.
- * 
- * @author Carlos Villa Blanco
  *
+ * @author Carlos Villa Blanco
  */
 public abstract class ValidationMethod {
-	MetricsWriter metricsWriter;
+	private MetricsWriter metricsWriter;
 
 	/**
-	 * Evaluates the performance of the specified model.
-	 * 
-	 * @param model model to evaluate
-	 * @throws UnreadDatasetException if the provided dataset could not be read
+	 * Displays the model obtained with the validation method.
+	 *
+	 * @param model obtained model
 	 */
-	public abstract void evaluate(MultiCTBNC<?, ?> model) throws UnreadDatasetException;
-
-	/**
-	 * Defines the metrics writer used to save the results of the evaluation.
-	 * 
-	 * @param metricsWriter a {@code MetricsWriter} used to save the results of the
-	 *                      evaluation
-	 */
-	public void setWriter(MetricsWriter metricsWriter) {
-		this.metricsWriter = metricsWriter;
+	public void displayModel(MultiCTBNC<?, ?> model) {
+		System.out.println(model);
 	}
 
 	/**
 	 * Displays the results obtained with the validation method.
-	 * 
+	 *
 	 * @param results a {@code Map} with the results of the validation method
 	 */
 	public void displayResults(Map<String, Double> results) {
@@ -45,12 +36,23 @@ public abstract class ValidationMethod {
 	}
 
 	/**
-	 * Displays the model obtained with the validation method.
+	 * Evaluates the performance of the specified model and returns the results.
 	 *
-	 * @param model obtained model
+	 * @param model model to evaluate
+	 * @return results saved in a {@code Map}.
+	 * @throws UnreadDatasetException  if there was an error while reading a dataset
+	 * @throws ErroneousValueException if a provided parameter is erroneous for the requested task
 	 */
-	public void displayModel(MultiCTBNC<?, ?> model) {
-		System.out.println(model);
+	public abstract Map<String, Double> evaluate(MultiCTBNC<?, ?> model)
+			throws UnreadDatasetException, ErroneousValueException;
+
+	/**
+	 * Defines the metrics writer used to save the results of the evaluation.
+	 *
+	 * @param metricsWriter a {@code MetricsWriter} used to save the results of the evaluation
+	 */
+	public void setWriter(MetricsWriter metricsWriter) {
+		this.metricsWriter = metricsWriter;
 	}
 
 }

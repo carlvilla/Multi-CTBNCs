@@ -1,127 +1,141 @@
 package es.upm.fi.cig.multictbnc.nodes;
 
-import java.util.List;
-
 import es.upm.fi.cig.multictbnc.learning.parameters.SufficientStatistics;
+
+import java.util.List;
 
 /**
  * Interface for a generic node of a PGM.
- * 
- * @author Carlos Villa Blanco
  *
+ * @author Carlos Villa Blanco
  */
 public interface Node {
 	/**
-	 * Returns the name of the node.
-	 * 
-	 * @return node name
+	 * Returns true if the parameters of the node were estimated.
+	 *
+	 * @return true if the parameters of the node were estimated, false otherwise
 	 */
-	public String getName();
+	boolean areParametersEstimated();
+
+	/**
+	 * Remove the set of parents and children of the node. This method should be used with caution, as references to
+	 * this node from others will not be affected. It is recommended its use when creating an empty PGM, i.e., we are
+	 * removing all edges between nodes.
+	 */
+	void clearParentAndChildrenSets();
+
+	/**
+	 * Returns the local log-likelihood for the node.
+	 *
+	 * @return local log-likelihood
+	 */
+	double estimateLogLikelihood();
 
 	/**
 	 * Returns the children of the node.
-	 * 
+	 *
 	 * @return child node list
 	 */
-	public List<Node> getChildren();
+	List<Node> getChildren();
 
 	/**
-	 * Returns the parents of the node.
-	 * 
-	 * @return parent node list
+	 * Returns the name of the node.
+	 *
+	 * @return node name
 	 */
-	public List<Node> getParents();
+	String getName();
 
 	/**
 	 * Returns the number of parents of the node.
-	 * 
+	 *
 	 * @return parent node list
 	 */
-	public int getNumParents();
+	int getNumParents();
 
 	/**
-	 * Returns the name of the parents of the node.
-	 * 
-	 * @return list of parents' names
+	 * Returns the parent of the node whose name is given.
+	 *
+	 * @param name parent node name
+	 * @return the parent node or null if the parent was not found
 	 */
-	public List<String> getNameParents();
+	Node getParent(String name);
 
 	/**
-	 * Defines if the node is a class variable.
-	 * 
-	 * @param isClassVariable true if the node is a class variable, false otherwise
+	 * Returns the parents of the node.
+	 *
+	 * @return parent node list
 	 */
-	public void isClassVariable(boolean isClassVariable);
-
-	/**
-	 * Specifies if the node is a class variable.
-	 * 
-	 * @return true if the node is a class variable, false otherwise
-	 */
-	public boolean isClassVariable();
+	List<Node> getParents();
 
 	/**
 	 * Specifies if the node has parents.
-	 * 
+	 *
 	 * @return true if the node has parents, false otherwise
 	 */
-	public boolean hasParents();
+	boolean hasParents();
 
 	/**
-	 * Defines a provided node as a parent of this one.
-	 * 
-	 * @param parentNode parent node
+	 * Defines if the node is a class variable.
+	 *
+	 * @param isClassVariable true if the node is a class variable, false otherwise
 	 */
-	public void setParent(Node parentNode);
+	void isClassVariable(boolean isClassVariable);
 
 	/**
-	 * Defines a provided node as a child of this one.
-	 * 
-	 * @param childNode child node
+	 * Specifies if the node is a class variable.
+	 *
+	 * @return true if the node is a class variable, false otherwise
 	 */
-	public void setChild(Node childNode);
-
-	/**
-	 * Removes a certain parent of the node.
-	 * 
-	 * @param parentNode parent node
-	 */
-	public void removeParent(Node parentNode);
-
-	/**
-	 * Removes a certain child of the node.
-	 * 
-	 * @param childNode child node
-	 */
-	public void removeChild(Node childNode);
-
-	/**
-	 * Removes the parents of the node.
-	 */
-	public void removeParents();
-
-	/**
-	 * Removes the children of the node.
-	 */
-	public void removeChildren();
+	boolean isClassVariable();
 
 	/**
 	 * Removes the parents and children of the node.
 	 */
-	public void removeAllEdges();
+	void removeAllEdges();
+
+	/**
+	 * Removes a certain child of the node.
+	 *
+	 * @param childNode child node
+	 */
+	void removeChild(Node childNode);
+
+	/**
+	 * Removes the children of the node.
+	 */
+	void removeChildren();
+
+	/**
+	 * Removes a certain parent of the node.
+	 *
+	 * @param parentNode parent node
+	 */
+	void removeParent(Node parentNode);
+
+	/**
+	 * Removes the parents of the node.
+	 */
+	void removeParents();
+
+	/**
+	 * Defines a provided node as a child of this one.
+	 *
+	 * @param childNode child node
+	 */
+	void setChild(Node childNode);
+
+	/**
+	 * Defines a provided node as a parent of this one.
+	 *
+	 * @param parentNode parent node
+	 */
+	void setParent(Node parentNode);
 
 	/**
 	 * Establishes the sufficient statistics of the node.
-	 * 
+	 *
 	 * @param ss sufficient statistics
 	 */
-	public void setSufficientStatistics(SufficientStatistics ss);
-
-	/**
-	 * Returns true if the parameters of the node were estimated.
-	 * 
-	 * @return true if the parameters of the node were estimated, false otherwise
-	 */
-	public boolean areParametersEstimated();
+	void setSufficientStatistics(SufficientStatistics ss);
 
 }

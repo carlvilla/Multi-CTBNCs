@@ -1,145 +1,54 @@
 package es.upm.fi.cig.multictbnc.nodes;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Abstract class defining common variables and methods for discrete nodes.
- * 
- * @author Carlos Villa Blanco
  *
+ * @author Carlos Villa Blanco
  */
 public abstract class DiscreteNode extends AbstractNode {
-	// Bidirectional map that allow to retrieve states by index and vice versa
+	private static final Logger logger = LogManager.getLogger(DiscreteNode.class);
+	// Bidirectional map that allows retrieving states by index and vice versa
 	private BiMap<String, Integer> indexerStates;
 	// Keep the index of the current state of the node
 	private int stateIdx;
 	// Keep the number of possible states of the parents
 	private int numStatesParents = 1;
-	static Logger logger = LogManager.getLogger(DiscreteNode.class);
 
 	/**
-	 * Initializes a discrete node given a list of states.
-	 * 
+	 * Initialises a discrete node given a list of states.
+	 *
 	 * @param name   name of the node
-	 * @param states list of strings representing the states that the variable
-	 *               related to the node can take
-	 * 
+	 * @param states list of strings representing the states that the variable related to the node can take
 	 */
 	public DiscreteNode(String name, List<String> states) {
 		super(name);
 		// Define HashBiMap to access the state of the node by index and vice versa
-		initializeIndexerStates(states);
+		initialiseIndexerStates(states);
 	}
 
 	/**
-	 * Initializes a discrete node specifying if the node is for a class variable or
-	 * a feature.
-	 * 
+	 * Initialises a discrete node specifying if the node is for a class variable or a feature.
+	 *
 	 * @param name            name of the node
-	 * @param states          list of strings representing the states that the
-	 *                        variable related to the node can take
-	 * @param isClassVariable true if the node represent a class variable, false
-	 *                        otherwise
-	 * 
+	 * @param states          list of strings representing the states that the variable related to the node can take
+	 * @param isClassVariable true if the node represent a class variable, false otherwise
 	 */
 	public DiscreteNode(String name, List<String> states, boolean isClassVariable) {
 		super(name, isClassVariable);
-		initializeIndexerStates(states);
-	}
-
-	@Override
-	public void setParent(Node nodeParent) {
-		super.setParent(nodeParent);
-		if (nodeParent instanceof DiscreteNode)
-			// Increase the number of states that the parents of the node can take
-			this.numStatesParents *= ((DiscreteNode) nodeParent).getNumStates();
-	}
-
-	@Override
-	public void removeParent(Node nodeParent) {
-		super.removeParent(nodeParent);
-		if (nodeParent instanceof DiscreteNode)
-			// Decrease the number of states that the parents of the node can take
-			this.numStatesParents /= ((DiscreteNode) nodeParent).getNumStates();
-	}
-
-	/**
-	 * Returns a list of the states that the node can take.
-	 * 
-	 * @return list of strings representing the states that the variable related to
-	 *         the node can take
-	 */
-	public List<String> getStates() {
-		return new ArrayList<String>(this.indexerStates.keySet());
-	}
-
-	/**
-	 * Sets the state of the node and returns its id. If the state was not seen
-	 * during training, -1 is returned.
-	 * 
-	 * @param state state of the node
-	 * @return id of the state
-	 */
-	public Integer setState(String state) {
-		this.stateIdx = this.indexerStates.getOrDefault(state, -1);
-		if (this.stateIdx == -1)
-			logger.trace("State {} was never seen for variable {}", state, getName());
-		return this.stateIdx;
-	}
-
-	/**
-	 * Sets the state of the node by providing the state index.
-	 * 
-	 * @param stateIdx node state index
-	 */
-	public void setState(int stateIdx) {
-		this.stateIdx = stateIdx;
-	}
-
-	/**
-	 * Sets the states of the parents of the node given the index related to their
-	 * state. Algorithm from https://github.com/dcodecasa/CTBNCToolkit.
-	 * 
-	 * @param idxStateParents index of the state of the node's parents
-	 */
-	public void setStateParents(int idxStateParents) {
-		// State index of the subset of parents which have not been processed yet
-		int idxStateSubParents = idxStateParents;
-		if (getNumParents() > 0) {
-			// Number of states of parents which have not been processed yet
-			int numStatesParents = getNumStatesParents();
-			for (int i = 0; i < getNumParents(); i++) {
-				DiscreteNode parentNode = (DiscreteNode) getParents().get(i);
-				// Decrease the number of states by not considering the current parent
-				numStatesParents /= parentNode.getNumStates();
-				// Define state of the current parent
-				int stateParent = idxStateSubParents / numStatesParents;
-				parentNode.setState(stateParent);
-				// Define the state index for the remaining subset of parents
-				idxStateSubParents %= numStatesParents;
-			}
-		}
-	}
-
-	/**
-	 * Gets the state of the node.
-	 * 
-	 * @return state of the node
-	 */
-	public String getState() {
-		return this.indexerStates.inverse().get(this.stateIdx);
+		initialiseIndexerStates(states);
 	}
 
 	/**
 	 * Gets the index of the current state of the node.
-	 * 
+	 *
 	 * @return index of the current state of the node
 	 */
 	public int getIdxState() {
@@ -147,19 +56,9 @@ public abstract class DiscreteNode extends AbstractNode {
 	}
 
 	/**
-	 * Returns the number of possible states of the node.
-	 * 
-	 * @return number of states of the node
-	 */
-	public int getNumStates() {
-		return this.indexerStates.size();
-	}
-
-	/**
-	 * Gets the index for the current state of the parents of the node. Return -1 if
-	 * the state of one parent was not seen during training. Algorithm from
-	 * https://github.com/dcodecasa/CTBNCToolkit.
-	 * 
+	 * Gets the index for the current state of the node's parents. Return -1 if the state of one parent was not seen
+	 * during training. Algorithm from https://github.com/dcodecasa/CTBNCToolkit.
+	 *
 	 * @return index for the current state of the node's parents
 	 */
 	public int getIdxStateParents() {
@@ -180,12 +79,145 @@ public abstract class DiscreteNode extends AbstractNode {
 	}
 
 	/**
+	 * Gets the index for the current state of the specified parents of the node. Returns -1 if the state of one parent
+	 * was not seen during training or if the parent does not exist. Returns 0 if the provided parent list is null or
+	 * empty.
+	 *
+	 * @param nameParents name of the parent nodes
+	 * @return index for the current state of the specified subset of parents
+	 */
+	public int getIdxStateParents(List<String> nameParents) {
+		int idxStateParents = 0;
+		// Count the number of parent states of parents seen so far in the loop
+		int numStatesParents = 1;
+		if (nameParents != null && nameParents.size() > 0) {
+			for (int i = 0; i < getNumParents(); i++) {
+				if (nameParents.contains(getParents().get(i).getName())) {
+					DiscreteNode nodeParent = (DiscreteNode) getParents().get(i);
+					int idxStateParent = nodeParent.getIdxState();
+					if (idxStateParent == -1)
+						// The state of the parent was not seen during training.
+						return -1;
+					idxStateParents += idxStateParent * numStatesParents;
+					// Increase the number of states by considering the current parent
+					numStatesParents *= nodeParent.getNumStates();
+				}
+			}
+		}
+		return idxStateParents;
+	}
+
+	/**
+	 * Returns the number of possible states of the node.
+	 *
+	 * @return number of states of the node
+	 */
+	public int getNumStates() {
+		return this.indexerStates.size();
+	}
+
+	/**
 	 * Returns the number of possible states of the parents of the node.
-	 * 
+	 *
 	 * @return number of states of the node's parents
 	 */
 	public int getNumStatesParents() {
 		return this.numStatesParents;
+	}
+
+	/**
+	 * Gets the state of the node.
+	 *
+	 * @return state of the node
+	 */
+	public String getState() {
+		return this.indexerStates.inverse().get(this.stateIdx);
+	}
+
+	/**
+	 * Returns a list of the states that the node can take.
+	 *
+	 * @return list of strings representing the states that the variable related to the node can take
+	 */
+	public List<String> getStates() {
+		return new ArrayList<>(this.indexerStates.keySet());
+	}
+
+	/**
+	 * Sets the state of the node and returns its id. If the state was not seen during training, -1 is returned.
+	 *
+	 * @param state state of the node
+	 * @return id of the state
+	 */
+	public Integer setState(String state) {
+		this.stateIdx = this.indexerStates.getOrDefault(state, -1);
+		if (this.stateIdx == -1)
+			logger.warn("State {} was never seen for variable {}", state, getName());
+		return this.stateIdx;
+	}
+
+	/**
+	 * Sets the state index of the node. The state index is not changed if the provided index was not seen during
+	 * training.
+	 *
+	 * @param stateIdx node state index
+	 */
+	public void setState(int stateIdx) {
+		if (this.indexerStates.size() <= stateIdx) {
+			logger.warn("State with index {} was never seen for variable {}", stateIdx, getName());
+		} else
+			this.stateIdx = stateIdx;
+	}
+
+	/**
+	 * Sets the states of the parents of the node given the index related to their state. Algorithm from
+	 * https://github.com/dcodecasa/CTBNCToolkit.
+	 *
+	 * @param idxStateParents index of the state of the node's parents
+	 */
+	public void setStateParents(int idxStateParents) {
+		// State index of the subset of parents which have not been processed yet
+		int idxStateSubParents = idxStateParents;
+		if (getNumParents() > 0) {
+			// Number of states of parents which have not been processed yet
+			int numStatesParents = getNumStatesParents();
+			for (int i = getNumParents() - 1; i >= 0; i--) {
+				DiscreteNode parentNode = (DiscreteNode) getParents().get(i);
+				// Decrease the number of states by not considering the current parent
+				numStatesParents /= parentNode.getNumStates();
+				// Define the state of the current parent
+				int stateParent = idxStateSubParents / numStatesParents;
+				parentNode.setState(stateParent);
+				// Define the state index for the remaining subset of parents
+				idxStateSubParents %= numStatesParents;
+			}
+		}
+	}
+
+	@Override
+	public void clearParentAndChildrenSets() {
+		super.clearParentAndChildrenSets();
+		this.numStatesParents = 1;
+	}
+
+	@Override
+	public void removeParent(Node nodeParent) {
+		if (nodeParent != null) {
+			super.removeParent(nodeParent);
+			if (nodeParent instanceof DiscreteNode)
+				// Decrease the number of states that the parents of the node can take
+				this.numStatesParents /= ((DiscreteNode) nodeParent).getNumStates();
+		}
+	}
+
+	@Override
+	public void setParent(Node nodeParent) {
+		if (nodeParent != null) {
+			super.setParent(nodeParent);
+			if (nodeParent instanceof DiscreteNode)
+				// Increase the number of states that the parents of the node can take
+				this.numStatesParents *= ((DiscreteNode) nodeParent).getNumStates();
+		}
 	}
 
 	@Override
@@ -198,13 +230,11 @@ public abstract class DiscreteNode extends AbstractNode {
 	}
 
 	/**
-	 * Receives the states of the node and create a HashBiMap to store them with
-	 * their indexes.
-	 * 
-	 * @param states list of strings representing the states that the variable
-	 *               related to the node can take
+	 * Receives the states of the node and creates a HashBiMap to store them with their indexes.
+	 *
+	 * @param states list of strings representing the states that the variable related to the node can take
 	 */
-	private void initializeIndexerStates(List<String> states) {
+	private void initialiseIndexerStates(List<String> states) {
 		// Define HashBiMap to access the state of the node by index and vice versa
 		this.indexerStates = HashBiMap.create();
 		for (int i = 0; i < states.size(); i++) {

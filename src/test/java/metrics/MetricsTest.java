@@ -1,23 +1,21 @@
 package metrics;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import es.upm.fi.cig.multictbnc.classification.Prediction;
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
 import es.upm.fi.cig.multictbnc.data.representation.State;
 import es.upm.fi.cig.multictbnc.performance.Metrics;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests the evaluation metrics.
- * 
- * @author Carlos Villa Blanco
  *
+ * @author Carlos Villa Blanco
  */
 public class MetricsTest {
 	static Dataset actualDataset;
@@ -27,34 +25,34 @@ public class MetricsTest {
 	static Prediction[] predictionsWithTwoCorrectClasses;
 
 	/**
-	 * Defines some predictions and actual values that will be used to evaluate the
-	 * metrics. There are three classes, two binaries and one ternary.
+	 * Defines some predictions and actual values that will be used to evaluate the metrics. There are three classes,
+	 * two binaries and one ternary.
 	 */
 	@BeforeAll
 	public static void setUp() {
 		// Define actual dataset
 		String timeVariable = "Time";
 		List<String> classVariables = List.of("C1", "C2", "C3");
-		List<String[]> dataSequence1 = new ArrayList<String[]>();
-		dataSequence1.add(new String[] { "Time", "C1", "C2", "C3" });
-		dataSequence1.add(new String[] { "0.0", "a", "a", "a" });
-		dataSequence1.add(new String[] { "0.1", "a", "a", "a" });
-		List<String[]> dataSequence2 = new ArrayList<String[]>();
-		dataSequence2.add(new String[] { "Time", "C1", "C2", "C3" });
-		dataSequence2.add(new String[] { "0.0", "a", "b", "a" });
-		dataSequence2.add(new String[] { "0.1", "a", "b", "a" });
-		List<String[]> dataSequence3 = new ArrayList<String[]>();
-		dataSequence3.add(new String[] { "Time", "C1", "C2", "C3" });
-		dataSequence3.add(new String[] { "0.0", "b", "b", "c" });
-		dataSequence3.add(new String[] { "0.1", "b", "b", "c" });
-		List<String[]> dataSequence4 = new ArrayList<String[]>();
-		dataSequence4.add(new String[] { "Time", "C1", "C2", "C3" });
-		dataSequence4.add(new String[] { "0.0", "b", "b", "a" });
-		dataSequence4.add(new String[] { "0.1", "b", "b", "a" });
-		List<String[]> dataSequence5 = new ArrayList<String[]>();
-		dataSequence5.add(new String[] { "Time", "C1", "C2", "C3" });
-		dataSequence5.add(new String[] { "0.0", "b", "c", "c" });
-		dataSequence5.add(new String[] { "0.1", "b", "c", "c" });
+		List<String[]> dataSequence1 = new ArrayList<>();
+		dataSequence1.add(new String[]{"Time", "C1", "C2", "C3"});
+		dataSequence1.add(new String[]{"0.0", "a", "a", "a"});
+		dataSequence1.add(new String[]{"0.1", "a", "a", "a"});
+		List<String[]> dataSequence2 = new ArrayList<>();
+		dataSequence2.add(new String[]{"Time", "C1", "C2", "C3"});
+		dataSequence2.add(new String[]{"0.0", "a", "b", "a"});
+		dataSequence2.add(new String[]{"0.1", "a", "b", "a"});
+		List<String[]> dataSequence3 = new ArrayList<>();
+		dataSequence3.add(new String[]{"Time", "C1", "C2", "C3"});
+		dataSequence3.add(new String[]{"0.0", "b", "b", "c"});
+		dataSequence3.add(new String[]{"0.1", "b", "b", "c"});
+		List<String[]> dataSequence4 = new ArrayList<>();
+		dataSequence4.add(new String[]{"Time", "C1", "C2", "C3"});
+		dataSequence4.add(new String[]{"0.0", "b", "b", "a"});
+		dataSequence4.add(new String[]{"0.1", "b", "b", "a"});
+		List<String[]> dataSequence5 = new ArrayList<>();
+		dataSequence5.add(new String[]{"Time", "C1", "C2", "C3"});
+		dataSequence5.add(new String[]{"0.0", "b", "c", "c"});
+		dataSequence5.add(new String[]{"0.1", "b", "c", "c"});
 		actualDataset = new Dataset(timeVariable, classVariables);
 		actualDataset.addSequence(dataSequence1);
 		actualDataset.addSequence(dataSequence2);
@@ -393,7 +391,7 @@ public class MetricsTest {
 		// Perfect classification
 		double globalAccuracy = Metrics.globalAccuracy(perfectPredictions, actualDataset);
 		assertEquals(1, globalAccuracy, 0.01);
-		// Two class variables correct, one wrong
+		// Two class variables are correct, one is wrong
 		globalAccuracy = Metrics.globalAccuracy(predictionsWithTwoCorrectClasses, actualDataset);
 		assertEquals(0, globalAccuracy, 0.01);
 		// All instances are correct except two that are partially wrong
@@ -409,7 +407,7 @@ public class MetricsTest {
 		// Perfect classification
 		double meanAccuracy = Metrics.meanAccuracy(perfectPredictions, actualDataset);
 		assertEquals(1, meanAccuracy, 0.01);
-		// Two class variables correct, one wrong
+		// Two class variables are correct, one is wrong
 		meanAccuracy = Metrics.meanAccuracy(predictionsWithTwoCorrectClasses, actualDataset);
 		assertEquals(0.66, meanAccuracy, 0.01);
 		// All instances are correct except two that are partially wrong
@@ -428,116 +426,112 @@ public class MetricsTest {
 		// Perfect predictions but with uncertainty
 		globalBrierScore = Metrics.globalBrierScore(perfectPredictionWithUncertainty, actualDataset);
 		assertEquals(0.33, globalBrierScore, 0.01);
-		// Two class variables correct, one wrong
+		// Two class variables are correct, one is wrong
 		globalBrierScore = Metrics.globalBrierScore(predictionsWithTwoCorrectClasses, actualDataset);
 		assertEquals(2, globalBrierScore, 0.01);
 	}
 
 	/**
-	 * Tests the macro-average precision. The class 'a' will be considered as the
-	 * positive class for "C1" and "C3", since they only have two classes and it is
-	 * the first class to appear.
+	 * Tests the macro-average precision. The class 'a' will be considered as the positive class for "C1" and "C3",
+	 * since they only have two classes and it is the first class to appear.
 	 */
 	@Test
 	public void testMacroPrecision() {
 		// Perfect classification
-		double macroPrecision = Metrics.macroAverage(perfectPredictions, actualDataset, Metrics::precision);
+		double macroPrecision = Metrics.macroAveraging(perfectPredictions, actualDataset, Metrics::precision);
 		assertEquals(1, macroPrecision, 0.01);
-		// Two class variables correct, one wrong
-		macroPrecision = Metrics.macroAverage(predictionsWithTwoCorrectClasses, actualDataset, Metrics::precision);
+		// Two class variables are correct, one is wrong
+		macroPrecision = Metrics.macroAveraging(predictionsWithTwoCorrectClasses, actualDataset, Metrics::precision);
 		assertEquals(0.66, macroPrecision, 0.01);
 		// All instances are correct except two that are partially wrong
-		macroPrecision = Metrics.macroAverage(twoPartiallyIncorrectPrediction, actualDataset, Metrics::precision);
+		macroPrecision = Metrics.macroAveraging(twoPartiallyIncorrectPrediction, actualDataset, Metrics::precision);
 		assertEquals(0.86, macroPrecision, 0.01);
 	}
 
 	/**
-	 * Tests the macro-average recall. The class 'a' will be considered as the
-	 * positive class for "C1" and "C3", since they only have two classes and it is
-	 * the first class to appear.
+	 * Tests the macro-average recall. The class 'a' will be considered as the positive class for "C1" and "C3", since
+	 * they only have two classes and it is the first class to appear.
 	 */
 	@Test
 	public void testMacroRecall() {
 		// Perfect classification
-		double macroRecall = Metrics.macroAverage(perfectPredictions, actualDataset, Metrics::recall);
+		double macroRecall = Metrics.macroAveraging(perfectPredictions, actualDataset, Metrics::recall);
 		assertEquals(1, macroRecall, 0.01);
-		// Two class variables correct, one wrong
-		macroRecall = Metrics.macroAverage(predictionsWithTwoCorrectClasses, actualDataset, Metrics::recall);
+		// Two class variables are correct, one is wrong
+		macroRecall = Metrics.macroAveraging(predictionsWithTwoCorrectClasses, actualDataset, Metrics::recall);
 		assertEquals(0.66, macroRecall, 0.01);
 		// All instances are correct except two that are partially wrong
-		macroRecall = Metrics.macroAverage(twoPartiallyIncorrectPrediction, actualDataset, Metrics::recall);
+		macroRecall = Metrics.macroAveraging(twoPartiallyIncorrectPrediction, actualDataset, Metrics::recall);
 		assertEquals(0.77, macroRecall, 0.01);
 	}
 
 	/**
-	 * Tests the macro-average F1 score. The class 'a' will be considered as the
-	 * positive class for "C1" and "C3", since they only have two classes and it is
-	 * the first class to appear.
+	 * Tests the macro-average F1 score. The class 'a' will be considered as the positive class for "C1" and "C3",
+	 * since
+	 * they only have two classes and it is the first class to appear.
 	 */
 	@Test
 	public void testMacroF1score() {
 		// Perfect classification
-		double macroF1Score = Metrics.macroAverage(perfectPredictions, actualDataset, Metrics::f1score);
+		double macroF1Score = Metrics.macroAveraging(perfectPredictions, actualDataset, Metrics::f1score);
 		assertEquals(1, macroF1Score, 0.01);
-		// Two class variables correct, one wrong
-		macroF1Score = Metrics.macroAverage(predictionsWithTwoCorrectClasses, actualDataset, Metrics::f1score);
+		// Two class variables are correct, one is wrong
+		macroF1Score = Metrics.macroAveraging(predictionsWithTwoCorrectClasses, actualDataset, Metrics::f1score);
 		assertEquals(0.66, macroF1Score, 0.01);
 		// All instances are correct except two that are partially wrong
-		macroF1Score = Metrics.macroAverage(twoPartiallyIncorrectPrediction, actualDataset, Metrics::f1score);
+		macroF1Score = Metrics.macroAveraging(twoPartiallyIncorrectPrediction, actualDataset, Metrics::f1score);
 		assertEquals(0.80, macroF1Score, 0.01);
 	}
 
 	/**
-	 * Tests the micro-average precision. The class 'a' will be considered as the
-	 * positive class for "C1" and "C3", since they only have two classes and it is
-	 * the first class to appear.
+	 * Tests the micro-average precision. The class 'a' will be considered as the positive class for "C1" and "C3",
+	 * since they only have two classes and it is the first class to appear.
 	 */
 	@Test
 	public void testMicroPrecision() {
 		// Perfect classification
-		double microPrecision = Metrics.microAverage(perfectPredictions, actualDataset, Metrics::precision);
+		double microPrecision = Metrics.microAveraging(perfectPredictions, actualDataset, Metrics::precision);
 		assertEquals(1, microPrecision, 0.01);
-		// Two class variables correct, one wrong
-		microPrecision = Metrics.microAverage(predictionsWithTwoCorrectClasses, actualDataset, Metrics::precision);
+		// Two class variables are correct, one is wrong
+		microPrecision = Metrics.microAveraging(predictionsWithTwoCorrectClasses, actualDataset, Metrics::precision);
 		assertEquals(0.60, microPrecision, 0.01);
 		// All instances are correct except two that are partially wrong
-		microPrecision = Metrics.microAverage(twoPartiallyIncorrectPrediction, actualDataset, Metrics::precision);
+		microPrecision = Metrics.microAveraging(twoPartiallyIncorrectPrediction, actualDataset, Metrics::precision);
 		assertEquals(0.94, microPrecision, 0.01);
 	}
 
 	/**
-	 * Tests the micro-average recall. The class 'a' will be considered as the
-	 * positive class for "C1" and "C3", since they only have two classes and it is
-	 * the first class to appear.
+	 * Tests the micro-average recall. The class 'a' will be considered as the positive class for "C1" and "C3", since
+	 * they only have two classes and it is the first class to appear.
 	 */
 	@Test
 	public void testMicroRecall() {
 		// Perfect classification
-		double microRecall = Metrics.microAverage(perfectPredictions, actualDataset, Metrics::recall);
+		double microRecall = Metrics.microAveraging(perfectPredictions, actualDataset, Metrics::recall);
 		assertEquals(1, microRecall, 0.01);
-		// Two class variables correct, one wrong
-		microRecall = Metrics.microAverage(predictionsWithTwoCorrectClasses, actualDataset, Metrics::recall);
+		// Two class variables are correct, one is wrong
+		microRecall = Metrics.microAveraging(predictionsWithTwoCorrectClasses, actualDataset, Metrics::recall);
 		assertEquals(0.7, microRecall, 0.01);
 		// All instances are correct except two that are partially wrong
-		microRecall = Metrics.microAverage(twoPartiallyIncorrectPrediction, actualDataset, Metrics::recall);
+		microRecall = Metrics.microAveraging(twoPartiallyIncorrectPrediction, actualDataset, Metrics::recall);
 		assertEquals(0.8, microRecall, 0.01);
 	}
 
 	/**
-	 * Tests the micro-average F1 score. The class 'a' will be considered as the
-	 * positive class for "C1" and "C3", since they only have two classes and it is
-	 * the first class to appear.
+	 * Tests the micro-average F1 score. The class 'a' will be considered as the positive class for "C1" and "C3",
+	 * since
+	 * they only have two classes and it is the first class to appear.
 	 */
 	@Test
 	public void testMicroF1score() {
 		// Perfect classification
-		double microF1Score = Metrics.microAverage(perfectPredictions, actualDataset, Metrics::f1score);
+		double microF1Score = Metrics.microAveraging(perfectPredictions, actualDataset, Metrics::f1score);
 		assertEquals(1, microF1Score, 0.01);
-		// Two class variables correct, one wrong
-		microF1Score = Metrics.microAverage(predictionsWithTwoCorrectClasses, actualDataset, Metrics::f1score);
+		// Two class variables are correct, one is wrong
+		microF1Score = Metrics.microAveraging(predictionsWithTwoCorrectClasses, actualDataset, Metrics::f1score);
 		assertEquals(0.65, microF1Score, 0.01);
 		// All instances are correct except two that are partially wrong
-		microF1Score = Metrics.microAverage(twoPartiallyIncorrectPrediction, actualDataset, Metrics::f1score);
+		microF1Score = Metrics.microAveraging(twoPartiallyIncorrectPrediction, actualDataset, Metrics::f1score);
 		assertEquals(0.86, microF1Score, 0.01);
 	}
 

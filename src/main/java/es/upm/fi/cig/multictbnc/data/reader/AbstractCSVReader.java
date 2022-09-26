@@ -1,29 +1,21 @@
 package es.upm.fi.cig.multictbnc.data.reader;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
+import com.opencsv.CSVReader;
+import es.upm.fi.cig.multictbnc.data.representation.Dataset;
+import es.upm.fi.cig.multictbnc.exceptions.UnreadDatasetException;
+import es.upm.fi.cig.multictbnc.exceptions.VariableNotFoundException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.opencsv.CSVReader;
-
-import es.upm.fi.cig.multictbnc.data.representation.Dataset;
-import es.upm.fi.cig.multictbnc.exceptions.VariableNotFoundException;
+import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Common attributes and methods for dataset readers.
- * 
- * @author Carlos Villa Blanco
  *
+ * @author Carlos Villa Blanco
  */
 public abstract class AbstractCSVReader implements DatasetReader {
 	String datasetFolder;
@@ -35,23 +27,30 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	Dataset dataset;
 	// Flag variable to know if the dataset needs to be reloaded
 	boolean outdatedDataset;
-	static Logger logger = LogManager.getLogger(AbstractCSVReader.class);
+	boolean removeZeroVarianceVariables;
+	private static final Logger logger = LogManager.getLogger(AbstractCSVReader.class);
 
 	/**
-	 * Receives the path to the dataset folder and initialize the reader as
-	 * out-of-date. In that way, the dataset will be loaded when it is requested.
-	 * 
+	 * Receives the path to the dataset folder and initialises the reader as out-of-date. In that way, the dataset will
+	 * be loaded when it is requested.
+	 *
 	 * @param datasetFolder path to the dataset folder
 	 */
 	public AbstractCSVReader(String datasetFolder) {
 		this.datasetFolder = datasetFolder;
 		this.outdatedDataset = true;
+		this.removeZeroVarianceVariables = true;
+	}
+
+	@Override
+	public void removeZeroVarianceVariables(boolean removeZeroVarianceVariables) {
+		this.removeZeroVarianceVariables = removeZeroVarianceVariables;
 	}
 
 	/**
-	 * Extracts the names of the variables from a CSV file. It is assumed that the
-	 * names are in the first row.
-	 * 
+	 * Extracts the names of the variables given in some CSV files. This method assumes that the names are in the first
+	 * row.
+	 *
 	 * @param csvFile CSV file
 	 * @throws FileNotFoundException if the CSV file was not found
 	 */
@@ -73,26 +72,25 @@ public abstract class AbstractCSVReader implements DatasetReader {
 
 	/**
 	 * Reads a CSV file.
-	 * 
+	 *
 	 * @param pathFile         path to the CSV file
 	 * @param excludeVariables names of variables to ignore when reading the CSV
 	 * @return list with the rows (lists of strings) of the CSV
-	 * @throws VariableNotFoundException if a specified variable was not found in
-	 *                                   the provided files
+	 * @throws VariableNotFoundException if a specified variable was not found in the provided files
 	 * @throws FileNotFoundException     if the CSV file was not found
 	 */
 	public List<String[]> readCSV(String pathFile, List<String> excludeVariables)
 			throws VariableNotFoundException, FileNotFoundException {
-		List<String[]> list = new ArrayList<String[]>();
+		List<String[]> list = new ArrayList<>();
 		FileReader reader = new FileReader(pathFile);
 		CSVReader csvReader = new CSVReader(reader);
 		try {
 			// If it was specified variables to ignore
 			if (excludeVariables != null && excludeVariables.size() > 0) {
-				// Obtain name of the variables
-				List<String> head = new ArrayList<String>(Arrays.asList(csvReader.readNext()));
+				// Obtain the name of the variables
+				List<String> head = new ArrayList<>(Arrays.asList(csvReader.readNext()));
 				// Obtain the index of the variables to ignore
-				List<Integer> indexesToIgnore = new ArrayList<Integer>();
+				List<Integer> indexesToIgnore = new ArrayList<>();
 				for (String excludeVariable : excludeVariables) {
 					int index = head.indexOf(excludeVariable);
 					if (index == -1) {
@@ -103,17 +101,17 @@ public abstract class AbstractCSVReader implements DatasetReader {
 					}
 					indexesToIgnore.add(index);
 				}
-				// List is sorted so last elements of the lists are removed first
+				// List is sorted, so the last elements of the lists are removed first
 				Collections.sort(indexesToIgnore, Collections.reverseOrder());
-				// Remove names of the variables to ignore
+				// Remove the names of the variables to ignore
 				for (int index : indexesToIgnore)
 					head.remove(index);
 				// Add names of the variables to the final list
 				list.add(head.stream().toArray(String[]::new));
-				// Read data of the csv
+				// Read data of the CSV
 				String[] nextLine;
 				while ((nextLine = csvReader.readNext()) != null) {
-					List<String> row = new LinkedList<String>(Arrays.asList(nextLine));
+					List<String> row = new LinkedList<>(Arrays.asList(nextLine));
 					// Remove values of the variables to ignore
 					for (int index : indexesToIgnore)
 						row.remove(index);
@@ -131,24 +129,56 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	}
 
 	@Override
-	public void setVariables(String nameTimeVariable, List<String> nameFeatureVariables) {
+	public Dataset readDataset(int numFiles) throws UnreadDatasetException {
+		throw new NotImplementedException("Feature not yet implemented");
+	}
+
+	@Override
+	public void setTimeAndFeatureVariables(String nameTimeVariable, List<String> nameFeatureVariables) {
 		this.nameTimeVariable = nameTimeVariable;
 		// Variables that should be ignored
-		this.excludeVariables = new ArrayList<String>(getNameVariables());
+		this.excludeVariables = new ArrayList<>(getNameVariables());
 		this.excludeVariables.remove(nameTimeVariable);
 		this.excludeVariables.removeAll(nameFeatureVariables);
+		setDatasetAsOutdated(true);
+	}
+
+	@Override
+	public void setTimeAndClassVariables(String nameTimeVariable, List<String> nameClassVariables) {
+		this.nameTimeVariable = nameTimeVariable;
+		this.nameClassVariables = nameClassVariables;
+		this.excludeVariables = new ArrayList<>();
+		setDatasetAsOutdated(true);
 	}
 
 	@Override
 	public void setVariables(String nameTimeVariable, List<String> nameClassVariables,
-			List<String> nameFeatureVariables) {
+							 List<String> nameFeatureVariables) {
 		this.nameTimeVariable = nameTimeVariable;
 		this.nameClassVariables = nameClassVariables;
 		// Variables that should be ignored
-		this.excludeVariables = new ArrayList<String>(getNameVariables());
-		this.excludeVariables.remove(nameTimeVariable);
-		this.excludeVariables.removeAll(nameClassVariables);
+		this.excludeVariables = new ArrayList<>(getNameVariables());
+		if (this.excludeVariables.contains(nameTimeVariable)) {
+			this.excludeVariables.remove(nameTimeVariable);
+		} else {
+			logger.warn("Time variable {} was not found in the dataset {}", nameTimeVariable, datasetFolder);
+		}
+		if (this.excludeVariables.containsAll(nameClassVariables)) {
+			this.excludeVariables.removeAll(nameClassVariables);
+		} else {
+			List<String> variablesNotAvailable = nameFeatureVariables.stream().filter(
+					featureVariable -> this.excludeVariables.contains(nameClassVariables)).collect(Collectors.toList());
+			logger.warn("Class variables {} were not found in the dataset {}", variablesNotAvailable, datasetFolder);
+		}
+		if (this.excludeVariables.containsAll(nameFeatureVariables)) {
+			this.excludeVariables.removeAll(nameFeatureVariables);
+		} else {
+			List<String> variablesNotAvailable = nameFeatureVariables.stream().filter(
+					featureVariable -> this.excludeVariables.contains(featureVariable)).collect(Collectors.toList());
+			logger.warn("Feature variables {} were not found in the dataset {}", variablesNotAvailable, datasetFolder);
+		}
 		this.excludeVariables.removeAll(nameFeatureVariables);
+		setDatasetAsOutdated(true);
 	}
 
 	@Override
@@ -163,7 +193,7 @@ public abstract class AbstractCSVReader implements DatasetReader {
 
 	@Override
 	public List<String> getNameFeatureVariables() {
-		List<String> nameFeatureVariables = new ArrayList<String>(this.nameVariables);
+		List<String> nameFeatureVariables = new ArrayList<>(this.nameVariables);
 		nameFeatureVariables.remove(this.nameTimeVariable);
 		nameFeatureVariables.removeAll(this.nameClassVariables);
 		nameFeatureVariables.removeAll(this.excludeVariables);
@@ -188,8 +218,8 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	private void closeReader(Closeable reader) {
 		try {
 			reader.close();
-		} catch (IOException e) {
-			logger.error("An error occurred while closing the CSV reader: {}", e.getMessage());
+		} catch (IOException ioe) {
+			logger.error("An error occurred while closing the CSV reader: {}", ioe.getMessage());
 		}
 	}
 

@@ -1,183 +1,274 @@
 package es.upm.fi.cig.multictbnc.models;
 
-import java.util.List;
-
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
+import es.upm.fi.cig.multictbnc.exceptions.ErroneousValueException;
+import es.upm.fi.cig.multictbnc.learning.parameters.ParameterLearningAlgorithm;
 import es.upm.fi.cig.multictbnc.nodes.Node;
 import es.upm.fi.cig.multictbnc.nodes.NodeIndexer;
 
+import java.util.List;
+
 /**
  * Defines the methods of a probabilistic graphical model (PGM)
- * 
- * @author Carlos Villa Blanco
  *
  * @param <NodeType> type of the nodes of the PGM
+ * @author Carlos Villa Blanco
  */
 public interface PGM<NodeType extends Node> {
 
 	/**
-	 * Learns the structure and parameters of the model.
-	 * 
+	 * Adds the provided nodes to the PGM.
+	 *
+	 * @param nodes       nodes to add
+	 * @param createNodes {@code true} to create new nodes from the provided ones, {@code false} otherwise (any change
+	 *                    to the provided nodes will affect this model).
 	 */
-	public void learn();
+	void addNodes(List<NodeType> nodes, boolean createNodes);
 
 	/**
-	 * Learns the structure and parameters of the model from a given dataset.
-	 * 
-	 * @param dataset dataset used to learn the model
+	 * Returns true if all the parameters were estimated.
+	 *
+	 * @return true if all the parameters were estimated
 	 */
-	public void learn(Dataset dataset);
+	boolean areParametersEstimated();
 
 	/**
-	 * Sets the dataset that will be used to estimate the structure and parameters
-	 * of the model and creates its nodes.
-	 * 
-	 * @param dataset dataset used to learn the model
+	 * Computes the sufficient statistics for the nodes whose indexes are specified.
+	 *
+	 * @param idxNodes node indexes
+	 * @throws ErroneousValueException if a parameter provided is invalid for the requested task
 	 */
-	void initializeModel(Dataset dataset);
-
-	/**
-	 * Adds the provided nodes to the PGM. It is necessary to include a NodeIndexer
-	 * object in order to keep track of their index.
-	 * 
-	 * @param nodes nodes to add
-	 */
-	public void addNodes(List<NodeType> nodes);
-
-	/**
-	 * Removes all the nodes from the PGM.
-	 */
-	public void removeAllNodes();
-
-	/**
-	 * Modifies the structure of the PGM by changing the parents of the nodes and
-	 * their CPD.
-	 * 
-	 * @param newAdjacencyMatrix adjacency matrix with the new structure of the PGM
-	 */
-	public void setStructure(boolean[][] newAdjacencyMatrix);
-
-	/**
-	 * Modifies the structure of the PGM by changing the parents and CPDs of those
-	 * nodes which have different parents between the current adjacency matrix and
-	 * the new one.
-	 * 
-	 * @param newAdjacencyMatrix new adjacency matrix
-	 */
-	void setStructureModifiedNodes(boolean[][] newAdjacencyMatrix);
-
-	/**
-	 * Checks if a structure is legal for the PGM.
-	 * 
-	 * @param adjacencyMatrix two-dimensional {@code boolean} array representing the
-	 *                        adjacency matrix to Analyze
-	 * @return true if the structure is legal, false otherwise
-	 */
-	public boolean isStructureLegal(boolean[][] adjacencyMatrix);
-
-	/**
-	 * Learns the parameters of the PGM.
-	 */
-	public void learnParameters();
-
-	/**
-	 * Learns the parameters of the nodes whose indexes are specified.
-	 * 
-	 * @param idxsNodes indexes of the nodes whose parameters should be learned
-	 */
-	public void learnParameters(List<Integer> idxsNodes);
+	void computeSufficientStatistics(List<Integer> idxNodes) throws ErroneousValueException;
 
 	/**
 	 * Displays the probabilistic graphical model.
 	 */
-	public void display();
+	void display();
 
 	/**
-	 * Returns all the nodes in the model.
-	 * 
-	 * @return list of nodes
+	 * Displays the probabilistic graphical model.
+	 *
+	 * @param windowTitle title of the window where the model is displayed
 	 */
-	public List<NodeType> getNodes();
+	void display(String windowTitle);
 
 	/**
-	 * Obtains the node (feature or class variable) with certain index.
-	 * 
-	 * @param index node index
-	 * @return node with the specified index
+	 * Displays the probabilistic graphical model.
+	 *
+	 * @param title            title of the window where the model is displayed
+	 * @param nodesToHighlight indexes of the nodes to be highlighted in red
 	 */
-	public NodeType getNodeByIndex(int index);
-
-	/**
-	 * Returns the node whose variable name is given.
-	 * 
-	 * @param nameVariable name of the variable
-	 * @return requested node
-	 */
-	public NodeType getNodeByName(String nameVariable);
-
-	/**
-	 * Returns the nodes whose variable names are given.
-	 * 
-	 * @param nameVariables names of the variables
-	 * @return requested nodes
-	 */
-	List<NodeType> getNodesByNames(List<String> nameVariables);
-
-	/**
-	 * Returns the list of nodes for the class variables.
-	 * 
-	 * @return list of nodes for the class variables
-	 */
-	public List<NodeType> getNodesClassVariables();
-
-	/**
-	 * Returns the list of nodes for the feature variables.
-	 * 
-	 * @return list of nodes for the feature variables
-	 */
-	public List<NodeType> getNodesFeatureVariables();
-
-	/**
-	 * Returns the number of nodes.
-	 * 
-	 * @return number of nodes
-	 */
-	public int getNumNodes();
+	void display(String title, List<Integer> nodesToHighlight);
 
 	/**
 	 * Returns the adjacency matrix.
-	 * 
-	 * @return two-dimensional {@code boolean} array representing the adjacency
-	 *         matrix
+	 *
+	 * @return two-dimensional {@code boolean} array representing the adjacency matrix
 	 */
-	public boolean[][] getAdjacencyMatrix();
+	boolean[][] getAdjacencyMatrix();
 
 	/**
-	 * Provides the type of PGM.
-	 * 
-	 * @return string describing the type of PGM
+	 * Returns the indexes of the nodes.
+	 *
+	 * @return node indexes
 	 */
-	public String getType();
-
-	/**
-	 * Returns the node indexer used by the PGM.
-	 * 
-	 * @return node indexer
-	 */
-	public NodeIndexer<NodeType> getNodeIndexer();
-
-	/**
-	 * Returns true if all the parameters were estimated.
-	 * 
-	 * @return true if all the parameters were estimated
-	 */
-	public boolean areParametersEstimated();
+	List<Integer> getIndexNodes();
 
 	/**
 	 * Returns a {@code String} that identifies the model.
-	 * 
+	 *
 	 * @return {@code String} that identifies the model
 	 */
-	public String getModelIdentifier();
+	String getModelIdentifier();
+
+	/**
+	 * Return the names of the nodes whose indexes are given.
+	 *
+	 * @param idxNodes node indexes
+	 * @return node names
+	 */
+	List<String> getNamesNodesByIndex(List<Integer> idxNodes);
+
+	/**
+	 * Obtains the node (feature or class variable) with a certain index.
+	 *
+	 * @param idxNode node index
+	 * @return node with the specified index
+	 */
+	NodeType getNodeByIndex(int idxNode);
+
+	/**
+	 * Returns the node whose variable name is given.
+	 *
+	 * @param nameVariable name of the variable
+	 * @return requested node
+	 */
+	NodeType getNodeByName(String nameVariable);
+
+	/**
+	 * Returns the node indexer used by the PGM.
+	 *
+	 * @return node indexer
+	 */
+	NodeIndexer<NodeType> getNodeIndexer();
+
+	/**
+	 * Returns all the nodes in the model.
+	 *
+	 * @return list of nodes
+	 */
+	List<NodeType> getNodes();
+
+	/**
+	 * Returns the number of nodes.
+	 *
+	 * @return number of nodes
+	 */
+	int getNumNodes();
+
+	/**
+	 * Returns the algorithm that is used to learn the parameters of the PGM.
+	 *
+	 * @return parameter learning algorithm
+	 */
+	ParameterLearningAlgorithm getParameterLearningAlg();
+
+	/**
+	 * Provides the type of PGM.
+	 *
+	 * @return string describing the type of PGM
+	 */
+	String getType();
+
+	/**
+	 * Sets the dataset that will be used to estimate the structure and parameters of the model and creates its nodes.
+	 *
+	 * @param dataset dataset used to learn the model
+	 */
+	void initialiseModel(Dataset dataset);
+
+	/**
+	 * Checks if a structure is legal for the PGM.
+	 *
+	 * @param adjacencyMatrix two-dimensional {@code boolean} array representing the adjacency matrix to analyse
+	 * @return true if the structure is legal, false otherwise
+	 */
+	boolean isStructureLegal(boolean[][] adjacencyMatrix);
+
+	/**
+	 * Learns the structure and parameters of the model.
+	 *
+	 * @throws ErroneousValueException if a provided parameter is erroneous for the requested task
+	 */
+	void learn() throws ErroneousValueException;
+
+	/**
+	 * Learns the structure and parameters of the model from a given dataset.
+	 *
+	 * @param dataset dataset used to learn the model
+	 * @return time to learn the model
+	 * @throws ErroneousValueException if a provided parameter is erroneous for the requested task
+	 */
+	long learn(Dataset dataset) throws ErroneousValueException;
+
+	/**
+	 * Learns the parameters and parent set of a model's node from a given dataset.
+	 *
+	 * @param dataset dataset used to learn the parameters and parent set of the node
+	 * @param idxNode node index
+	 */
+	void learn(Dataset dataset, int idxNode);
+
+	/**
+	 * Learns the parameters and parent set of some nodes of the model from a given dataset.
+	 *
+	 * @param dataset  dataset used to learn the parameters and parent set of the nodes
+	 * @param idxNodes node indexes
+	 */
+	void learn(Dataset dataset, List<Integer> idxNodes);
+
+	/**
+	 * Learns the parameters of the PGM.
+	 */
+	void learnParameters();
+
+	/**
+	 * Learns the parameters of the PGM using the provided dataset.
+	 *
+	 * @param dataset dataset used to learn the parameters
+	 */
+	void learnParameters(Dataset dataset);
+
+	/**
+	 * Learns the parameters of a certain node of the PGM using the provided dataset.
+	 *
+	 * @param dataset dataset used to learn the parameters
+	 * @param idxNode node index
+	 */
+	void learnParameters(Dataset dataset, int idxNode);
+
+	/**
+	 * Learns the parameters of the nodes whose indexes are specified.
+	 *
+	 * @param idxNodes indexes of the nodes whose parameters should be learnt
+	 */
+	void learnParameters(List<Integer> idxNodes);
+
+	/**
+	 * Learns the parameters of the node whose index is specified.
+	 *
+	 * @param idxNode index of the node whose parameters should be learnt
+	 */
+	void learnParameters(Integer idxNode);
+
+	/**
+	 * Learns the parameters of the nodes whose indexes are specified using a provider parameter learning algorithm.
+	 *
+	 * @param idxNodes             indexes of the nodes whose parameters should be learnt
+	 * @param parameterLearningAlg a {@code ParameterLearningAlgorithm}
+	 */
+	void learnParameters(List<Integer> idxNodes, ParameterLearningAlgorithm parameterLearningAlg);
+
+	/**
+	 * Remove all edges between the nodes of the PGM.
+	 */
+	void removeAllEdges();
+
+	/**
+	 * Removes all the nodes from the PGM.
+	 */
+	void removeAllNodes();
+
+	/**
+	 * Modifies the structure of the PGM by changing the parents of the nodes.
+	 *
+	 * @param newAdjacencyMatrix adjacency matrix with the new structure of the PGM
+	 */
+	void setStructure(boolean[][] newAdjacencyMatrix);
+
+	/**
+	 * Updates the structure of the model only for the specified node.
+	 *
+	 * @param idxNode        node index
+	 * @param structureFound adjacency matrix
+	 */
+	void setStructure(int idxNode, boolean[][] structureFound);
+
+	/**
+	 * Updates the structure of the model only for the specified node.
+	 *
+	 * @param idxNodes       node indexes
+	 * @param structureFound adjacency matrix found
+	 */
+	void setStructure(List<Integer> idxNodes, boolean[][] structureFound);
+
+	/**
+	 * Modifies the structure of the PGM by changing the parents and CPDs of those nodes which have different parents
+	 * between the current adjacency matrix and the new one.
+	 *
+	 * @param newAdjacencyMatrix new adjacency matrix
+	 * @throws ErroneousValueException if a parameter provided is invalid for the requested task
+	 */
+	void setStructureModifiedNodes(boolean[][] newAdjacencyMatrix) throws ErroneousValueException;
 
 }
