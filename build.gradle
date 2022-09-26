@@ -79,7 +79,6 @@ jlink {
         } else if (org.gradle.internal.os.OperatingSystem.current().macOsX) {
             icon = 'imgs/icon.icns'
         } else if (org.gradle.internal.os.OperatingSystem.current().linux) {
-            installerType = "deb"
             icon = 'imgs/icon.png'
             installerOptions += ['--linux-menu-group', 'Science', '--linux-shortcut', '--linux-deb-maintainer', 'carlos.villa@upm.es']
         }
