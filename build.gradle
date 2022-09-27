@@ -70,14 +70,13 @@ jlink {
                 '--copyright', 'Copyrigtht 2022 Carlos Villa Blanco',
                 '--vendor', 'Carlos Villa Blanco'
         ]
-        if (org.gradle.internal.os.OperatingSystem.current().windows || org.gradle.internal.os.OperatingSystem.current().macOsX) {
-            skipInstaller = true
-        }
         if (org.gradle.internal.os.OperatingSystem.current().windows) {
             imageOptions = ['--win-console']
+            skipInstaller = true
             icon = 'imgs/icon.ico'
         } else if (org.gradle.internal.os.OperatingSystem.current().macOsX) {
             icon = 'imgs/icon.icns'
+            installerType = "pkg"
         } else if (org.gradle.internal.os.OperatingSystem.current().linux) {
             icon = 'imgs/icon.png'
             installerOptions += ['--linux-menu-group', 'Science', '--linux-shortcut', '--linux-deb-maintainer', 'carlos.villa@upm.es']
