@@ -22,12 +22,12 @@ jobs:
         run: ./gradlew --info --stacktrace build
       - name: Execute jpackage
         run: ./gradlew --info --stacktrace jpackage
-      - name: Upload DMG as an artifact
+      - name: Upload PKG as an artifact
         if: matrix.os == 'macOS-latest'
         uses: actions/upload-artifact@v2
         with:
           name: Multi-CTBNCs_jdk${{ matrix.java }}_${{ matrix.os }}
-          path: build/jpackage/*.app
+          path: build/jpackage/*.pkg
       - name: Zip files EXE
         if: matrix.os == 'windows-latest'
         uses: vimtor/action-zip@v1
