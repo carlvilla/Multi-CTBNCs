@@ -35,7 +35,16 @@ This software provides an easy-to-use tool so that anyone can apply Multi-CTBNCs
 ## Installation
 This software has been developed as a Gradle project to facilitate its usage and the management of its dependencies. As the Gradle Wrapper is provided, only a Java Development Kit (JDK) needs to be installed ([Java SE Downloads](https://www.oracle.com/java/technologies/javase-downloads.html)).
 
-Alternatively, it is possible to use the executables for Linux, macOS and Windows included in this repository, which do not require any previous installation.
+Alternatively, it is possible to use the Linux, macOS and Windows executables included in the [latest release](https://github.com/carlvilla/Multi-CTBNCs/releases/latest) of this repository, which do not require any previous installation. In order to view the log messages on macOS and Linux systems, use the following commands in the terminal:
+
+On macOS:
+```sh
+./Multi-CTBNCs.app/Contents/MacOS/Multi-CTBNCs
+```
+On Linux:
+```bat
+./opt/multi-ctbncs/bin/Multi-CTBNCs
+```
 
 ## Usage
 
