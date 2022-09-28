@@ -4,7 +4,7 @@
 <p align="center"> <img src="./imgs/Multi-CTBNC.png" width="40%" style="border-radius: 3%;"/> </p>
 <p align="center">Multi-dimensional continuous time Bayesian network classifiers</p>
 <p align="center">
-<a href="https://travis-ci.com/carlvilla/Multi-CTBNCs"> <img align="center" hspace="10" src="https://travis-ci.com/carlvilla/Multi-CTBNCs.svg?token=aJzHjLbR53QnhrMdqpW5&branch=master" alt="Build Status"> </a>     
+<a href="https://app.travis-ci.com/carlvilla/Multi-CTBNCs"> <img align="center" hspace="10" src="https://app.travis-ci.com/carlvilla/Multi-CTBNCs.svg?branch=master" alt="Build Status"> </a>     
 <a href="http://cig.fi.upm.es"> <img align="center" src="./imgs/logo_CIG.png" width="35" height="50"> </a>
 </p>
 
