@@ -26,13 +26,13 @@ jobs:
         if: matrix.os == 'macOS-latest'
         uses: actions/upload-artifact@v2
         with:
-          name: Multi-CTBNCs_{{ matrix.os }}
+          name: Multi-CTBNCs_${{ matrix.os }}
           path: build/jpackage/*.pkg
       - name: Zip files EXE
         if: matrix.os == 'windows-latest'
         uses: vimtor/action-zip@v1
         with:
-          dest: Multi-CTBNCs_{{ matrix.os }}.zip
+          dest: Multi-CTBNCs_${{ matrix.os }}.zip
           files: build/jpackage/Multi-CTBNCs/*
       - name: Upload EXE as an artifact
         if: matrix.os == 'windows-latest'
