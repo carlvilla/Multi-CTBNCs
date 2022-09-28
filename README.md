@@ -10,7 +10,7 @@
 
 ## Description
 
-The multi-dimensional continuous time Bayesian network classifiers (Multi-CTBNCs) are an extension of continuous time Bayesian networks (CTBNs) for the multi-dimensional classification of multi-variate time series. These probabilistic graphical models are able to model temporal data evolving over continuous time and classify them into multiple class variables taking advantage of the information provided by inter-class dependencies. This is a common and essential task for domains such as finance, industry, medicine or signal processing, but applications can be found in almost any field.
+The multidimensional continuous time Bayesian network classifiers (Multi-CTBNCs) are an extension of continuous time Bayesian networks (CTBNs) for the multidimensional classification of multivariate time series. These probabilistic graphical models are able to model temporal data evolving over continuous time and classify them into multiple class variables taking advantage of the information provided by inter-class dependencies. This is a common and essential task for domains such as finance, industry, medicine or signal processing, but applications can be found in almost any field.
 
 This software provides an easy-to-use tool so that anyone can apply Multi-CTBNCs in their research. Multiple options are available to learn the structure and parameters of different families of Multi-CTBNCs, as well as to evaluate the models or classify previously unseen datasets.
 
@@ -74,7 +74,7 @@ On Linux:
 
 These steps will open the application interface, where it is possible to specify datasets for training, evaluation or classification, the model to build, learning algorithms and evaluation methods. The interface consists of four tabs:
 
-* The **Dataset tab**: allows to specify the data to train and evaluate a Multi-CTBNC. We can specify how the sequences will be extracted and which time, class and feature variables will be used.
+* The **Dataset tab**: allows to specify the data to train and evaluate a Multi-CTBNC. We can determine how the sequences will be extracted and which time, class and feature variables will be used.
 * The **Model tab**: allows to specify the model that will be trained. 
 * The **Evaluation tab**: allows to define how the model selected in the *Model* tab will be evaluated using the data provided in the *Dataset* tab.
 * The **Classification tab**: allows to train the model selected in the *Model* tab with the data provided in the *Dataset* tab and to classify a second dataset with this model. The classification results are saved in the folder *results/classifications* in the project root directory.
@@ -90,7 +90,7 @@ Time series datasets can be stored and presented in different formats. Currently
 ## Learning Multi-CTBNCs
 This software provides the following learning algorithms for a Multi-CTBNC.
 ### Parameter learning algorithms
-* **Maximum likelihood estimation**: assumes that the parameters are constants, seeking those values that maximize the probability of the observable data.
+* **Maximum likelihood estimation**: assumes that the parameters are constants, seeking those values that maximise the probability of the observable data.
 * **Bayesian estimation**: parameters are considered random variables, and a prior distribution is defined over them.
 
 ### Structure learning algorithms
@@ -116,23 +116,23 @@ The following penalisation functions can be applied over the structure complexit
 
 Different families of Multi-CTBNCs can be proposed depending on the search spaces considered for the class and feature subgraphs. Currently, this software supports the following Multi-CTBNC families:
 
-* **Multi-dimensional continuous time Bayesian network classifier (Multi-CTBNC)**: no structure constraints.
+* **Multidimensional continuous time Bayesian network classifier (Multi-CTBNC)**: no structure constraints.
 
 <p align="center"> <img src="./imgs/Multi-CTBNC.png" width="30%" style="border-radius: 3%;" alt="Multi-CTBNC"/> </p>
 
-* **Multi-dimensional continuous time naive Bayes classifier (Multi-CTNBC)**: assumes conditional independence between features given the class variables and independence between the latter. The model is formed by a complete bridge subgraph, so each class variable is the parent of all features.
+* **Multidimensional continuous time naive Bayes classifier (Multi-CTNBC)**: assumes conditional independence between features given the class variables and independence between the latter. The model is formed by a complete bridge subgraph, so each class variable is the parent of all features.
 
 <p align="center"> <img src="./imgs/Multi-CTNBC.png" width="30%" style="border-radius: 3%;" alt="Multi-CTNBC"/> </p>
 
-* **DAG-maxK multi-dimensional continuous time Bayesian network classifier (DAG-maxK Multi-CTBNC)**: feature nodes have at most k parents (excluding class variables).
+* **DAG-maxK multidimensional continuous time Bayesian network classifier (DAG-maxK Multi-CTBNC)**: feature nodes have at most k parents (excluding class variables).
 
 <p align="center"> <img src="./imgs/DAG-maxK_Multi-CTBNC.png" width="30%" style="border-radius: 3%;" alt="DAG-maxK Multi-CTBNC"/> </p>
 
-* **Empty-digraph multi-dimensional continuous time Bayesian network classifier (Empty-digraph Multi-CTBNC)**: dependencies between class variables are ignored.
+* **Empty-digraph multidimensional continuous time Bayesian network classifier (Empty-digraph Multi-CTBNC)**: dependencies between class variables are ignored.
 
 <p align="center"> <img src="./imgs/Empty-digraph_Multi-CTBNC.png" width="30%" style="border-radius: 3%;" alt="Empty-digraph Multi-CTBNC"/> </p>
 
-* **Empty-maxK multi-dimensional continuous time Bayesian network classifier (Empty-maxK Multi-CTBNC)**: feature nodes have at most k parents (excluding class variables), and dependencies between class variables are ignored.
+* **Empty-maxK multidimensional continuous time Bayesian network classifier (Empty-maxK Multi-CTBNC)**: feature nodes have at most k parents (excluding class variables), and dependencies between class variables are ignored.
 
 <p align="center"> <img src="./imgs/Empty-maxK_Multi-CTBNC.png" width="30%" style="border-radius: 3%;" alt="Empty-maxK Multi-CTBNC"/> </p>
 
@@ -162,7 +162,7 @@ The datasets used for the experiments of article [[2]](#2) can be downloaded fro
 * **increaseFeatureStates10Duration** - Experiments to evaluate the influence of the cardinality of feature variables on the performance of algorithms when sequences have a duration of 10 time units.
 * **increaseFeatureStates20Duration** - Experiments to evaluate the influence of the cardinality of feature variables on the performance of algorithms when sequences have a duration of 20 time units.
 * **increaseVariablesStates** - Experiments to compare the performance of the algorithms when varying the number of states of class and feature variables.
-* **mainExperiments** - Comprehensive experiments over randomly generated datasets using different number of class and feature variables, cardinalities and density of the structures
+* **mainExperiments** - Comprehensive experiments over randomly generated datasets using a different number of class and feature variables, cardinalities and density of the structures
 * **runAllExperimentsVillaBlancoEtAl2022** - Runs all the experiments from [[2]](#2).
 
 The tasks can be executed with the following command:
@@ -180,7 +180,7 @@ Excel files with the results of the experiments will be saved in the folder *res
 
 ## Sampling synthetic datasets
 
-This software provides the tools to sample discrete state multi-variate time series datasets with multiple class variables. Datasets can be generated with the following command:
+This software provides the tools to sample discrete state multivariate time series datasets with multiple class variables. Datasets can be generated with the following command:
 ```sh
 ./gradlew sampleDatasets --args="<number datasets to sample> <number sequences> <duration sequences> <number feature variables> <cardinality feature variables> <number class variables> <cardinality feature variables> <probability arc in class subgraph> <probability arc in bridge subgraph> <probability arc in feature subgraph> <maximum number of feature variables that can be parents of others> <true to define different structures for each dataset> <destination path datasets> <adjacency matrix (optional, arguments 7 to 11 are ignored if used)>."
 ```
@@ -205,7 +205,7 @@ Datasets are saved in the *dataset* folder in the root directory of this project
 ## References
 
 <a id="1">[1]</a> 
-Villa-Blanco C, Larrañaga P, Bielza C. Multidimensional continuous time Bayesian network classifiers. <em>Int J Intell Syst.</em> 2021;1-28. https://doi.org/10.1002/int.22611.
+C. Villa-Blanco, P. Larrañaga, C. Bielza. Multidimensional continuous time Bayesian network classifiers. <em>International Journal of Intelligent Systems</em> 2021;36 (12):7839–7866. https://doi.org/10.1002/int.22611.
 
 <a id="2">[2]</a>
-Villa-Blanco, C., Bregoli, A., Bielza, C., Larrañaga, P., Stella, F. (2022) Structure Learning Algorithms for Multidimensional Continuous-Time Bayesian Network Classifiers. Accepted for the 11th International Conference on Probabilistic Graphical Models.
+C. Villa-Blanco, A. Bregoli, C. Bielza, P. Larrañaga, F. Stella. Structure learning algorithms for multidimensional continuous-time Bayesian network classifiers. In: <em>Proceedings of The 11th International Conference on Probabilistic Graphical Models</em>; volume 186 of Proceedings of Machine Learning Research. PMLR, 2022:313–324.
