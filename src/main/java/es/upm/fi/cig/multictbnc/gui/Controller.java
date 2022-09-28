@@ -200,8 +200,8 @@ public class Controller {
 	 * @throws FileNotFoundException if the provided files were not found
 	 */
 	public void changeDatasetReader() throws FileNotFoundException {
-		if (this.trainingDatasetReader != null)
-			initialiseDatasetReader(this.fldPathDataset.getText());
+		// Remove the path previously selected datasets
+		this.fldPathDataset.clear();
 		// Show or hide options
 		if (this.cmbDataFormat.getValue().equals("Single CSV")) {
 			ControllerUtil.showNode(this.hbStrategy, true);
@@ -220,8 +220,8 @@ public class Controller {
 	 * @throws FileNotFoundException if the provided files were not found
 	 */
 	public void changeDatasetReaderClassification() throws FileNotFoundException {
-		if (this.ClassificationDatasetReader != null)
-			initialiseDatasetReaderClassification(this.fldPathDatasetClassification.getText());
+		// Remove the path previously selected datasets
+		this.fldPathDatasetClassification.clear();
 		// Show or hide options
 		if (this.cmbDataFormatClassification.getValue().equals("Single CSV")) {
 			ControllerUtil.showNode(this.hbStrategyClassification, true);
@@ -446,16 +446,7 @@ public class Controller {
 	 * @throws FileNotFoundException if the provided files were not found
 	 */
 	public void setFolderDataset() throws FileNotFoundException {
-		// Open the window to select the folder with the dataset
-		File selectedFile;
-		if (this.cmbDataFormat.getValue().equals("Single CSV")) {
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("CSV files", "*.csv"));
-			selectedFile = fileChooser.showOpenDialog(this.stage);
-		} else {
-			DirectoryChooser directoryChooser = new DirectoryChooser();
-			selectedFile = directoryChooser.showDialog(this.stage);
-		}
+		File selectedFile = getDatasetPath(this.cmbDataFormat);
 		if (selectedFile != null) {
 			// Show the selected directory
 			String pathFolder = selectedFile.getAbsolutePath();
@@ -476,12 +467,10 @@ public class Controller {
 	 * @throws FileNotFoundException if the provided files were not found
 	 */
 	public void setFolderDatasetClassification() throws FileNotFoundException {
-		// Open window to select the folder with the dataset
-		DirectoryChooser directoryChooser = new DirectoryChooser();
-		File selectedDirectory = directoryChooser.showDialog(this.stage);
-		if (selectedDirectory != null) {
+		File selectedFile = getDatasetPath(this.cmbDataFormatClassification);
+		if (selectedFile != null) {
 			// Show the selected directory
-			String pathFolder = selectedDirectory.getAbsolutePath();
+			String pathFolder = selectedFile.getAbsolutePath();
 			// Define dataset reader
 			initialiseDatasetReaderClassification(pathFolder);
 			if (this.ClassificationDatasetReader != null) {
@@ -658,8 +647,6 @@ public class Controller {
 				this.trainingService.runningProperty()).or(this.classificationService.runningProperty());
 	}
 
-	// ---------- onAction methods ----------
-
 	/**
 	 * Returns a {@code BooleanBinding} for the evaluation button. It checks if the model is being evaluated, and if a
 	 * dataset was not provided. If one of these conditions is met, the button should be disabled.
@@ -671,6 +658,8 @@ public class Controller {
 
 	}
 
+	// ---------- onAction methods ----------
+
 	/**
 	 * Returns a {@code BooleanBinding} for the training button. It checks if the model is being trained, if a dataset
 	 * is being classified, and if a training dataset was not provided. If one of these conditions is met, the button
@@ -681,6 +670,24 @@ public class Controller {
 	private BooleanBinding getBindingTrainBtn() {
 		return this.fldPathDataset.textProperty().isEmpty().or(this.trainingService.runningProperty()).or(
 				this.classificationService.runningProperty());
+	}
+
+	/**
+	 * Opens a dialog to select the dataset path.
+	 *
+	 * @return a {@code File} with the dataset path
+	 */
+	private File getDatasetPath(ComboBox comboBoxDatasetSelection) {
+		File selectedFile;
+		if (comboBoxDatasetSelection.getValue().equals("Single CSV")) {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("CSV files", "*.csv"));
+			selectedFile = fileChooser.showOpenDialog(this.stage);
+		} else {
+			DirectoryChooser directoryChooser = new DirectoryChooser();
+			selectedFile = directoryChooser.showDialog(this.stage);
+		}
+		return selectedFile;
 	}
 
 	/**
