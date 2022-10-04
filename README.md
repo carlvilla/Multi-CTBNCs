@@ -1,10 +1,5 @@
-<h1>
-  <img src="./imgs/logo_ctbnlab.png" height="50">
-  <div align="right" style="display: flex;align-items: center; float:right">
-  <a href="https://app.travis-ci.com/carlvilla/Multi-CTBNCs"> <img hspace="10" src="https://app.travis-ci.com/carlvilla/Multi-CTBNCs.svg?branch=master" alt="Build Status"></a> 
-  <a href="http://cig.fi.upm.es"> <img  style="vertical-align:bottom;" src="./imgs/logo_CIG.png" height="50"> </a>
-  </div>
-</h1>
+# <img src="./imgs/logo_ctbnlab.png" height="40"> <a href="http://cig.fi.upm.es"> <img src="./imgs/logo_CIG.png" height="40"> </a>
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/carlvilla/Multi-CTBNCs/blob/master/LICENSE) [![Build Status](https://app.travis-ci.com/carlvilla/Multi-CTBNCs.svg?branch=master)](https://app.travis-ci.com/carlvilla/Multi-CTBNCs) 
 
 ## Description
 
