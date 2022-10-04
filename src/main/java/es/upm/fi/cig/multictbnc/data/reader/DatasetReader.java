@@ -2,7 +2,6 @@ package es.upm.fi.cig.multictbnc.data.reader;
 
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
 import es.upm.fi.cig.multictbnc.exceptions.UnreadDatasetException;
-import es.upm.fi.cig.multictbnc.exceptions.VariableNotFoundException;
 
 import java.util.List;
 

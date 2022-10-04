@@ -34,7 +34,7 @@ public class MarkovBlanketCTPC extends CTPC {
 	}
 
 	@Override
-	public void learn(PGM<? extends Node> pgm) throws ErroneousValueException {
+	public void learn(PGM<? extends Node> pgm) {
 		logger.info(
 				"Learning {} using the Markov blanket-based continuous-time PC algorithm (MB-CTPC) and significances" +
 						" " + "alpha_1 = {} and alpha_2 = {}", pgm.getType(), this.sigTimeTransitionHyp,

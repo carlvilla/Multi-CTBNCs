@@ -11,13 +11,12 @@ import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
  */
 public interface SufficientStatistics {
 
-	/**
-	 * Computes the sufficient statistics of a discrete node.
-	 *
-	 * @param node    node whose sufficient statistics are computed
-	 * @param dataset dataset from which is extracted the sufficient statistics
-	 * @throws ErroneousValueException if a parameter provided is invalid for the requested task
-	 */
-	void computeSufficientStatistics(DiscreteNode node, Dataset dataset) throws ErroneousValueException;
+    /**
+     * Computes the sufficient statistics of a discrete node.
+     *
+     * @param node    node whose sufficient statistics are computed
+     * @param dataset dataset from which is extracted the sufficient statistics
+     */
+    void computeSufficientStatistics(DiscreteNode node, Dataset dataset);
 
 }

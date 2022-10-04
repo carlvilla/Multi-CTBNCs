@@ -7,13 +7,10 @@ module es.upm.fi.cig.multictbnc {
 	requires commons.math3;
 	requires gs.core;
 	requires gs.ui.javafx;
-	requires java.desktop;
 	requires javafx.base;
 	requires javafx.controls;
 	requires javafx.fxml;
 	requires javafx.graphics;
-	requires javafx.swing;
-	requires jdk.jshell;
 	requires opencsv;
 	requires org.apache.logging.log4j;
 	requires org.apache.poi.ooxml;

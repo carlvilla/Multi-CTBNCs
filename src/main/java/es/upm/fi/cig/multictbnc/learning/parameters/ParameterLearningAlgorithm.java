@@ -1,7 +1,6 @@
 package es.upm.fi.cig.multictbnc.learning.parameters;
 
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
-import es.upm.fi.cig.multictbnc.exceptions.ErroneousValueException;
 import es.upm.fi.cig.multictbnc.nodes.Node;
 
 import java.util.List;

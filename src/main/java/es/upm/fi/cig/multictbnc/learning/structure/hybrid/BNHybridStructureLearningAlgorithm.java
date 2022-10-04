@@ -22,66 +22,74 @@ import java.util.Map;
  * @author Carlos Villa Blanco
  */
 public class BNHybridStructureLearningAlgorithm implements StructureLearningAlgorithm {
-	private static final Logger logger = LogManager.getLogger(BNHybridStructureLearningAlgorithm.class);
-	BNScoreFunction scoreFunction;
-	double significance;
+    private static final Logger logger = LogManager.getLogger(BNHybridStructureLearningAlgorithm.class);
+    BNScoreFunction scoreFunction;
+    double significance;
 
-	/**
-	 * Initialises the hybrid structure learning algorithm receiving a significance value and a score function.
-	 *
-	 * @param scoreFunction score function for the maximisation phase
-	 * @param significance  significance level for the restriction phase
-	 */
-	public BNHybridStructureLearningAlgorithm(BNScoreFunction scoreFunction, double significance) {
-		this.scoreFunction = scoreFunction;
-		this.significance = significance;
-	}
+    /**
+     * Initialises the hybrid structure learning algorithm receiving a significance value and a score function.
+     *
+     * @param scoreFunction score function for the maximisation phase
+     * @param significance  significance level for the restriction phase
+     */
+    public BNHybridStructureLearningAlgorithm(BNScoreFunction scoreFunction, double significance) {
+        this.scoreFunction = scoreFunction;
+        this.significance = significance;
+    }
 
-	@Override
-	public String getIdentifier() {
-		return "Hybrid algorithm";
-	}
+    @Override
+    public String getIdentifier() {
+        return "Hybrid algorithm";
+    }
 
-	@Override
-	public Map<String, String> getParametersAlgorithm() {
-		Map<String, String> parametersAlgorithm = new HashMap<>();
-		parametersAlgorithm.put("scoreFunction", this.scoreFunction.getIdentifier());
-		parametersAlgorithm.put("penalisationFunction", this.scoreFunction.getNamePenalisationFunction());
-		parametersAlgorithm.put("significancePC", String.valueOf(this.significance));
-		return parametersAlgorithm;
-	}
+    @Override
+    public Map<String, String> getParametersAlgorithm() {
+        Map<String, String> parametersAlgorithm = new HashMap<>();
+        parametersAlgorithm.put("scoreFunction", this.scoreFunction.getIdentifier());
+        parametersAlgorithm.put("penalisationFunction", this.scoreFunction.getNamePenalisationFunction());
+        parametersAlgorithm.put("significancePC", String.valueOf(this.significance));
+        return parametersAlgorithm;
+    }
 
-	@Override
-	public void learn(PGM<? extends Node> pgm, List<Integer> idxNodes) {
-		// TODO
-	}
+    @Override
+    public void learn(PGM<? extends Node> pgm, List<Integer> idxNodes) {
+        // TODO
+    }
 
-	@Override
-	public void learn(PGM<? extends Node> pgm) throws ErroneousValueException {
-		boolean[][] adjacencyMatrix = restrictionPhase(pgm);
-		adjacencyMatrix = maximisationPhase(pgm, adjacencyMatrix);
-		pgm.setStructure(adjacencyMatrix);
-		pgm.learnParameters();
-	}
+    @Override
+    public void learn(PGM<? extends Node> pgm) throws ErroneousValueException {
+        boolean[][] adjacencyMatrix = restrictionPhase(pgm);
 
-	@Override
-	public void learn(PGM<? extends Node> pgm, int idxNode) {
-		// TODO
-	}
+        //Borrar
+        pgm.setStructure(adjacencyMatrix);
+        System.out.println(pgm);
 
-	private boolean[][] maximisationPhase(PGM<? extends Node> pgm, boolean[][] skeletonAdjacencyMatrix) {
-		logger.info("Performing the score-based phase to learn the structure of the class subgraph");
-		BNHillClimbingHybridAlgorithm hillClimbing = new BNHillClimbingHybridAlgorithm(this.scoreFunction,
-				skeletonAdjacencyMatrix);
-		HillClimbingSolution hs = hillClimbing.findStructure(pgm);
-		return hs.getAdjacencyMatrix();
-	}
+        adjacencyMatrix = maximisationPhase(pgm, adjacencyMatrix);
+        pgm.setStructure(adjacencyMatrix);
 
-	private boolean[][] restrictionPhase(PGM<? extends Node> pgm) throws ErroneousValueException {
-		logger.info("Performing the constraint-based phase to learn the structure of the class subgraph");
-		// Use PC to learn skeleton
-		PCHybridAlgorithm pc = new PCHybridAlgorithm(this.significance);
-		return pc.learnSkeleton(pgm);
-	}
+        System.out.println(pgm);
+
+        pgm.learnParameters();
+    }
+
+    @Override
+    public void learn(PGM<? extends Node> pgm, int idxNode) {
+        // TODO
+    }
+
+    private boolean[][] maximisationPhase(PGM<? extends Node> pgm, boolean[][] skeletonAdjacencyMatrix) {
+        logger.info("Performing the score-based phase to learn the structure of the class subgraph");
+        BNHillClimbingHybridAlgorithm hillClimbing = new BNHillClimbingHybridAlgorithm(this.scoreFunction,
+                skeletonAdjacencyMatrix);
+        HillClimbingSolution hs = hillClimbing.findStructure(pgm);
+        return hs.getAdjacencyMatrix();
+    }
+
+    private boolean[][] restrictionPhase(PGM<? extends Node> pgm) throws ErroneousValueException {
+        logger.info("Performing the constraint-based phase to learn the structure of the class subgraph");
+        // Use PC to learn skeleton
+        PCHybridAlgorithm pc = new PCHybridAlgorithm(this.significance);
+        return pc.learnSkeleton(pgm);
+    }
 
 }

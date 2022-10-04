@@ -32,6 +32,29 @@ public class BNHillClimbing implements HillClimbingImplementation {
 		this.scoreFunction = scoreFunction;
 	}
 
+	/**
+	 * Checks if a solution given by the hill climbing algorithm in a certain iteration is better than the current
+	 * solution.
+	 *
+	 * @param solution           current solution
+	 * @param adjacencyMatrices  best adjacency matrices given by each possible operation
+	 * @param idxBestOperation   index of the best operation
+	 * @param iterationBestScore score of the iteration solution
+	 * @return {@code true} if the solution of the iteration is better than the current solution, {@code false}
+	 * otherwise
+	 */
+	protected boolean isScoreImproved(HillClimbingSolution solution, boolean[][][] adjacencyMatrices,
+									  int idxBestOperation, double iterationBestScore) {
+		if (iterationBestScore > solution.getScore()) {
+			logger.debug("Score improved! From {} to {}", solution.getScore(), iterationBestScore);
+			logger.debug("New structure: {}", (Object) adjacencyMatrices[idxBestOperation]);
+			solution.setAdjacencyMatrix(adjacencyMatrices[idxBestOperation]);
+			solution.setScore(iterationBestScore);
+			return true;
+		}
+		return false;
+	}
+
 	@Override
 	public HillClimbingSolution findStructure(PGM<? extends Node> pgm) {
 		logger.info("Learning {} using Hill Climbing", pgm.getType());
@@ -64,29 +87,6 @@ public class BNHillClimbing implements HillClimbingImplementation {
 		logger.info("Number of edges tested to learn the class subgraph: {}", getNumEdgesTested());
 		resetNumEdgesTested();
 		return solution;
-	}
-
-	/**
-	 * Checks if a solution given by the hill climbing algorithm in a certain iteration is better than the current
-	 * solution.
-	 *
-	 * @param solution           current solution
-	 * @param adjacencyMatrices  best adjacency matrices given by each possible operation
-	 * @param idxBestOperation   index of the best operation
-	 * @param iterationBestScore score of the iteration solution
-	 * @return {@code true} if the solution of the iteration is better than the current solution, {@code false}
-	 * otherwise
-	 */
-	protected boolean isScoreImproved(HillClimbingSolution solution, boolean[][][] adjacencyMatrices,
-									  int idxBestOperation, double iterationBestScore) {
-		if (iterationBestScore > solution.getScore()) {
-			logger.debug("Score improved! From {} to {}", solution.getScore(), iterationBestScore);
-			logger.debug("New structure: {}", (Object) adjacencyMatrices[idxBestOperation]);
-			solution.setAdjacencyMatrix(adjacencyMatrices[idxBestOperation]);
-			solution.setScore(iterationBestScore);
-			return true;
-		}
-		return false;
 	}
 
 	/**

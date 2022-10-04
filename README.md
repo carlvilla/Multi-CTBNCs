@@ -1,18 +1,16 @@
-<h1 align="center">
-  Multi-CTBNCs
+<h1>
+  <img src="./imgs/logo_ctbnlab.png" height="50">
+  <div align="right" style="display: flex;align-items: center; float:right">
+  <a href="https://app.travis-ci.com/carlvilla/Multi-CTBNCs"> <img hspace="10" src="https://app.travis-ci.com/carlvilla/Multi-CTBNCs.svg?branch=master" alt="Build Status"></a> 
+  <a href="http://cig.fi.upm.es"> <img  style="vertical-align:bottom;" src="./imgs/logo_CIG.png" height="50"> </a>
+  </div>
 </h1>
-<p align="center"> <img src="./imgs/Multi-CTBNC.png" width="40%" style="border-radius: 3%;"/> </p>
-<p align="center">Multi-dimensional continuous time Bayesian network classifiers</p>
-<p align="center">
-<a href="https://app.travis-ci.com/carlvilla/Multi-CTBNCs"> <img align="center" hspace="10" src="https://app.travis-ci.com/carlvilla/Multi-CTBNCs.svg?branch=master" alt="Build Status"> </a>     
-<a href="http://cig.fi.upm.es"> <img align="center" src="./imgs/logo_CIG.png" width="35" height="50"> </a>
-</p>
 
 ## Description
 
-The multidimensional continuous time Bayesian network classifiers (Multi-CTBNCs) are an extension of continuous time Bayesian networks (CTBNs) for the multidimensional classification of multivariate time series. These probabilistic graphical models are able to model temporal data evolving over continuous time and classify them into multiple class variables taking advantage of the information provided by inter-class dependencies. This is a common and essential task for domains such as finance, industry, medicine or signal processing, but applications can be found in almost any field.
+CTBNLab provides an easy-to-use tool for anyone to apply continuous-time Bayesian networks (CTBNs) in their research. Currently, the software supports learning multidimensional continuous-time Bayesian network classifiers (Multi-CTBNCs), providing different algorithms to learn the structure and parameters of several families of these classifiers, as well as to evaluate their performance or classify previously unseen datasets.
 
-This software provides an easy-to-use tool so that anyone can apply Multi-CTBNCs in their research. Multiple options are available to learn the structure and parameters of different families of Multi-CTBNCs, as well as to evaluate the models or classify previously unseen datasets.
+The Multi-CTBNCs are an extension of the CTBNs for the multidimensional classification of multivariate time series. These probabilistic graphical models are able to model temporal data evolving over continuous time and classify them into multiple class variables taking advantage of the information provided by inter-class dependencies. This is a common and essential task for domains such as finance, industry, medicine or signal processing, but applications can be found in almost any field.
 
 ## Table of content
 

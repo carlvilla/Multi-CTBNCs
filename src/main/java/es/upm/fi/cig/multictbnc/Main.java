@@ -13,52 +13,52 @@ import org.apache.logging.log4j.Logger;
 import java.net.URL;
 
 /**
- * JavaFX application to interact with the Multi-CTBNCs software.
+ * JavaFX application to interact with the CTBNLab software.
  *
  * @author Carlos Villa Blanco
  */
 public class Main extends Application {
-	private static final Logger logger = LogManager.getLogger(Main.class);
+    private static final Logger logger = LogManager.getLogger(Main.class);
 
-	/**
-	 * Application entry point.
-	 *
-	 * @param args application command line arguments
-	 */
-	public static void main(String[] args) {
-		launch(args);
-	}
+    /**
+     * Application entry point.
+     *
+     * @param args application command line arguments
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
 
-	@Override
-	public void start(Stage primaryStage) throws Exception {
-		String startMsg = "   __  ___     ____  _     ______________  _  _______  \n" +
-				"  /  |/  /_ __/ / /_(_)___/ ___/_  __/ _ )/ |/ / ___/__\n" +
-				" / /|_/ / // / / __/ /___/ /__  / / / _  /    / /__(_-<\n" +
-				"/_/  /_/\\_,_/_/\\__/_/    \\___/ /_/ /____/_/|_/\\___/___/\n";
-		System.out.println(startMsg);
-		System.setProperty("org.graphstream.ui", "javafx");
-		// Extract main scene from FXML file
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
-		Parent root = loader.load();
-		Scene scene = new Scene(root);
-		primaryStage.setScene(scene);
-		primaryStage.sizeToScene();
-		primaryStage.setTitle("Multi-CTBNCs");
-		URL imageURL = getClass().getResource("/imgs/icon.png");
-		Image icon = new Image(imageURL.toExternalForm());
-		primaryStage.getIcons().add(icon);
-		primaryStage.show();
-		primaryStage.setMinWidth(primaryStage.getWidth());
-		primaryStage.setMinHeight(primaryStage.getHeight());
-		// Obtain controller of the scene
-		Controller controller = loader.getController();
-		// Pass the stage to the controller. This is necessary to show dialogs.
-		controller.setStage(primaryStage);
-	}
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        String startMsg = "  ______________  _  ____        __ \n" +
+                " / ___/_  __/ _ )/ |/ / /  ___ _/ / \n" +
+                "/ /__  / / / _  /    / /__/ _ `/ _ \\\n" +
+                "\\___/ /_/ /____/_/|_/____/\\_,_/_.__/";
+        System.out.println(startMsg);
+        System.setProperty("org.graphstream.ui", "javafx");
+        // Extract main scene from FXML file
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
+        Parent root = loader.load();
+        Scene scene = new Scene(root);
+        primaryStage.setScene(scene);
+        primaryStage.sizeToScene();
+        primaryStage.setTitle("CTBNLab");
+        URL imageURL = getClass().getResource("/imgs/icon.png");
+        Image icon = new Image(imageURL.toExternalForm());
+        primaryStage.getIcons().add(icon);
+        primaryStage.show();
+        primaryStage.setMinWidth(primaryStage.getWidth());
+        primaryStage.setMinHeight(primaryStage.getHeight());
+        // Obtain controller of the scene
+        Controller controller = loader.getController();
+        // Pass the stage to the controller. This is necessary to show dialogs.
+        controller.setStage(primaryStage);
+    }
 
-	@Override
-	public void stop() {
-		logger.info("Closing application");
-	}
+    @Override
+    public void stop() {
+        logger.info("Closing application");
+    }
 
 }

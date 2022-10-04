@@ -2,7 +2,6 @@ package es.upm.fi.cig.multictbnc.util;
 
 import es.upm.fi.cig.multictbnc.data.representation.Sequence;
 import es.upm.fi.cig.multictbnc.data.representation.State;
-import es.upm.fi.cig.multictbnc.exceptions.ErroneousValueException;
 import es.upm.fi.cig.multictbnc.nodes.CIMNode;
 import es.upm.fi.cig.multictbnc.nodes.CPTNode;
 import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
