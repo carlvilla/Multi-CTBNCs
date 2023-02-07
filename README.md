@@ -1,5 +1,5 @@
 # <img src="./imgs/logo_ctbnlab.png" height="40"> <a href="http://cig.fi.upm.es"> <img src="./imgs/logo_CIG.png" height="40"> </a>
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/carlvilla/Multi-CTBNCs/blob/master/LICENSE) [![Build Status](https://app.travis-ci.com/carlvilla/Multi-CTBNCs.svg?branch=master)](https://app.travis-ci.com/carlvilla/Multi-CTBNCs) 
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/carlvilla/Multi-CTBNCs_private/blob/master/LICENSE) [![CircleCI](https://dl.circleci.com/status-badge/img/gh/carlvilla/Multi-CTBNCs/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/carlvilla/Multi-CTBNCs/tree/master) [![codecov](https://codecov.io/gh/carlvilla/Multi-CTBNCs_private/branch/master/graph/badge.svg?token=T61DUVC4TO)](https://codecov.io/gh/carlvilla/Multi-CTBNCs_private)
 
 ## Description
 
@@ -149,14 +149,15 @@ Datasets used in the article [[1]](#1) can be found at this [link](https://drive
 * **syntheticLL** - Compares the performance of CTBNCs and a Multi-CTBNC when learnt with the log-likelihood score penalised with BIC.
 
 
-The datasets used for the experiments of article [[2]](#2) can be downloaded from [link](https://drive.upm.es/s/ajygY8utGvN1KkK). The following Gradle tasks perform the experiments of this article if the *dataset* folder is placed in the root directory of this project:
+The datasets used for the experiments of article [[3]](#3) can be downloaded from [link](https://drive.upm.es/s/ajygY8utGvN1KkK). The following Gradle tasks perform the experiments of this article if the *dataset* folder is placed in the root directory of this project:
 
+* **britishHouseholdPanelSurvey** - Experiments to evaluate the performance of the structure learning algorithms on a real-world dataset (see [[4]](#4)).
 * **highDimensionality** - Experiments to evaluate the difference in learning time of the algorithms when the dimensionality of the datasets increases significantly.
 * **increaseFeatureStates10Duration** - Experiments to evaluate the influence of the cardinality of feature variables on the performance of algorithms when sequences have a duration of 10 time units.
 * **increaseFeatureStates20Duration** - Experiments to evaluate the influence of the cardinality of feature variables on the performance of algorithms when sequences have a duration of 20 time units.
-* **increaseVariablesStates** - Experiments to compare the performance of the algorithms when varying the number of states of class and feature variables.
-* **mainExperiments** - Comprehensive experiments over randomly generated datasets using a different number of class and feature variables, cardinalities and density of the structures
-* **runAllExperimentsVillaBlancoEtAl2022** - Runs all the experiments from [[2]](#2).
+* **mainExperiments** - Comprehensive experiments over randomly generated datasets using a different number of class and feature variables, cardinalities and density of the structures.
+* **noisyData** - Experiments to evaluate the influence of noise on the performance of the structure learning algorithms.
+* **runAllSyntheticExperimentsVillaBlancoEtAl2022** - Runs all the experiments from [[3]](#3).
 
 The tasks can be executed with the following command:
 
@@ -175,23 +176,23 @@ Excel files with the results of the experiments will be saved in the folder *res
 
 This software provides the tools to sample discrete state multivariate time series datasets with multiple class variables. Datasets can be generated with the following command:
 ```sh
-./gradlew sampleDatasets --args="<number datasets to sample> <number sequences> <duration sequences> <number feature variables> <cardinality feature variables> <number class variables> <cardinality feature variables> <probability arc in class subgraph> <probability arc in bridge subgraph> <probability arc in feature subgraph> <maximum number of feature variables that can be parents of others> <true to define different structures for each dataset> <destination path datasets> <adjacency matrix (optional, arguments 7 to 11 are ignored if used)>."
+./gradlew sampleDatasets --args="<number datasets to sample> <number sequences> <duration sequences> <number feature variables> <cardinality feature variables> <number class variables> <cardinality feature variables> <probability arc in class subgraph> <probability arc in bridge subgraph> <probability arc in feature subgraph> <maximum number of feature variables that can be parents of others> <true to add > <true to generate four datasets with different levels of noise> <destination path datasets> <adjacency matrix (optional, arguments 7 to 11 are ignored if used)>."
 ```
 
 The following example generates five datasets with 5000 sequences of 20 time units. The datasets contain 20 feature variables with six states and four class variables with three states, and different structures are randomly generated for each dataset using densities of 30% for the class subgraph and 10% for the feature and bridge subgraphs. In addition, feature variables are restricted to a maximum of three other feature variables as parents. The resulting datasets are saved in the directory *datasets/example_dataset*.
 ```sh
-./gradlew sampleDatasets --args="5 5000 20 10 6 5 3 0.3 0.1 0.1 3 true datasets/example_dataset"
+./gradlew sampleDatasets --args="5 5000 20 10 6 5 3 0.3 0.1 0.1 3 true false datasets/example_dataset"
 ```
 
 As for the next example, the adjacency matrix to be used is specified:
 ```sh
-./gradlew sampleDatasets --args="1 10000 30 3 4 3 3 0 0 0 0 false datasets/example_dataset false,true,false,false,false,false//false,false,true,false,false,false//false,true,false,false,false,false//true,true,false,false,true,false//false,true,false,false,false,true//false,true,true,false,false,false"
+./gradlew sampleDatasets --args="1 10000 30 3 4 3 3 0 0 0 0 false false datasets/example_dataset false,true,false,false,false,false//false,false,true,false,false,false//false,true,false,false,false,false//true,true,false,false,true,false//false,true,false,false,false,true//false,true,true,false,false,false"
 ```
 
-In order to generate the datasets used in the articles [[1]](#1) and [[2]](#2), the following predefined tasks can be employed:
+In order to generate the datasets used in the articles [[1]](#1) and [[3]](#3), the following predefined tasks can be employed:
 
 * **sampleDatasetsVillaBlancoEtAl2021** - Samples all the datasets used in the article [[1]](#1).
-* **sampleDatasetsVillaBlancoEtAl2022** - Samples all the datasets used in the article [[2]](#2).
+* **sampleDatasetsVillaBlancoEtAl2023** - Samples all the datasets used in the article [[3]](#3).
 
 Datasets are saved in the *dataset* folder in the root directory of this project.
 
@@ -202,3 +203,9 @@ C. Villa-Blanco, P. Larrañaga, C. Bielza. Multidimensional continuous time Baye
 
 <a id="2">[2]</a>
 C. Villa-Blanco, A. Bregoli, C. Bielza, P. Larrañaga, F. Stella. Structure learning algorithms for multidimensional continuous-time Bayesian network classifiers. In: <em>Proceedings of The 11th International Conference on Probabilistic Graphical Models</em>; volume 186 of Proceedings of Machine Learning Research. PMLR, 2022:313–324.
+
+<a id="3">[3]</a>
+C. Villa-Blanco, A. Bregoli, C. Bielza, P. Larrañaga, F. Stella. Constraint-based and hybrid structure learning of multidimensional continuous-time Bayesian network classifiers [Manuscript submitted for publication]. 2023.
+
+<a id="4">[4]</a>
+University of Essex, Institute for Social and Economic Research. British household panel survey: Waves 1-18, 1991-2009. [data collection]. 8th edition. 2018. doi: 10.5255/UKDA-SN-5151-2.
