@@ -314,9 +314,9 @@
                                  <children>
                                     <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="100.0" style="-fx-border-color: black; -fx-border-radius: 10; -fx-border-width: 0.5;" VBox.vgrow="ALWAYS">
                                        <children>
-                                          <Label style="-fx-background-color: #f4f4f4;" text="Evaluation method" translateX="10.0" translateY="-35.0" VBox.vgrow="NEVER">
+                                          <Label style="-fx-background-color: #f4f4f4;" text="Evaluation method" translateX="10.0" translateY="-16.5">
                                              <VBox.margin>
-                                                <Insets bottom="-17.0" />
+                                                <Insets bottom="-10.0" />
                                              </VBox.margin>
                                           </Label>
                   								<RadioButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#selectHoldOutValidation" selected="true" text="Hold-out validation" VBox.vgrow="ALWAYS">
@@ -342,9 +342,9 @@
                                     </VBox>
                                     <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="20.0" style="-fx-border-color: black; -fx-border-radius: 10; -fx-border-width: 0.5;" VBox.vgrow="ALWAYS">
                                        <children>
-                                          <Label style="-fx-background-color: #f4f4f4;" text="Evaluation method parameters" translateX="10.0" translateY="-20.0">
+                                          <Label style="-fx-background-color: #f4f4f4;" text="Evaluation method parameters" translateX="10.0" translateY="-19.0">
                                              <VBox.margin>
-                                                <Insets />
+                                                <Insets bottom="-10.0" />
                                              </VBox.margin>
                                           </Label>
                                           <HBox fx:id="hbTrainingSize" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">

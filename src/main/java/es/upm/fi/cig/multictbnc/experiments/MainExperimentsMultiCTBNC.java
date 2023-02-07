@@ -24,6 +24,7 @@ import es.upm.fi.cig.multictbnc.writers.performance.MetricsWriter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -78,7 +79,7 @@ public class MainExperimentsMultiCTBNC {
 		List<String> models = List.of(model1, model2);
 		// Retrieve score function: "Log-likelihood", "Bayesian Dirichlet equivalent",
 		// "Conditional log-likelihood"
-		List<String> scoreFunctions = List.of(args[3]);
+		String scoreFunction = args[3];
 		// Penalisation (except for "Bayesian Dirichlet equivalent"): "BIC", "AIC", "No"
 		String penalisationFunction = args[4];
 		// Define parameter learning algorithms
@@ -91,42 +92,41 @@ public class MainExperimentsMultiCTBNC {
 		// Iterate over experiments
 		for (List<String> datasets : datasetsAll) {
 			// Define output to store the results of the experiments
-			metricsWriter = new ExcelExperimentsWriter(scoreFunctions, datasets, models, nameClassVariables,
-					nameFeatureVariables, bnPLA, ctbnPLA, penalisationFunction, INITIALSTRUCTURE, seeds);
+			String nameExperiment = getNameExperiment(datasets);
+			String filename = nameExperiment + "_" + models.get(0).replaceAll("\\s+", "_") + "_" +
+					models.get(1).replaceAll("\\s+", "_") + "_" + scoreFunction.replaceAll("\\s+", "_");
+			metricsWriter = new ExcelExperimentsWriter(List.of(scoreFunction), datasets, models, nameClassVariables,
+					nameFeatureVariables, bnPLA, ctbnPLA, penalisationFunction, INITIALSTRUCTURE, seeds, filename);
 			// Iterate over different permutations of the same dataset
 			for (long seed : seeds) {
-				// Iterate over the score functions that are used
-				for (String scoreFunction : scoreFunctions) {
-					System.out.printf(
-							"------------------------------ Score function: %s ------------------------------\n",
-							scoreFunction);
-
-					Map<String, String> paramSLA = Map.of("scoreFunction", scoreFunction, "penalisationFunction",
-							penalisationFunction);
-
-					// Iterate over the datasets that are evaluated
-					for (String pathDataset : datasets) {
-						if (seeds.size() > 1)
-							System.out.printf("############################# DATASET: %s (Shuffling seed: %d) " +
-									"#############################\n", pathDataset, seed);
-						else
-							System.out.printf(
-									"############################# DATASET: %s #############################\n",
-									pathDataset);
-						try {
-							DatasetReader datasetReader = new MultipleCSVReader(pathDataset);
-							// Set the variables that will be used
+				System.out.printf("------------------------------ Score function: %s ------------------------------\n",
+						scoreFunction);
+				Map<String, String> paramSLA = Map.of("scoreFunction", scoreFunction, "penalisationFunction",
+						penalisationFunction);
+				// Iterate over the datasets that are evaluated
+				for (String pathDataset : datasets) {
+					if (seeds.size() > 1)
+						System.out.printf("############################# DATASET: %s (Shuffling seed: %d) " +
+								"#############################\n", pathDataset, seed);
+					else
+						System.out.printf("############################# DATASET: %s #############################\n",
+								pathDataset);
+					try {
+						DatasetReader datasetReader = new MultipleCSVReader(pathDataset);
+						// Set the variables that will be used
+						if (nameFeatureVariables != null)
 							datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameFeatureVariables);
-							for (String selectedModel : models) {
-								System.out.printf(
-										"***************************** MODEL: %s *****************************\n",
-										selectedModel);
-								performExperiment(datasetReader, bnPLA, ctbnPLA, selectedModel, paramSLA,
-										hyperparameters, seed);
-							}
-						} catch (Exception e) {
-							logger.error(e.getMessage());
+						else
+							datasetReader.setTimeAndClassVariables(nameTimeVariable, nameClassVariables);
+						for (String selectedModel : models) {
+							System.out.printf(
+									"***************************** MODEL: %s " + "*****************************\n",
+									selectedModel);
+							performExperiment(datasetReader, bnPLA, ctbnPLA, selectedModel, paramSLA, hyperparameters,
+									seed);
 						}
+					} catch (Exception e) {
+						logger.error(e.getMessage());
 					}
 				}
 			}
@@ -140,6 +140,10 @@ public class MainExperimentsMultiCTBNC {
 				return List.of("C1", "C2", "C3", "C4", "C5");
 			case ("energy"):
 				return List.of("M1", "M2", "M3", "M4", "M5", "M6");
+			case ("britishHousehold"):
+				return List.of("Smoker", "Employment status", "Sex", "Employed or self-employed in most recent job",
+						"Prefers to move house", "Dental check-up", "Responsible adult for child",
+						"Lives with spouse or partner", "Limb problems");
 			default:
 				System.err.println("Selected experiment was not found");
 				return null;
@@ -153,20 +157,28 @@ public class MainExperimentsMultiCTBNC {
 			case ("energy"):
 				return List.of("IA", "IB", "IC", "VA", "VB", "VC", "SA", "SB", "SC", "PA", "PB", "PC", "QA", "QB",
 						"QC");
+			case ("britishHousehold"):
+				return null;
 			default:
 				System.err.println("Selected experiment was not found");
 				return null;
 		}
 	}
 
+	private static String getNameExperiment(List<String> datasets) {
+		if (datasets.size() > 1)
+			return Paths.get(datasets.get(0)).getParent().getFileName().toString();
+		return Paths.get(datasets.get(0)).getFileName().toString();
+	}
+
 	private static List<List<String>> getPathDatasets(String selectedExperiment) {
 		switch (selectedExperiment) {
 			case ("synthetic"):
 				return List.of(List.of("datasets/VillaBlancoEtAl2021/synthetic/Experiment1/dataset0",
-						"datasets/VillaBlancoEtAl2021/synthetic/Experiment1/dataset1",
-						"datasets/VillaBlancoEtAl2021/synthetic/Experiment1/dataset2",
-						"datasets/VillaBlancoEtAl2021/synthetic/Experiment1/dataset3",
-						"datasets/VillaBlancoEtAl2021/synthetic/Experiment1/dataset4"),
+								"datasets/VillaBlancoEtAl2021/synthetic/Experiment1/dataset1",
+								"datasets/VillaBlancoEtAl2021/synthetic/Experiment1/dataset2",
+								"datasets/VillaBlancoEtAl2021/synthetic/Experiment1/dataset3",
+								"datasets/VillaBlancoEtAl2021/synthetic/Experiment1/dataset4"),
 						List.of("datasets/VillaBlancoEtAl2021/synthetic/Experiment2/dataset0",
 								"datasets/VillaBlancoEtAl2021/synthetic/Experiment2/dataset1",
 								"datasets/VillaBlancoEtAl2021/synthetic/Experiment2/dataset2",
@@ -213,7 +225,7 @@ public class MainExperimentsMultiCTBNC {
 								"datasets/VillaBlancoEtAl2021/synthetic/Experiment10/dataset3",
 								"datasets/VillaBlancoEtAl2021/synthetic/Experiment10/dataset4"));
 			case ("energy"):
-				return List.of(List.of("datasets/energy"));
+				return List.of(List.of("datasets/VillaBlancoEtAl2021/energy"));
 			default:
 				System.err.println("Selected experiment was not found");
 				return null;
@@ -223,6 +235,7 @@ public class MainExperimentsMultiCTBNC {
 	private static List<Long> getSeeds(String selectedExperiment) {
 		switch (selectedExperiment) {
 			case ("synthetic"):
+			case ("britishHousehold"):
 				return List.of(10L);
 			case ("energy"):
 				return List.of(203901165L, 210776381L, 219721216L, 168929L, 71283273L, 154241767L, 61801568L,
@@ -238,6 +251,7 @@ public class MainExperimentsMultiCTBNC {
 			case ("synthetic"):
 				return "t";
 			case ("energy"):
+			case ("britishHousehold"):
 				return "timestamp";
 			default:
 				System.err.println("Selected experiment was not found");
@@ -259,18 +273,18 @@ public class MainExperimentsMultiCTBNC {
 		ValidationMethod validationMethod;
 		// Cross-validation may be performed using a binary relevance or a unique model
 		if (selectedModel.equals("CTBNCs")) {
-			model = ClassifierFactory.<CPTNode, CIMNode>getMultiCTBNC("Multi-CTBNC", bnLearningAlgs, ctbnLearningAlgs,
-					hyperparameters, CPTNode.class, CIMNode.class);
+			model = ClassifierFactory.getMultiCTBNC("Multi-CTBNC", bnLearningAlgs, ctbnLearningAlgs, hyperparameters,
+					CPTNode.class, CIMNode.class);
 			validationMethod = new CrossValidationBinaryRelevanceMethod(datasetReader, FOLDS, ESTIMATEPROBABILITIES,
 					SHUFFLESEQUENCES, seed);
 		} else if (selectedModel.equals("maxK CTBNCs")) {
-			model = ClassifierFactory.<CPTNode, CIMNode>getMultiCTBNC("DAG-maxK Multi-CTBNC", bnLearningAlgs,
-					ctbnLearningAlgs, hyperparameters, CPTNode.class, CIMNode.class);
+			model = ClassifierFactory.getMultiCTBNC("DAG-maxK Multi-CTBNC", bnLearningAlgs, ctbnLearningAlgs,
+					hyperparameters, CPTNode.class, CIMNode.class);
 			validationMethod = new CrossValidationBinaryRelevanceMethod(datasetReader, FOLDS, ESTIMATEPROBABILITIES,
 					SHUFFLESEQUENCES, seed);
 		} else {
-			model = ClassifierFactory.<CPTNode, CIMNode>getMultiCTBNC(selectedModel, bnLearningAlgs, ctbnLearningAlgs,
-					hyperparameters, CPTNode.class, CIMNode.class);
+			model = ClassifierFactory.getMultiCTBNC(selectedModel, bnLearningAlgs, ctbnLearningAlgs, hyperparameters,
+					CPTNode.class, CIMNode.class);
 			validationMethod = ValidationMethodFactory.getValidationMethod("Cross-validation", datasetReader, null, 0,
 					FOLDS, ESTIMATEPROBABILITIES, SHUFFLESEQUENCES, seed);
 		}

@@ -22,11 +22,11 @@ import java.util.*;
 public class CrossValidationMethod extends ValidationMethod {
 	private final Logger logger = LogManager.getLogger(CrossValidationMethod.class);
 	private Dataset dataset;
-	private int folds;
-	private boolean estimateProbabilities;
-	private boolean shuffle;
-	private Long seed;
-	private DatasetReader datasetReader;
+	private int numFolds;
+	private final boolean estimateProbabilities;
+	private final boolean shuffle;
+	private final Long seed;
+	private final DatasetReader datasetReader;
 
 	/**
 	 * Constructor for cross-validation method.
@@ -43,7 +43,7 @@ public class CrossValidationMethod extends ValidationMethod {
 		this.logger.info("Preparing {}-cross-validation / Shuffle: {} / Estimate probabilities: {}", folds, shuffle,
 				estimateProbabilities);
 		this.datasetReader = datasetReader;
-		this.folds = folds;
+		this.numFolds = folds;
 		this.estimateProbabilities = estimateProbabilities;
 		this.shuffle = shuffle;
 		this.seed = seed;
@@ -59,63 +59,48 @@ public class CrossValidationMethod extends ValidationMethod {
 	@Override
 	public Map<String, Double> evaluate(MultiCTBNC<?, ?> model) throws UnreadDatasetException,
 			ErroneousValueException {
-		// Read dataset (if it was not done before)
-		readDataset();
-		// Get sequences from the dataset
-		List<Sequence> sequences = this.dataset.getSequences();
+		List<Sequence> sequences = getSequencesDataset();
 		int numSequences = sequences.size();
-		if (this.shuffle) {
-			// Shuffle the sequences before performing the cross-validation
-			Util.shuffle(sequences, this.seed);
-			this.logger.info("Sequences shuffled");
-		}
 		// Obtain the size of each fold
-		int[] sizeFolds = new int[this.folds];
-		Arrays.fill(sizeFolds, numSequences / this.folds);
-		// Sequences without fold are added one by one to the first folds
-		for (int i = 0; i < numSequences % this.folds; i++)
-			sizeFolds[i] += 1;
-		// Save performance metrics
-		Map<String, Double> resultsCV = new LinkedHashMap<>();
-		// Iterate over each fold
-		int fromIndex = 0;
-		for (int i = 0; i < this.folds; i++) {
-			this.logger.info("Testing model on fold " + i);
-			// Prepare training and test datasets for the current fold
-			int toIndex = fromIndex + sizeFolds[i];
-			// Prepare training dataset for current fold
-			Dataset trainingDataset = extractTrainingDataset(sequences, fromIndex, toIndex);
-			// Prepare test dataset for current fold
-			Dataset testingDataset = extractTestingDataset(sequences, fromIndex, toIndex);
-			// Warn both the training and testing set about all the possible states the
-			// variables can take (categorical variables are assumed for now)
-			trainingDataset.setStatesVariables(this.dataset.getStatesVariables());
-			testingDataset.setStatesVariables(this.dataset.getStatesVariables());
-			// Train the model
-			long learningTime = model.learn(trainingDataset);
-			double learningTimeSeconds = learningTime / 1000.f;
-			// Make predictions over the current fold
-			Prediction[] predictions = model.predict(testingDataset, this.estimateProbabilities);
-			// Result of performance metrics when evaluating the model with the current fold
-			Map<String, Double> resultsFold = Metrics.evaluate(predictions, testingDataset);
-			// Add learning time to the results
-			resultsFold.put("Learning time", learningTimeSeconds);
-			// Update the final results of the metrics after seeing all the folds
-			resultsFold.forEach((metric, value) -> resultsCV.merge(metric, value, (a, b) -> a + b));
-			// Display results fold
-			System.out.println(MessageFormat.format(
-					"---------------------------------Results fold {0}---------------------------------", i));
-			displayResultsFold(resultsFold, model);
-			System.out.println("--------------------------------------------------------------------------------");
-			fromIndex += sizeFolds[i];
-		}
+		int[] sizeFolds = defineSizeFolds(numSequences);
+		Map<String, Double> resultsCrossValidation = performCrossValidation(model, sequences, sizeFolds, 0);
 		// The average of each metric is computed
-		resultsCV.forEach((metric, value) -> resultsCV.put(metric, value / this.folds));
+		resultsCrossValidation.forEach((metric, value) -> resultsCrossValidation.put(metric, value / this.numFolds));
+		displayResultsCrossValidation(resultsCrossValidation);
+		return resultsCrossValidation;
+	}
+
+	@Override
+	public Map<String, Double> evaluate(MultiCTBNC<?, ?> model, double preprocessingExecutionTime)
+			throws UnreadDatasetException, ErroneousValueException {
+		List<Sequence> sequences = getSequencesDataset();
+		int numSequences = sequences.size();
+		// Obtain the size of each fold
+		int[] sizeFolds = defineSizeFolds(numSequences);
+		Map<String, Double> resultsCrossValidation = performCrossValidation(model, sequences, sizeFolds,
+				preprocessingExecutionTime);
+		logger.info("Adding preprocessing execution time ({}) to the final learning time for the current fold",
+				preprocessingExecutionTime);
+		// The average of each metric is computed
+		resultsCrossValidation.forEach((metric, value) -> resultsCrossValidation.put(metric, value / this.numFolds));
+		displayResultsCrossValidation(resultsCrossValidation);
+		return resultsCrossValidation;
+	}
+
+	private int[] defineSizeFolds(int numSequences) {
+		int[] sizeFolds = new int[this.numFolds];
+		Arrays.fill(sizeFolds, numSequences / this.numFolds);
+		// Sequences without fold are added one by one to the first folds
+		for (int i = 0; i < numSequences % this.numFolds; i++)
+			sizeFolds[i] += 1;
+		return sizeFolds;
+	}
+
+	private void displayResultsCrossValidation(Map<String, Double> resultsCrossValidation) {
 		// Display results
 		System.out.println("----------------------------Results cross-validation----------------------------");
-		displayResults(resultsCV);
+		displayResults(resultsCrossValidation);
 		System.out.println("--------------------------------------------------------------------------------");
-		return resultsCV;
 	}
 
 	/**
@@ -124,9 +109,12 @@ public class CrossValidationMethod extends ValidationMethod {
 	 * @param results a {@code Map} with the results obtained when testing on a fold
 	 * @param model   the {@code MultiCTBNC} used for testing
 	 */
-	private void displayResultsFold(Map<String, Double> results, MultiCTBNC<?, ?> model) {
+	private void displayResultsFold(Map<String, Double> results, int foldNumber, MultiCTBNC<?, ?> model) {
+		System.out.println(MessageFormat.format(
+				"---------------------------------Results fold {0}---------------------------------", foldNumber));
 		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
 		System.out.println(model);
+		System.out.println("--------------------------------------------------------------------------------");
 	}
 
 	/**
@@ -158,6 +146,45 @@ public class CrossValidationMethod extends ValidationMethod {
 		return new Dataset(trainingSequences);
 	}
 
+	private List<Sequence> getSequencesDataset() throws UnreadDatasetException {
+		// Read dataset (if it was not done before)
+		readDataset();
+		// Get sequences from the dataset
+		List<Sequence> sequences = this.dataset.getSequences();
+		if (this.shuffle) {
+			// Shuffle the sequences before performing the cross-validation
+			Util.shuffle(sequences, this.seed);
+			this.logger.info("Sequences shuffled");
+		}
+		return sequences;
+	}
+
+	private Map<String, Double> performCrossValidation(MultiCTBNC<?, ?> model, List<Sequence> sequences,
+													   int[] sizeFolds, double preprocessingExecutionTime)
+			throws ErroneousValueException {
+		// Save performance metrics
+		Map<String, Double> resultsCrossValidation = new LinkedHashMap<>();
+		// Iterate over each fold
+		int fromIndex = 0;
+		for (int foldNumber = 0; foldNumber < this.numFolds; foldNumber++) {
+			// Get index of the last sequences in the fold to test
+			int toIndex = fromIndex + sizeFolds[foldNumber];
+			Map<String, Double> resultsFold = testFold(model, sequences, fromIndex, toIndex, foldNumber);
+			if (preprocessingExecutionTime > 0) {
+				logger.info("Adding preprocessing execution time ({}) to the final learning time for the fold",
+						preprocessingExecutionTime);
+				resultsFold.computeIfPresent("Learning time", (k, v) -> v + preprocessingExecutionTime);
+			}
+			// Display results fold
+			displayResultsFold(resultsFold, foldNumber, model);
+			// Define first sequences next fold for testing
+			fromIndex += sizeFolds[foldNumber];
+			// Update the final results of the metrics after seeing all the folds
+			resultsFold.forEach((metric, value) -> resultsCrossValidation.merge(metric, value, (a, b) -> a + b));
+		}
+		return resultsCrossValidation;
+	}
+
 	/**
 	 * Reads the dataset.
 	 *
@@ -168,13 +195,36 @@ public class CrossValidationMethod extends ValidationMethod {
 		// Define all the states of the class variables in the dataset
 		this.dataset.initialiazeStatesClassVariables();
 		// Check that the specified number of folds is valid
-		if (this.folds < 2 || this.folds > this.dataset.getNumDataPoints()) {
+		if (this.numFolds < 2 || this.numFolds > this.dataset.getNumDataPoints()) {
 			this.logger.warn("Number of folds must be between 2 and the dataset size (2 folds will be used)");
-			this.folds = 2;
+			this.numFolds = 2;
 		}
 		this.logger.info("Time variable: {}", this.dataset.getNameTimeVariable());
 		this.logger.info("Feature variables: {}", this.dataset.getNameFeatureVariables());
 		this.logger.info("Class variables: {}", (this.dataset.getNameClassVariables()));
+	}
+
+	private Map<String, Double> testFold(MultiCTBNC<?, ?> model, List<Sequence> sequences, int fromIndex, int toIndex,
+										 int i) throws ErroneousValueException {
+		this.logger.info("Testing model on fold " + i);
+		// Prepare training dataset for current fold
+		Dataset trainingDataset = extractTrainingDataset(sequences, fromIndex, toIndex);
+		// Prepare test dataset for current fold
+		Dataset testingDataset = extractTestingDataset(sequences, fromIndex, toIndex);
+		// Warn both the training and testing set about all the possible states the
+		// variables can take (categorical variables are assumed for now)
+		trainingDataset.setStatesVariables(this.dataset.getStatesVariables());
+		testingDataset.setStatesVariables(this.dataset.getStatesVariables());
+		// Train the model
+		long learningTime = model.learn(trainingDataset);
+		double learningTimeSeconds = learningTime / 1000.f;
+		// Make predictions over the current fold
+		Prediction[] predictions = model.predict(testingDataset, this.estimateProbabilities);
+		// Result of performance metrics when evaluating the model with the current fold
+		Map<String, Double> resultsFold = Metrics.evaluate(predictions, testingDataset);
+		// Add learning time to the results
+		resultsFold.put("Learning time", learningTimeSeconds);
+		return resultsFold;
 	}
 
 }

@@ -23,11 +23,11 @@ import java.util.Map;
  */
 public class HoldOutMethod extends ValidationMethod {
 	private final Logger logger = LogManager.getLogger(HoldOutMethod.class);
-	private DatasetReader datasetReader;
-	private double trainingSize;
-	private boolean estimateProbabilities;
-	private boolean shuffle;
-	private Long seed;
+	private final DatasetReader datasetReader;
+	private final double trainingSize;
+	private final boolean estimateProbabilities;
+	private final boolean shuffle;
+	private final Long seed;
 	private Dataset trainingDataset;
 	private Dataset testDataset;
 
@@ -48,8 +48,7 @@ public class HoldOutMethod extends ValidationMethod {
 		DecimalFormat df = new DecimalFormat("##.00");
 		this.logger.info(
 				"Generating training ({}%) and testing ({}%) datasets (Hold-out validation) / Shuffle: {} / Estimate" +
-						" " +
-						"probabilities: {}", df.format(trainingSize * 100), df.format((1 - trainingSize) * 100),
+						" " + "probabilities: {}", df.format(trainingSize * 100), df.format((1 - trainingSize) * 100),
 				shuffle, estimateProbabilities);
 		this.datasetReader = datasetReader;
 		this.trainingSize = trainingSize;
@@ -125,11 +124,33 @@ public class HoldOutMethod extends ValidationMethod {
 		// Evaluate the performance of the model
 		Map<String, Double> results = Metrics.evaluate(predictions, this.testDataset);
 		// Display results
+		displayResultsHoldOut(model, results);
+		return results;
+	}
+
+	@Override
+	public Map<String, Double> evaluate(MultiCTBNC<?, ?> model, double preprocessingExecutionTime)
+			throws UnreadDatasetException, ErroneousValueException {
+		// Generate training and test datasets (if it was not done before)
+		generateTrainAndTest();
+		// Train the model
+		model.learn(this.trainingDataset);
+		// Make predictions with the model
+		Prediction[] predictions = model.predict(this.testDataset, this.estimateProbabilities);
+		// Evaluate the performance of the model
+		Map<String, Double> results = Metrics.evaluate(predictions, this.testDataset);
+		logger.info("Adding execution time ({}) to the final learning time", preprocessingExecutionTime);
+		results.computeIfPresent("Learning time", (k, v) -> v + preprocessingExecutionTime);
+		displayResultsHoldOut(model, results);
+		return results;
+	}
+
+	private void displayResultsHoldOut(MultiCTBNC<?, ?> model, Map<String, Double> results) {
+		// Display results
 		System.out.println("--------------------------Results hold-out validation--------------------------");
 		displayResults(results);
 		displayModel(model);
 		System.out.println("-------------------------------------------------------------------------------");
-		return results;
 	}
 
 }

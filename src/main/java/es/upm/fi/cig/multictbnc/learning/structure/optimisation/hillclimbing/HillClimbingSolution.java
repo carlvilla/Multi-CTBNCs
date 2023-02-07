@@ -9,7 +9,7 @@ package es.upm.fi.cig.multictbnc.learning.structure.optimisation.hillclimbing;
 public class HillClimbingSolution {
 	private boolean[][] adjacencyMatrix;
 	private double score = Double.NEGATIVE_INFINITY;
-	private int[][] lastArcsModified = new int[3][2];
+	private final int[][] lastArcsModified = new int[3][2];
 
 	/**
 	 * Returns the adjacency matrix of the structure.

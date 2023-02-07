@@ -20,7 +20,7 @@ import java.util.Map;
 public class CTBNTabuSearchIndividual extends CTBNHillClimbingIndividual {
 	private static final Logger logger = LogManager.getLogger(CTBNTabuSearchIndividual.class);
 	private int[][] tabuList;
-	private int tabuListSize;
+	private final int tabuListSize;
 
 	/**
 	 * Initialises the tabu search algorithm by proving a score function and a tabu list size.

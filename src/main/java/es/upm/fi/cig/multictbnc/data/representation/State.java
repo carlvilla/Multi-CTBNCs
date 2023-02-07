@@ -12,7 +12,7 @@ import java.util.Map;
  * @author Carlos Villa Blanco
  */
 public class State {
-	private Map<String, String> events;
+	private final Map<String, String> events;
 	// Save the hashcode to avoid recomputing it
 	private Integer hashcode;
 

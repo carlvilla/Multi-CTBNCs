@@ -22,11 +22,11 @@ import java.util.Map;
  */
 public class TestDatasetMethod extends ValidationMethod {
 	private final Logger logger = LogManager.getLogger(TestDatasetMethod.class);
-	private DatasetReader trainingDatasetReader;
-	private DatasetReader testDatasetReader;
-	private boolean estimateProbabilities;
-	private boolean shuffle;
-	private Long seed;
+	private final DatasetReader trainingDatasetReader;
+	private final DatasetReader testDatasetReader;
+	private final boolean estimateProbabilities;
+	private final boolean shuffle;
+	private final Long seed;
 
 	/**
 	 * Constructor that receives two {@code DatasetReader} for the training and test datasets, whether the test dataset
@@ -35,8 +35,8 @@ public class TestDatasetMethod extends ValidationMethod {
 	 *
 	 * @param trainingDatasetReader {@code DatasetReader} for the training dataset
 	 * @param testDatasetReader     {@code DatasetReader} for the test dataset
-	 * @param estimateProbabilities {@code true} if the probabilities of class configurations are estimated, {@code
-	 *                              false} otherwise
+	 * @param estimateProbabilities {@code true} if the probabilities of class configurations are estimated,
+	 *                              {@code false} otherwise
 	 * @param shuffle               {@code true} to shuffle the test dataset, {@code false} otherwise
 	 * @param seed                  a seed for shuffling
 	 */
@@ -72,11 +72,43 @@ public class TestDatasetMethod extends ValidationMethod {
 		// Evaluate the performance of the model
 		Map<String, Double> results = Metrics.evaluate(predictions, testDataset);
 		// Display results
+		displayResultsHoldOut(model, results);
+		return results;
+	}
+
+	@Override
+	public Map<String, Double> evaluate(MultiCTBNC<?, ?> model, double preprocessingExecutionTime)
+			throws UnreadDatasetException, ErroneousValueException {
+		// Retrieve selected training dataset
+		Dataset trainingDataset = this.trainingDatasetReader.readDataset();
+		// Train model
+		model.learn(trainingDataset);
+		// Retrieve selected test dataset
+		Dataset testDataset = this.testDatasetReader.readDataset();
+		// Obtain sequences of the dataset
+		List<Sequence> sequences = new ArrayList<>(testDataset.getSequences());
+		if (this.shuffle) {
+			Util.shuffle(sequences, this.seed);
+			this.logger.info("Test sequences shuffled");
+		}
+		// Make predictions with the model
+		Prediction[] predictions = model.predict(testDataset, this.estimateProbabilities);
+		if (Util.isArrayEmpty(predictions))
+			throw new ErroneousValueException("Any sequence of the test dataset could be predicted.");
+		// Evaluate the performance of the model
+		Map<String, Double> results = Metrics.evaluate(predictions, testDataset);
+		logger.info("Adding execution time ({}) to the final learning time", preprocessingExecutionTime);
+		results.computeIfPresent("Learning time", (k, v) -> v + preprocessingExecutionTime);
+		// Display results
+		displayResultsHoldOut(model, results);
+		return results;
+	}
+
+	private void displayResultsHoldOut(MultiCTBNC<?, ?> model, Map<String, Double> results) {
 		System.out.println("--------------------------Results hold-out validation--------------------------");
 		displayResults(results);
 		displayModel(model);
 		System.out.println("-------------------------------------------------------------------------------");
-		return results;
 	}
 
 }

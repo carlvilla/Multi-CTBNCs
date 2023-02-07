@@ -11,6 +11,7 @@ module es.upm.fi.cig.multictbnc {
 	requires javafx.controls;
 	requires javafx.fxml;
 	requires javafx.graphics;
+	requires org.jfxtras.styles.jmetro;
 	requires opencsv;
 	requires org.apache.logging.log4j;
 	requires org.apache.poi.ooxml;

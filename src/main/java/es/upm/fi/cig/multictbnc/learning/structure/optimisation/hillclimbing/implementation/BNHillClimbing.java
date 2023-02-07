@@ -83,7 +83,6 @@ public class BNHillClimbing implements HillClimbingImplementation {
 			logger.trace("Iteration best score {}", iterationBestScore);
 			improvement = isScoreImproved(solution, adjacencyMatrices, idxBestOperation, iterationBestScore);
 		} while (improvement);
-
 		logger.info("Number of edges tested to learn the class subgraph: {}", getNumEdgesTested());
 		resetNumEdgesTested();
 		return solution;

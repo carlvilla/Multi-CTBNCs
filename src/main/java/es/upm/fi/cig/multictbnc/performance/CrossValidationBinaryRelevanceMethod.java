@@ -34,11 +34,11 @@ import java.util.stream.IntStream;
  */
 public class CrossValidationBinaryRelevanceMethod extends ValidationMethod {
 	private final Logger logger = LogManager.getLogger(CrossValidationMethod.class);
-	private Dataset dataset;
-	private int folds;
-	private boolean estimateProbabilities;
-	private boolean shuffle;
-	private long seed;
+	private final Dataset dataset;
+	private final int folds;
+	private final boolean estimateProbabilities;
+	private final boolean shuffle;
+	private final long seed;
 	private double lastLearningTimeModelsSeconds;
 
 	/**
@@ -83,52 +83,35 @@ public class CrossValidationBinaryRelevanceMethod extends ValidationMethod {
 	@Override
 	public Map<String, Double> evaluate(MultiCTBNC<?, ?> model) {
 		// Get sequences from the dataset
-		List<Sequence> sequences = this.dataset.getSequences();
+		List<Sequence> sequences = getSequencesDataset();
 		int numSequences = sequences.size();
-		if (this.shuffle) {
-			// Shuffle the sequences before performing the cross-validation
-			Util.shuffle(sequences, this.seed);
-			this.logger.info("Sequences shuffled");
-		}
 		// Obtain the size of each fold
+		int[] sizeFolds = defineSizeFolds(numSequences);
+		Map<String, Double> resultsCrossValidation = performCrossValidation(model, sequences, sizeFolds);
+		return getFinalResults(resultsCrossValidation);
+	}
+
+	@Override
+	public Map<String, Double> evaluate(MultiCTBNC<?, ?> model, double preprocessingExecutionTime)
+			throws UnreadDatasetException, ErroneousValueException {
+		// Get sequences from the dataset
+		List<Sequence> sequences = getSequencesDataset();
+		int numSequences = sequences.size();
+		// Obtain the size of each fold
+		int[] sizeFolds = defineSizeFolds(numSequences);
+		Map<String, Double> resultsCrossValidation = performCrossValidation(model, sequences, sizeFolds);
+		logger.info("Adding execution time ({}) to the final learning time", preprocessingExecutionTime);
+		resultsCrossValidation.computeIfPresent("Learning time", (k, v) -> v + preprocessingExecutionTime);
+		return getFinalResults(resultsCrossValidation);
+	}
+
+	private int[] defineSizeFolds(int numSequences) {
 		int[] sizeFolds = new int[this.folds];
 		Arrays.fill(sizeFolds, numSequences / this.folds);
 		// Sequences without fold are added one by one to the first folds
 		for (int i = 0; i < numSequences % this.folds; i++)
 			sizeFolds[i] += 1;
-		// Save evaluation metrics obtained with the cross-validation
-		Map<String, Double> resultsCrossValidation = new LinkedHashMap<>();
-		// Iterate over each fold
-		int fromIndex = 0;
-		for (int i = 0; i < this.folds; i++) {
-			this.logger.info("Testing model on fold " + i);
-			// Prepare training and test datasets for the current fold
-			int toIndex = fromIndex + sizeFolds[i];
-			// Prepare training dataset for current fold
-			Dataset trainingDataset = extractTrainingDataset(sequences, fromIndex, toIndex);
-			// Prepare test dataset for current fold
-			Dataset testingDataset = extractTestingDataset(sequences, fromIndex, toIndex);
-			// Warn both the training and testing set about all the possible states the
-			// variables can take (categorical variables are assumed for now)
-			trainingDataset.setStatesVariables(this.dataset.getStatesVariables());
-			testingDataset.setStatesVariables(this.dataset.getStatesVariables());
-			// Learn one model per class variable in parallel
-			List<MultiCTBNC<?, ?>> models = learnModels(model, trainingDataset);
-			// Perform predictions with each model and merge the results
-			Prediction[] predictionsFold = predict(models, testingDataset);
-			// Result of performance metrics when evaluating the model with the current fold
-			Map<String, Double> resultsFold = Metrics.evaluate(predictionsFold, testingDataset);
-			// Add learning time to the results
-			resultsFold.put("Learning time", this.lastLearningTimeModelsSeconds);
-			// Update the final results of the metrics after seeing all the folds
-			resultsFold.forEach((metric, value) -> resultsCrossValidation.merge(metric, value, (a, b) -> a + b));
-			displayResultsFold(i, resultsFold);
-			fromIndex += sizeFolds[i];
-		}
-		// The average of each metric is computed
-		resultsCrossValidation.forEach((metric, value) -> resultsCrossValidation.put(metric, value / this.folds));
-		displayResultsCV(resultsCrossValidation);
-		return resultsCrossValidation;
+		return sizeFolds;
 	}
 
 	private void displayResultsCV(Map<String, Double> resultsCrossValidation) {
@@ -173,6 +156,13 @@ public class CrossValidationBinaryRelevanceMethod extends ValidationMethod {
 		return new Dataset(trainingSequences);
 	}
 
+	private Map<String, Double> getFinalResults(Map<String, Double> resultsCrossValidation) {
+		// The average of each metric is computed
+		resultsCrossValidation.forEach((metric, value) -> resultsCrossValidation.put(metric, value / this.folds));
+		displayResultsCV(resultsCrossValidation);
+		return resultsCrossValidation;
+	}
+
 	private BNLearningAlgorithms getLearningAlgorithmsBN(MultiCTBNC<?, ?> model) {
 		// Retrieve learning algorithms
 		BNLearningAlgorithms bnLA = model.getLearningAlgsBN();
@@ -208,6 +198,17 @@ public class CrossValidationBinaryRelevanceMethod extends ValidationMethod {
 		StructureLearningAlgorithm ctbnSLA = StructureLearningAlgorithmFactory.getAlgorithmCTBN(nameCtbnSLA,
 				parametersCtbnSLA);
 		return new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
+	}
+
+	private List<Sequence> getSequencesDataset() {
+		// Get sequences from the dataset
+		List<Sequence> sequences = this.dataset.getSequences();
+		if (this.shuffle) {
+			// Shuffle the sequences before performing the cross-validation
+			Util.shuffle(sequences, this.seed);
+			this.logger.info("Sequences shuffled");
+		}
+		return sequences;
 	}
 
 	private List<MultiCTBNC<?, ?>> learnModels(MultiCTBNC<?, ?> model, Dataset trainingDataset) {
@@ -248,6 +249,40 @@ public class CrossValidationBinaryRelevanceMethod extends ValidationMethod {
 		this.lastLearningTimeModelsSeconds = Duration.between(start, end).toMillis() / 1000.f;
 		this.logger.info("All classifiers learnt in {}", this.lastLearningTimeModelsSeconds);
 		return models;
+	}
+
+	private Map<String, Double> performCrossValidation(MultiCTBNC<?, ?> model, List<Sequence> sequences,
+													   int[] sizeFolds) {
+		// Save evaluation metrics obtained with the cross-validation
+		Map<String, Double> resultsCrossValidation = new LinkedHashMap<>();
+		// Iterate over each fold
+		int fromIndex = 0;
+		for (int i = 0; i < this.folds; i++) {
+			this.logger.info("Testing model on fold " + i);
+			// Prepare training and test datasets for the current fold
+			int toIndex = fromIndex + sizeFolds[i];
+			// Prepare training dataset for current fold
+			Dataset trainingDataset = extractTrainingDataset(sequences, fromIndex, toIndex);
+			// Prepare test dataset for current fold
+			Dataset testingDataset = extractTestingDataset(sequences, fromIndex, toIndex);
+			// Warn both the training and testing set about all the possible states the
+			// variables can take (categorical variables are assumed for now)
+			trainingDataset.setStatesVariables(this.dataset.getStatesVariables());
+			testingDataset.setStatesVariables(this.dataset.getStatesVariables());
+			// Learn one model per class variable in parallel
+			List<MultiCTBNC<?, ?>> models = learnModels(model, trainingDataset);
+			// Perform predictions with each model and merge the results
+			Prediction[] predictionsFold = predict(models, testingDataset);
+			// Result of performance metrics when evaluating the model with the current fold
+			Map<String, Double> resultsFold = Metrics.evaluate(predictionsFold, testingDataset);
+			// Add learning time to the results
+			resultsFold.put("Learning time", this.lastLearningTimeModelsSeconds);
+			// Update the final results of the metrics after seeing all the folds
+			resultsFold.forEach((metric, value) -> resultsCrossValidation.merge(metric, value, (a, b) -> a + b));
+			displayResultsFold(i, resultsFold);
+			fromIndex += sizeFolds[i];
+		}
+		return resultsCrossValidation;
 	}
 
 	private Prediction[] predict(List<MultiCTBNC<?, ?>> models, Dataset testingDataset) {

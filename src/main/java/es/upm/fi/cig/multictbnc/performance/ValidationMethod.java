@@ -47,6 +47,20 @@ public abstract class ValidationMethod {
 			throws UnreadDatasetException, ErroneousValueException;
 
 	/**
+	 * Evaluates the performance of the specified model and returns the results. This method receives the execution
+	 * time
+	 * of previous tasks so it is add up to the total mean learning time.
+	 *
+	 * @param model                      model to evaluate
+	 * @param preprocessingExecutionTime execution time of previous tasks
+	 * @return results saved in a {@code Map}.
+	 * @throws UnreadDatasetException  if there was an error while reading a dataset
+	 * @throws ErroneousValueException if a provided parameter is erroneous for the requested task
+	 */
+	public abstract Map<String, Double> evaluate(MultiCTBNC<?, ?> model, double preprocessingExecutionTime)
+			throws UnreadDatasetException, ErroneousValueException;
+
+	/**
 	 * Defines the metrics writer used to save the results of the evaluation.
 	 *
 	 * @param metricsWriter a {@code MetricsWriter} used to save the results of the evaluation

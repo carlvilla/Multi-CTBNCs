@@ -74,6 +74,7 @@ public class CTPC implements StructureLearningAlgorithm {
 		// Retrieve indexes of feature variables and iterate over them
 		List<Integer> idxFeatureVariables = getIdxFeatureVariables(pgm);
 		idxFeatureVariables.parallelStream().forEach(idxFeatureVariable -> {
+			// Clone the model to avoid race conditions
 			@SuppressWarnings("unchecked") CTBN<CIMNode> ctbn = new CTBN<>((CTBN<CIMNode>) pgm,
 					((CTBN<CIMNode>) pgm).getDataset());
 			// Find the parent set of each node in parallel
@@ -219,7 +220,7 @@ public class CTPC implements StructureLearningAlgorithm {
 					for (List<Integer> idxSepSet : possibleSepSets) {
 						// Extract names of variables in the subset
 						List<String> nameNodesSepSet = pgm.getNamesNodesByIndex(idxSepSet);
-						logger.debug("Test conditional independence between {} and {} given separating set {}",
+						logger.trace("Test conditional independence between {} and {} given separating set {}",
 								node.getName(), parentNode.getName(), nameNodesSepSet);
 						// Increase the number of conditional independence tests performed
 						this.numCondIndTestsPerformed++;
@@ -326,7 +327,7 @@ public class CTPC implements StructureLearningAlgorithm {
 						nameNodesSepSet, suffStatSepSet, suffStatSepSetAndParent, idxState, idxStateSepSetAndParent);
 				if (!isNullStateToStateTransitionHypAccepted) {
 					// Reject hypothesis. Variables are not conditionally independent
-					logger.trace("Nodes {} and {} are not conditionally independent given {} (using the transitions)",
+					logger.debug("Nodes {} and {} are not conditionally independent given {} (using the transitions)",
 							node.getName(), parentNode.getName(), nameNodesSepSet);
 					return false;
 				}
@@ -366,7 +367,7 @@ public class CTPC implements StructureLearningAlgorithm {
 						suffStatSepSet, qxSepSetAndParent, suffStatSepSetAndParent, idxState, idxStateSepSetAndParent);
 				if (!isNullTimeToTransitionHypAccepted) {
 					// Reject hypothesis. Variables are not conditionally independent
-					logger.trace(
+					logger.debug(
 							"Nodes {} and {} are not conditionally independent given {} [{}] (using waiting times)",
 							node.getName(), parentNode.getName(), nameNodesSepSet, idxStateSepSetAndParent);
 					return false;

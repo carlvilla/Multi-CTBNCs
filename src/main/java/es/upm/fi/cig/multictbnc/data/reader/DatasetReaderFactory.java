@@ -45,13 +45,10 @@ public abstract class DatasetReaderFactory {
 	public static DatasetReader getDatasetReader(String datasetReader, String pathDataset, int sizeSequence)
 			throws FileNotFoundException {
 		try {
-			switch (datasetReader) {
-				case ("Multiple CSV"):
-					return new MultipleCSVReader(pathDataset);
-				default:
-					// Unique CSV
-					return new SingleCSVReader(pathDataset, sizeSequence);
-			}
+			if ("Multiple CSV".equals(datasetReader)) {
+				return new MultipleCSVReader(pathDataset);
+			}// Unique CSV
+			return new SingleCSVReader(pathDataset, sizeSequence);
 		} catch (UnreadDatasetException ude) {
 			logger.error(ude.getMessage());
 			return null;

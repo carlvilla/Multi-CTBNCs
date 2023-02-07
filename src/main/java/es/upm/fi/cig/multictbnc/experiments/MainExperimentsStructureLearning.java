@@ -33,7 +33,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * This class is used to perform the experiments from the article Villa-Blanco et al. (2022).
+ * This class is used to perform the experiments from the articles Villa-Blanco et al. (2022) and Villa-Blanco et al.
+ * (2023).
  *
  * @author Carlos Villa Blanco
  */
@@ -48,7 +49,7 @@ public class MainExperimentsStructureLearning {
 	static final int FOLDS = 5; // Cross-validation
 	static final boolean ESTIMATEPROBABILITIES = true;
 	static final boolean SHUFFLESEQUENCES = true;
-	static final List<Long> SEEDS = List.of(10L);
+	static final List<Long> SEEDS = List.of(10L); //10L, 342L, 3523L, 463L, 699L, 676L, 29L, 113L, 698L, 921L
 	// The constraint-based algorithm is executed under different significances
 	static final String SIGNIFICANCEPC = "0.05";
 	static final String SIGTIMETRANSITIONHYPOTHESIS = "0.00001";
@@ -71,29 +72,37 @@ public class MainExperimentsStructureLearning {
 		String[] namesExperiments = extractExperimentFolders(pathFolderExperiments);
 		for (String nameExperiment : namesExperiments) {
 			String pathExperiment = Path.of(pathFolderExperiments, nameExperiment).toString();
-			String[] pathDatasets = extractPathExperimentDatasets(pathExperiment);
+			logger.info("Running experiments with datasets from folder: {}", pathExperiment);
+			String[] pathDatasets = Util.extractPathExperimentDatasets(pathExperiment);
 			if (pathDatasets == null || pathDatasets.length == 0) {
 				logger.warn("No datasets were found in the path: {}", pathExperiment);
 				return;
 			}
-			// Assuming all datasets have the same number of variables
-			List<String> nameVariables = extractVariables(pathDatasets[0]);
-			List<String> nameFeatureVariables = extractFeatureVariables(nameVariables);
-			List<String> nameClassVariables = extractClassVariables(nameVariables);
-			// Assuming the time variable has the name "t"
+
+			// The name of the time variable is assumed to be "t"
 			String nameTimeVariable = "t";
+			// Assuming all datasets of an experiment have the same number of variables
+			List<String> nameVariables = extractVariables(pathDatasets[0]);
+			List<String> nameClassVariables = extractNamesClassVariables(args, nameVariables);
+			List<String> nameStructureLearningAlgorithms = extractNamesStructureLearningAlgorithms(args);
+
+			// The rest of the variables are assumed to be feature variables (except the time variable)
+			List<String> nameFeatureVariables = extractFeatureVariables(nameVariables, nameTimeVariable,
+					nameClassVariables);
+
 			// Define parameter learning algorithms
 			BNParameterLearningAlgorithm bnPLA = BNParameterLearningAlgorithmFactory.getAlgorithm(NAMEBNPLA, NX);
 			CTBNParameterLearningAlgorithm ctbnPLA = CTBNParameterLearningAlgorithmFactory.getAlgorithm(NAMECTBNPLA,
 					MXY, TX);
-			List<MultiCTBNC<CPTNode, CIMNode>> modelsToEvaluate = defineModelsToEvaluate(bnPLA, ctbnPLA);
+
+			List<MultiCTBNC<CPTNode, CIMNode>> modelsToEvaluate = defineModelsToEvaluate(
+					nameStructureLearningAlgorithms, bnPLA, ctbnPLA);
 
 			MetricsWriter metricsWriter = new ExcelExperimentsWriter(Arrays.asList(pathDatasets),
-					List.of("Hill climbing (BIC)", "Tabu search (BIC)", "Hill climbing (BDe)", "CTPC", "MB-CTPC",
-							"Hybrid algorithm [size sep set = 0]", "Hybrid algorithm [size sep set = 1]"),
-					nameClassVariables, nameFeatureVariables, bnPLA, ctbnPLA, "Empty (Score-based alg.)",
-					Double.valueOf(SIGNIFICANCEPC), Double.valueOf(SIGTIMETRANSITIONHYPOTHESIS),
-					Double.valueOf(SIGSTATETOSTATETRANSITIONHYPOTHESIS), SEEDS, nameExperiment);
+					nameStructureLearningAlgorithms, nameClassVariables, nameFeatureVariables, bnPLA, ctbnPLA,
+					"Empty (Score-based alg.)", Double.valueOf(SIGNIFICANCEPC),
+					Double.valueOf(SIGTIMETRANSITIONHYPOTHESIS), Double.valueOf(SIGSTATETOSTATETRANSITIONHYPOTHESIS),
+					SEEDS, nameExperiment);
 
 			performExperiments(pathDatasets, nameTimeVariable, nameClassVariables, nameFeatureVariables,
 					modelsToEvaluate, metricsWriter);
@@ -101,56 +110,41 @@ public class MainExperimentsStructureLearning {
 		}
 	}
 
-	private static List<MultiCTBNC<CPTNode, CIMNode>> defineModelsToEvaluate(BNParameterLearningAlgorithm bnPLA,
-																			 CTBNParameterLearningAlgorithm ctbnPLA) {
-		// SCORE-BASED STRUCTURE LEARNING ALGORITHM
-		Map<String, String> paramScoreBasedSLA = new HashMap<>();
-		paramScoreBasedSLA.put("scoreFunction", "Log-likelihood");
-		paramScoreBasedSLA.put("penalisationFunction", "BIC");
-		MultiCTBNC<CPTNode, CIMNode> modelHillClimbingBICLearning = generateModel(bnPLA, ctbnPLA, "Hill climbing",
-				paramScoreBasedSLA);
-		paramScoreBasedSLA.put("tabuListSize", TABULISTSIZE);
-		MultiCTBNC<CPTNode, CIMNode> modelTabuSearchLearning = generateModel(bnPLA, ctbnPLA, "Tabu search",
-				paramScoreBasedSLA);
-		paramScoreBasedSLA.put("scoreFunction", "Bayesian Dirichlet equivalent");
-		paramScoreBasedSLA.put("penalisationFunction", "No");
-		MultiCTBNC<CPTNode, CIMNode> modelHillClimbingBDeLearning = generateModel(bnPLA, ctbnPLA, "Hill climbing",
-				paramScoreBasedSLA);
-
-		logger.info(
-				"Learning Multi-CTBNCs using a significance for the constraint-based algorithms of {} for the class " +
-						"subgraph, and {} and {} for the bridge and feature subgraphs", SIGNIFICANCEPC,
-				SIGTIMETRANSITIONHYPOTHESIS, SIGSTATETOSTATETRANSITIONHYPOTHESIS);
-
-		// CONSTRAINT-BASED STRUCTURE LEARNING ALGORITHM
-		Map<String, String> paramConstraintBasedSLA = new HashMap<>();
-		paramConstraintBasedSLA.put("significancePC", SIGNIFICANCEPC);
-		paramConstraintBasedSLA.put("sigTimeTransitionHyp", SIGTIMETRANSITIONHYPOTHESIS);
-		paramConstraintBasedSLA.put("sigStateToStateTransitionHyp", SIGSTATETOSTATETRANSITIONHYPOTHESIS);
-		MultiCTBNC<CPTNode, CIMNode> modelCTPCLearning = generateModel(bnPLA, ctbnPLA, "CTPC",
-				paramConstraintBasedSLA);
-
-		// MARKOV-BLANKET-BASED STRUCTURE LEARNING ALGORITHM [Exponential distribution]
-		MultiCTBNC<CPTNode, CIMNode> modelMarkovBlanketCTPCLearning = generateModel(bnPLA, ctbnPLA, "MB-CTPC",
-				paramConstraintBasedSLA);
-
-		// HYBRID STRUCTURE LEARNING ALGORITHM
-		Map<String, String> paramHybridSLA = new HashMap<>();
-		paramHybridSLA.put("scoreFunction", "Log-likelihood");
-		paramHybridSLA.put("penalisationFunction", "BIC");
-		paramHybridSLA.put("significancePC", SIGNIFICANCEPC);
-		paramHybridSLA.put("sigTimeTransitionHyp", SIGTIMETRANSITIONHYPOTHESIS);
-		paramHybridSLA.put("sigStateToStateTransitionHyp", SIGSTATETOSTATETRANSITIONHYPOTHESIS);
-		paramHybridSLA.put("maxSizeSepSet", "0");
-		MultiCTBNC<CPTNode, CIMNode> modelHybrid0Learning = generateModel(bnPLA, ctbnPLA, "Hybrid algorithm",
-				paramHybridSLA);
-
-		paramHybridSLA.put("maxSizeSepSet", "1");
-		MultiCTBNC<CPTNode, CIMNode> modelHybrid1Learning = generateModel(bnPLA, ctbnPLA, "Hybrid algorithm",
-				paramHybridSLA);
-
-		return List.of(modelHillClimbingBICLearning, modelTabuSearchLearning, modelHillClimbingBDeLearning,
-				modelCTPCLearning, modelMarkovBlanketCTPCLearning, modelHybrid0Learning, modelHybrid1Learning);
+	private static List<MultiCTBNC<CPTNode, CIMNode>> defineModelsToEvaluate(
+			List<String> nameStructureLearningAlgorithms, BNParameterLearningAlgorithm bnPLA,
+			CTBNParameterLearningAlgorithm ctbnPLA) {
+		List<MultiCTBNC<CPTNode, CIMNode>> modelsToEvaluate = new ArrayList<MultiCTBNC<CPTNode, CIMNode>>();
+		for (String nameStructureLearningAlgorithm : nameStructureLearningAlgorithms) {
+			MultiCTBNC<CPTNode, CIMNode> model = null;
+			switch (nameStructureLearningAlgorithm) {
+				case "Hill climbing (BIC)":
+					model = getMultiCTBNCLearnedWithHillClimbingBIC(bnPLA, ctbnPLA);
+					break;
+				case "Tabu search (BIC)":
+					model = getMultiCTBNCLearnedWithTabuSearchBIC(bnPLA, ctbnPLA);
+					break;
+				case "Hill climbing (BDe)":
+					model = getMultiCTBNCLearnedWithHillClimbingBDe(bnPLA, ctbnPLA);
+					break;
+				case "CTPC":
+					model = getMultiCTBNCLearnedWithCTPC(bnPLA, ctbnPLA);
+					break;
+				case "MB-CTPC":
+					model = getMultiCTBNCLearnedWithMBCTPC(bnPLA, ctbnPLA);
+					break;
+				case "Hybrid algorithm [size sep set = 0]":
+					model = getMultiCTBNCLearnedWithHybridSep(bnPLA, ctbnPLA, "0");
+					break;
+				case "Hybrid algorithm [size sep set = 1]":
+					model = getMultiCTBNCLearnedWithHybridSep(bnPLA, ctbnPLA, "1");
+					break;
+				case "Hybrid algorithm [size sep set = 2]":
+					model = getMultiCTBNCLearnedWithHybridSep(bnPLA, ctbnPLA, "2");
+					break;
+			}
+			modelsToEvaluate.add(model);
+		}
+		return modelsToEvaluate;
 	}
 
 	private static List<String> extractClassVariables(List<String> nameVariables) {
@@ -176,25 +170,32 @@ public class MainExperimentsStructureLearning {
 		return namesExperiments;
 	}
 
-	private static List<String> extractFeatureVariables(List<String> nameVariables) {
-		// Assuming feature variables have names starting with "X"
-		return nameVariables.stream().filter(name -> name.charAt(0) == 'X').collect(Collectors.toList());
+	private static List<String> extractFeatureVariables(List<String> nameVariables, String nameTimeVariable,
+														List<String> nameClassVariables) {
+		// All variables, except the time and class variables, are assumed to be feature variables
+		return nameVariables.stream().filter(
+				name -> !name.equals(nameTimeVariable) && !nameClassVariables.contains(name)).collect(
+				Collectors.toList());
 	}
 
-	private static String[] extractPathExperimentDatasets(String pathExperiment) {
-		logger.info("Running experiments with datasets from folder: {}", pathExperiment);
-		String[] pathDatasets = Util.retrieveSubfolders(pathExperiment);
-		if (pathDatasets == null || pathDatasets.length == 0) {
-			return null;
+	private static List<String> extractNamesClassVariables(String[] args, List<String> nameVariables) {
+		if (args.length == 3) {
+			// The names of the class variables were provided
+			return Arrays.stream(args[2].split(";")).collect(Collectors.toList());
 		}
-		// Sort the paths of the datasets
-		Arrays.sort(pathDatasets, new Comparator<String>() {
-			@Override
-			public int compare(String s1, String s2) {
-				return Long.compare(Util.extractLong(s1), Util.extractLong(s2));
-			}
-		});
-		return pathDatasets;
+		// The name of the class variables is assumed to start by "C"
+		return extractClassVariables(nameVariables);
+	}
+
+	private static List<String> extractNamesStructureLearningAlgorithms(String[] args) {
+		List<String> nameStructureLearningAlgorithms;
+		if (args.length > 1) {
+			// The names of the algorithms were provided
+			return Arrays.stream(args[1].split(";")).collect(Collectors.toList());
+		}
+		// Common algorithms are employed
+		return List.of("Hill climbing (BIC)", "Tabu search (BIC)", "Hill climbing (BDe)", "CTPC", "MB-CTPC",
+				"Hybrid algorithm [size sep set = 0]", "Hybrid algorithm [size sep set = 1]");
 	}
 
 	private static List<String> extractVariables(String pathDataset) {
@@ -218,8 +219,64 @@ public class MainExperimentsStructureLearning {
 				structureLearningAlgorithm, paramSLA);
 		BNLearningAlgorithms bnLearningAlgs = new BNLearningAlgorithms(bnPLA, bnSLA);
 		CTBNLearningAlgorithms ctbnLearningAlgs = new CTBNLearningAlgorithms(ctbnPLA, ctbnSLA);
-		return ClassifierFactory.<CPTNode, CIMNode>getMultiCTBNC("Multi-CTBNC", bnLearningAlgs, ctbnLearningAlgs, null,
-				CPTNode.class, CIMNode.class);
+		return ClassifierFactory.getMultiCTBNC("Multi-CTBNC", bnLearningAlgs, ctbnLearningAlgs, null, CPTNode.class,
+				CIMNode.class);
+	}
+
+	private static MultiCTBNC<CPTNode, CIMNode> getMultiCTBNCLearnedWithCTPC(BNParameterLearningAlgorithm bnPLA,
+																			 CTBNParameterLearningAlgorithm ctbnPLA) {
+		Map<String, String> paramConstraintBasedSLA = new HashMap<>();
+		paramConstraintBasedSLA.put("significancePC", SIGNIFICANCEPC);
+		paramConstraintBasedSLA.put("sigTimeTransitionHyp", SIGTIMETRANSITIONHYPOTHESIS);
+		paramConstraintBasedSLA.put("sigStateToStateTransitionHyp", SIGSTATETOSTATETRANSITIONHYPOTHESIS);
+		return generateModel(bnPLA, ctbnPLA, "CTPC", paramConstraintBasedSLA);
+	}
+
+	private static MultiCTBNC<CPTNode, CIMNode> getMultiCTBNCLearnedWithHillClimbingBDe(
+			BNParameterLearningAlgorithm bnPLA, CTBNParameterLearningAlgorithm ctbnPLA) {
+		Map<String, String> paramScoreBasedSLA = new HashMap<>();
+		paramScoreBasedSLA.put("scoreFunction", "Bayesian Dirichlet equivalent");
+		paramScoreBasedSLA.put("penalisationFunction", "No");
+		return generateModel(bnPLA, ctbnPLA, "Hill climbing", paramScoreBasedSLA);
+	}
+
+	private static MultiCTBNC<CPTNode, CIMNode> getMultiCTBNCLearnedWithHillClimbingBIC(
+			BNParameterLearningAlgorithm bnPLA, CTBNParameterLearningAlgorithm ctbnPLA) {
+		Map<String, String> paramScoreBasedSLA = new HashMap<>();
+		paramScoreBasedSLA.put("scoreFunction", "Log-likelihood");
+		paramScoreBasedSLA.put("penalisationFunction", "BIC");
+		return generateModel(bnPLA, ctbnPLA, "Hill climbing", paramScoreBasedSLA);
+	}
+
+	private static MultiCTBNC<CPTNode, CIMNode> getMultiCTBNCLearnedWithHybridSep(BNParameterLearningAlgorithm bnPLA,
+																				  CTBNParameterLearningAlgorithm ctbnPLA,
+																				  String maxSizeSepSet) {
+		Map<String, String> paramHybridSLA = new HashMap<>();
+		paramHybridSLA.put("scoreFunction", "Log-likelihood");
+		paramHybridSLA.put("penalisationFunction", "BIC");
+		paramHybridSLA.put("significancePC", SIGNIFICANCEPC);
+		paramHybridSLA.put("sigTimeTransitionHyp", SIGTIMETRANSITIONHYPOTHESIS);
+		paramHybridSLA.put("sigStateToStateTransitionHyp", SIGSTATETOSTATETRANSITIONHYPOTHESIS);
+		paramHybridSLA.put("maxSizeSepSet", maxSizeSepSet);
+		return generateModel(bnPLA, ctbnPLA, "Hybrid algorithm", paramHybridSLA);
+	}
+
+	private static MultiCTBNC<CPTNode, CIMNode> getMultiCTBNCLearnedWithMBCTPC(BNParameterLearningAlgorithm bnPLA,
+																			   CTBNParameterLearningAlgorithm ctbnPLA) {
+		Map<String, String> paramConstraintBasedSLA = new HashMap<>();
+		paramConstraintBasedSLA.put("significancePC", SIGNIFICANCEPC);
+		paramConstraintBasedSLA.put("sigTimeTransitionHyp", SIGTIMETRANSITIONHYPOTHESIS);
+		paramConstraintBasedSLA.put("sigStateToStateTransitionHyp", SIGSTATETOSTATETRANSITIONHYPOTHESIS);
+		return generateModel(bnPLA, ctbnPLA, "MB-CTPC", paramConstraintBasedSLA);
+	}
+
+	private static MultiCTBNC<CPTNode, CIMNode> getMultiCTBNCLearnedWithTabuSearchBIC(
+			BNParameterLearningAlgorithm bnPLA, CTBNParameterLearningAlgorithm ctbnPLA) {
+		Map<String, String> paramScoreBasedSLA = new HashMap<>();
+		paramScoreBasedSLA.put("scoreFunction", "Log-likelihood");
+		paramScoreBasedSLA.put("penalisationFunction", "BIC");
+		paramScoreBasedSLA.put("tabuListSize", TABULISTSIZE);
+		return generateModel(bnPLA, ctbnPLA, "Tabu search", paramScoreBasedSLA);
 	}
 
 	private static void performExperiments(String[] pathDatasets, String nameTimeVariable,
@@ -228,25 +285,28 @@ public class MainExperimentsStructureLearning {
 										   MetricsWriter metricsWriter) {
 		for (String pathDataset : pathDatasets) {
 			logger.info("Cross-validation on dataset: {}", pathDataset);
-			// Read dataset
-			DatasetReader datasetReader;
-			try {
-				datasetReader = new MultipleCSVReader(pathDataset);
-				datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameFeatureVariables);
-				ValidationMethod validationMethod = ValidationMethodFactory.getValidationMethod("Cross-validation",
-						datasetReader, null, 0, FOLDS, ESTIMATEPROBABILITIES, SHUFFLESEQUENCES, SEEDS.get(0));
-				// Set output to show results
-				validationMethod.setWriter(metricsWriter);
+			for (Long seed : SEEDS) {
+				logger.info("Seed used to shuffle the dataset: {}", seed);
+				// Read dataset
+				DatasetReader datasetReader;
+				try {
+					datasetReader = new MultipleCSVReader(pathDataset);
+					datasetReader.setVariables(nameTimeVariable, nameClassVariables, nameFeatureVariables);
+					ValidationMethod validationMethod = ValidationMethodFactory.getValidationMethod("Cross-validation",
+							datasetReader, null, 0, FOLDS, ESTIMATEPROBABILITIES, SHUFFLESEQUENCES, seed);
+					// Set output to show results
+					validationMethod.setWriter(metricsWriter);
 
-				for (MultiCTBNC<CPTNode, CIMNode> model : modelsToEvaluate) {
-					logger.info("Evaluating results when learning Multi-CTBNCs using {} ({})...",
-							model.getLearningAlgsCTBN().getStructureLearningAlgorithm().getIdentifier(),
-							model.getLearningAlgsCTBN().getStructureLearningAlgorithm().getParametersAlgorithm());
-					validationMethod.evaluate(model);
+					for (MultiCTBNC<CPTNode, CIMNode> model : modelsToEvaluate) {
+						logger.info("Evaluating results when learning Multi-CTBNCs using {} ({})...",
+								model.getLearningAlgsCTBN().getStructureLearningAlgorithm().getIdentifier(),
+								model.getLearningAlgsCTBN().getStructureLearningAlgorithm().getParametersAlgorithm());
+						validationMethod.evaluate(model);
+					}
+				} catch (IOException | UnreadDatasetException | ErroneousValueException exception) {
+					logger.error("There was an error performing the cross-validation over the dataset: {}",
+							pathDataset + " - " + exception.getMessage());
 				}
-			} catch (IOException | UnreadDatasetException | ErroneousValueException exception) {
-				logger.error("There was an error performing the cross-validation over the dataset: {}",
-						pathDataset + " - " + exception.getMessage());
 			}
 		}
 	}

@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
  */
 public class Dataset {
 	private static final Logger logger = LogManager.getLogger(Dataset.class);
-	private List<Sequence> sequences;
-	private String nameTimeVariable;
+	private final List<Sequence> sequences;
+	private final String nameTimeVariable;
 	private List<String> nameFeatureVariables;
-	private List<String> nameClassVariables;
+	private final List<String> nameClassVariables;
 	// A list of class variables that should be ignored
 	private List<String> ignoredClassVariables;
 	// Store the possible states of a variable to avoid recomputations
@@ -204,9 +204,7 @@ public class Dataset {
 				String[] statesSequence = sequence.getStates(nameVariable);
 				if (statesSequence == null)
 					continue;
-				for (int i = 0; i < statesSequence.length; i++) {
-					statesSet.add(statesSequence[i]);
-				}
+				Collections.addAll(statesSet, statesSequence);
 			}
 			states = new ArrayList<>(statesSet);
 			this.statesVariables.put(nameVariable, states);
@@ -253,9 +251,7 @@ public class Dataset {
 			Set<String> statesSet = new HashSet<>();
 			for (Sequence sequence : getSequences()) {
 				String[] statesSequence = sequence.getStates(nameClassVariable);
-				for (int i = 0; i < statesSequence.length; i++) {
-					statesSet.add(statesSequence[i]);
-				}
+				Collections.addAll(statesSet, statesSequence);
 			}
 			this.statesVariables.put(nameClassVariable, new ArrayList<>(statesSet));
 		}

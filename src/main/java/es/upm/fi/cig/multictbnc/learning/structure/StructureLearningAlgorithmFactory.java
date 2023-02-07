@@ -149,12 +149,10 @@ public class StructureLearningAlgorithmFactory {
 	 * @return a {@code BNScoreFunction}
 	 */
 	private static BNScoreFunction getScoreFunctionBN(String scoreFunction, String penalisationFunction) {
-		switch (scoreFunction) {
-			case ("Bayesian Dirichlet equivalent"):
-				return new BNBayesianScore();
-			default:
-				return new BNLogLikelihood(penalisationFunction);
+		if ("Bayesian Dirichlet equivalent".equals(scoreFunction)) {
+			return new BNBayesianScore();
 		}
+		return new BNLogLikelihood(penalisationFunction);
 	}
 
 	/**
