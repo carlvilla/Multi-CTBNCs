@@ -36,12 +36,12 @@ public class Metrics {
 		showPredictions(predicted, actualDataset);
 		if (actualDataset.getNumClassVariables() == 1)
 			// There is only one class variable
-			return evaluateUniDimensionalClassification(predicted, actualDataset);
+			return evaluateOneDimensionalClassification(predicted, actualDataset);
 		// There is more than one class variable
 		return evaluateMultiDimensionalClassification(predicted, actualDataset);
 	}
 
-	private static Map<String, Double> evaluateUniDimensionalClassification(Prediction[] predicted,
+	private static Map<String, Double> evaluateOneDimensionalClassification(Prediction[] predicted,
 																			Dataset actualDataset) {
 		// Save results metrics in a map
 		Map<String, Double> results = new LinkedHashMap<>();
@@ -64,6 +64,15 @@ public class Metrics {
 			double globalBrierScore = globalBrierScore(predicted, actualDataset);
 			results.put("Brier score", globalBrierScore);
 		}
+		results = getPredictionTime(predicted, results);
+		return results;
+	}
+
+	private static Map<String, Double> getPredictionTime(Prediction[] predicted, Map<String, Double> results) {
+		double totalPredictionTime = 0;
+		for (Prediction prediction : predicted)
+			totalPredictionTime += prediction.getPredictionTime();
+		results.put("Classification time", totalPredictionTime);
 		return results;
 	}
 
@@ -92,6 +101,7 @@ public class Metrics {
 			double globalBrierScore = globalBrierScore(predicted, actualDataset);
 			results.put("Global Brier score", globalBrierScore);
 		}
+		results = getPredictionTime(predicted, results);
 		return results;
 	}
 

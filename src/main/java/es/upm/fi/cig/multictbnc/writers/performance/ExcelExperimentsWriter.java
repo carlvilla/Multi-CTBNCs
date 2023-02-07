@@ -26,18 +26,18 @@ import java.util.Map;
  */
 public class ExcelExperimentsWriter extends MetricsWriter {
 	private static final Logger logger = LogManager.getLogger(ExcelExperimentsWriter.class);
-	private String path = "results/experiments/";
-	private XSSFWorkbook workbook;
-	private XSSFSheet sheet;
+	private final String path = "results/experiments/";
+	private final XSSFWorkbook workbook;
+	private final XSSFSheet sheet;
 	private FileOutputStream out = null;
 	private int numDatasets;
-	private int numModels;
+	private final int numModels;
 	private int idxCurrentDataset = 0;
 	private int idxCurrentModel = 0;
 	private int idxCurrentScoreFunction = 0;
-	private List<String> metrics = List.of("Global accuracy", "Mean accuracy", "Macro-averaged precision",
+	private final List<String> metrics = List.of("Global accuracy", "Mean accuracy", "Macro-averaged precision",
 			"Macro-averaged recall", "Macro-averaged F1 score", "Micro-averaged precision", "Micro-averaged recall",
-			"Micro-averaged F1 score", "Global Brier score", "Learning time");
+			"Micro-averaged F1 score", "Global Brier score", "Learning time", "Classification time");
 
 	/**
 	 * Initialises the writer.
@@ -45,32 +45,37 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	 * @param scoreFunctions       list of score functions
 	 * @param nameDatasets         list of dataset names
 	 * @param nameModels           list of model names
-	 * @param nameFeatureVariables names of feature variables
 	 * @param nameClassVariables   names of class variables
+	 * @param nameFeatureVariables names of feature variables
 	 * @param bnPLA                parameter learning algorithm for a Bayesian network
 	 * @param ctbnPLA              parameter learning algorithm for a continuous time Bayesian network
 	 * @param penalisationFunction name of the penalisation function
 	 * @param initialStructure     name for the initial structure
 	 * @param seeds                seeds that are used to shuffle the datasets. It is assumed that each dataset will be
 	 *                             evaluated with each of those seeds
+	 * @param nameGeneratedFile    name of the resulting file
 	 */
 	public ExcelExperimentsWriter(List<String> scoreFunctions, List<String> nameDatasets, List<String> nameModels,
 								  List<String> nameClassVariables, List<String> nameFeatureVariables,
 								  BNParameterLearningAlgorithm bnPLA, CTBNParameterLearningAlgorithm ctbnPLA,
-								  String penalisationFunction, String initialStructure, List<Long> seeds) {
+								  String penalisationFunction, String initialStructure, List<Long> seeds,
+								  String nameGeneratedFile) {
 		// Set values global variables
 		this.numDatasets = nameDatasets.size();
 		this.numModels = nameModels.size();
 		this.nameClassVariables = nameClassVariables;
-		if (seeds.size() > 1)
+		if (seeds != null && seeds.size() > 1)
 			// It will be generated as many shuffled datasets as specified seeds
 			this.numDatasets *= seeds.size();
 		// Create a workbook, sheet and file to store the results
 		this.workbook = new XSSFWorkbook();
 		this.sheet = this.workbook.createSheet("Experiments");
-		String fileName = new SimpleDateFormat("yyyyMMddHHmmSS'.xlsx'").format(new Date());
+		if (nameGeneratedFile == null)
+			nameGeneratedFile = new SimpleDateFormat("yyyyMMddHHmmSS'.xlsx'").format(new Date());
+		else
+			nameGeneratedFile = nameGeneratedFile + ".xlsx";
 		try {
-			File file = new File(this.path + fileName);
+			File file = new File(this.path + nameGeneratedFile);
 			file.getParentFile().mkdirs();
 			this.out = new FileOutputStream(file);
 			// Conditions experiments
@@ -126,7 +131,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 		this.numDatasets = nameDatasets.size();
 		this.numModels = nameModels.size();
 		this.nameClassVariables = nameClassVariables;
-		if (seeds.size() > 1)
+		if (seeds != null && seeds.size() > 1)
 			// It will be generated as many shuffled datasets as specified seeds
 			this.numDatasets *= seeds.size();
 		// Create a workbook, sheet and file to store the results
@@ -180,38 +185,60 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 
 	@Override
 	public void write(Map<String, Double> results) {
-		double ga = results.get("Global accuracy");
-		double ma = results.get("Mean accuracy");
-		double map = results.get("Macro-averaged precision");
-		double mar = results.get("Macro-averaged recall");
-		double maf1 = results.get("Macro-averaged F1 score");
-		double mip = results.get("Micro-averaged precision");
-		double mir = results.get("Micro-averaged recall");
-		double mif1 = results.get("Micro-averaged F1 score");
-		Double gb = results.getOrDefault("Global Brier score", null);
-		Double lt = results.getOrDefault("Learning time", null);
+		Double a = results.get("Accuracy");
+		Double ga = results.get("Global accuracy");
+		Double ma = results.get("Mean accuracy");
+		Double map = results.get("Macro-averaged precision");
+		Double mar = results.get("Macro-averaged recall");
+		Double maf1 = results.get("Macro-averaged F1 score");
+		Double mip = results.get("Micro-averaged precision");
+		Double mir = results.get("Micro-averaged recall");
+		Double mif1 = results.get("Micro-averaged F1 score");
+		Double gb = results.get("Global Brier score");
+		Double b = results.get("Brier score");
+		Double lt = results.get("Learning time");
+		Double ct = results.get("Classification time");
 		// Get the initial row in the excel for the current score
-		int initialRow = getInitialRowScore(this.idxCurrentScoreFunction);
+		int currentRow = getInitialRowScore(this.idxCurrentScoreFunction) + 3;
 		int numColumn = this.idxCurrentModel + (this.numModels * this.idxCurrentDataset) + 1;
 		// Evaluation metrics per dataset and model
-		this.sheet.getRow(initialRow + 3).createCell(numColumn).setCellValue(ga);
-		this.sheet.getRow(initialRow + 4).createCell(numColumn).setCellValue(ma);
-		this.sheet.getRow(initialRow + 5).createCell(numColumn).setCellValue(map);
-		this.sheet.getRow(initialRow + 6).createCell(numColumn).setCellValue(mar);
-		this.sheet.getRow(initialRow + 7).createCell(numColumn).setCellValue(maf1);
-		this.sheet.getRow(initialRow + 8).createCell(numColumn).setCellValue(mip);
-		this.sheet.getRow(initialRow + 9).createCell(numColumn).setCellValue(mir);
-		this.sheet.getRow(initialRow + 10).createCell(numColumn).setCellValue(mif1);
+		if (ga != null && ma != null) {
+			this.sheet.getRow(currentRow).createCell(numColumn).setCellValue(ga);
+			this.sheet.getRow(++currentRow).createCell(numColumn).setCellValue(ma);
+		} else if (a != null) {
+			// If only the accuracy is available, it is a onedimensional classification
+			this.sheet.getRow(currentRow).createCell(numColumn).setCellValue(a);
+			this.sheet.getRow(++currentRow).createCell(numColumn).setCellValue(a);
+		}
+		this.sheet.getRow(++currentRow).createCell(numColumn).setCellValue(map);
+		this.sheet.getRow(++currentRow).createCell(numColumn).setCellValue(mar);
+		this.sheet.getRow(++currentRow).createCell(numColumn).setCellValue(maf1);
+		this.sheet.getRow(++currentRow).createCell(numColumn).setCellValue(mip);
+		this.sheet.getRow(++currentRow).createCell(numColumn).setCellValue(mir);
+		this.sheet.getRow(++currentRow).createCell(numColumn).setCellValue(mif1);
+
 		if (gb != null)
-			this.sheet.getRow(initialRow + 11).createCell(numColumn).setCellValue(gb);
+			this.sheet.getRow(++currentRow).createCell(numColumn).setCellValue(gb);
+		else if (b != null)
+			this.sheet.getRow(++currentRow).createCell(numColumn).setCellValue(b);
 		if (lt != null)
-			this.sheet.getRow(initialRow + 12).createCell(numColumn).setCellValue(lt);
+			this.sheet.getRow(++currentRow).createCell(numColumn).setCellValue(lt);
+		if (ct != null)
+			this.sheet.getRow(++currentRow).createCell(numColumn).setCellValue(ct);
+
+
 		// Evaluation metrics per class variables
-		int initialRowClasses = initialRow + 20 + 2 * this.numModels;
-		for (int i = 0; i < this.nameClassVariables.size(); i++) {
-			double acc = results.get("Accuracy " + this.nameClassVariables.get(i));
-			this.sheet.getRow(initialRowClasses + 2 + this.idxCurrentDataset +
-					(this.numDatasets + 2) * this.idxCurrentModel).createCell(2 * i + 1).setCellValue(acc);
+		int currentRowClasses = currentRow + 8 + 2 * this.numModels;
+		if (this.nameClassVariables.size() > 1) {
+			for (int i = 0; i < this.nameClassVariables.size(); i++) {
+				Double accClassVariable = results.get("Accuracy " + this.nameClassVariables.get(i));
+				this.sheet.getRow(currentRowClasses + 2 + this.idxCurrentDataset +
+						(this.numDatasets + 2) * this.idxCurrentModel).createCell(2 * i + 1).setCellValue(
+						accClassVariable);
+			}
+		} else {
+			this.sheet.getRow(currentRowClasses + 2 + this.idxCurrentDataset +
+					(this.numDatasets + 2) * this.idxCurrentModel).createCell(1).setCellValue(a);
 		}
 		// It is updated the reference to the currently evaluated dataset and model
 		if (this.idxCurrentModel == this.numModels - 1 && this.idxCurrentDataset == this.numDatasets - 1) {
@@ -266,7 +293,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 	 */
 	private void generateTableComparisonPerClassVariable(int initialRow, List<String> nameModels,
 														 List<String> nameClassVariables) {
-		int initialRowClasses = initialRow + 20 + 2 * this.numModels;
+		int initialRowClasses = initialRow + 21 + 2 * this.numModels;
 		this.sheet.addMergedRegion(new CellRangeAddress(initialRowClasses, initialRowClasses + 1, 0, 0));
 		this.sheet.createRow(initialRowClasses).createCell(0).setCellValue("Model");
 		this.sheet.createRow(initialRowClasses + 1);
@@ -309,7 +336,7 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 		// Results for each of the datasets
 		this.sheet.createRow(initialRow + 1);
 		this.sheet.createRow(initialRow + 2);
-		if (seeds.size() > 1) {
+		if (seeds != null && seeds.size() > 1) {
 			// More than one seed is specified, so more than one evaluation is performed per
 			// dataset and model
 			for (int i = 0; i < nameDatasets.size(); i++) {
@@ -373,12 +400,13 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 		lessRule.createPatternFormatting().setFillBackgroundColor(IndexedColors.RED.getIndex());
 		for (int i = 1; i < this.numModels; i++) {
 			CellRangeAddress[] rangeFormating = {CellRangeAddress.valueOf(
-					"B" + (initialRow + 18 + this.numModels + i) + ":" + columnName(this.metrics.size() * 2 - 1) +
-							(initialRow + 19 + this.numModels + i))};
+					"B" + (initialRow + metrics.size() + 8 + this.numModels + i) + ":" +
+							columnName(this.metrics.size() * 2 - 1) +
+							(initialRow + metrics.size() + 9 + this.numModels + i))};
 			condFormat.addConditionalFormatting(rangeFormating, moreRule);
 			condFormat.addConditionalFormatting(rangeFormating, lessRule);
 		}
-		int initialRowClasses = initialRow + 22 + 2 * this.numModels;
+		int initialRowClasses = initialRow + 23 + 2 * this.numModels;
 		CellRangeAddress[] rangeFormating = {CellRangeAddress.valueOf(
 				"B" + (initialRowClasses + ((this.numDatasets + 1) * this.numModels) + (this.numModels - 1) + 1) +
 						":" +
@@ -408,21 +436,22 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 					if (k < this.numDatasets - 1)
 						strFormula += ",";
 				}
-				this.sheet.getRow(initialRow + 18 + i).createCell(1 + j * 2).setCellFormula(
+				this.sheet.getRow(initialRow + metrics.size() + 8 + i).createCell(1 + j * 2).setCellFormula(
 						"AVERAGE(" + strFormula + ")");
-				this.sheet.getRow(initialRow + 18 + i).createCell((1 + j) * 2).setCellFormula(
+				this.sheet.getRow(initialRow + metrics.size() + 8 + i).createCell((1 + j) * 2).setCellFormula(
 						"STDEV(" + strFormula + ")");
 			}
 		for (int i = 0; i < this.metrics.size(); i++) {
 			String col = columnName(1 + i * 2);
 			for (int j = 1; j < this.numModels; j++) {
-				String strFormula = col + (initialRow + 18 + this.numModels) + " - " + col + (initialRow + 18 + j);
-				this.sheet.getRow(initialRow + 18 + this.numModels + j).createCell(1 + i * 2).setCellFormula(
-						strFormula);
+				String strFormula = col + (initialRow + metrics.size() + 8 + this.numModels) + " - " + col +
+						(initialRow + metrics.size() + 8 + j);
+				this.sheet.getRow(initialRow + metrics.size() + 8 + this.numModels + j).createCell(
+						1 + i * 2).setCellFormula(strFormula);
 			}
 		}
 		// Table class variables
-		int initialRowClasses = initialRow + 22 + 2 * this.numModels;
+		int initialRowClasses = initialRow + 23 + 2 * this.numModels;
 		for (int i = 0; i < nameModels.size(); i++) {
 			for (int j = 0; j < nameClassVariables.size(); j++) {
 				this.sheet.getRow(initialRowClasses + (this.numDatasets + 2) * i + this.numDatasets).createCell(
@@ -488,12 +517,16 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 		XSSFFont fontBold = this.workbook.createFont();
 		fontBold.setBold(true);
 		rts.append("Experiment conditions\n", fontBold);
-		rts.append("Feature variables: " + nameFeatureVariables + "\n");
-		rts.append("Class variables: " + this.nameClassVariables + "\n");
+		if (nameFeatureVariables != null)
+			rts.append("Feature variables: " + nameFeatureVariables + "\n");
+		if (this.nameClassVariables != null)
+			rts.append("Class variables: " + this.nameClassVariables + "\n");
 		if (penalisationFunction != null)
 			rts.append("Penalisation: " + penalisationFunction + "\n");
-		rts.append("Parameter learning alg. class subgraph: " + bnPLA.getNameMethod() + "\n");
-		rts.append("Parameter learning alg. bridge and feature subgraphs: " + ctbnPLA.getNameMethod() + "\n");
+		if (bnPLA != null)
+			rts.append("Parameter learning alg. class subgraph: " + bnPLA.getNameMethod() + "\n");
+		if (ctbnPLA != null)
+			rts.append("Parameter learning alg. bridge and feature subgraphs: " + ctbnPLA.getNameMethod() + "\n");
 		if (significancePC != null)
 			rts.append("Significance level of PC algorithm: " + significancePC + "\n");
 		if (significancesigTimeTransitionHypothesis != null)
@@ -502,7 +535,8 @@ public class ExcelExperimentsWriter extends MetricsWriter {
 		if (sigStateToStateTransitionHypothesis != null)
 			rts.append("Significance level for null state-to-state transition hypothesis of CTPC algorithm: " +
 					sigStateToStateTransitionHypothesis + "\n");
-		rts.append("Initial structure: " + initialStructure);
+		if (initialStructure != null)
+			rts.append("Initial structure: " + initialStructure);
 		this.sheet.addMergedRegion(new CellRangeAddress(3, 11, 1, 10));
 		this.sheet.createRow(3).createCell(1).setCellStyle(newLineCS);
 		this.sheet.getRow(3).getCell(1).setCellValue(rts);

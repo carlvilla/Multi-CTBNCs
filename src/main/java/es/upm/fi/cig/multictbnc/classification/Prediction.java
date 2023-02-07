@@ -15,6 +15,8 @@ public class Prediction {
 	double probabilityPrediction;
 	Map<State, Double> probabilities;
 
+	double predictionTime;
+
 	/**
 	 * Returns the prediction.
 	 *
@@ -22,6 +24,15 @@ public class Prediction {
 	 */
 	public State getPredictedClasses() {
 		return this.predictedClasses;
+	}
+
+	/**
+	 * Returns the prediction time.
+	 *
+	 * @return prediction time
+	 */
+	public double getPredictionTime() {
+		return this.predictionTime;
 	}
 
 	/**
@@ -43,12 +54,21 @@ public class Prediction {
 	}
 
 	/**
-	 * Sets the predicted classes
+	 * Sets the predicted classes.
 	 *
 	 * @param predictedClasses {@code State} object with the predicted classes
 	 */
 	public void setPredictedClasses(State predictedClasses) {
 		this.predictedClasses = predictedClasses;
+	}
+
+	/**
+	 * Sets the prediction time.
+	 *
+	 * @param predictionTime prediction time.
+	 */
+	public void setPredictionTime(double predictionTime) {
+		this.predictionTime = predictionTime;
 	}
 
 	/**
