@@ -1,7 +1,7 @@
 package es.upm.fi.cig.multictbnc.learning.parameters.ctbn;
 
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
-import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
+import es.upm.fi.cig.multictbnc.nodes.DiscreteStateNode;
 
 import java.util.Map;
 
@@ -28,7 +28,7 @@ public class CTBNMaximumLikelihoodEstimation extends CTBNParameterLearningAlgori
 	}
 
 	@Override
-	protected CTBNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset) {
+	protected CTBNSufficientStatistics getSufficientStatisticsNode(DiscreteStateNode node, Dataset dataset) {
 		CTBNSufficientStatistics ssNode = new CTBNSufficientStatistics(0, 0);
 		ssNode.computeSufficientStatistics(node, dataset);
 		return ssNode;

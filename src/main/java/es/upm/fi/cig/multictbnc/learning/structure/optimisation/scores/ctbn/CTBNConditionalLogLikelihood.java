@@ -8,7 +8,7 @@ import es.upm.fi.cig.multictbnc.models.BN;
 import es.upm.fi.cig.multictbnc.models.CTBN;
 import es.upm.fi.cig.multictbnc.nodes.CIMNode;
 import es.upm.fi.cig.multictbnc.nodes.CPTNode;
-import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
+import es.upm.fi.cig.multictbnc.nodes.DiscreteStateNode;
 import es.upm.fi.cig.multictbnc.nodes.Node;
 import es.upm.fi.cig.multictbnc.util.Util;
 
@@ -313,7 +313,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 							// currently evaluated class configuration
 							for (Node parentNode : node.getParents()) {
 								if (parentNode.isClassVariable()) {
-									String stateCVParent = ((DiscreteNode) parentNode).getState();
+									String stateCVParent = ((DiscreteStateNode) parentNode).getState();
 									String stateCVinCC = stateCVs.getValueVariable(parentNode.getName());
 									if (!stateCVParent.equals(stateCVinCC))
 										continue stateParents;
@@ -379,7 +379,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 					// currently evaluated class configuration
 					for (Node parentNode : node.getParents()) {
 						if (parentNode.isClassVariable()) {
-							String stateCVParent = ((DiscreteNode) parentNode).getState();
+							String stateCVParent = ((DiscreteStateNode) parentNode).getState();
 							String stateCVinCC = stateCVs.getValueVariable(parentNode.getName());
 							if (!stateCVParent.equals(stateCVinCC))
 								continue stateParents;
@@ -490,7 +490,7 @@ public class CTBNConditionalLogLikelihood extends AbstractLikelihood implements 
 				nodeCV.setState(stateCV);
 				for (Node nodeParent : nodeCV.getParents()) {
 					String stateParentCV = stateCVs.getValueVariable(nodeParent.getName());
-					((DiscreteNode) nodeParent).setState(stateParentCV);
+					((DiscreteStateNode) nodeParent).setState(stateParentCV);
 				}
 				int idxState = nodeCV.getIdxState();
 				int idxStateParents = nodeCV.getIdxStateParents();

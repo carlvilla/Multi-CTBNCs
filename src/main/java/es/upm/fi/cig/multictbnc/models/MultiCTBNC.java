@@ -148,6 +148,18 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 	}
 
 	/**
+	 * Returns the nodes of the continuous-time Bayesian network modelling the feature and bridge subgraphs of the
+	 * Multi-CTBNC, which are in the Markov blaket of at least one class variable.
+	 *
+	 * @return node list
+	 */
+	public List<NodeTypeCTBN> getNodesCTBNInMarkovBlanketClassVariables() {
+		// Retrieve feature nodes that are part of the Markov blanket of a class variable
+		return this.ctbn.getNodes().stream().filter(node -> node.isInMarkovBlanketClassVariable()).collect(
+				Collectors.toList());
+	}
+
+	/**
 	 * Returns the list of nodes for the class variables.
 	 *
 	 * @return list of nodes for the class variables
@@ -221,11 +233,45 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 	 * @return sampled sequence
 	 */
 	public Sequence sample(double duration) {
+		return sample(duration, 0, 0);
+	}
+
+	/**
+	 * Samples a sequence given its duration with added noise.
+	 *
+	 * @param duration                             duration of the sequence
+	 * @param percentageNoisyStates                percentage of class variables' states and state transitions of
+	 *                                             feature variables which are randomly sampled.
+	 * @param stdDeviationGaussianNoiseWaitingTime standard deviation of the Gaussian distribution used to sample noise
+	 *                                             to be added to the waiting times of feature variables in a certain
+	 *                                             state
+	 * @return sampled sequence
+	 */
+	public Sequence sample(double duration, double percentageNoisyStates,
+						   double stdDeviationGaussianNoiseWaitingTime) {
 		// Forward sampling Bayesian network (class subgraph). Sample the state
 		// of the class variables
-		State sampledCVs = sampleClassVariables();
+		State sampledCVs = sampleClassVariables(percentageNoisyStates);
 		// Sample a sequence given the state of the class variables
-		return sampleSequence(sampledCVs, duration);
+		return sampleSequence(sampledCVs, duration, percentageNoisyStates, stdDeviationGaussianNoiseWaitingTime);
+	}
+
+	/**
+	 * Sets the learning algorithms used to define the class subgraph (BN).
+	 *
+	 * @param bnLearningAlgs structure learning algorithms
+	 */
+	public void setBnLearningAlgs(BNLearningAlgorithms bnLearningAlgs) {
+		this.bnLearningAlgs = bnLearningAlgs;
+	}
+
+	/**
+	 * Sets the learning algorithms used to define the bridge and feature subgraphs (CTBN).
+	 *
+	 * @param ctbnLearningAlgs structure learning algorithms
+	 */
+	public void setCtbnLearningAlgs(CTBNLearningAlgorithms ctbnLearningAlgs) {
+		this.ctbnLearningAlgs = ctbnLearningAlgs;
 	}
 
 	/**
@@ -236,6 +282,42 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 	 */
 	public void setIntialStructure(String initialStructure) {
 		this.initialStructure = initialStructure;
+	}
+
+	/**
+	 * Learns the sets of parents and children of some nodes from a provided dataset and update the model with them.
+	 *
+	 * @param nodes   list of nodes
+	 * @param dataset a dataset
+	 * @return time to perform the learning
+	 */
+	public long update(List<Node> nodes, Dataset dataset) {
+		List<String> namesNodes = nodes.stream().map(node -> node.getName()).collect(Collectors.toList());
+		logger.info("Updating model in nodes {} with {} training samples", namesNodes, dataset.getNumDataPoints());
+		// Measure execution time
+		Instant start = Instant.now();
+		// Check if it is a feature or class variable node
+
+		// Check if there was a concept drift for any class variable
+		// Update the class subgraph
+
+		// Check if there was a concept drift for any feature variable
+		// Update the bridge and feature subgraph
+
+		//		for (Node node : nodes) {
+		//		int idxNode = this.ctbn.getNodeIndexer().getIdxNodeByName(node.getName());
+		//		this.ctbn.learn(dataset, idxNode);
+		//	}
+
+		List<Integer> idxNodes = nodes.stream().map(
+				node -> this.ctbn.getNodeIndexer().getIndexNodeByName(node.getName())).collect(Collectors.toList());
+		this.ctbn.learn(dataset, idxNodes);
+		this.nodes = Stream.concat(getNodesFeatureVariables().stream(), getNodesClassVariables().stream()).collect(
+				Collectors.toList());
+		Instant end = Instant.now();
+		Duration updatingDuration = Duration.between(start, end);
+		logger.info("Model updated in {}", updatingDuration);
+		return updatingDuration.toMillis();
 	}
 
 	@Override
@@ -335,8 +417,6 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 	@Override
 	public Prediction[] predict(Dataset dataset, boolean estimateProbabilities) {
 		logger.info("Performing prediction over {} sequences", dataset.getNumDataPoints());
-		// Measure execution time
-		Instant start = Instant.now();
 		int numSequences = dataset.getNumDataPoints();
 		Prediction[] predictions = new Prediction[numSequences];
 		// Obtain class configurations
@@ -352,8 +432,10 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 						dataset.getSequences().get(indexSequence).getFilePath(), exception.getMessage());
 			}
 		});
-		Instant end = Instant.now();
-		logger.info("Sequences predicted in {}", Duration.between(start, end));
+		double totalPredictionTime = 0;
+		for (Prediction prediction : predictions)
+			totalPredictionTime += prediction.getPredictionTime();
+		logger.info("Sequences predicted in {}", totalPredictionTime + "S");
 		return predictions;
 	}
 
@@ -385,7 +467,7 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 		List<List<State>> statesEachCV = new ArrayList<List<State>>();
 		for (Node nodeCV : nodesCVs) {
 			List<State> statesNode = new ArrayList<>();
-			for (String valueState : ((DiscreteNode) nodeCV).getStates())
+			for (String valueState : ((DiscreteStateNode) nodeCV).getStates())
 				statesNode.add(new State(Map.of(nodeCV.getName(), valueState)));
 			statesEachCV.add(statesNode);
 		}
@@ -400,13 +482,13 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 	 * @return Prediction object that contains the predicted classes and, if requested, the probabilities of all
 	 * possible class configurations
 	 */
-	private Prediction predict(Sequence sequence, List<State> statesClassVariables, boolean estimateProbabilities)
-			throws ErroneousValueException {
+	private Prediction predict(Sequence sequence, List<State> statesClassVariables, boolean estimateProbabilities) {
+		Instant start = Instant.now();
 		// Obtain nodes of the Bayesian network and continuous-time Bayesian network
 		// If the prediction task is parallelised
 		MultiCTBNC<NodeTypeBN, NodeTypeCTBN> tmpMultiCTBNC = new MultiCTBNC<>(this.bn, this.ctbn);
 		List<NodeTypeBN> nodesBN = tmpMultiCTBNC.getNodesClassVariables();
-		List<NodeTypeCTBN> nodesCTBN = tmpMultiCTBNC.getNodesCTBN();
+		List<NodeTypeCTBN> nodesCTBN = tmpMultiCTBNC.getNodesCTBNInMarkovBlanketClassVariables();
 		// Estimate unnormalised log-a-posteriori probabilities of class configurations
 		double[] laps = new double[statesClassVariables.size()];
 		for (int i = 0; i < statesClassVariables.size(); i++) {
@@ -441,13 +523,16 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 			}
 			prediction.setProbabilityPrediction(prediction.getProbabilities().get(predictedCC));
 		}
+		Instant end = Instant.now();
+		double predictionTime = Duration.between(start, end).toMillis() / 1000.f;
+		prediction.setPredictionTime(predictionTime);
 		return prediction;
 	}
 
 	/**
 	 * Samples the state of the class variables.
 	 */
-	private State sampleClassVariables() {
+	private State sampleClassVariables(double percentageNoisyStates) {
 		// Define topological order
 		List<Node> classVariables = this.bn.getTopologicalOrdering();
 		// Map used to save the variable in the order given by the Bayesian network
@@ -458,7 +543,7 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 			// Extract CPT node
 			CPTNode cptNode = (CPTNode) classVariables.get(i);
 			// Sample state of the node given the states of the currently sampled nodes
-			State state = cptNode.sampleState();
+			State state = cptNode.sampleState(percentageNoisyStates);
 			statesClassVariables.put(cptNode.getName(), state);
 		}
 		// Save sample states of each node in the order given by the Bayesian network
@@ -501,7 +586,8 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 	 * @param duration   duration of the sampled sequence
 	 */
 	@SuppressWarnings("unchecked")
-	private Sequence sampleSequence(State sampledCVs, double duration) {
+	private Sequence sampleSequence(State sampledCVs, double duration, double percentageNoisyTransitions,
+									double stdDeviationGaussianNoiseWaitingTime) {
 		// Features whose transitions will be sampled
 		LinkedList<CIMNode> features = new LinkedList<>((List<CIMNode>) this.ctbn.getNodes());
 		// List with the time when observations occur
@@ -528,7 +614,7 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 				CIMNode featureToSample = features.pollFirst();
 				Util.setStateNodeAndParents(featureToSample, previousObservation);
 				// Get the time that the variable will stay in its current state
-				double sampledTime = featureToSample.sampleTimeState();
+				double sampledTime = featureToSample.sampleTimeState(stdDeviationGaussianNoiseWaitingTime);
 				// Add the times to the list ordered from lowest to highest
 				transitionTimes.put(currentTime + sampledTime, featureToSample);
 			}
@@ -543,7 +629,7 @@ public class MultiCTBNC<NodeTypeBN extends Node, NodeTypeCTBN extends Node> exte
 			CIMNode changingNode = nextTransition.getValue();
 			Util.setStateNodeAndParents(changingNode, previousObservation);
 			// Sample the next state of the node
-			State nextState = changingNode.sampleNextState();
+			State nextState = changingNode.sampleNextState(percentageNoisyTransitions);
 			// Transition times of the changing node's children must be resampled
 			for (Node childNode : changingNode.getChildren()) {
 				transitionTimes.values().remove(childNode);

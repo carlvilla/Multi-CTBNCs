@@ -19,10 +19,10 @@ import java.util.Arrays;
 public class MainSampling {
 	private static final Logger logger = LogManager.getLogger(MainSampling.class);
 	// Minimum and maximum values of the intensities
-	private static int MININTENSITY = 1;
-	private static int MAXINTENSITY = 3;
+	private static final int MININTENSITY = 1;
+	private static final int MAXINTENSITY = 3;
 	// Extreme probabilities (only for binary class variables)
-	private static boolean FORCEEXTREMEPROB = false;
+	private static final boolean FORCEEXTREMEPROB = false;
 
 	/**
 	 * Application entry point. Arguments are expected to include the following elements and in the described order:
@@ -50,6 +50,7 @@ public class MainSampling {
 		double probabilityEdgeFeatureSubgraph = Double.valueOf(args[9]);
 		int maxNumParentsFeatureVariables = Integer.valueOf(args[10]);
 		boolean differentStructurePerDataset = Boolean.valueOf(args[11]);
+		boolean isNoiseAdded = Boolean.valueOf(args[12]);
 		boolean[][] adjMatrix = retrieveAdjacencyMatrix(args);
 		// Generate models and sample datasets from them
 		for (int numDataset = 0; numDataset < numDatasetsToSample; numDataset++) {
@@ -61,7 +62,7 @@ public class MainSampling {
 					maxNumParentsFeatureVariables, differentStructurePerDataset, FORCEEXTREMEPROB, adjMatrix);
 			System.out.println("Generating data from structure:");
 			System.out.println(multiCTBNC);
-			DataSampler.generateDataset(multiCTBNC, numSequences, durationSequences, destinationPath);
+			DataSampler.generateDataset(multiCTBNC, numSequences, durationSequences, isNoiseAdded, destinationPath);
 			saveInfoModel(multiCTBNC, cardinalityFeatureVariables, cardinalityClassVariables,
 					probabilityEdgeClassSubgraph, probabilityEdgeBridgeSubgraph, probabilityEdgeFeatureSubgraph,
 					MININTENSITY, MAXINTENSITY, numSequences, durationSequences, destinationPath);
@@ -79,11 +80,11 @@ public class MainSampling {
 	private static String defineDestinationPathDataset(String[] args, double numDatasetsToSample, int numDataset) {
 		if (numDatasetsToSample == 1) {
 			// If one dataset is sampled, sequences are saved in the specified folder
-			return args[12];
+			return args[13];
 		}
 		// If multiple datasets are sampled, sequences are saved in different folders in
 		// the specified path
-		String pathDataset = Paths.get(args[12], "dataset%d").toString();
+		String pathDataset = Paths.get(args[13], "dataset%d").toString();
 		return String.format(pathDataset, numDataset);
 	}
 
@@ -95,8 +96,8 @@ public class MainSampling {
 	 */
 	private static boolean[][] retrieveAdjacencyMatrix(String[] args) {
 		boolean[][] adjMatrix = null;
-		if (args.length > 13) {
-			String flattenAdjMatrix = args[13];
+		if (args.length > 14) {
+			String flattenAdjMatrix = args[14];
 			String[] rowsAdjMatrix = flattenAdjMatrix.split("//");
 			adjMatrix = new boolean[rowsAdjMatrix.length][rowsAdjMatrix.length];
 			for (int idxRow = 0; idxRow < rowsAdjMatrix.length; idxRow++) {

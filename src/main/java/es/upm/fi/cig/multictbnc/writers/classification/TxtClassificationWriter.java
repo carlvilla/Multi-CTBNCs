@@ -7,9 +7,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -33,7 +33,7 @@ public class TxtClassificationWriter {
 		File file = new File(pathFolder + fileName);
 		file.getParentFile().mkdirs();
 		try {
-			PrintWriter writer = new PrintWriter(file, "UTF-8");
+			PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8);
 			for (int i = 0; i < predictions.length; i++) {
 				String fileSequence = dataset.getSequences().get(i).getFilePath();
 				State predictedCC = predictions[i].getPredictedClasses();
@@ -45,7 +45,7 @@ public class TxtClassificationWriter {
 			}
 			writer.close();
 			logger.info("Classifications saved in {}", file.getAbsoluteFile());
-		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+		} catch (IOException e) {
 			logger.error("An error occurred while creating the file for the classifications");
 		}
 	}

@@ -1,7 +1,7 @@
 package es.upm.fi.cig.multictbnc.learning.parameters.bn;
 
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
-import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
+import es.upm.fi.cig.multictbnc.nodes.DiscreteStateNode;
 
 import java.util.Map;
 
@@ -28,7 +28,7 @@ public class BNMaximumLikelihoodEstimation extends BNParameterLearningAlgorithm 
 	}
 
 	@Override
-	protected BNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset) {
+	protected BNSufficientStatistics getSufficientStatisticsNode(DiscreteStateNode node, Dataset dataset) {
 		BNSufficientStatistics ssNode = new BNSufficientStatistics(0);
 		ssNode.computeSufficientStatistics(node, dataset);
 		return ssNode;

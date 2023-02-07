@@ -49,7 +49,7 @@ public class MarkovBlanketCTPC extends CTPC {
 		initialiseCaches(caches, idxFeatureVariables);
 		// Define bridge subgraph testing the conditional independence between feature
 		// and class variables considering only class variables in the separating sets
-		logger.info("Defining bridge subgraph considering only class variable in the separating sets");
+		logger.info("Defining bridge subgraph considering only class variables in the separating sets");
 		idxFeatureVariables.parallelStream().forEach(idxFeatureVariable -> {
 			@SuppressWarnings("unchecked") CTBN<CIMNode> ctbn = new CTBN<>((CTBN<CIMNode>) pgm,
 					((CTBN<CIMNode>) pgm).getDataset());

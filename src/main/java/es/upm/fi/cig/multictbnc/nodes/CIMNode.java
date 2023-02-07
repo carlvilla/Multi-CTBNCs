@@ -4,15 +4,17 @@ import es.upm.fi.cig.multictbnc.data.representation.State;
 import es.upm.fi.cig.multictbnc.learning.parameters.SufficientStatistics;
 import es.upm.fi.cig.multictbnc.learning.parameters.ctbn.CTBNSufficientStatistics;
 import es.upm.fi.cig.multictbnc.util.Util;
+import org.apache.commons.math3.distribution.NormalDistribution;
 
 import java.util.List;
+import java.util.Random;
 
 /**
  * Extends the DiscreteNode class to store a CIM and the sufficient statistics for a CTBN.
  *
  * @author Carlos Villa Blanco
  */
-public class CIMNode extends DiscreteNode {
+public class CIMNode extends DiscreteStateNode {
 	CTBNSufficientStatistics sufficientStatistics;
 	// The conditional intensity matrix can be summarised by two types of parameters
 	// (Nodelman et al., 2012):
@@ -119,14 +121,37 @@ public class CIMNode extends DiscreteNode {
 	}
 
 	/**
-	 * Samples the next state of the node given the current one and that of its parents. Returns null if not all the
+	 * Samples the next state of the node given the current one and that of its parents. Returns null if not all the *
 	 * parents were instantiated.
 	 *
+	 * @param percentageNoisyTransitions value from 0 to 1 representing the probability of randomly sampling the next
+	 *                                   state of the variable
 	 * @return sampled state
 	 */
-	public State sampleNextState() {
-		// Get indexes states node and parents
+	public State sampleNextState(double percentageNoisyTransitions) {
+		// Get index current state node
 		int idxFromState = getIdxState();
+		// Check if noise is added to the sampled data
+		if (percentageNoisyTransitions > 0) {
+			// Draw noise from Gaussian distribution with mean = 0 and sigma = 1
+			NormalDistribution normalDistribution = new NormalDistribution(0, 1);
+			double zscore = normalDistribution.inverseCumulativeProbability(percentageNoisyTransitions / 2);
+			double noise = normalDistribution.sample();
+			// If noise (absolute value) is greater than the z-score (absolute value), draw state index from uniform
+			// distribution
+			if (Math.abs(noise) > Math.abs(zscore)) {
+				// Define random state
+				Random rdn = new Random();
+				int idxToState = rdn.nextInt(getNumStates());
+				while (getNumStates() > 1 && idxToState == idxFromState) {
+					// Define random state different from the current one
+					idxToState = rdn.nextInt(getNumStates());
+				}
+				setState(idxToState);
+				return new State(getName(), getState());
+			}
+		}
+		// Get index state parents
 		int idxStateParents = getIdxStateParents();
 		// Sample from uniform distribution
 		double probUniform = Math.random();
@@ -152,9 +177,11 @@ public class CIMNode extends DiscreteNode {
 	/**
 	 * Samples the time that the node stays in its current state given the state of its parents.
 	 *
+	 * @param stdDeviationGaussianNoiseWaitingTime standard deviation of a Gaussian distribution used to sample noise.
+	 *                                             If zero, no noise is added
 	 * @return sampled time
 	 */
-	public double sampleTimeState() {
+	public double sampleTimeState(double stdDeviationGaussianNoiseWaitingTime) {
 		// Get indexes states node and parents
 		int idxState = getIdxState();
 		int idxStateParents = getIdxStateParents();
@@ -169,7 +196,15 @@ public class CIMNode extends DiscreteNode {
 		double prob = Math.random();
 		// Use the quantile function of the exponential distribution with parameter 'q'
 		// to sample the time with the previously obtained probability
-		return -Math.log(1 - prob) / q;
+		double time = -Math.log(1 - prob) / q;
+		// Draw noise from Gaussian distribution with mean = 0 and sigma given by user
+		Random rdn = new Random();
+		double noise = rdn.nextGaussian() * stdDeviationGaussianNoiseWaitingTime;
+		// If the noise is negative and makes the waiting time 0 or less, the noise in absolute value is used
+		if ((time + noise) <= 0)
+			noise = Math.abs(noise);
+		time += noise;
+		return time;
 	}
 
 	/**
@@ -230,9 +265,7 @@ public class CIMNode extends DiscreteNode {
 	@Override
 	public String toString() {
 		String discreteNodeDescription = super.toString();
-		StringBuilder sb = new StringBuilder();
-		sb.append(discreteNodeDescription + "\n");
-		return sb.toString();
+		return discreteNodeDescription + "\n";
 	}
 
 }

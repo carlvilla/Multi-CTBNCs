@@ -3,7 +3,7 @@ package es.upm.fi.cig.multictbnc.learning.parameters.bn;
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
 import es.upm.fi.cig.multictbnc.data.representation.Sequence;
 import es.upm.fi.cig.multictbnc.learning.parameters.SufficientStatistics;
-import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
+import es.upm.fi.cig.multictbnc.nodes.DiscreteStateNode;
 import es.upm.fi.cig.multictbnc.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +20,7 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	// Sufficient statistics
 	private double[][] Nx;
 	// Hyperparameters of the Dirichlet prior distribution (zero if MLE is used)
-	private double nHP;
+	private final double nHP;
 	private double nxHP;
 
 	/**
@@ -59,7 +59,7 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	 * @param dataset dataset from which the sufficient statistics are extracted
 	 */
 	@Override
-	public void computeSufficientStatistics(DiscreteNode node, Dataset dataset) {
+	public void computeSufficientStatistics(DiscreteStateNode node, Dataset dataset) {
 		logger.trace("Computing sufficient statistics BN for node {}", node.getName());
 		String nameVariable = node.getName();
 		// Initialise sufficient statistics
@@ -69,7 +69,7 @@ public class BNSufficientStatistics implements SufficientStatistics {
 			String state = sequence.getClassVariables().get(nameVariable);
 			int idxState = node.setState(state);
 			for (int j = 0; j < node.getNumParents(); j++) {
-				DiscreteNode nodeParent = (DiscreteNode) node.getParents().get(j);
+				DiscreteStateNode nodeParent = (DiscreteStateNode) node.getParents().get(j);
 				String stateParent = sequence.getClassVariables().get(nodeParent.getName());
 				nodeParent.setState(stateParent);
 			}
@@ -87,7 +87,7 @@ public class BNSufficientStatistics implements SufficientStatistics {
 	 *
 	 * @param node node
 	 */
-	private void initialiseSufficientStatistics(DiscreteNode node) {
+	private void initialiseSufficientStatistics(DiscreteStateNode node) {
 		this.Nx = new double[node.getNumStatesParents()][node.getNumStates()];
 		// Adds the imaginary counts (hyperparameters) to the sufficient statistics
 		this.nxHP = this.nHP / (node.getNumStatesParents() * node.getNumStates());

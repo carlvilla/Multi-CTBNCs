@@ -23,20 +23,20 @@ import java.util.stream.IntStream;
 public class Sequence {
 	// Time formatter
 	DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder().appendPattern(
-			"[dd-][dd/][MM-][MM/][yyyy][ ][HH][:mm][:ss][.SSSSSS][.SSSSS][.SSSS][.SSS][.SS][.S]").parseDefaulting(
+			"[dd-][dd/][d-][d/][MM-][MM/][M-][M/][yyyy][ ][HH][:mm][:ss][.SSSSSS][.SSSSS][.SSSS][.SSS][.SS][.S]").parseDefaulting(
 			ChronoField.DAY_OF_MONTH, LocalDate.now().getDayOfMonth()).parseDefaulting(ChronoField.MONTH_OF_YEAR,
 			LocalDate.now().getMonthValue()).parseDefaulting(ChronoField.YEAR_OF_ERA,
 			LocalDate.now().getYear()).parseDefaulting(ChronoField.HOUR_OF_DAY, 0).parseDefaulting(
 			ChronoField.MINUTE_OF_HOUR, 0).parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0).toFormatter();
 	// Store the value of the time variable when the observation occurred
-	private String nameTimeVariable;
+	private final String nameTimeVariable;
 	private double[] timeValues;
 	// Store the value of all the variables (except the time variable)
 	private String[][] variablesValues;
 	private Map<String, String> classVariablesValues;
 	// It is necessary to store these names since the dataset can be created
 	// directly from sequences
-	private List<String> nameFeatureVariables;
+	private final List<String> nameFeatureVariables;
 	// Store the position of the feature variables in the "variablesValues" array
 	private Map<String, Integer> idxFeatureVariables;
 	// Path to the file from which the sequence was extracted (if it exists)
@@ -59,8 +59,7 @@ public class Sequence {
 		this.nameTimeVariable = nameTimeVariable;
 		// Set the names of the features by filtering the names of the class variables
 		// and time variable
-		this.nameFeatureVariables = Util.<String>filter(Util.<String>filter(nameVariables, nameClassVariables),
-				nameTimeVariable);
+		this.nameFeatureVariables = Util.filter(Util.filter(nameVariables, nameClassVariables), nameTimeVariable);
 		// Define values class variables for the sequence
 		setValuesClassVariables(nameVariables, nameClassVariables, dataObservations);
 		// Save the values of the features and time variables
@@ -112,8 +111,8 @@ public class Sequence {
 		// Set names variables
 		List<String> nameVariables = observations.get(0).getNameVariables();
 		// Get names feature variables
-		this.nameFeatureVariables = Util.<String>filter(
-				Util.<String>filter(nameVariables, stateClassVariables.getNameVariables()), nameTimeVariable);
+		this.nameFeatureVariables = Util.filter(Util.filter(nameVariables, stateClassVariables.getNameVariables()),
+				nameTimeVariable);
 		// Set values class variables
 		this.classVariablesValues = stateClassVariables.getEvents();
 		// Initialise data structures
@@ -142,6 +141,15 @@ public class Sequence {
 	 */
 	public String getFilePath() {
 		return this.filePath;
+	}
+
+	/**
+	 * Sets the path of the file from which the sequence was extracted.
+	 *
+	 * @param filePath path of the file
+	 */
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
 	}
 
 	/**
@@ -292,15 +300,6 @@ public class Sequence {
 		// TODO updating data array
 	}
 
-	/**
-	 * Sets the path of the file from which the sequence was extracted.
-	 *
-	 * @param filePath path of the file
-	 */
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
-	}
-
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -382,10 +381,17 @@ public class Sequence {
 		int idxTimeVariable = nameVariables.indexOf(nameTimeVariable);
 		for (int idxObservation = 0; idxObservation < dataObservations.size(); idxObservation++) {
 			checkIntegrityObservation(idxClassVariablesInDataset, dataObservations.get(idxObservation));
-			for (int idxFeatureVariable = 0; idxFeatureVariable < nameFeatureVariables.size(); idxFeatureVariable++) {
-				this.variablesValues[idxObservation][idxFeatureVariable] = dataObservations.get(
-						idxObservation)[idxFeatureVariablesInDataset.get(idxFeatureVariable)];
+
+			try {
+				for (int idxFeatureVariable = 0; idxFeatureVariable < nameFeatureVariables.size();
+					 idxFeatureVariable++) {
+					this.variablesValues[idxObservation][idxFeatureVariable] = dataObservations.get(
+							idxObservation)[idxFeatureVariablesInDataset.get(idxFeatureVariable)];
+				}
+			} catch (Exception e) {
+
 			}
+
 			// Read time variable. Double and Date are accepted
 			Double timeValue;
 			try {

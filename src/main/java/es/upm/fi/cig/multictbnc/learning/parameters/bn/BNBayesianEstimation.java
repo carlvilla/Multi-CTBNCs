@@ -1,7 +1,7 @@
 package es.upm.fi.cig.multictbnc.learning.parameters.bn;
 
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
-import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
+import es.upm.fi.cig.multictbnc.nodes.DiscreteStateNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,7 +18,7 @@ import java.util.Map;
 public class BNBayesianEstimation extends BNParameterLearningAlgorithm {
 	private static final Logger logger = LogManager.getLogger(BNBayesianEstimation.class);
 	// Hyperparameters of the Dirichlet prior distribution
-	private double nxHP;
+	private final double nxHP;
 
 	/**
 	 * Receives the hyperparameter of the Dirichlet prior distribution over the parameters (i.e. imaginary counts).
@@ -47,7 +47,7 @@ public class BNBayesianEstimation extends BNParameterLearningAlgorithm {
 	}
 
 	@Override
-	protected BNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset) {
+	protected BNSufficientStatistics getSufficientStatisticsNode(DiscreteStateNode node, Dataset dataset) {
 		BNSufficientStatistics ssNode = new BNSufficientStatistics(this.nxHP);
 		ssNode.computeSufficientStatistics(node, dataset);
 		return ssNode;

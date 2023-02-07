@@ -3,7 +3,7 @@ package es.upm.fi.cig.multictbnc.learning.parameters.bn;
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
 import es.upm.fi.cig.multictbnc.learning.parameters.ParameterLearningAlgorithm;
 import es.upm.fi.cig.multictbnc.nodes.CPTNode;
-import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
+import es.upm.fi.cig.multictbnc.nodes.DiscreteStateNode;
 import es.upm.fi.cig.multictbnc.nodes.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,7 +43,7 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 
 	@Override
 	public void setSufficientStatistics(Node node, Dataset dataset) {
-		BNSufficientStatistics ssNode = getSufficientStatisticsNode((DiscreteNode) node, dataset);
+		BNSufficientStatistics ssNode = getSufficientStatisticsNode((DiscreteStateNode) node, dataset);
 		node.setSufficientStatistics(ssNode);
 	}
 
@@ -54,7 +54,7 @@ public abstract class BNParameterLearningAlgorithm implements ParameterLearningA
 	 * @param dataset dataset from which the sufficient statistics are extracted
 	 * @return sufficient statistics of the provided node
 	 */
-	protected abstract BNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset);
+	protected abstract BNSufficientStatistics getSufficientStatisticsNode(DiscreteStateNode node, Dataset dataset);
 
 	/**
 	 * Estimates the parameters for a certain node from its previously computed sufficient statistics.

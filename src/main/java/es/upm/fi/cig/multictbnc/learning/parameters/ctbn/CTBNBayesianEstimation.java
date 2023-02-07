@@ -1,7 +1,7 @@
 package es.upm.fi.cig.multictbnc.learning.parameters.ctbn;
 
 import es.upm.fi.cig.multictbnc.data.representation.Dataset;
-import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
+import es.upm.fi.cig.multictbnc.nodes.DiscreteStateNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -51,7 +51,7 @@ public class CTBNBayesianEstimation extends CTBNParameterLearningAlgorithm {
 	}
 
 	@Override
-	protected CTBNSufficientStatistics getSufficientStatisticsNode(DiscreteNode node, Dataset dataset) {
+	protected CTBNSufficientStatistics getSufficientStatisticsNode(DiscreteStateNode node, Dataset dataset) {
 		CTBNSufficientStatistics ssNode = new CTBNSufficientStatistics(this.mxyHP, this.txHP);
 		ssNode.computeSufficientStatistics(node, dataset);
 		return ssNode;

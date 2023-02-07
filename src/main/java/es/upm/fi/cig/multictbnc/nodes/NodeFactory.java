@@ -8,8 +8,8 @@ import java.util.List;
 /**
  * Provides static methods for the creation of nodes.
  *
- * @param <NodeType> type of nodes that will be created, e.g., nodes with conditional probability tables ({@code
- *                   CPTNode}) or conditional intensity matrices (@code CIMNode)
+ * @param <NodeType> type of nodes that will be created, e.g., nodes with conditional probability tables
+ *                   ({@code CPTNode}) or conditional intensity matrices (@code CIMNode)
  * @author Carlos Villa Blanco
  */
 public class NodeFactory<NodeType extends Node> {
@@ -19,11 +19,22 @@ public class NodeFactory<NodeType extends Node> {
 	/**
 	 * Constructs a {@code NodeFactory}.
 	 *
-	 * @param nodeClass Type of nodes that will be created, e.g., nodes with conditional probability tables ({@code
-	 *                  CPTNode}) or conditional intensity matrices (@code CIMNode)
+	 * @param nodeClass Type of nodes that will be created, e.g., nodes with conditional probability tables
+	 *                  ({@code CPTNode}) or conditional intensity matrices (@code CIMNode)
 	 */
 	private NodeFactory(Class<NodeType> nodeClass) {
 		this.nodeClass = nodeClass;
+	}
+
+	/**
+	 * Constructs a {@code NodeFactory} for nodes whose {@code Class} is passed as a parameter.
+	 *
+	 * @param <NodeType> type of nodes to be generated
+	 * @param nodeClass  {@code Class} of the nodes to be generated
+	 * @return a {@code NodeFactory}
+	 */
+	public static <NodeType extends Node> NodeFactory<NodeType> createFactory(Class<NodeType> nodeClass) {
+		return new NodeFactory<>(nodeClass);
 	}
 
 	/**
@@ -44,7 +55,8 @@ public class NodeFactory<NodeType extends Node> {
 		} else if (this.nodeClass == CPTNode.class) {
 			// Create a CPTNode
 			List<String> states = dataset.getPossibleStatesVariable(nameVariable);
-			return (NodeType) new CPTNode(nameVariable, states);
+			boolean isClassVariable = dataset.getNameClassVariables().contains(nameVariable);
+			return (NodeType) new CPTNode(nameVariable, states, isClassVariable);
 		} else {
 			throw new UnsupportedOperationException("The specified node type is not currently supported");
 		}
@@ -95,19 +107,8 @@ public class NodeFactory<NodeType extends Node> {
 	}
 
 	/**
-	 * Constructs a {@code NodeFactory} for nodes whose {@code Class} is passed as a parameter.
-	 *
-	 * @param <NodeType> type of nodes to be generated
-	 * @param nodeClass  {@code Class} of the nodes to be generated
-	 * @return a {@code NodeFactory}
-	 */
-	public static <NodeType extends Node> NodeFactory<NodeType> createFactory(Class<NodeType> nodeClass) {
-		return new NodeFactory<>(nodeClass);
-	}
-
-	/**
 	 * Set the dependencies of the created nodes given the dependencies of the provided nodes. Both lists are
-	 * assumed to
+     * assumed to
 	 * contain the same nodes in the same order. If the type of a parent node is different from that created by the
 	 * factory, a reference is saved to that node. Otherwise, the dependencies are defined only between the newly
 	 * created nodes. It is important to keep the order of the parents since the state indexes could vary otherwise.

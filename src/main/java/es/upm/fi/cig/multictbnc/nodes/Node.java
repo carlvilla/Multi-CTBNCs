@@ -68,25 +68,60 @@ public interface Node {
 	List<Node> getParents();
 
 	/**
+	 * Specifies if the node has children.
+	 *
+	 * @return {@code true} if the node has children, {@code false} otherwise
+	 */
+	boolean hasChildren();
+
+	/**
+	 * Specifies if the node has a class variable as parent.
+	 *
+	 * @return {@code true} if the node has a class variable as parent, {@code false} otherwise
+	 */
+	boolean hasClassVariableAsParent();
+
+	/**
+	 * Specifies if the node has a class variable as spouse.
+	 *
+	 * @return {@code true} if the node has a class variable as spouse, {@code false} otherwise
+	 */
+	boolean hasClassVariableAsSpouse();
+
+	/**
 	 * Specifies if the node has parents.
 	 *
-	 * @return true if the node has parents, false otherwise
+	 * @return {@code true} if the node has parents, {@code false} otherwise
 	 */
 	boolean hasParents();
 
 	/**
 	 * Defines if the node is a class variable.
 	 *
-	 * @param isClassVariable true if the node is a class variable, false otherwise
+	 * @param isClassVariable {@code true} if the node is a class variable, {@code false} otherwise
 	 */
 	void isClassVariable(boolean isClassVariable);
 
 	/**
 	 * Specifies if the node is a class variable.
 	 *
-	 * @return true if the node is a class variable, false otherwise
+	 * @return {@code true} if the node is a class variable, {@code false} otherwise
 	 */
 	boolean isClassVariable();
+
+	/**
+	 * Specifies if the node is disconnected, i.e., it has neither parents or children.
+	 *
+	 * @return {@code true} if the node is disconnected, {@code false} otherwise
+	 */
+	boolean isDisconnected();
+
+	/**
+	 * Specifies if the node is in the Markov blanket of at least one class variable.
+	 *
+	 * @return {@code true} if the node is in the Markov blanket of a class variable, {@code false} otherwise
+	 */
+	boolean isInMarkovBlanketClassVariable();
 
 	/**
 	 * Removes the parents and children of the node.

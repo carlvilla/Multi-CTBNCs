@@ -13,6 +13,8 @@ import es.upm.fi.cig.multictbnc.util.ProbabilityUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -30,26 +32,53 @@ public class DataSampler {
 	/**
 	 * Sample a dataset from the provided model.
 	 *
-	 * @param multiCTBNC        model from which datasets are sampled
-	 * @param numSequences      number of sequences of the dataset
-	 * @param durationSequences duration of the sequences
-	 * @param destinationPath   path where the dataset is saved
+	 * @param multiCTBNC                           model from which datasets are sampled
+	 * @param numSequences                         number of sequences of the dataset
+	 * @param durationSequences                    duration of the sequences
+	 * @param percentageNoisyStates                percentage of class variables' states and state transitions of
+	 *                                             feature variables which are randomly sampled.
+	 * @param stdDeviationGaussianNoiseWaitingTime standard deviation of the Gaussian distribution used to sample noise
+	 *                                             to be added to the waiting times of feature variables in a certain
+	 *                                             state
+	 * @param destinationPath                      path where the dataset is saved
 	 */
 	public static void generateDataset(MultiCTBNC<CPTNode, CIMNode> multiCTBNC, int numSequences,
-									   double durationSequences, String destinationPath) {
-		if (multiCTBNC == null)
-			// The selected experiment was not found
+									   double durationSequences, double percentageNoisyStates,
+									   double stdDeviationGaussianNoiseWaitingTime, String destinationPath) {
+		if (multiCTBNC == null) {
 			return;
+		}
 		// Sample sequences from the Multi-CTBNC
 		List<Sequence> sequences = new ArrayList<>();
 		IntStream.range(0, numSequences).forEach(indexSequence -> {
-			sequences.add(multiCTBNC.sample(durationSequences));
+			sequences.add(
+					multiCTBNC.sample(durationSequences, percentageNoisyStates, stdDeviationGaussianNoiseWaitingTime));
 		});
 		// Create a dataset with the generated sequences
 		Dataset dataset = new Dataset(sequences);
 		// Save the dataset in the provided path
 		MultipleCSVWriter.write(dataset, destinationPath);
 		logger.info("Dataset generated!");
+	}
+
+	/**
+	 * Sample a dataset from the provided model.
+	 *
+	 * @param multiCTBNC        model from which datasets are sampled
+	 * @param numSequences      number of sequences of the dataset
+	 * @param durationSequences duration of the sequences
+	 * @param isNoiseAdded      {@code True} if noise is added to the datasets, {@code False} otherwise
+	 * @param destinationPath   path where the dataset is saved
+	 */
+	public static void generateDataset(MultiCTBNC<CPTNode, CIMNode> multiCTBNC, int numSequences,
+									   double durationSequences, boolean isNoiseAdded, String destinationPath) {
+		if (multiCTBNC == null)
+			return;
+		if (isNoiseAdded) {
+			generateDatasetsWithDifferentNoiseLevels(multiCTBNC, numSequences, durationSequences, destinationPath);
+		} else {
+			generateDataset(multiCTBNC, numSequences, durationSequences, 0, 0, destinationPath);
+		}
 	}
 
 	/**
@@ -163,8 +192,8 @@ public class DataSampler {
 	 * @param maxIntensity                   maximum intensity
 	 * @param maxNumParentsFeature           maximum number of feature variables that can be parents of another feature
 	 *                                       variable
-	 * @param differentStructurePerDataset   {@code true} to used the structure defined for a previous model, {@code
-	 *                                       false} otherwise.
+	 * @param differentStructurePerDataset   {@code true} to used the structure defined for a previous model,
+	 *                                       {@code false} otherwise.
 	 * @param forceExtremeProb               {@code true} to force the probabilities of the CPTs to be extreme (0 to
 	 *                                                     0.3
 	 *                                       or 0.7 to 1), {@code false} otherwise
@@ -203,6 +232,40 @@ public class DataSampler {
 
 	private static CPTNode generateClassVariable(String name, List<String> states) {
 		return new CPTNode(name, states, true);
+	}
+
+	private static void generateDatasetsWithDifferentNoiseLevels(MultiCTBNC<CPTNode, CIMNode> multiCTBNC,
+																 int numSequences, double durationSequences,
+																 String destinationPath) {
+		// Sample sequences from the Multi-CTBNC into some datasets with noise and another noise free
+		List<Sequence> sequencesNoiseFree = new ArrayList<>();
+		List<Sequence> sequencesLowNoise = new ArrayList<>();
+		List<Sequence> sequencesMediumNoise = new ArrayList<>();
+		List<Sequence> sequencesHighNoise = new ArrayList<>();
+		logger.info("Sampling dataset without noise");
+		generateDataset(multiCTBNC, numSequences, durationSequences, 0, 0, destinationPath);
+		logger.info("Sampling dataset with noise 5% and 0.1");
+		generateDataset(multiCTBNC, numSequences, durationSequences, 0.05, 0.1, destinationPath);
+		logger.info("Sampling dataset with noise 10% and 0.2");
+		generateDataset(multiCTBNC, numSequences, durationSequences, 0.1, 0.2, destinationPath);
+		logger.info("Sampling dataset with noise 20% and 0.5");
+		generateDataset(multiCTBNC, numSequences, durationSequences, 0.2, 0.5, destinationPath);
+		// Create a dataset with the generated sequences
+		Dataset datasetNoiseFree = new Dataset(sequencesNoiseFree);
+		Dataset datasetLowNoise = new Dataset(sequencesLowNoise);
+		Dataset datasetMediumNoise = new Dataset(sequencesMediumNoise);
+		Dataset datasetHighNoise = new Dataset(sequencesHighNoise);
+		// Save the datasets in the provided path
+		Path path = Paths.get(destinationPath);
+		String datasetNumber = path.getFileName().toString();
+		MultipleCSVWriter.write(datasetNoiseFree,
+				path.getParent().toAbsolutePath() + "/noise_free_datasets/" + datasetNumber);
+		MultipleCSVWriter.write(datasetLowNoise,
+				path.getParent().toAbsolutePath() + "/low_noise_datasets/" + datasetNumber);
+		MultipleCSVWriter.write(datasetMediumNoise,
+				path.getParent().toAbsolutePath() + "/medium_noise_datasets/" + datasetNumber);
+		MultipleCSVWriter.write(datasetHighNoise,
+				path.getParent().toAbsolutePath() + "/high_noise_datasets/" + datasetNumber);
 	}
 
 	private static CIMNode generateFeatureVariable(String name, List<String> states) {

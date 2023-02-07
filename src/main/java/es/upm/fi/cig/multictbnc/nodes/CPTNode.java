@@ -4,16 +4,21 @@ import es.upm.fi.cig.multictbnc.data.representation.State;
 import es.upm.fi.cig.multictbnc.learning.parameters.SufficientStatistics;
 import es.upm.fi.cig.multictbnc.learning.parameters.bn.BNSufficientStatistics;
 import es.upm.fi.cig.multictbnc.util.Util;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Extends the DiscreteNode class to store a CPT and the sufficient statistics for a BN.
  *
  * @author Carlos Villa Blanco
  */
-public class CPTNode extends DiscreteNode {
+public class CPTNode extends DiscreteStateNode {
+	private static final Logger logger = LogManager.getLogger(CPTNode.class);
 	double[][] CPT;
 	BNSufficientStatistics sufficientStatistics;
 
@@ -124,15 +129,32 @@ public class CPTNode extends DiscreteNode {
 	}
 
 	/**
-	 * Samples the state of the node given evidence using forward sampling. First it is sampled from a uniform
-	 * distribution, then it is iterated over the state of the nodes and accumulated the probability of each of them.
-	 * Once this accumulated probability is more than the sampled value from the uniform distribution, the current
-	 * state
-	 * under study is returned.
+	 * Samples the state of the node given evidence using forward sampling. First it is sampled from a uniform *
+	 * distribution, then it is iterated over the state of the nodes and accumulated the probability of each of them. *
+	 * Once this accumulated probability is more than the sampled value from the uniform distribution, the current *
+	 * state under study is returned.
 	 *
+	 * @param percentageNoisyStates value from 0 to 1 representing the probability of randomly sampling the state of
+	 *                                the
+	 *                              variable
 	 * @return sampled state of the node. Null is returned if the state could not be sampled
 	 */
-	public State sampleState() {
+	public State sampleState(double percentageNoisyStates) {
+		// Check if noise is added to the sampled data
+		if (percentageNoisyStates > 0) {
+			// Draw noise from Gaussian distribution with mean = 0 and sigma = 1
+			Random rdn = new Random();
+			double noise = rdn.nextGaussian();
+			// If noise (absolute value) is greater than 1.95 (~5%), draw state index from uniform
+			// distribution
+			if (Math.abs(noise) > 1.95) {
+				//this.logger.info("Adding noise to class variable {}", getName());
+				// Define random state
+				int idxState = rdn.nextInt(getNumStates());
+				setState(idxState);
+				return new State(getName(), getState());
+			}
+		}
 		// Sample from uniform distribution
 		double probUniform = Math.random();
 		// Accumulated probability
@@ -159,11 +181,8 @@ public class CPTNode extends DiscreteNode {
 	@Override
 	public String toString() {
 		String discreteNodeDescription = super.toString();
-		StringBuilder sb = new StringBuilder();
-		sb.append(discreteNodeDescription + "\n");
-		sb.append("--CPT--\n");
-		sb.append(this.CPT);
-		return sb.toString();
+		String sb = discreteNodeDescription + "\n" + "--CPT--\n" + Arrays.deepToString(this.CPT);
+		return sb;
 	}
 
 }

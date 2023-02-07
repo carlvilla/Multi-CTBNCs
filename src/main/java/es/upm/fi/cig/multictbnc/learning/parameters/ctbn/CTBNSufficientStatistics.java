@@ -4,7 +4,7 @@ import es.upm.fi.cig.multictbnc.data.representation.Dataset;
 import es.upm.fi.cig.multictbnc.data.representation.Sequence;
 import es.upm.fi.cig.multictbnc.exceptions.NeverSeenStateException;
 import es.upm.fi.cig.multictbnc.learning.parameters.SufficientStatistics;
-import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
+import es.upm.fi.cig.multictbnc.nodes.DiscreteStateNode;
 import es.upm.fi.cig.multictbnc.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,8 +33,8 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	double mxHP; // defined with MxyHP and the number of states of the variable
 	double txHP;
 	// Equivalent sample size
-	private double mHP;
-	private double tHP;
+	private final double mHP;
+	private final double tHP;
 
 	/**
 	 * Receives the hyperparameters of the Dirichlet prior distribution over the parameters that are necessary for
@@ -122,7 +122,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 * @param dataset dataset from which sufficient statistics are extracted
 	 */
 	@Override
-	public void computeSufficientStatistics(DiscreteNode node, Dataset dataset) {
+	public void computeSufficientStatistics(DiscreteStateNode node, Dataset dataset) {
 		String nameVariable = node.getName();
 		logger.trace("Computing sufficient statistics CTBN for node {}", nameVariable);
 		// Variable used to avoid overflowing the console if states were not seen before
@@ -137,7 +137,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 				int idxFromState = node.setState(fromState);
 				// State of the parents before the transition
 				for (int idxParentNode = 0; idxParentNode < node.getNumParents(); idxParentNode++) {
-					DiscreteNode nodeParent = (DiscreteNode) node.getParents().get(idxParentNode);
+					DiscreteStateNode nodeParent = (DiscreteStateNode) node.getParents().get(idxParentNode);
 					String stateParent = sequence.getValueVariable(idxObservation - 1, nodeParent.getName());
 					nodeParent.setState(stateParent);
 				}
@@ -149,10 +149,8 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 					updateSufficientStatistics(sequence, idxFromState, idxtoState, idxStateParents, idxObservation);
 				} catch (NeverSeenStateException nsse) {
 					if (!neverSeenBeforeState) {
-						logger.warn(
-								"Variable: {}  - {} [Similar messages will be ignored to avoid overflowing the " +
-										"console]",
-								nameVariable, nsse.getMessage());
+						logger.warn("Variable: {}  - {} [Similar messages will be ignored to avoid overflowing the " +
+								"console]", nameVariable, nsse.getMessage());
 						neverSeenBeforeState = true;
 					}
 				}
@@ -168,7 +166,7 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 *
 	 * @param node node
 	 */
-	protected void initialiseSufficientStatistics(DiscreteNode node) {
+	protected void initialiseSufficientStatistics(DiscreteStateNode node) {
 		this.Mxy = new double[node.getNumStatesParents()][node.getNumStates()][node.getNumStates()];
 		this.Mx = new double[node.getNumStatesParents()][node.getNumStates()];
 		this.Tx = new double[node.getNumStatesParents()][node.getNumStates()];
@@ -260,7 +258,6 @@ public class CTBNSufficientStatistics implements SufficientStatistics {
 	 */
 	private void updateTx(int stateParents, int fromState, double time) throws NeverSeenStateException {
 		try {
-
 			this.Tx[stateParents][fromState] += time;
 		} catch (ArrayIndexOutOfBoundsException aiobe) {
 			throw new NeverSeenStateException(

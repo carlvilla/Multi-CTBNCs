@@ -5,7 +5,7 @@ import es.upm.fi.cig.multictbnc.learning.parameters.bn.BNSufficientStatistics;
 import es.upm.fi.cig.multictbnc.learning.structure.StructureLearningAlgorithm;
 import es.upm.fi.cig.multictbnc.models.PGM;
 import es.upm.fi.cig.multictbnc.nodes.CPTNode;
-import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
+import es.upm.fi.cig.multictbnc.nodes.DiscreteStateNode;
 import es.upm.fi.cig.multictbnc.nodes.Node;
 import es.upm.fi.cig.multictbnc.util.Util;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
@@ -66,6 +66,7 @@ public class PC implements StructureLearningAlgorithm {
 									if (idxNodeY != idxNodeW && !areAdjacent(idxNodeY, idxNodeW, adjacencyMatrix) &&
 											haveUndirectedEdge(idxNodeX, idxNodeW, adjacencyMatrix)) {
 										adjacencyMatrix[idxNodeZ][idxNodeX] = false;
+										break;
 									}
 								}
 							}
@@ -144,7 +145,7 @@ public class PC implements StructureLearningAlgorithm {
 		boolean[][] adjacencyMatrix = new boolean[pgm.getNumNodes()][pgm.getNumNodes()];
 		for (int i = 0; i < pgm.getNumNodes(); i++) {
 			for (int j = 0; j < pgm.getNumNodes(); j++) {
-				if (i != j && !pgm.getNodeByIndex(j).isClassVariable())
+				if (i != j)
 					adjacencyMatrix[i][j] = true;
 			}
 		}
@@ -247,7 +248,7 @@ public class PC implements StructureLearningAlgorithm {
 		return sepSet;
 	}
 
-	private void addParentsToNode(PGM<? extends Node> pgm, DiscreteNode node, List<Integer> subset) {
+	private void addParentsToNode(PGM<? extends Node> pgm, DiscreteStateNode node, List<Integer> subset) {
 		for (int idxNodeSubset : subset)
 			pgm.getNodeByIndex(idxNodeSubset).setChild(node);
 	}

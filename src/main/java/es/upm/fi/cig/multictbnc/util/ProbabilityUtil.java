@@ -4,7 +4,7 @@ import es.upm.fi.cig.multictbnc.data.representation.Sequence;
 import es.upm.fi.cig.multictbnc.data.representation.State;
 import es.upm.fi.cig.multictbnc.nodes.CIMNode;
 import es.upm.fi.cig.multictbnc.nodes.CPTNode;
-import es.upm.fi.cig.multictbnc.nodes.DiscreteNode;
+import es.upm.fi.cig.multictbnc.nodes.DiscreteStateNode;
 import es.upm.fi.cig.multictbnc.nodes.Node;
 
 import java.util.Arrays;
@@ -64,7 +64,7 @@ public final class ProbabilityUtil {
 					// Set current state in parents of feature node
 					for (Node nodeParent : nodeCTBN.getParents()) {
 						// Obtain node from model (class or feature variable)
-						DiscreteNode nodeParentCTBN = (DiscreteNode) nodeParent;
+						DiscreteStateNode nodeParentCTBN = (DiscreteStateNode) nodeParent;
 						String nameParent = nodeParentCTBN.getName();
 						String currentValueParent;
 						// Check if the parent is a class or a feature variable to retrieve its state

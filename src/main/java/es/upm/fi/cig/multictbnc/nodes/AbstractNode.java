@@ -1,6 +1,7 @@
 package es.upm.fi.cig.multictbnc.nodes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -11,7 +12,7 @@ import java.util.List;
 public abstract class AbstractNode implements Node {
 	List<Node> children;
 	List<Node> parents;
-	private String name;
+	private final String name;
 	private boolean isClassVariable;
 
 	/**
@@ -22,8 +23,8 @@ public abstract class AbstractNode implements Node {
 	 */
 	public AbstractNode(String name) {
 		this.name = name;
-		this.children = new ArrayList<>();
-		this.parents = new ArrayList<>();
+		this.children = Collections.synchronizedList(new ArrayList<>());
+		this.parents = Collections.synchronizedList(new ArrayList<>());
 	}
 
 	/**
@@ -35,8 +36,8 @@ public abstract class AbstractNode implements Node {
 	public AbstractNode(String name, boolean isClassVariable) {
 		this.name = name;
 		this.isClassVariable = isClassVariable;
-		this.children = new ArrayList<>();
-		this.parents = new ArrayList<>();
+		this.children = Collections.synchronizedList(new ArrayList<>());
+		this.parents = Collections.synchronizedList(new ArrayList<>());
 	}
 
 	@Override
@@ -75,8 +76,45 @@ public abstract class AbstractNode implements Node {
 	}
 
 	@Override
+	public boolean hasChildren() {
+		return this.children.size() > 0;
+	}
+
+	@Override
 	public boolean hasParents() {
 		return this.parents.size() > 0;
+	}
+
+	@Override
+	public boolean hasClassVariableAsParent() {
+		for (Node parentNode : getParents()) {
+			if (parentNode.isClassVariable())
+				return true;
+		}
+		return false;
+	}
+
+
+	@Override
+	public boolean hasClassVariableAsSpouse() {
+		for (Node childNode : getChildren()) {
+			if (childNode.hasClassVariableAsParent())
+				return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isInMarkovBlanketClassVariable() {
+		// Nodes that are class variables are not considered
+		if (!isClassVariable)
+			return !isDisconnected() && (hasClassVariableAsParent() || hasClassVariableAsSpouse());
+		return false;
+	}
+
+	@Override
+	public boolean isDisconnected() {
+		return !hasParents() && !hasChildren();
 	}
 
 	@Override
@@ -115,10 +153,8 @@ public abstract class AbstractNode implements Node {
 	@Override
 	public void removeParent(Node nodeParent) {
 		if (nodeParent != null) {
-			if (this.parents.contains(nodeParent))
-				this.parents.remove(nodeParent);
-			if (nodeParent.getChildren().contains(this))
-				nodeParent.getChildren().remove(this);
+			this.parents.remove(nodeParent);
+			nodeParent.getChildren().remove(this);
 		}
 	}
 
