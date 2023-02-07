@@ -241,6 +241,7 @@ task runAllSyntheticExperimentsVillaBlancoEtAl2023(type: GradleBuild) {
 }
 
 // ------------ SAMPLING DATASETS ------------
+OperatingSystem os = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem;
 
 task sampleDatasetsVillaBlancoEtAl2021 {
     group 'Sampling'
@@ -248,7 +249,7 @@ task sampleDatasetsVillaBlancoEtAl2021 {
     doLast {
         exec {
             workingDir "${projectDir}"
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            if (os.isWindows()) {
                 commandLine "${projectDir}/src/main/resources/samplingdatasets/sampleDatasetsVillaBlancoEtAl2021.bat"
             } else {
                 executable 'sh'
