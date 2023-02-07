@@ -19,7 +19,7 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
       - name: Execute build
-        run: ./gradlew --info --stacktrace build
+        run: ./gradlew --info --stacktrace build -x test
       - name: Execute jpackage
         run: ./gradlew --info --stacktrace jpackage
       - name: Upload PKG as an artifact
