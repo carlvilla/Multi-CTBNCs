@@ -204,7 +204,7 @@ Datasets are saved in the *dataset* folder in the root directory of this project
 ## References
 
 <a id="1">[1]</a> 
-C. Villa-Blanco, P. Larrañaga, and C. Bielza. Multidimensional continuous time Bayesian network classifiers. <em>International Journal of Intelligent Systems}</em>, 36(12):7839–7866, 2021. doi:[10.1002/int.22611](https://doi.org/10.1002/int.22611).
+C. Villa-Blanco, P. Larrañaga, and C. Bielza. Multidimensional continuous time Bayesian network classifiers. <em>International Journal of Intelligent Systems</em>, 36(12):7839–7866, 2021. doi:[10.1002/int.22611](https://doi.org/10.1002/int.22611).
 
 <a id="2">[2]</a>
 C. Villa-Blanco, A. Bregoli, C. Bielza, P. Larrañaga, and F. Stella. Structure learning algorithms for multidimensional continuous-time Bayesian network classifiers. In <em>Proceedings of The 11th International Conference on Probabilistic Graphical Models</em>, volume 186, pages 313–324. 2022.
