@@ -1,5 +1,5 @@
 # <img src="./imgs/logo_ctbnlab.png" height="40"> <a href="http://cig.fi.upm.es"> <img src="./imgs/logo_CIG.png" height="40"> </a>
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/carlvilla/Multi-CTBNCs_private/blob/master/LICENSE) [![CircleCI](https://dl.circleci.com/status-badge/img/gh/carlvilla/Multi-CTBNCs_private/tree/master.svg?style=svg&circle-token=53a7ef1394861c85b8740dd94e10aec83afdb6b5)](https://dl.circleci.com/status-badge/redirect/gh/carlvilla/Multi-CTBNCs_private/tree/master) [![codecov](https://codecov.io/gh/carlvilla/Multi-CTBNCs_private/branch/master/graph/badge.svg?token=T61DUVC4TO)](https://codecov.io/gh/carlvilla/Multi-CTBNCs_private)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/carlvilla/Multi-CTBNCs_private/blob/master/LICENSE) [![CircleCI](https://dl.circleci.com/status-badge/img/gh/carlvilla/Multi-CTBNCs/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/carlvilla/Multi-CTBNCs/tree/master) [![codecov](https://codecov.io/gh/carlvilla/Multi-CTBNCs/branch/master/graph/badge.svg?token=AUSYPO6JYQ)](https://codecov.io/gh/carlvilla/Multi-CTBNCs)
 
 ## Description
 
