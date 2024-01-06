@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [windows-latest]
         java: [ '14.0.2' ]
       fail-fast: false
     name: ${{ matrix.os }}
@@ -40,15 +40,3 @@ jobs:
         with:
           name: Multi-CTBNCs_${{ matrix.os }}
           path: build/jpackage/Multi-CTBNCs/*
-      - name: Upload DEB as an artifact
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v2
-        with:
-          name: Multi-CTBNCs_${{ matrix.os }}_deb
-          path: build/jpackage/*.deb
-      - name: Upload RPM as an artifact
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v2
-        with:
-          name: Multi-CTBNCs_${{ matrix.os }}_rpm
-          path: build/jpackage/*.rpm
