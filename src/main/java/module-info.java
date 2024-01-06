@@ -11,12 +11,15 @@ module es.upm.fi.cig.multictbnc {
 	requires javafx.controls;
 	requires javafx.fxml;
 	requires javafx.graphics;
+	requires javafx.swing;
 	requires org.jfxtras.styles.jmetro;
 	requires opencsv;
 	requires org.apache.logging.log4j;
 	requires org.apache.poi.ooxml;
 	requires org.apache.poi.poi;
 	requires org.controlsfx.controls;
+	requires py4j;
+	requires jfreechart;
 
 	opens es.upm.fi.cig.multictbnc to javafx.fxml;
 	opens es.upm.fi.cig.multictbnc.gui to javafx.fxml;
@@ -34,7 +37,6 @@ module es.upm.fi.cig.multictbnc {
 	exports es.upm.fi.cig.multictbnc.learning.parameters;
 	exports es.upm.fi.cig.multictbnc.classification;
 	exports es.upm.fi.cig.multictbnc.learning.structure.optimisation.scores.bn;
-	exports es.upm.fi.cig.multictbnc;
 	exports es.upm.fi.cig.multictbnc.learning.structure.optimisation.hillclimbing.implementation;
 	exports es.upm.fi.cig.multictbnc.sampling;
 	exports es.upm.fi.cig.multictbnc.learning.structure.optimisation.scores;
@@ -57,4 +59,7 @@ module es.upm.fi.cig.multictbnc {
 	exports es.upm.fi.cig.multictbnc.data.representation;
 	exports es.upm.fi.cig.multictbnc.learning.structure.constraints;
 	exports es.upm.fi.cig.multictbnc.util;
+	exports es.upm.fi.cig.multictbnc;
+	exports es.upm.fi.cig.multictbnc.experiments.implementationsexperiments;
+	opens es.upm.fi.cig.multictbnc.experiments.implementationsexperiments to javafx.fxml;
 }

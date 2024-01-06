@@ -23,10 +23,10 @@ public class CrossValidationMethod extends ValidationMethod {
 	private final Logger logger = LogManager.getLogger(CrossValidationMethod.class);
 	private Dataset dataset;
 	private int numFolds;
-	private final boolean estimateProbabilities;
-	private final boolean shuffle;
-	private final Long seed;
-	private final DatasetReader datasetReader;
+	private boolean estimateProbabilities;
+	private boolean shuffle;
+	private Long seed;
+	private DatasetReader datasetReader;
 
 	/**
 	 * Constructor for cross-validation method.
@@ -110,11 +110,11 @@ public class CrossValidationMethod extends ValidationMethod {
 	 * @param model   the {@code MultiCTBNC} used for testing
 	 */
 	private void displayResultsFold(Map<String, Double> results, int foldNumber, MultiCTBNC<?, ?> model) {
-		System.out.println(MessageFormat.format(
+		logger.info(MessageFormat.format(
 				"---------------------------------Results fold {0}---------------------------------", foldNumber));
-		results.forEach((metric, value) -> System.out.println(metric + " = " + value));
-		System.out.println(model);
-		System.out.println("--------------------------------------------------------------------------------");
+		results.forEach((metric, value) -> logger.info(metric + " = " + value));
+		logger.info(model);
+		logger.info("--------------------------------------------------------------------------------");
 	}
 
 	/**

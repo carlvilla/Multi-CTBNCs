@@ -23,11 +23,11 @@ import java.util.Map;
  */
 public class HoldOutMethod extends ValidationMethod {
 	private final Logger logger = LogManager.getLogger(HoldOutMethod.class);
-	private final DatasetReader datasetReader;
-	private final double trainingSize;
-	private final boolean estimateProbabilities;
-	private final boolean shuffle;
-	private final Long seed;
+	private DatasetReader datasetReader;
+	private double trainingSize;
+	private boolean estimateProbabilities;
+	private boolean shuffle;
+	private Long seed;
 	private Dataset trainingDataset;
 	private Dataset testDataset;
 

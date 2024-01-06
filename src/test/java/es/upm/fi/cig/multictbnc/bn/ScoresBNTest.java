@@ -129,12 +129,12 @@ class ScoresBNTest {
 		assertEquals(llS1Expected, llS1Actual, 0.001);
 		// Penalised log-likelihood with BIC
 		scoreFunction = new BNLogLikelihood("BIC");
-		double llS1BICExpected = llS1Expected - 0.5 * Math.log(10) * ((3 - 1) * 4 + 2 + (2 - 1));
+		double llS1BICExpected = llS1Expected - 0.5 * Math.log(10) * ((3 - 1) * 4 + (2 - 1) * 2 + (2 - 1));
 		double llS1BICActual = scoreFunction.compute(bn);
 		assertEquals(llS1BICExpected, llS1BICActual, 0.001);
 		// Penalised log-likelihood with AIC
 		scoreFunction = new BNLogLikelihood("AIC");
-		double llS1AICExpected = llS1Expected - ((3 - 1) * 4 + 2 + (2 - 1));
+		double llS1AICExpected = llS1Expected - ((3 - 1) * 4 + (2 - 1) * 2 + (2 - 1));
 		double llS1AICActual = scoreFunction.compute(bn);
 		assertEquals(llS1AICExpected, llS1AICActual, 0.001);
 
@@ -156,12 +156,12 @@ class ScoresBNTest {
 		assertEquals(llS2Expected, llS2Actual, 0.001);
 		// Penalised log-likelihood with BIC
 		scoreFunction = new BNLogLikelihood("BIC");
-		double llS2BICExpected = llS2Expected - 0.5 * Math.log(10) * ((3 - 1) + 3 + 2);
+		double llS2BICExpected = llS2Expected - 0.5 * Math.log(10) * ((3 - 1) + (2 - 1) * 3 + (2 - 1) * 2);
 		double llS2BICActual = scoreFunction.compute(bn);
 		assertEquals(llS2BICExpected, llS2BICActual, 0.001);
 		// Penalised log-likelihood with AIC
 		scoreFunction = new BNLogLikelihood("AIC");
-		double llS2AICExpected = llS2Expected - ((3 - 1) + 3 + 2);
+		double llS2AICExpected = llS2Expected - ((3 - 1) + (2 - 1) * 3 + (2 - 1) * 2);
 		double llS2AICActual = scoreFunction.compute(bn);
 		assertEquals(llS2AICExpected, llS2AICActual, 0.001);
 

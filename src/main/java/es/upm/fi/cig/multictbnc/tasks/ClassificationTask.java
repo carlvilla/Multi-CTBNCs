@@ -19,9 +19,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class ClassificationTask extends Task<Void> {
 	private final Logger logger = LogManager.getLogger(TrainingTask.class);
-	private final MultiCTBNC<?, ?> model;
-	private final DatasetReader datasetReader;
-	private final boolean estimateProbabilities;
+	private MultiCTBNC<?, ?> model;
+	private DatasetReader datasetReader;
+	private boolean estimateProbabilities;
 
 	/**
 	 * Constructs a {@code ClassificationTask} that receives an {@code MultiCTBNC} model and a {@code datasetReader}.

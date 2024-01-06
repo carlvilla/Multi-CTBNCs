@@ -19,8 +19,8 @@ import java.util.Map;
  */
 public class NodeIndexer<NodeType extends Node> {
 	private static final Logger logger = LogManager.getLogger(NodeIndexer.class);
-	private final Map<String, Integer> nodeToIndex;
-	private final Map<Integer, NodeType> indexToNode;
+	private Map<String, Integer> nodeToIndex;
+	private Map<Integer, NodeType> indexToNode;
 
 	/**
 	 * Constructs a {@code NodeIndexer}.

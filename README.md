@@ -1,5 +1,5 @@
 # <img src="./imgs/logo_ctbnlab.png" height="40"> <a href="http://cig.fi.upm.es"> <img src="./imgs/logo_CIG.png" height="40"> </a>
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/carlvilla/Multi-CTBNCs_private/blob/master/LICENSE) [![CircleCI](https://dl.circleci.com/status-badge/img/gh/carlvilla/Multi-CTBNCs/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/carlvilla/Multi-CTBNCs/tree/master) [![codecov](https://codecov.io/gh/carlvilla/Multi-CTBNCs/branch/master/graph/badge.svg?token=AUSYPO6JYQ)](https://codecov.io/gh/carlvilla/Multi-CTBNCs)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/carlvilla/Multi-CTBNCs_private/blob/master/LICENSE) [![CircleCI](https://dl.circleci.com/status-badge/img/gh/carlvilla/Multi-CTBNCs_private/tree/master.svg?style=svg&circle-token=53a7ef1394861c85b8740dd94e10aec83afdb6b5)](https://dl.circleci.com/status-badge/redirect/gh/carlvilla/Multi-CTBNCs_private/tree/master) [![codecov](https://codecov.io/gh/carlvilla/Multi-CTBNCs_private/branch/master/graph/badge.svg?token=T61DUVC4TO)](https://codecov.io/gh/carlvilla/Multi-CTBNCs_private)
 
 ## Description
 
@@ -131,14 +131,15 @@ Different families of Multi-CTBNCs can be proposed depending on the search space
 
 #### Constraint-based algorithms
 * **Continuous-time PC**: adapts the classical PC algorithm to reconstruct the structure of CTBNs by performing conditional independence tests.
-* **Markov blanket-based continuous-time PC**: extension of the continuous-time PC algorithms that seeks to evaluate only those relevant dependencies for the Markov blanket (parents, children and spouses) of class variables.
+* **Markov blanket-based continuous-time PC**: extension of the continuous-time PC algorithm that seeks to evaluate only those relevant dependencies for the Markov blanket (parents, children and spouses) of class variables.
+* **Online Markov blanket-based continuous-time PC**:  extended version of the Markov blanket-based continuous-time PC algorithm designed for dynamic learning of Multi-CTBNCs in data streams. It locally updates the structure of a Multi-CTBNC when concept drifts are detected in its nodes.
 
 #### Hybrid algorithms
 * **Hybrid algorithm**: algorithm that combines the frameworks of constraint- and score-based algorithms into a restriction phase where conditional independence tests find an initial structure and a maximisation phase that refines it.
 
 ## Reproducibility of experiments
 
-Datasets used in the article [[1]](#1) can be found at this [link](https://drive.upm.es/s/hP7HYYub39knhvl). The following Gradle tasks perform the experiments of this article if the *dataset* folder is placed in the root directory of this project:
+Datasets used in the article [[1]](#1) can be found at this [link](https://drive.upm.es/s/hP7HYYub39knhvl). Updated datasets used in Chapter 5 of my dissertation can be dowloaded from [link](https://drive.upm.es/s/Hwmv4pHI0omOh2K). The following Gradle tasks perform the experiments of this article if the *dataset* folder is placed in the root directory of this project:
 
 * **emptyDigraphMultiCTBNC** - Compares the performance of CTBNCs and an empty-digraph Multi-CTBNC on the synthetic datasets when learnt with the Bayesian Dirichlet equivalent score.
 * **energyBDe** - Compares the performance of max1 CTBNCs and a DAG-max1 Multi-CTBNC on the energy dataset when learnt with the Bayesian Dirichlet equivalent score.
@@ -148,8 +149,7 @@ Datasets used in the article [[1]](#1) can be found at this [link](https://drive
 * **syntheticCLL** - Compares the performance of CTBNCs and a Multi-CTBNC when learnt with the conditional log-likelihood score penalised with BIC.
 * **syntheticLL** - Compares the performance of CTBNCs and a Multi-CTBNC when learnt with the log-likelihood score penalised with BIC.
 
-
-The datasets used for the experiments of article [[3]](#3) can be downloaded from [link](https://drive.upm.es/s/ajygY8utGvN1KkK). The following Gradle tasks perform the experiments of this article if the *dataset* folder is placed in the root directory of this project:
+The synthetic datasets used for the experiments of article [[3]](#3) can be downloaded from [link](https://drive.upm.es/s/ajygY8utGvN1KkK). The BHPS dataset (see [[4]](#4)) can be obtained from [link](https://beta.ukdataservice.ac.uk/datacatalogue/studies/study?id=5151). The following Gradle tasks perform the experiments of this article if the *dataset* folder is placed in the root directory of this project:
 
 * **britishHouseholdPanelSurvey** - Experiments to evaluate the performance of the structure learning algorithms on a real-world dataset (see [[4]](#4)).
 * **highDimensionality** - Experiments to evaluate the difference in learning time of the algorithms when the dimensionality of the datasets increases significantly.
@@ -158,6 +158,11 @@ The datasets used for the experiments of article [[3]](#3) can be downloaded fro
 * **mainExperiments** - Comprehensive experiments over randomly generated datasets using a different number of class and feature variables, cardinalities and density of the structures.
 * **noisyData** - Experiments to evaluate the influence of noise on the performance of the structure learning algorithms.
 * **runAllSyntheticExperimentsVillaBlancoEtAl2022** - Runs all the experiments from [[3]](#3).
+
+The synthetic datasets used for experiments conducted in Chapter 8 of my dissertation can be downloaded from [link](http://138.100.13.116:8080/s/rAHhG7nBo4aHn2W). The following Gradle tasks conduct all the experiments of the chapter if the datasets are placed in a *dataset* folder in the root directory of this project:
+
+* **runAllExperimentsDataStreams** - evaluates the performance of Multi-CTBNCs across a range of data stream scenarios. This includes scenarios with stationary, gradual and abrupt concept drifts, and different update strategies (no update, local update, and global update).
+* **runAllExperimentsFeatureStreams** - evaluates the performance of Multi-CTBNCs when processing feature streams with different numbers of features, ranging from 25 to 125. It studies different training setups, including batch training and model retraining, both with and without the integration of an online feature subset selection algorithm.
 
 The tasks can be executed with the following command:
 
@@ -199,13 +204,13 @@ Datasets are saved in the *dataset* folder in the root directory of this project
 ## References
 
 <a id="1">[1]</a> 
-C. Villa-Blanco, P. Larrañaga, C. Bielza. Multidimensional continuous time Bayesian network classifiers. <em>International Journal of Intelligent Systems</em> 2021;36 (12):7839–7866. https://doi.org/10.1002/int.22611.
+C. Villa-Blanco, P. Larrañaga, and C. Bielza. Multidimensional continuous time Bayesian network classifiers. <em>International Journal of Intelligent Systems}</em>, 36(12):7839–7866, 2021. doi:[10.1002/int.22611](https://doi.org/10.1002/int.22611).
 
 <a id="2">[2]</a>
-C. Villa-Blanco, A. Bregoli, C. Bielza, P. Larrañaga, F. Stella. Structure learning algorithms for multidimensional continuous-time Bayesian network classifiers. In: <em>Proceedings of The 11th International Conference on Probabilistic Graphical Models</em>; volume 186 of Proceedings of Machine Learning Research. PMLR, 2022:313–324.
+C. Villa-Blanco, A. Bregoli, C. Bielza, P. Larrañaga, and F. Stella. Structure learning algorithms for multidimensional continuous-time Bayesian network classifiers. In <em>Proceedings of The 11th International Conference on Probabilistic Graphical Models</em>, volume 186, pages 313–324. 2022.
 
 <a id="3">[3]</a>
-C. Villa-Blanco, A. Bregoli, C. Bielza, P. Larrañaga, F. Stella. Constraint-based and hybrid structure learning of multidimensional continuous-time Bayesian network classifiers [Manuscript submitted for publication]. 2023.
+C. Villa-Blanco, A. Bregoli, C. Bielza, P. Larrañaga, and F. Stella. Constraint-based and hybrid structure learning of multidimensional continuous-time Bayesian network classifiers. <em>International Journal of Approximate Reasoning</em>, 159:108945, 2023. doi:[10.1016/j.ijar.2023.108945](https://doi.org/10.1016/j.ijar.2023.108945).
 
 <a id="4">[4]</a>
-University of Essex, Institute for Social and Economic Research. British household panel survey: Waves 1-18, 1991-2009. [data collection]. 8th edition. 2018. doi: 10.5255/UKDA-SN-5151-2.
+University of Essex, Institute for Social and Economic Research. British household panel survey: Waves 1-18, 1991-2009. [data collection]. 8th edition. 2018. doi:[10.5255/UKDA-SN-5151-2](https://doi.org/10.5255/UKDA-SN-5151-2).

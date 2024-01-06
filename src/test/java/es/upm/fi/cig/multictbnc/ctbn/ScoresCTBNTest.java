@@ -144,29 +144,29 @@ class ScoresCTBNTest {
 
 		// Log-likelihood
 		CTBNScoreFunction scoreFunction = new CTBNLogLikelihood("No");
-		double llS1Expected =
-				2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2 + (2 * Math.log(1)) + 1 * Math.log(1 / 0.7) - (1 / 0.7) * 0.7 +
-						(1 * Math.log(1)) + 3 * Math.log(3 / 1.3) - (3 / 1.3) * 1.3 + (3 * Math.log(1)) +
-						(2 * Math.log(2 / 3.0)) + (1 * Math.log(1 / 3.0)) + 3 * Math.log(3 / 1.4) - (3 / 1.4) * 1.4 +
-						(3 * Math.log(1))
+		double llS1Expected = 2 * Math.log(2 / 1.2) - (2 / 1.2) * 1.2 + (2 * Math.log(2 / 2)) + 1 * Math.log(1 / 0.7) -
+				(1 / 0.7) * 0.7 + (1 * Math.log(1 / 1)) + 3 * Math.log(3 / 1.3) - (3 / 1.3) * 1.3 +
+				(3 * Math.log(2 / 2)) + (2 * Math.log(2 / 3.0)) + (1 * Math.log(1 / 3.0)) + 3 * Math.log(3 / 1.4) -
+				(3 / 1.4) * 1.4 + (3 * Math.log(3 / 3))
 
-						+ 7 * Math.log(7 / 0.7) - (7 / 0.7) * 0.7 + 7 * Math.log(1) + 6 * Math.log(6 / 0.6) -
-						(6 / 0.6) * 0.6 + 6 * Math.log(1)
+				+ 7 * Math.log(7 / 0.7) - (7 / 0.7) * 0.7 + 7 * Math.log(7 / 7) + 6 * Math.log(6 / 0.6) -
+				(6 / 0.6) * 0.6 + 6 * Math.log(6 / 6)
 
-						+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1 + 2 * Math.log(2 / 0.2) - (2 / 0.2) * 0.2 +
-						3 * Math.log(3 / 0.3) - (3 / 0.3) * 0.3 + 1 * Math.log(1 / 0.2) - (1 / 0.2) * 0.2 +
-						1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1 + 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1 +
-						1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
+				+ 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1 + 2 * Math.log(2 / 0.2) - (2 / 0.2) * 0.2 +
+				3 * Math.log(3 / 0.3) - (3 / 0.3) * 0.3 + 1 * Math.log(1 / 0.2) - (1 / 0.2) * 0.2 +
+				1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1 + 1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1 +
+				1 * Math.log(1 / 0.1) - (1 / 0.1) * 0.1;
 		double llS1Actual = scoreFunction.compute(ctbn);
 		assertEquals(llS1Expected, llS1Actual, 0.001);
 		// Penalised log-likelihood with BIC
 		scoreFunction = new CTBNLogLikelihood("BIC");
-		double llS1BICExpected = llS1Expected - 0.5 * Math.log(32) * ((3 - 1) * 3 * 2 + 2 * 2 + 2 * 12);
+		double llS1BICExpected =
+				llS1Expected - 0.5 * Math.log(32) * ((3 - 1) * 3 * 2 + (2 - 1) * 2 * 2 + (2 - 1) * 2 * 12);
 		double llS1BICActual = scoreFunction.compute(ctbn);
 		assertEquals(llS1BICExpected, llS1BICActual, 0.001);
 		// Penalised log-likelihood with AIC
 		scoreFunction = new CTBNLogLikelihood("AIC");
-		double llS1AICExpected = llS1Expected - ((3 - 1) * 3 * 2 + 2 * 2 + 2 * 12);
+		double llS1AICExpected = llS1Expected - ((3 - 1) * 3 * 2 + (2 - 1) * 2 * 2 + (2 - 1) * 2 * 12);
 		double llS1AICActual = scoreFunction.compute(ctbn);
 		assertEquals(llS1AICExpected, llS1AICActual, 0.001);
 
@@ -190,8 +190,8 @@ class ScoresCTBNTest {
 				1 * Math.log(1 / 0.3) - (1 / 0.3) * 0.3 + 1 * Math.log(1 / 0.2) - (1 / 0.2) * 0.2 +
 				2 * Math.log(2 / 0.6) - (2 / 0.6) * 0.6
 
-				+ 3 * Math.log(3 / 1.2) - (3 / 1.2) * 1.2 + 3 * Math.log(3) - (3) + 4 * Math.log(4 / 0.9) -
-				(4 / 0.9) * 0.9 + 3 * Math.log(3 / 1.5) - (3 / 1.5) * 1.5
+				+ 3 * Math.log(3 / 1.2) - (3 / 1.2) * 1.2 + 3 * Math.log(3 / 1.0) - (3 / 1.0) * 1.0 +
+				4 * Math.log(4 / 0.9) - (4 / 0.9) * 0.9 + 3 * Math.log(3 / 1.5) - (3 / 1.5) * 1.5
 
 				+ 6 * Math.log(6 / 2.6) - (6 / 2.6) * 2.6 + 4 * Math.log(4 / 2) - (4 / 2) * 2;
 
@@ -200,12 +200,12 @@ class ScoresCTBNTest {
 
 		// Penalised log-likelihood with BIC
 		scoreFunction = new CTBNLogLikelihood("BIC");
-		double llS2BICExpected = llS2Expected - 0.5 * Math.log(32) * ((3 - 1) * 3 * 8 + 2 * 2 + 2);
+		double llS2BICExpected = llS2Expected - 0.5 * Math.log(32) * ((3 - 1) * 3 * 8 + (2 - 1) * 2 * 2 + (2 - 1) * 2);
 		double llS2BICActual = scoreFunction.compute(ctbn);
 		assertEquals(llS2BICExpected, llS2BICActual, 0.001);
 		// Penalised log-likelihood with AIC
 		scoreFunction = new CTBNLogLikelihood("AIC");
-		double llS2AICExpected = llS2Expected - ((3 - 1) * 3 * 8 + 2 * 2 + 2);
+		double llS2AICExpected = llS2Expected - ((3 - 1) * 3 * 8 + (2 - 1) * 2 * 2 + (2 - 1) * 2);
 		double llS2AICActual = scoreFunction.compute(ctbn);
 		assertEquals(llS2AICExpected, llS2AICActual, 0.001);
 
@@ -450,13 +450,14 @@ class ScoresCTBNTest {
 
 		// Penalised conditional log-likelihood with BIC
 		scoreFunction = new CTBNConditionalLogLikelihood("BIC");
-		double cllBICExpected = cllExpected - ((2 * (3 - 1) * 3 + 2 * 2 + 12 * 2) / 2) * Math.log(4);
+		double cllBICExpected =
+				cllExpected - ((2 * (3 - 1) * 3 + 2 * (2 - 1) * 2 + 12 * (2 - 1) * 2) / 2) * Math.log(4);
 		double cllBICActual = scoreFunction.compute(ctbn);
 		assertEquals(cllBICExpected, cllBICActual, 0.001);
 
 		// Penalised conditional log-likelihood with AIC
 		scoreFunction = new CTBNConditionalLogLikelihood("AIC");
-		double cllAICExpected = cllExpected - ((2 * (3 - 1) * 3 + 2 * 2 + 12 * 2) / 2) * 2;
+		double cllAICExpected = cllExpected - ((2 * (3 - 1) * 3 + 2 * (2 - 1) * 2 + 12 * (2 - 1) * 2) / 2) * 2;
 		double cllAICActual = scoreFunction.compute(ctbn);
 		assertEquals(cllAICExpected, cllAICActual, 0.001);
 
@@ -600,8 +601,8 @@ class ScoresCTBNTest {
 
 		// Log-likelihood
 		scoreFunction = new CTBNBayesianScore();
-		double bsS2Expected = Gamma.logGamma(mxyHPX1 * 2) - Gamma.logGamma(mxyHPX1 * 2 + 1) +
-				Gamma.logGamma(mxyHPX1 + 1) - Gamma.logGamma(mxyHPX1) + Gamma.logGamma(mxyHPX1 * 2 + 1 + 1) +
+		double bsS2Expected = Gamma.logGamma(mxyHPX1 * 2) - Gamma.logGamma(mxyHPX1 * 2 + 1) + Gamma.logGamma(mxyHPX1 +
+				1) - Gamma.logGamma(mxyHPX1) + Gamma.logGamma(mxyHPX1 * 2 + 1 + 1) +
 				(mxyHPX1 * 2 + 1) * Math.log(txHPX1) -
 				(Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1 + 1) * Math.log(txHPX1 + 0.2)) +
 				Gamma.logGamma(mxyHPX1 * 2) - Gamma.logGamma(mxyHPX1 * 2 + 2) + Gamma.logGamma(mxyHPX1 + 2) -
@@ -633,11 +634,12 @@ class ScoresCTBNTest {
 				Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1) -
 				(Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1 + 0.3)) +
 				Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1) - (
-				Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1 + 0.1)) + Gamma.logGamma(mxyHPX1 *
-				2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1) - (Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) *
-				Math.log(txHPX1 + 0.1)) + Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1) -
-				(Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1 + 0.2)) +
-				Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1) -
+				Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1 + 0.1)) + Gamma.logGamma(
+				mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1) - (Gamma.logGamma(mxyHPX1 * 2 + 1) + (
+				mxyHPX1 * 2 + 1) * Math.log(txHPX1 + 0.1)) + Gamma.logGamma(mxyHPX1 * 2 + 1) +
+				(mxyHPX1 * 2 + 1) * Math.log(txHPX1) - (Gamma.logGamma(mxyHPX1 * 2 + 1) +
+				(mxyHPX1 * 2 + 1) * Math.log(txHPX1 + 0.2)) + Gamma.logGamma(mxyHPX1 * 2 + 1) +
+				(mxyHPX1 * 2 + 1) * Math.log(txHPX1) -
 				(Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1 + 0.2)) +
 				Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1) -
 				(Gamma.logGamma(mxyHPX1 * 2 + 1) + (mxyHPX1 * 2 + 1) * Math.log(txHPX1 + 0.2)) +

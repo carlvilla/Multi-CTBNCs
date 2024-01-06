@@ -97,6 +97,14 @@ public interface PGM<NodeType extends Node> {
     NodeType getNodeByIndex(int idxNode);
 
     /**
+     * Returns the index of the provided node.
+     *
+     * @param node node for which the index is needed
+     * @return index of the node
+     */
+    int getIndexOfNode(Node node);
+
+    /**
      * Returns the node whose variable name is given.
      *
      * @param nameVariable name of the variable
@@ -175,16 +183,19 @@ public interface PGM<NodeType extends Node> {
      *
      * @param dataset dataset used to learn the parameters and parent set of the node
      * @param idxNode node index
+     * @throws ErroneousValueException if a provided parameter is erroneous for the requested task
      */
-    void learn(Dataset dataset, int idxNode);
+    void learn(Dataset dataset, int idxNode) throws ErroneousValueException;
 
     /**
      * Learns the parameters and parent set of some nodes of the model from a given dataset.
      *
      * @param dataset  dataset used to learn the parameters and parent set of the nodes
      * @param idxNodes node indexes
+     * @throws ErroneousValueException if a provided parameter is erroneous for the
+     *                                 requested task
      */
-    void learn(Dataset dataset, List<Integer> idxNodes);
+    void learn(Dataset dataset, List<Integer> idxNodes) throws ErroneousValueException;
 
     /**
      * Learns the parameters of the PGM.
@@ -237,6 +248,15 @@ public interface PGM<NodeType extends Node> {
      * Removes all the nodes from the PGM.
      */
     void removeAllNodes();
+
+    /**
+     * Saves the PGM graph to a file.
+     *
+     * @param filePath            destination path of the file
+     * @param filename            filename
+     * @param idxNodesToHighlight indexes of the nodes to highlight
+     */
+    void saveGraph(String filePath, String filename, List<Integer> idxNodesToHighlight);
 
     /**
      * Modifies the structure of the PGM by changing the parents of the nodes.

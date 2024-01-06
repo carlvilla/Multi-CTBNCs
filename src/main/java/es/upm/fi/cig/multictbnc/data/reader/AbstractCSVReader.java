@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  * @author Carlos Villa Blanco
  */
 public abstract class AbstractCSVReader implements DatasetReader {
+	private static final Logger logger = LogManager.getLogger(AbstractCSVReader.class);
 	String datasetFolder;
 	List<String> nameVariables;
 	String nameTimeVariable;
@@ -28,7 +29,6 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	// Flag variable to know if the dataset needs to be reloaded
 	boolean outdatedDataset;
 	boolean removeZeroVarianceVariables;
-	private static final Logger logger = LogManager.getLogger(AbstractCSVReader.class);
 
 	/**
 	 * Receives the path to the dataset folder and initialises the reader as out-of-date. In that way, the dataset will
@@ -40,11 +40,9 @@ public abstract class AbstractCSVReader implements DatasetReader {
 		this.datasetFolder = datasetFolder;
 		this.outdatedDataset = true;
 		this.removeZeroVarianceVariables = true;
-	}
-
-	@Override
-	public void removeZeroVarianceVariables(boolean removeZeroVarianceVariables) {
-		this.removeZeroVarianceVariables = removeZeroVarianceVariables;
+		this.nameClassVariables = new ArrayList<>();
+		this.nameVariables = new ArrayList<>();
+		this.excludeVariables = new ArrayList<>();
 	}
 
 	/**
@@ -129,8 +127,55 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	}
 
 	@Override
+	public List<String> getNameClassVariables() {
+		return this.nameClassVariables;
+	}
+
+	@Override
+	public List<String> getNameFeatureVariables() {
+		List<String> nameFeatureVariables = new ArrayList<>(this.nameVariables);
+		nameFeatureVariables.remove(this.nameTimeVariable);
+		nameFeatureVariables.removeAll(this.nameClassVariables);
+		nameFeatureVariables.removeAll(this.excludeVariables);
+		return nameFeatureVariables;
+	}
+
+	@Override
+	public String getNameTimeVariable() {
+		return this.nameTimeVariable;
+	}
+
+	@Override
+	public List<String> getNameVariables() {
+		return this.nameVariables;
+	}
+
+	@Override
+	public boolean isDatasetOutdated() {
+		return this.outdatedDataset;
+	}
+
+	@Override
 	public Dataset readDataset(int numFiles) throws UnreadDatasetException {
 		throw new NotImplementedException("Feature not yet implemented");
+	}
+
+	@Override
+	public void removeZeroVarianceVariables(boolean removeZeroVarianceVariables) {
+		this.removeZeroVarianceVariables = removeZeroVarianceVariables;
+	}
+
+	@Override
+	public void setDatasetAsOutdated(boolean outdated) {
+		this.outdatedDataset = outdated;
+	}
+
+	@Override
+	public void setTimeAndClassVariables(String nameTimeVariable, List<String> nameClassVariables) {
+		this.nameTimeVariable = nameTimeVariable;
+		this.nameClassVariables = nameClassVariables;
+		this.excludeVariables = new ArrayList<>();
+		setDatasetAsOutdated(true);
 	}
 
 	@Override
@@ -144,9 +189,8 @@ public abstract class AbstractCSVReader implements DatasetReader {
 	}
 
 	@Override
-	public void setTimeAndClassVariables(String nameTimeVariable, List<String> nameClassVariables) {
+	public void setTimeVariable(String nameTimeVariable) {
 		this.nameTimeVariable = nameTimeVariable;
-		this.nameClassVariables = nameClassVariables;
 		this.excludeVariables = new ArrayList<>();
 		setDatasetAsOutdated(true);
 	}
@@ -179,40 +223,6 @@ public abstract class AbstractCSVReader implements DatasetReader {
 		}
 		this.excludeVariables.removeAll(nameFeatureVariables);
 		setDatasetAsOutdated(true);
-	}
-
-	@Override
-	public String getNameTimeVariable() {
-		return this.nameTimeVariable;
-	}
-
-	@Override
-	public List<String> getNameClassVariables() {
-		return this.nameClassVariables;
-	}
-
-	@Override
-	public List<String> getNameFeatureVariables() {
-		List<String> nameFeatureVariables = new ArrayList<>(this.nameVariables);
-		nameFeatureVariables.remove(this.nameTimeVariable);
-		nameFeatureVariables.removeAll(this.nameClassVariables);
-		nameFeatureVariables.removeAll(this.excludeVariables);
-		return nameFeatureVariables;
-	}
-
-	@Override
-	public List<String> getNameVariables() {
-		return this.nameVariables;
-	}
-
-	@Override
-	public void setDatasetAsOutdated(boolean outdated) {
-		this.outdatedDataset = outdated;
-	}
-
-	@Override
-	public boolean isDatasetOutdated() {
-		return this.outdatedDataset;
 	}
 
 	private void closeReader(Closeable reader) {

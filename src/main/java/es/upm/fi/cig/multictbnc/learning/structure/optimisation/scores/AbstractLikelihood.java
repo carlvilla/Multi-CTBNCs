@@ -1,6 +1,5 @@
 package es.upm.fi.cig.multictbnc.learning.structure.optimisation.scores;
 
-import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
@@ -13,9 +12,6 @@ import java.util.function.DoubleUnaryOperator;
 public class AbstractLikelihood {
 	String penalisationFunction;
 	Map<String, DoubleUnaryOperator> penalisationFunctionMap = new HashMap<>() {
-		@Serial
-		private static final long serialVersionUID = 1L;
-
 		{
 			put("BIC", N -> Math.log(N) / 2);
 			put("AIC", N -> 1.0);

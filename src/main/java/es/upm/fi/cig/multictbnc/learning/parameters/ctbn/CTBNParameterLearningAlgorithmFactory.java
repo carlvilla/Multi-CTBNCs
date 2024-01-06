@@ -16,10 +16,13 @@ public class CTBNParameterLearningAlgorithmFactory {
 	 * @return parameter learning algorithm
 	 */
 	public static CTBNParameterLearningAlgorithm getAlgorithm(String algorithm, Double mxyHP, Double txHP) {
-		if ("Bayesian estimation".equals(algorithm)) {
-			return new CTBNBayesianEstimation(mxyHP, txHP);
-		}// Maximum likelihood estimation
-		return new CTBNMaximumLikelihoodEstimation();
+		switch (algorithm) {
+			case ("Bayesian estimation"):
+				return new CTBNBayesianEstimation(mxyHP, txHP);
+			default:
+				// Maximum likelihood estimation
+				return new CTBNMaximumLikelihoodEstimation();
+		}
 	}
 
 }

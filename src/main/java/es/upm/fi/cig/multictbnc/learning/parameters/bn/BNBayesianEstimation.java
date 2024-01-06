@@ -18,7 +18,7 @@ import java.util.Map;
 public class BNBayesianEstimation extends BNParameterLearningAlgorithm {
 	private static final Logger logger = LogManager.getLogger(BNBayesianEstimation.class);
 	// Hyperparameters of the Dirichlet prior distribution
-	private final double nxHP;
+	private double nxHP;
 
 	/**
 	 * Receives the hyperparameter of the Dirichlet prior distribution over the parameters (i.e. imaginary counts).

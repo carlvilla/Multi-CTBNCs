@@ -1,11 +1,15 @@
 module:es.upm.fi.cig.multictbnc
 es.upm.fi.cig.multictbnc
 es.upm.fi.cig.multictbnc.classification
+es.upm.fi.cig.multictbnc.conceptdriftdetection
 es.upm.fi.cig.multictbnc.data.reader
 es.upm.fi.cig.multictbnc.data.representation
 es.upm.fi.cig.multictbnc.data.writer
 es.upm.fi.cig.multictbnc.exceptions
 es.upm.fi.cig.multictbnc.experiments
+es.upm.fi.cig.multictbnc.experiments.implementationsexperiments
+es.upm.fi.cig.multictbnc.experiments.implementationsexperiments.featurestreamexperiments
+es.upm.fi.cig.multictbnc.fss
 es.upm.fi.cig.multictbnc.gui
 es.upm.fi.cig.multictbnc.learning
 es.upm.fi.cig.multictbnc.learning.parameters

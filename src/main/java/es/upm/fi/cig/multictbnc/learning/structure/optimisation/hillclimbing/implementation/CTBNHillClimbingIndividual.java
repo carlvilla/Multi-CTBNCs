@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Implements hill climbing algorithm for CTBNs. This class is used with scores that can be optimised by finding the
@@ -19,7 +20,8 @@ import java.util.*;
 public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 	private static final Logger logger = LogManager.getLogger(CTBNHillClimbingIndividual.class);
 	CTBNScoreFunction scoreFunction;
-	private int numEdgesTested = 0;
+	private AtomicInteger numEdgesTested;
+
 
 	/**
 	 * Constructor that receives the score function to optimise.
@@ -28,15 +30,7 @@ public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 	 */
 	public CTBNHillClimbingIndividual(CTBNScoreFunction scoreFunction) {
 		this.scoreFunction = scoreFunction;
-	}
-
-	/**
-	 * Returns the number of edges that have been evaluated so far.
-	 *
-	 * @return number of edges that have been evaluated so far
-	 */
-	public int getNumEdgesTested() {
-		return numEdgesTested;
+		this.numEdgesTested = new AtomicInteger();
 	}
 
 	@Override
@@ -230,14 +224,7 @@ public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 	 * Increases the number of evaluated edges in one.
 	 */
 	protected void increaseNumEdgesTested() {
-		this.numEdgesTested++;
-	}
-
-	/**
-	 * Sets to zero the number of evaluated edges.
-	 */
-	protected void resetNumEdgesTested() {
-		this.numEdgesTested = 0;
+		this.numEdgesTested.getAndIncrement();
 	}
 
 	/**
@@ -270,6 +257,22 @@ public class CTBNHillClimbingIndividual implements HillClimbingImplementation {
 		// The list is sorted to always obtain the same key given the same nodes
 		Collections.sort(idxParentNodes);
 		return computeKeyCache(idxParentNodes);
+	}
+
+	/**
+	 * Returns the number of edges that have been evaluated so far.
+	 *
+	 * @return number of edges that have been evaluated so far
+	 */
+	private AtomicInteger getNumEdgesTested() {
+		return numEdgesTested;
+	}
+
+	/**
+	 * Sets to zero the number of evaluated edges.
+	 */
+	private void resetNumEdgesTested() {
+		this.numEdgesTested = new AtomicInteger();
 	}
 
 }

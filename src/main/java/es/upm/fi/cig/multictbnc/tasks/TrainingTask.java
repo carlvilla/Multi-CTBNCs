@@ -14,8 +14,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class TrainingTask extends Task<Void> {
 	private final Logger logger = LogManager.getLogger(TrainingTask.class);
-	private final MultiCTBNC<?, ?> model;
-	private final DatasetReader datasetReader;
+	private MultiCTBNC<?, ?> model;
+	private DatasetReader datasetReader;
 
 	/**
 	 * Constructs a {@code TrainingTask} that receives an {@code MultiCTBNC} model and a {@code datasetReader}.

@@ -26,16 +26,16 @@ import java.util.Map;
  */
 public class ExcelExperimentsWriter extends MetricsWriter {
 	private static final Logger logger = LogManager.getLogger(ExcelExperimentsWriter.class);
-	private final String path = "results/experiments/";
-	private final XSSFWorkbook workbook;
-	private final XSSFSheet sheet;
+	private String path = "results/experiments/";
+	private XSSFWorkbook workbook;
+	private XSSFSheet sheet;
 	private FileOutputStream out = null;
 	private int numDatasets;
-	private final int numModels;
+	private int numModels;
 	private int idxCurrentDataset = 0;
 	private int idxCurrentModel = 0;
 	private int idxCurrentScoreFunction = 0;
-	private final List<String> metrics = List.of("Global accuracy", "Mean accuracy", "Macro-averaged precision",
+	private List<String> metrics = List.of("Global accuracy", "Mean accuracy", "Macro-averaged precision",
 			"Macro-averaged recall", "Macro-averaged F1 score", "Micro-averaged precision", "Micro-averaged recall",
 			"Micro-averaged F1 score", "Global Brier score", "Learning time", "Classification time");
 

@@ -19,10 +19,10 @@ import java.util.Arrays;
 public class MainSampling {
 	private static final Logger logger = LogManager.getLogger(MainSampling.class);
 	// Minimum and maximum values of the intensities
-	private static final int MININTENSITY = 1;
-	private static final int MAXINTENSITY = 3;
+	private static int MININTENSITY = 1;
+	private static int MAXINTENSITY = 3;
 	// Extreme probabilities (only for binary class variables)
-	private static final boolean FORCEEXTREMEPROB = false;
+	private static boolean FORCEEXTREMEPROB = false;
 
 	/**
 	 * Application entry point. Arguments are expected to include the following elements and in the described order:

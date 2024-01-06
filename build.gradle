@@ -62,6 +62,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
     testRuntimeOnly "org.junit.platform:junit-platform-commons:1.7.0"
     implementation 'org.jfxtras:jmetro:11.6.16'
+    implementation group: 'net.sf.py4j', name: 'py4j', version: '0.10.7'
 }
 
 javafx {
@@ -117,71 +118,73 @@ jlink {
 task runAllExperimentsVillaBlancoEtAl2021(type: GradleBuild) {
     group 'Experiments Villa-Blanco et al. 2021'
     description 'Runs all the experiments with the synthetic and energy datasets from Villa-Blanco et al. (2021)'
-    tasks = ['syntheticLL', 'syntheticBDe', 'emptyDigraphMultiCTBNCLL', 'emptyDigraphMultiCTBNCBDe', 'syntheticCLL', 'emptyDigraphMultiCTBNCCLL', 'energyBIC', 'energyBDe']
+    tasks = ['syntheticBIC', 'syntheticBDe', 'emptyDigraphMultiCTBNCBIC', 'emptyDigraphMultiCTBNCBDe', 'syntheticCLL', 'energy']
 }
 
-task syntheticLL(type: JavaExec) {
+double NX = 1;
+double MXY = 1; // 100
+double TX = 0.001; // 10
+
+task syntheticBIC(type: JavaExec) {
     group 'Experiments Villa-Blanco et al. 2021'
     description 'Runs synthetic experiments to compare the performance of CTBNCs and a Multi-CTBNC when they are learnt with the log-likpenalisedcore penalised with BIC'
     classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsMultiCTBNC')
-    args 'synthetic', 'CTBNCs', 'Multi-CTBNC', 'Log-likelihood', 'BIC'
-}
-
-task syntheticCLL(type: JavaExec) {
-    group 'Experiments Villa-Blanco et al. 2021'
-    description 'Runs synthetic experiments to compare the performance of CTBNCs and a Multi-CTBNC when they are learnt with the conditional log-likpenalisedcore penalised with BIC'
-    classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsMultiCTBNC')
-    args 'synthetic', 'CTBNCs', 'Multi-CTBNC', 'Conditional log-likelihood', 'BIC'
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'ModelComparisonExperiment', 'synthetic', 'CTBNCs', 'Multi-CTBNC', 'Log-likelihood', 'BIC', 'NX:' + NX + ',MXY:' + MXY + ',TX:' + TX, 'NX:' + NX + ',MXY:' + MXY + ',TX:' + TX
 }
 
 task syntheticBDe(type: JavaExec) {
     group 'Experiments Villa-Blanco et al. 2021'
     description 'Runs synthetic experiments to compare the performance of CTBNCs and a Multi-CTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
     classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsMultiCTBNC')
-    args 'synthetic', 'CTBNCs', 'Multi-CTBNC', 'Bayesian Dirichlet equivalent', 'No'
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'ModelComparisonExperiment', 'synthetic', 'CTBNCs', 'Multi-CTBNC', 'Bayesian Dirichlet equivalent', 'No', 'NX:' + NX + ',MXY:' + MXY + ',TX:' + TX, 'NX:' + NX + ',MXY:' + MXY + ',TX:' + TX
 }
 
-task energyBIC(type: JavaExec) {
+task syntheticCLL(type: JavaExec) {
     group 'Experiments Villa-Blanco et al. 2021'
-    description 'Runs experiments with the energy dataset to compare the performance of max1 CTBNCs and a DAG-max1 Multi-CTBNC when they are learnt with the BIC-penalised log-likelihood score'
+    description 'Runs synthetic experiments to compare the performance of CTBNCs and a Multi-CTBNC when they are learnt with the conditional log-likpenalisedcore penalised with BIC'
     classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsMultiCTBNC')
-    args 'energy', 'maxK CTBNCs', 'DAG-maxK Multi-CTBNC', 'Log-likelihood', 'BIC'
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'ModelComparisonExperiment', 'synthetic', 'CTBNCs', 'Multi-CTBNC', 'Conditional log-likelihood', 'BIC', 'NX:' + NX + ',MXY:' + MXY + ',TX:' + TX, 'NX:' + NX + ',MXY:' + MXY + ',TX:' + TX
+}
+
+task energy(type: GradleBuild) {
+    group 'Experiments Villa-Blanco et al. 2021'
+    description 'Runs experiments with the energy dataset to compare the performance of max1 CTBNCs and a DAG-max1 Multi-CTBNC'
+    tasks = ['energyBDe', 'energyBIC']
 }
 
 task energyBDe(type: JavaExec) {
     group 'Experiments Villa-Blanco et al. 2021'
     description 'Runs experiments with the energy dataset to compare the performance of max1 CTBNCs and a DAG-max1 Multi-CTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
     classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsMultiCTBNC')
-    args 'energy', 'maxK CTBNCs', 'DAG-maxK Multi-CTBNC', 'Bayesian Dirichlet equivalent', 'No'
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'ModelComparisonExperiment', 'energy', 'maxK CTBNCs', 'DAG-maxK Multi-CTBNC', 'Bayesian Dirichlet equivalent', 'No', 'NX:0.9793418164256431,MXY:16213611238,TX:3518089919', 'NX:1.1087762686269576,MXY:77279064795,TX:8627689908'
+}
+
+task energyBIC(type: JavaExec) {
+    group 'Experiments Villa-Blanco et al. 2021'
+    description 'Runs experiments with the energy dataset to compare the performance of max1 CTBNCs and a DAG-max1 Multi-CTBNC when they are learnt with the BIC-penalised log-likelihood score'
+    classpath sourceSets.main.runtimeClasspath
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'ModelComparisonExperiment', 'energy', 'maxK CTBNCs', 'DAG-maxK Multi-CTBNC', 'Log-likelihood', 'BIC', 'NX:0.9793418164256431,MXY:16213611238,TX:3518089919', 'NX:0.23883213488856875,MXY:99456137846,TX:15946003373'
+}
+
+task emptyDigraphMultiCTBNCBIC(type: JavaExec) {
+    group 'Experiments Villa-Blanco et al. 2021'
+    description 'Runs synthetic experiments to compare the performance of CTBNCs and an empty-digraph Multi-CTBNC when they are learnt with the BIC score'
+    classpath sourceSets.main.runtimeClasspath
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'ModelComparisonExperiment', 'synthetic', 'CTBNCs', 'Empty-digraph Multi-CTBNC', 'Log-likelihood', 'BIC', 'NX:' + NX + ',MXY:' + MXY + ',TX:' + TX, 'NX:' + NX + ',MXY:' + MXY + ',TX:' + TX
 }
 
 task emptyDigraphMultiCTBNCBDe(type: JavaExec) {
     group 'Experiments Villa-Blanco et al. 2021'
     description 'Runs synthetic experiments to compare the performance of CTBNCs and an empty-digraph Multi-CTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
     classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsMultiCTBNC')
-    args 'synthetic', 'CTBNCs', 'Empty-digraph Multi-CTBNC', 'Bayesian Dirichlet equivalent', 'No'
-}
-
-task emptyDigraphMultiCTBNCLL(type: JavaExec) {
-    group 'Experiments Villa-Blanco et al. 2021'
-    description 'Runs synthetic experiments to compare the performance of CTBNCs and an empty-digraph Multi-CTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
-    classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsMultiCTBNC')
-    args 'synthetic', 'CTBNCs', 'Empty-digraph Multi-CTBNC', 'Log-likelihood', 'BIC'
-}
-
-task emptyDigraphMultiCTBNCCLL(type: JavaExec) {
-    group 'Experiments Villa-Blanco et al. 2021'
-    description 'Runs synthetic experiments to compare the performance of CTBNCs and an empty-digraph Multi-CTBNC when they are learnt with the Bayesian Dirichlet equivalent score'
-    classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsMultiCTBNC')
-    args 'synthetic', 'CTBNCs', 'Empty-digraph Multi-CTBNC', 'Conditional log-likelihood', 'BIC'
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'ModelComparisonExperiment', 'synthetic', 'CTBNCs', 'Empty-digraph Multi-CTBNC', 'Bayesian Dirichlet equivalent', 'No', 'NX:' + NX + ',MXY:' + MXY + ',TX:' + TX, 'NX:' + NX + ',MXY:' + MXY + ',TX:' + TX
 }
 
 // ------------ TASKS FOR THE ARTICLE "CONSTRAINT-BASED AND HYBRID STRUCTURE LEARNING OF MULTIDIMENSIONAL CONTINUOUS-TIME BAYESIAN NETWORK CLASSIFIERS" ------------
@@ -190,48 +193,48 @@ task britishHouseholdPanelSurvey(type: JavaExec) {
     group 'Experiments Villa-Blanco et al. 2023'
     description 'Experiments to evaluate the performance of the structure learning algorithms on a real-world dataset'
     classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsStructureLearning')
-    args 'datasets/VillaBlancoEtAl2023/section_5_3_british_household_panel_survey', 'Hill climbing (BIC);Tabu search (BIC);Hill climbing (BDe);CTPC;MB-CTPC;Hybrid algorithm [size sep set = 2]', 'Dental check-up;Employment status;Limb, back or neck problems;Lives with spouse or partner;Responsible adult for child;Sex;Smoker'
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'StructureLearningAlgorithmsComparisonExperiment', 'datasets/VillaBlancoEtAl2023/section_5_3_british_household_panel_survey', 'Hill climbing (BIC);Tabu search (BIC);Hill climbing (BDe);CTPC;MB-CTPC;Hybrid algorithm [size sep set = 1];Hybrid algorithm [size sep set = 2]', 'Dental check-up;Employment status;Limb, back or neck problems;Lives with spouse or partner;Responsible adult for child;Sex;Smoker', '10;342;3523;463;699;676;29;113;698;921'
 }
 
 task highDimensionality(type: JavaExec) {
     group 'Experiments Villa-Blanco et al. 2023'
     description 'Experiments to evaluate the difference in learning time of the algorithms when the dimensionality of the datasets increase significantly'
     classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsStructureLearning')
-    args 'datasets/VillaBlancoEtAl2023/section_5_1_3_high_dimensionality', 'CTPC;MB-CTPC'
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'StructureLearningAlgorithmsComparisonExperiment', 'datasets/VillaBlancoEtAl2023/section_5_1_3_high_dimensionality', 'CTPC;MB-CTPC'
 }
 
 task increaseFeatureStates10Duration(type: JavaExec) {
     group 'Experiments Villa-Blanco et al. 2023'
     description 'Experiments to evaluate the influence of the cardinality of feature variables on the performance of algorithms when sequences have a duration of 10 time units'
     classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsStructureLearning')
-    args 'datasets/VillaBlancoEtAl2023/section_5_1_2_increase_feature_states_10_duration'
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'StructureLearningAlgorithmsComparisonExperiment', 'datasets/VillaBlancoEtAl2023/section_5_1_2_increase_feature_states_10_duration'
 }
 
 task increaseFeatureStates20Duration(type: JavaExec) {
     group 'Experiments Villa-Blanco et al. 2023'
     description 'Experiments to evaluate the influence of the cardinality of feature variables on the performance of algorithms when sequences have a duration of 20 time units'
     classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsStructureLearning')
-    args 'datasets/VillaBlancoEtAl2023/section_5_1_2_increase_feature_states_20_duration'
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'StructureLearningAlgorithmsComparisonExperiment', 'datasets/VillaBlancoEtAl2023/section_5_1_2_increase_feature_states_20_duration'
 }
 
 task mainExperiments(type: JavaExec) {
     group 'Experiments Villa-Blanco et al. 2023'
     description 'Comprehensive experiments over randomly generated datasets using different number of class and feature variables, cardinalities and density of the structures'
     classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsStructureLearning')
-    args 'datasets/VillaBlancoEtAl2023/main_datasets'
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'StructureLearningAlgorithmsComparisonExperiment', 'datasets/VillaBlancoEtAl2023/main_datasets'
 }
 
 task noisyData(type: JavaExec) {
     group 'Experiments Villa-Blanco et al. 2023'
     description 'Experiments to evaluate the influence of noise on the performance of the structure learning algorithms'
     classpath sourceSets.main.runtimeClasspath
-    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperimentsStructureLearning')
-    args 'datasets/VillaBlancoEtAl2023/section_5_2_6_noisy_data'
+    mainClass.set('es.upm.fi.cig.multictbnc.experiments.MainExperiment')
+    args 'StructureLearningAlgorithmsComparisonExperiment', 'datasets/VillaBlancoEtAl2023/section_5_2_6_noisy_data', 'CTPC;MB-CTPC'
 }
 
 task runAllSyntheticExperimentsVillaBlancoEtAl2023(type: GradleBuild) {
@@ -240,8 +243,261 @@ task runAllSyntheticExperimentsVillaBlancoEtAl2023(type: GradleBuild) {
     tasks = ['mainExperiments', 'increaseFeatureStates10Duration', 'increaseFeatureStates20Duration', 'highDimensionality', 'noisyData']
 }
 
+// ------------ TASKS FOR THE CHAPTER 8 OF THE THESIS ------------
+boolean showCharts = false
+boolean resetAfterConceptDrift = true
+int windowSize = 0
+int batchSize = 1000
+String classVariables = "C1;C2;C3;C4";
+String detectionThresholds = "1.2;1.4;1.6;1.8;2.0"
+int magnitudeThreshold = 1
+String penalisationFunctionConceptDriftScore = "No"
+
+task stationaryDataStreamNoUpdate(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description ''
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'data stream', 'datasets/chapter8/data_stream/no_concept_drift', batchSize, 'NO_UPDATE', detectionThresholds, magnitudeThreshold, resetAfterConceptDrift, windowSize, classVariables, penalisationFunctionConceptDriftScore, showCharts
+}
+
+task stationaryDataStreamLocalUpdate(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description ''
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'data stream', 'datasets/chapter8/data_stream/no_concept_drift', batchSize, 'LOCAL', detectionThresholds, magnitudeThreshold, resetAfterConceptDrift, windowSize, classVariables, penalisationFunctionConceptDriftScore, showCharts
+}
+
+task stationaryDataStreamGlobalUpdate(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description ''
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'data stream', 'datasets/chapter8/data_stream/no_concept_drift', batchSize, 'GLOBAL', detectionThresholds, magnitudeThreshold, resetAfterConceptDrift, windowSize, classVariables, penalisationFunctionConceptDriftScore, showCharts
+}
+
+task gradualDataStreamNoUpdate(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description ''
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'data stream', 'datasets/chapter8/data_stream/gradual_concept_drift', batchSize, 'NO_UPDATE', detectionThresholds, magnitudeThreshold, resetAfterConceptDrift, windowSize, classVariables, penalisationFunctionConceptDriftScore, showCharts
+}
+
+task gradualDataStreamLocalUpdate(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description ''
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'data stream', 'datasets/chapter8/data_stream/gradual_concept_drift', batchSize, 'LOCAL', detectionThresholds, magnitudeThreshold, resetAfterConceptDrift, windowSize, classVariables, penalisationFunctionConceptDriftScore, showCharts
+}
+
+task gradualDataStreamGlobalUpdate(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description ''
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'data stream', 'datasets/chapter8/data_stream/gradual_concept_drift', batchSize, 'GLOBAL', detectionThresholds, magnitudeThreshold, resetAfterConceptDrift, windowSize, classVariables, penalisationFunctionConceptDriftScore, showCharts
+}
+
+task abruptDataStreamNoUpdate(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description ''
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'data stream', 'datasets/chapter8/data_stream/abrupt_concept_drift', batchSize, 'NO_UPDATE', detectionThresholds, magnitudeThreshold, resetAfterConceptDrift, windowSize, classVariables, penalisationFunctionConceptDriftScore, showCharts
+}
+
+task abruptDataStreamLocalUpdate(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description ''
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'data stream', 'datasets/chapter8/data_stream/abrupt_concept_drift', batchSize, 'LOCAL', detectionThresholds, magnitudeThreshold, resetAfterConceptDrift, windowSize, classVariables, penalisationFunctionConceptDriftScore, showCharts
+}
+
+task abruptDataStreamGlobalUpdate(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description ''
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'data stream', 'datasets/chapter8/data_stream/abrupt_concept_drift', batchSize, 'GLOBAL', detectionThresholds, magnitudeThreshold, resetAfterConceptDrift, windowSize, classVariables, penalisationFunctionConceptDriftScore, showCharts
+}
+
+task featureStreamExperiment25featuresBatchTraining(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 25 feature variables using batch training'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/25_features', classVariables, "true", "Batch"
+}
+
+task featureStreamExperiment25featuresBatchTrainingWithOFSS(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 25 feature variables using batch training with online FSS'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/25_features', classVariables, "true", "Batch(FSS)"
+}
+
+task featureStreamExperiment25featuresModelRetraining(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 25 feature variables using model retraining'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/25_features', classVariables, "true", "Retraining"
+}
+
+task featureStreamExperiment25featuresModelRetrainingWithOFSS(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 25 feature variables using model retraining with online FSS'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/25_features', classVariables, "true", "Retraining(FSS)"
+}
+
+task featureStreamExperiment50featuresBatchTraining(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 50 feature variables using batch training'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/50_features', classVariables, "true", "Batch"
+}
+
+task featureStreamExperiment50featuresBatchTrainingWithOFSS(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 50 feature variables using batch training with online FSS'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/50_features', classVariables, "true", "Batch(FSS)"
+}
+
+task featureStreamExperiment50featuresModelRetraining(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 50 feature variables using model retraining'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/50_features', classVariables, "true", "Retraining"
+}
+
+task featureStreamExperiment50featuresModelRetrainingWithOFSS(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 50 feature variables using model retraining with online FSS'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/50_features', classVariables, "true", "Retraining(FSS)"
+}
+
+task featureStreamExperiment75featuresBatchTraining(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 75 feature variables using batch training'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/75_features', classVariables, "true", "Batch"
+}
+
+task featureStreamExperiment75featuresBatchTrainingWithOFSS(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 75 feature variables using batch training with online FSS'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/75_features', classVariables, "true", "Batch(FSS)"
+}
+
+task featureStreamExperiment75featuresModelRetraining(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 75 feature variables using model retraining'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/75_features', classVariables, "true", "Retraining"
+}
+
+task featureStreamExperiment75featuresModelRetrainingWithOFSS(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 75 feature variables using model retraining with online FSS'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/75_features', classVariables, "true", "Retraining(FSS)"
+}
+
+task featureStreamExperiment100featuresBatchTraining(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 100 feature variables using batch training'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/100_features', classVariables, "true", "Batch"
+}
+
+task featureStreamExperiment100featuresBatchTrainingWithOFSS(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 100 feature variables using batch training with online FSS'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/100_features', classVariables, "true", "Batch(FSS)"
+}
+
+task featureStreamExperiment100featuresModelRetraining(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 100 feature variables using model retraining'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/100_features', classVariables, "true", "Retraining"
+}
+
+task featureStreamExperiment100featuresModelRetrainingWithOFSS(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 100 feature variables using model retraining with online FSS'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/100_features', classVariables, "true", "Retraining(FSS)"
+}
+
+task featureStreamExperiment125featuresBatchTraining(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 125 feature variables using batch training'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/125_features', classVariables, "true", "Batch"
+}
+
+task featureStreamExperiment125featuresBatchTrainingWithOFSS(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 125 feature variables using batch training with online FSS'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/125_features', classVariables, "true", "Batch(FSS)"
+}
+
+task featureStreamExperiment125featuresModelRetraining(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 125 feature variables using model retraining'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/125_features', classVariables, "true", "Retraining"
+}
+
+task featureStreamExperiment125featuresModelRetrainingWithOFSS(type: JavaExec) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Experiment that process a feature stream with a total of 125 feature variables using model retraining with online FSS'
+    classpath sourceSets.main.runtimeClasspath
+    main 'es.upm.fi.cig.multictbnc.experiments.MainExperiment'
+    args 'LearningStreamExperiment', 'feature stream', 'datasets/chapter8/feature_stream/125_features', classVariables, "true", "Retraining(FSS)"
+}
+
+task runAllExperimentsDataStreams(type: GradleBuild) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Runs all the experiments over data streams'
+    tasks = ['gradualDataStreamLocalUpdate', 'gradualDataStreamGlobalUpdate', 'stationaryDataStreamNoUpdate', 'stationaryDataStreamLocalUpdate', 'stationaryDataStreamGlobalUpdate', 'abruptDataStreamNoUpdate', 'abruptDataStreamLocalUpdate', 'abruptDataStreamGlobalUpdate']
+}
+
+task runAllExperimentsFeatureStreams(type: GradleBuild) {
+    group 'Experiments chapter 8 dissertation'
+    description 'Runs all the experiments over feature streams'
+    tasks = ["featureStreamExperiment25featuresModelRetrainingWithOFSS", "featureStreamExperiment50featuresModelRetrainingWithOFSS", "featureStreamExperiment25featuresBatchTrainingWithOFSS", "featureStreamExperiment25featuresBatchTraining", "featureStreamExperiment25featuresModelRetraining", "featureStreamExperiment50featuresBatchTraining", "featureStreamExperiment50featuresBatchTrainingWithOFSS", "featureStreamExperiment50featuresModelRetraining", "featureStreamExperiment75featuresBatchTraining", "featureStreamExperiment75featuresBatchTrainingWithOFSS", "featureStreamExperiment75featuresModelRetraining", "featureStreamExperiment75featuresModelRetrainingWithOFSS", "featureStreamExperiment100featuresBatchTrainingWithOFSS", "featureStreamExperiment100featuresModelRetrainingWithOFSS", "featureStreamExperiment125featuresBatchTrainingWithOFSS", "featureStreamExperiment125featuresModelRetrainingWithOFSS"]
+}
+
 // ------------ SAMPLING DATASETS ------------
-OperatingSystem os = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem;
 
 task sampleDatasetsVillaBlancoEtAl2021 {
     group 'Sampling'
@@ -249,7 +505,7 @@ task sampleDatasetsVillaBlancoEtAl2021 {
     doLast {
         exec {
             workingDir "${projectDir}"
-            if (os.isWindows()) {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine "${projectDir}/src/main/resources/samplingdatasets/sampleDatasetsVillaBlancoEtAl2021.bat"
             } else {
                 executable 'sh'
@@ -259,9 +515,9 @@ task sampleDatasetsVillaBlancoEtAl2021 {
     }
 }
 
-task sampleDatasetsVillaBlancoEtAl2023 {
+task sampleDatasetsVillaBlancoEtAl2022 {
     group 'Sampling'
-    description 'Samples synthetic datasets as in Villa-Blanco et al. (2023)'
+    description 'Samples synthetic datasets as in Villa-Blanco et al. (2022) and Villa-Blanco et al. (2023)'
     doLast {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -279,4 +535,18 @@ task sampleDatasets(type: JavaExec) {
     description 'Samples discrete state multi-variate time series datasets with multiple class variables'
     classpath sourceSets.main.runtimeClasspath
     mainClass.set('es.upm.fi.cig.multictbnc.sampling.MainSampling')
+}
+
+task sampleDataStreams(type: JavaExec) {
+    group 'Sampling'
+    description 'Samples synthetic data streams'
+    classpath sourceSets.main.runtimeClasspath
+    mainClass.set('es.upm.fi.cig.multictbnc.sampling.MainDataStreamSampling')
+}
+
+task sampleFeatureStreams(type: JavaExec) {
+    group 'Sampling'
+    description 'Samples synthetic feature streams'
+    classpath sourceSets.main.runtimeClasspath
+    mainClass.set('es.upm.fi.cig.multictbnc.sampling.MainFeatureStreamSampling')
 }

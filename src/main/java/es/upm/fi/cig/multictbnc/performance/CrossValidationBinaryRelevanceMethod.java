@@ -33,12 +33,12 @@ import java.util.stream.IntStream;
  * @author Carlos Villa Blanco
  */
 public class CrossValidationBinaryRelevanceMethod extends ValidationMethod {
-	private final Logger logger = LogManager.getLogger(CrossValidationMethod.class);
-	private final Dataset dataset;
-	private final int folds;
-	private final boolean estimateProbabilities;
-	private final boolean shuffle;
-	private final long seed;
+	private final Logger logger = LogManager.getLogger(CrossValidationBinaryRelevanceMethod.class);
+	private Dataset dataset;
+	private int folds;
+	private boolean estimateProbabilities;
+	private boolean shuffle;
+	private long seed;
 	private double lastLearningTimeModelsSeconds;
 
 	/**
@@ -226,13 +226,16 @@ public class CrossValidationBinaryRelevanceMethod extends ValidationMethod {
 			MultiCTBNC<?, ?> modelCV = ClassifierFactory.getMultiCTBNC(model.getModelIdentifier(), bnLearningAlgs,
 					ctbnLearningAlgs, model.getHyperparameters(), model.getTypeNodeClassVariable(),
 					model.getTypeNodeFeature());
-			modelCV.setIntialStructure(model.getInitialStructure());
+			modelCV.setInitialStructure(model.getInitialStructure());
 			models.add(modelCV);
 			// Define a training dataset that ignores all class variables except one
 			Dataset dataset = new Dataset(trainingDataset.getSequences());
 			List<String> nameClassVariables = new ArrayList<>(nameCVs);
 			nameClassVariables.remove(nameCVs.get(i));
 			dataset.setIgnoredClassVariables(nameClassVariables);
+			// Warn the new dataset about all the possible states the variables can take
+			// (categorical variables are assumed for now)
+			dataset.setStatesVariables(trainingDataset.getStatesVariables());
 			datasets.add(dataset);
 		}
 		// Train models in parallel

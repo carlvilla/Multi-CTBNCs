@@ -335,8 +335,8 @@ class ClassificationTest {
 						+ (-0.03 * (0.3) + Math.log(0.03)) + (-3.33 * (0.31 - 0.3)) + (-3.33 * (0.6 - 0.31)) +
 						(-3.33 * (0.9 - 0.6)) + (-3.33 * (1.2 - 0.9)) + (-3.33 * (1.5 - 1.2)) + (-3.33 * (1.8 - 1.5));
 		// Marginal log-likelihood of sequence 1
-		double mll = ulpAA +
-				Math.log(Math.exp(0.0) + Math.exp(ulpAB - ulpAA) + Math.exp(ulpBA - ulpAA) + Math.exp(ulpBB - ulpAA));
+		double mll = ulpAA + Math.log(
+				Math.exp(ulpAA - ulpAA) + Math.exp(ulpAB - ulpAA) + Math.exp(ulpBA - ulpAA) + Math.exp(ulpBB - ulpAA));
 		// Probability of each class configuration
 		double expectedProbabilityAA = Math.exp(ulpAA - mll);
 		double expectedProbabilityAB = Math.exp(ulpAB - mll);

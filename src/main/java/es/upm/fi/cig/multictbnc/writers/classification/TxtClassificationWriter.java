@@ -6,10 +6,7 @@ import es.upm.fi.cig.multictbnc.data.representation.State;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -33,7 +30,7 @@ public class TxtClassificationWriter {
 		File file = new File(pathFolder + fileName);
 		file.getParentFile().mkdirs();
 		try {
-			PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8);
+			PrintWriter writer = new PrintWriter(file, "UTF-8");
 			for (int i = 0; i < predictions.length; i++) {
 				String fileSequence = dataset.getSequences().get(i).getFilePath();
 				State predictedCC = predictions[i].getPredictedClasses();

@@ -14,8 +14,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class EvaluationTask extends Task<Void> {
 	private final Logger logger = LogManager.getLogger(EvaluationTask.class);
-	private final ValidationMethod validationMethod;
-	private final MultiCTBNC<?, ?> model;
+	private ValidationMethod validationMethod;
+	private MultiCTBNC<?, ?> model;
 
 	/**
 	 * Constructs an {@code EvaluationTask} that receives a {@code ValidationMethod} and an {@code MultiCTBNC} model.

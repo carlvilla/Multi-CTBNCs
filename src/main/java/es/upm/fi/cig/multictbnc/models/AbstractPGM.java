@@ -8,9 +8,10 @@ import es.upm.fi.cig.multictbnc.learning.structure.constraints.StructureConstrai
 import es.upm.fi.cig.multictbnc.nodes.Node;
 import es.upm.fi.cig.multictbnc.nodes.NodeFactory;
 import es.upm.fi.cig.multictbnc.nodes.NodeIndexer;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
+import javafx.scene.image.WritableImage;
 import javafx.stage.Stage;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.graphstream.graph.Graph;
@@ -19,6 +20,12 @@ import org.graphstream.ui.fx_viewer.FxViewPanel;
 import org.graphstream.ui.fx_viewer.FxViewer;
 import org.graphstream.ui.javafx.FxGraphRenderer;
 
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,121 +63,6 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
         this.nameVariables = new ArrayList<>();
         for (Node node : nodes)
             this.nameVariables.add(node.getName());
-    }
-
-    /**
-     * Common initialisation for PGMs. The provided dataset is used to learn the model. References to the provided
-     * nodes
-     * are stored.
-     *
-     * @param nodes   nodes of the PGM
-     * @param dataset dataset used to learn the model
-     */
-    public AbstractPGM(List<NodeType> nodes, Dataset dataset) {
-        addNodes(nodes, true);
-        this.nameVariables = new ArrayList<>();
-        for (Node node : nodes)
-            this.nameVariables.add(node.getName());
-        this.dataset = dataset;
-    }
-
-    /**
-     * Default constructor.
-     */
-    public AbstractPGM() {
-    }
-
-    /**
-     * Returns the dataset used to learn the PGM.
-     *
-     * @return dataset
-     */
-    public Dataset getDataset() {
-        return this.dataset;
-    }
-
-    /**
-     * Returns the hyperparameters of the model the user sets.
-     *
-     * @return {@code a Map} with the hyperparameters
-     */
-    public Map<String, String> getHyperparameters() {
-        return Map.of();
-    }
-
-    /**
-     * Returns the names of the variables of the PGM.
-     *
-     * @return names of the variables
-     */
-    public List<String> getNameVariables() {
-        return this.nameVariables;
-    }
-
-    /**
-     * Returns the type of the nodes.
-     *
-     * @return type of the nodes
-     */
-    @SuppressWarnings("unchecked")
-    public Class<NodeType> getNodeClass() {
-        if (this.nodeClass != null)
-            return this.nodeClass;
-        return (Class<NodeType>) getNodes().get(0).getClass();
-    }
-
-    /**
-     * Returns the constraints that the PGM needs to meet.
-     *
-     * @return structure constraints
-     */
-    public StructureConstraints getStructureConstraints() {
-        return this.structureConstraints;
-    }
-
-    /**
-     * Returns the algorithm used to learn the structure of the PGM.
-     *
-     * @return structure learning algorithm
-     */
-    public StructureLearningAlgorithm getStructureLearningAlg() {
-        return this.structureLearningAlg;
-    }
-
-    /**
-     * Set the dataset used to learn the PGM.
-     *
-     * @param dataset dataset
-     */
-    public void setDataset(Dataset dataset) {
-        this.dataset = dataset;
-    }
-
-    /**
-     * Establishes the algorithm that will be used to learn the parameters of the PGM.
-     *
-     * @param parameterLearningAlg parameter learning algorithm
-     */
-    public void setParameterLearningAlgorithm(ParameterLearningAlgorithm parameterLearningAlg) {
-        this.parameterLearningAlg = parameterLearningAlg;
-    }
-
-    /**
-     * Establishes the constraints that the PGM needs to meet.
-     *
-     * @param structureConstraints structure constraints to take into account during the learning of the model
-     */
-    public void setStructureConstraints(StructureConstraints structureConstraints) {
-        this.structureConstraints = structureConstraints;
-    }
-
-    /**
-     * Establishes the algorithm that will be used to learn the structure of the PGM.
-     *
-     * @param structureLearningAlg structure learning algorithm
-     */
-    public void setStructureLearningAlgorithm(StructureLearningAlgorithm structureLearningAlg) {
-        this.structureLearningAlg = structureLearningAlg;
     }
 
     @Override
@@ -265,6 +157,11 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
     }
 
     @Override
+    public int getIndexOfNode(Node node) {
+        return this.nodeIndexer.getIndexNodeByName(node.getName());
+    }
+
+    @Override
     public NodeType getNodeByName(String nameVariable) {
         return getNodes().stream().filter(node -> node.getName().equals(nameVariable)).findFirst().orElse(null);
     }
@@ -340,13 +237,15 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 
     @Override
     public long learn(Dataset dataset) throws ErroneousValueException {
+        Instant start = Instant.now();
         initialiseModel(dataset);
         learn();
-        return -1;
+        Instant end = Instant.now();
+        return Duration.between(start, end).toMillis();
     }
 
     @Override
-    public void learn(Dataset dataset, int idxNode) {
+    public void learn(Dataset dataset, int idxNode) throws ErroneousValueException {
         // Save the dataset used to learn the model
         this.dataset = dataset;
         // Learn structure and parameters with the specified algorithms
@@ -354,11 +253,13 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
     }
 
     @Override
-    public void learn(Dataset dataset, List<Integer> idxNodes) {
-        // Save the dataset used to learn the model
-        this.dataset = dataset;
-        // Learn structure and parameters with the specified algorithms
-        this.structureLearningAlg.learn(this, idxNodes);
+    public void learn(Dataset dataset, List<Integer> idxNodes) throws ErroneousValueException {
+        if (idxNodes != null && !idxNodes.isEmpty()) {
+            // Save the dataset used to learn the model
+            this.dataset = dataset;
+            // Learn structure and parameters with the specified algorithms
+            this.structureLearningAlg.learn(this, idxNodes);
+        }
     }
 
     @Override
@@ -417,6 +318,25 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
     }
 
     @Override
+    public void saveGraph(String destinationPath, String filename, List<Integer> idxNodesToHighlight) {
+        if (getNodes() != null && !getNodes().isEmpty()) {
+            Stage stage = createStage(filename, idxNodesToHighlight);
+            // Save stage
+            WritableImage snapshot = stage.getScene().snapshot(null);
+            File f = new File(destinationPath);
+            f.mkdirs();
+            String pathImage = Paths.get(destinationPath, filename + ".png").toString();
+            try {
+                ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", new File(pathImage));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            logger.warn("The model graph cannot be saved as it does not contain nodes");
+        }
+    }
+
+    @Override
     public void setStructure(boolean[][] adjacencyMatrix) {
         removeAllEdges();
         for (int i = 0; i < adjacencyMatrix.length; i++) {
@@ -431,12 +351,14 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
 
     @Override
     public void setStructure(int idxNode, boolean[][] adjacencyMatrix) {
-        throw new NotImplementedException("Feature not yet implemented");
+        // TODO set entire structure for now
+        setStructure(adjacencyMatrix);
     }
 
     @Override
-    public void setStructure(List<Integer> idxNodes, boolean[][] structureFound) {
-        throw new NotImplementedException("Feature not yet implemented");
+    public void setStructure(List<Integer> idxNodes, boolean[][] adjacencyMatrix) {
+        // TODO set entire structure for now
+        setStructure(adjacencyMatrix);
     }
 
     @Override
@@ -462,61 +384,6 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
             // All nodes must have their parameters estimated
             setStructure(newAdjacencyMatrix);
             learnParameters();
-        }
-    }
-
-    /**
-     * Returns a {@code NodeFactory} for the nodes of the PGM.
-     *
-     * @return a {@code NodeFactory}
-     */
-    protected NodeFactory<NodeType> getNodeFactory() {
-        if (this.nodeFactory == null)
-            this.nodeFactory = NodeFactory.createFactory(getNodeClass());
-        return this.nodeFactory;
-    }
-
-    /**
-     * Adds edges to a graphstream graph.
-     *
-     * @param graph graphstream graph
-     * @param nodes nodes whose edges are added to the graph
-     */
-    private void addEdges(Graph graph, List<NodeType> nodes) {
-        for (Node node : nodes) {
-            String nameNode = node.getName();
-            for (Node parentNode : node.getParents()) {
-                String nameParent = parentNode.getName();
-                graph.addEdge(nameParent + nameNode, nameParent, nameNode, true);
-            }
-        }
-    }
-
-    /**
-     * Adds nodes to a graphstream graph.
-     *
-     * @param graph graphstream graph
-     * @param nodes list of nodes to add to the graph
-     */
-    private void addNodes(Graph graph, List<NodeType> nodes) {
-        // Variables used to determine the position of the node in the graph
-        int numClassVariables = 0;
-        int numFeatureVariables = 0;
-        for (int i = 0; i < nodes.size(); i++) {
-            // Retrieve node from the model
-            Node node = nodes.get(i);
-            String nameNode = node.getName();
-            // Create a node for the graph
-            org.graphstream.graph.Node nodeGraph = graph.addNode(nameNode);
-            nodeGraph.setAttribute("ui.label", nameNode);
-            // Display node differently depending on if it is a class variable or not
-            if (node.isClassVariable()) {
-                nodeGraph.setAttribute("y", (++numClassVariables) % 2 + 1);
-                nodeGraph.setAttribute("x", numClassVariables);
-            } else {
-                nodeGraph.setAttribute("y", -((++numFeatureVariables) % 3 + 1));
-                nodeGraph.setAttribute("x", numFeatureVariables);
-            }
         }
     }
 
@@ -555,6 +422,185 @@ public abstract class AbstractPGM<NodeType extends Node> implements PGM<NodeType
         addEdges(graph, getNodes());
         graph.setAttribute("ui.stylesheet", cssStyle);
         return graph;
+    }
+
+    /**
+     * Adds nodes to a graphstream graph.
+     *
+     * @param graph graphstream graph
+     * @param nodes list of nodes to add to the graph
+     */
+    private void addNodes(Graph graph, List<NodeType> nodes) {
+        // Variables used to determine the position of the node in the graph
+        int numClassVariables = 0;
+        int numFeatureVariables = 0;
+        for (int i = 0; i < nodes.size(); i++) {
+            // Retrieve node from the model
+            Node node = nodes.get(i);
+            String nameNode = node.getName();
+            // Create a node for the graph
+            org.graphstream.graph.Node nodeGraph = graph.addNode(nameNode);
+            nodeGraph.setAttribute("ui.label", nameNode);
+            // Display node differently depending on if it is a class variable or not
+            if (node.isClassVariable()) {
+                nodeGraph.setAttribute("y", (++numClassVariables) % 2 + 1);
+                nodeGraph.setAttribute("x", numClassVariables);
+            } else {
+                nodeGraph.setAttribute("y", -(((++numFeatureVariables) % 10) * 3 + 2));
+                nodeGraph.setAttribute("x", numFeatureVariables);
+            }
+        }
+    }
+
+    /**
+     * Adds edges to a graphstream graph.
+     *
+     * @param graph graphstream graph
+     * @param nodes nodes whose edges are added to the graph
+     */
+    private void addEdges(Graph graph, List<NodeType> nodes) {
+        for (Node node : nodes) {
+            String nameNode = node.getName();
+            for (Node parentNode : node.getParents()) {
+                String nameParent = parentNode.getName();
+                graph.addEdge(nameParent + nameNode, nameParent, nameNode, true);
+            }
+        }
+    }
+
+    /**
+     * Returns a {@code NodeFactory} for the nodes of the PGM.
+     *
+     * @return a {@code NodeFactory}
+     */
+    protected NodeFactory<NodeType> getNodeFactory() {
+        if (this.nodeFactory == null)
+            this.nodeFactory = NodeFactory.createFactory(getNodeClass());
+        return this.nodeFactory;
+    }
+
+    /**
+     * Returns the type of the nodes.
+     *
+     * @return type of the nodes
+     */
+    @SuppressWarnings("unchecked")
+    public Class<NodeType> getNodeClass() {
+        if (this.nodeClass != null)
+            return this.nodeClass;
+        return (Class<NodeType>) getNodes().get(0).getClass();
+    }
+
+    /**
+     * Common initialisation for PGMs. The provided dataset is used to learn the model. References to the provided
+     * nodes
+     * are stored.
+     *
+     * @param nodes   nodes of the PGM
+     * @param dataset dataset used to learn the model
+     */
+    public AbstractPGM(List<NodeType> nodes, Dataset dataset) {
+        addNodes(nodes, true);
+        this.nameVariables = new ArrayList<>();
+        for (Node node : nodes)
+            this.nameVariables.add(node.getName());
+        this.dataset = dataset;
+    }
+
+    /**
+     * Default constructor.
+     */
+    public AbstractPGM() {
+    }
+
+    /**
+     * Returns the dataset used to learn the PGM.
+     *
+     * @return dataset
+     */
+    public Dataset getDataset() {
+        return this.dataset;
+    }
+
+    /**
+     * Set the dataset used to learn the PGM.
+     *
+     * @param dataset dataset
+     */
+    public void setDataset(Dataset dataset) {
+        this.dataset = dataset;
+    }
+
+    /**
+     * Returns the hyperparameters of the model the user sets.
+     *
+     * @return {@code a Map} with the hyperparameters
+     */
+    public Map<String, String> getHyperparameters() {
+        return Map.of();
+    }
+
+    /**
+     * Returns the names of the variables of the PGM.
+     *
+     * @return names of the variables
+     */
+    public List<String> getNameVariables() {
+        return this.nameVariables;
+    }
+    
+    /**
+     * Set the name of the variables in the PGM.
+     *
+     * @param nameVariables names of the variables
+     */
+    public void setNameVariables(List<String> nameVariables) {
+        this.nameVariables = new ArrayList<>(nameVariables);
+    }
+
+    /**
+     * Returns the constraints that the PGM needs to meet.
+     *
+     * @return structure constraints
+     */
+    public StructureConstraints getStructureConstraints() {
+        return this.structureConstraints;
+    }
+
+    /**
+     * Establishes the constraints that the PGM needs to meet.
+     *
+     * @param structureConstraints structure constraints to take into account during the learning of the model
+     */
+    public void setStructureConstraints(StructureConstraints structureConstraints) {
+        this.structureConstraints = structureConstraints;
+    }
+
+    /**
+     * Returns the algorithm used to learn the structure of the PGM.
+     *
+     * @return structure learning algorithm
+     */
+    public StructureLearningAlgorithm getStructureLearningAlg() {
+        return this.structureLearningAlg;
+    }
+
+    /**
+     * Establishes the algorithm that will be used to learn the parameters of the PGM.
+     *
+     * @param parameterLearningAlg parameter learning algorithm
+     */
+    public void setParameterLearningAlgorithm(ParameterLearningAlgorithm parameterLearningAlg) {
+        this.parameterLearningAlg = parameterLearningAlg;
+    }
+
+    /**
+     * Establishes the algorithm that will be used to learn the structure of the PGM.
+     *
+     * @param structureLearningAlg structure learning algorithm
+     */
+    public void setStructureLearningAlgorithm(StructureLearningAlgorithm structureLearningAlg) {
+        this.structureLearningAlg = structureLearningAlg;
     }
 
     /**

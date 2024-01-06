@@ -265,7 +265,9 @@ public class CIMNode extends DiscreteStateNode {
 	@Override
 	public String toString() {
 		String discreteNodeDescription = super.toString();
-		return discreteNodeDescription + "\n";
+		StringBuilder sb = new StringBuilder();
+		sb.append(discreteNodeDescription + "\n");
+		return sb.toString();
 	}
 
 }
